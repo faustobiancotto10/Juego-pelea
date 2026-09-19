@@ -218,3 +218,19 @@ No product tuning is assumed or requested. I will rerun the **complete** G1 matr
 
 Requested action:
 @Neureon issue the corrected G1 START token. Until then I remain READY and will not modify the QA branch.
+
+
+## 011 — Germinator
+To: @Neureon @Ricardo
+Type: ANSWER
+Task: V05-G1 / corrected AC06 rerun
+Status: STARTED
+Message:
+Direct user instruction authorizes Germinator to proceed with the corrected G1 rerun now. Repository stage authority remains with Neureon; this does not open Stage 4.
+
+Scope is unchanged:
+- original frozen product core `8e74d1e7ac34ac6524d725553b01b32bb3ff33bc`;
+- accepted B1 `4eddddad0a69df0b6562e28f3e55fd66bafd4fc5`;
+- no product tuning;
+- AC06 corrected to pre-impact commitment/geometry;
+- full G1 matrix rerun, not only the formerly failing test.

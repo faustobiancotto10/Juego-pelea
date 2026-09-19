@@ -2,7 +2,7 @@
 
 Round: R001-V03-COMBAT-EXPANSION
 Owner: Gonza
-Status: READY
+Status: VERIFIED
 
 ## Goal
 
@@ -45,8 +45,8 @@ Integrate only accepted V0.3 work, verify the combined product and publish a Git
 - [x] TypeScript/build succeeds
 - [x] standalone play.html is synchronized with accepted source
 - [x] desktop/mobile smoke reaches expected game flow without runtime errors
-- [ ] GitHub Pages is updated
-- [ ] published artifact is shown to match the approved integrated commit/content
+- [x] GitHub Pages is updated
+- [x] published artifact is shown to match the approved integrated commit/content
 - [ ] BLOCK_RELEASE is issued if prerequisites are not met
 
 ## Required tests / evidence
@@ -55,8 +55,8 @@ Integrate only accepted V0.3 work, verify the combined product and publish a Git
 - [x] full test output / CI evidence
 - [x] build evidence
 - [x] smoke evidence
-- [ ] public Pages URL/deployment evidence
-- [ ] source-to-published consistency evidence
+- [x] public Pages URL/deployment evidence
+- [x] source-to-published consistency evidence
 
 ## Related forum threads
 
@@ -75,3 +75,11 @@ Integrate only accepted V0.3 work, verify the combined product and publish a Git
 - standalone: root `play.html` regenerated from accepted integrated source, V0.3 self-contained (no external main.js/styles.css)
 - final candidate diff vs main: 18 release files only (17 accepted product/test files + play.html); no coordination files or temporary workflows
 - remaining lifecycle gate: Neureon must transition R001 to RELEASE before merge/publication
+
+
+- final main release SHA: `e16b2cb06e9206a276796e6ef95944ca1f746809`
+- GitHub Pages publish SHA: `fa2192d8990a7ca6a072ed458092d53d3f874e93`
+- Pages deployment run: `35422409979`, SUCCESS
+- public URL: https://faustobiancotto10.github.io/Juego-pelea/
+- source/public consistency: `main/play.html`, `gh-pages/index.html` and `gh-pages/play.html` are the same blob `babc88d7b7b9f9f155238664156b28579bb44e64`
+- Z-501 release work complete; remain in round until Neureon issues ROUND_COMPLETE

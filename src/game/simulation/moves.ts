@@ -34,20 +34,27 @@ export interface MoveDefinition {
 const moves: Record<FighterId, Record<string, MoveDefinition>> = {
   chameleon: {
     claw1: {
-      id: 'claw1', totalFrames: 20, cancelStart: 10, cancelEnd: 15, nextAttack: 'claw2',
-      hitbox: { start: 5, end: 7, offsetX: 24, width: 54, bottom: 28, top: 92, damage: 44, chipDamage: 3, hitstun: 11, blockstun: 8, knockback: 3.0, hitstop: 4, level: 'mid', strong: false, guardDamage: 9 },
+      id: 'claw1', totalFrames: 19, cancelStart: 10, cancelEnd: 14, nextAttack: 'claw2',
+      hitbox: { start: 5, end: 7, offsetX: 24, width: 72, bottom: 28, top: 92, damage: 46, chipDamage: 3, hitstun: 12, blockstun: 8, knockback: 3.2, hitstop: 4, level: 'mid', strong: false, guardDamage: 9 },
     },
     claw2: {
       id: 'claw2', totalFrames: 24,
       hitbox: { start: 6, end: 9, offsetX: 28, width: 66, bottom: 34, top: 100, damage: 58, chipDamage: 4, hitstun: 14, blockstun: 9, knockback: 4.5, hitstop: 5, level: 'mid', strong: true, guardDamage: 15 },
     },
     tongueStraight: {
-      id: 'tongueStraight', totalFrames: 30,
-      hitbox: { start: 9, end: 12, offsetX: 34, width: 305, bottom: 50, top: 95, damage: 92, chipDamage: 8, hitstun: 18, blockstun: 12, knockback: 7.4, hitstop: 6, level: 'mid', strong: true, guardDamage: 24 },
+      id: 'tongueStraight', totalFrames: 34,
+      hitbox: { start: 10, end: 13, offsetX: 34, width: 340, bottom: 50, top: 95, damage: 86, chipDamage: 8, hitstun: 18, blockstun: 12, knockback: 7.0, hitstop: 6, level: 'mid', strong: true, guardDamage: 24 },
     },
     tongueLow: {
-      id: 'tongueLow', totalFrames: 32,
-      hitbox: { start: 10, end: 13, offsetX: 35, width: 285, bottom: 10, top: 42, damage: 76, chipDamage: 7, hitstun: 17, blockstun: 12, knockback: 6.2, hitstop: 5, level: 'low', strong: true, guardDamage: 22 },
+      id: 'tongueLow', totalFrames: 35,
+      hitbox: { start: 11, end: 14, offsetX: 35, width: 318, bottom: 10, top: 42, damage: 74, chipDamage: 7, hitstun: 17, blockstun: 12, knockback: 6.0, hitstop: 5, level: 'low', strong: true, guardDamage: 22 },
+    },
+    coletazo: {
+      id: 'coletazo', totalFrames: 32,
+      hitbox: { start: 7, end: 10, offsetX: 18, width: 138, bottom: 20, top: 104, damage: 52, chipDamage: 4, hitstun: 13, blockstun: 10, knockback: 11.5, hitstop: 6, level: 'mid', strong: true, guardDamage: 18 },
+    },
+    camaleoniUltimate: {
+      id: 'camaleoniUltimate', totalFrames: 78,
     },
     airClaw: {
       id: 'airClaw', totalFrames: 22,
@@ -56,8 +63,8 @@ const moves: Record<FighterId, Record<string, MoveDefinition>> = {
   },
   supernariz: {
     nose1: {
-      id: 'nose1', totalFrames: 18, cancelStart: 10, cancelEnd: 14, nextAttack: 'nose2',
-      hitbox: { start: 4, end: 6, offsetX: 28, width: 78, bottom: 34, top: 106, damage: 42, chipDamage: 3, hitstun: 9, blockstun: 7, knockback: 2.5, hitstop: 3, level: 'mid', strong: false, guardDamage: 9 },
+      id: 'nose1', totalFrames: 20, cancelStart: 10, cancelEnd: 14, nextAttack: 'nose2',
+      hitbox: { start: 4, end: 6, offsetX: 28, width: 72, bottom: 34, top: 106, damage: 40, chipDamage: 3, hitstun: 9, blockstun: 7, knockback: 2.4, hitstop: 3, level: 'mid', strong: false, guardDamage: 9 },
     },
     nose2: {
       id: 'nose2', totalFrames: 19, cancelStart: 10, cancelEnd: 14, nextAttack: 'nose3',
@@ -72,7 +79,10 @@ const moves: Record<FighterId, Record<string, MoveDefinition>> = {
     },
     tramontana: {
       id: 'tramontana', totalFrames: 34, chillFrames: 90,
-      hitbox: { start: 8, end: 14, offsetX: 38, width: 205, bottom: 24, top: 112, damage: 38, chipDamage: 4, hitstun: 20, blockstun: 13, knockback: 8.0, hitstop: 4, level: 'mid', strong: true, guardDamage: 21 },
+      hitbox: { start: 8, end: 13, offsetX: 34, width: 155, bottom: 24, top: 112, damage: 48, chipDamage: 4, hitstun: 18, blockstun: 12, knockback: 5.5, hitstop: 5, level: 'mid', strong: true, guardDamage: 20 },
+    },
+    supernarizUltimate: {
+      id: 'supernarizUltimate', totalFrames: 84,
     },
     airNose: {
       id: 'airNose', totalFrames: 24,
@@ -94,6 +104,14 @@ export function getAttackStart(fighter: FighterId): MoveDefinition {
 export function getSpecialMove(fighter: FighterId, down: boolean): MoveDefinition {
   if (fighter === 'chameleon') return getMoveDefinition(fighter, down ? 'tongueLow' : 'tongueStraight');
   return getMoveDefinition(fighter, down ? 'tramontana' : 'chorizoThrow');
+}
+
+export function getCloseSpecialMove(fighter: FighterId): MoveDefinition {
+  return getMoveDefinition(fighter, fighter === 'chameleon' ? 'coletazo' : 'tramontana');
+}
+
+export function getUltimateMove(fighter: FighterId): MoveDefinition {
+  return getMoveDefinition(fighter, fighter === 'chameleon' ? 'camaleoniUltimate' : 'supernarizUltimate');
 }
 
 export function getAirAttack(fighter: FighterId): MoveDefinition {

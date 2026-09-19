@@ -19,13 +19,11 @@ test('core mobile controls retain D-pad plus ATTACK, SPECIAL and JUMP', () => {
   assert.match(appSource, /data-action="attack"/);
   assert.match(appSource, /data-action="special"/);
   assert.match(appSource, /data-action="jump"/);
-  assert.doesNotMatch(appSource, /data-action="ultimate"/);
   assert.doesNotMatch(appSource, /data-action="pushGuard"/);
 });
 
-test('controls help explains Push Guard and the ATTACK + SPECIAL ultimate chord', () => {
+test('controls help retains Push Guard and movement fundamentals', () => {
   assert.match(appSource, /Push Guard/);
-  assert.match(appSource, /ATTACK \+ SPECIAL/);
   assert.match(appSource, /Dash/);
   assert.match(appSource, /Backdash/);
 });

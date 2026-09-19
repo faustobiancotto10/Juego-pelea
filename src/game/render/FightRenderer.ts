@@ -11,7 +11,7 @@ interface Particle {
   life: number;
   maxLife: number;
   radius: number;
-  tone: 'warm' | 'cold' | 'block';
+  tone: 'warm' | 'cold' | 'block' | 'break';
 }
 
 export class FightRenderer {
@@ -33,6 +33,30 @@ export class FightRenderer {
   }
 
   private consumeEvent(event: CombatEvent, snapshot: MatchSnapshot): void {
+    if (event.type === 'guard-break') {
+      const defender = snapshot.fighters[event.defender];
+      const centerX = defender.x;
+      const centerY = GROUND_Y - defender.y - (defender.crouching ? 72 : 112);
+      const count = 24;
+      for (let i = 0; i < count; i += 1) {
+        const angle = (Math.PI * 2 * i) / count + (snapshot.frame % 5) * 0.08;
+        const speed = 4.2 + ((i * 29) % 9) * 0.28;
+        this.particles.push({
+          x: centerX,
+          y: centerY,
+          vx: Math.cos(angle) * speed,
+          vy: Math.sin(angle) * speed - 0.8,
+          life: 24,
+          maxLife: 24,
+          radius: 4.6,
+          tone: 'break',
+        });
+      }
+      this.shakeFrames = Math.max(this.shakeFrames, 6);
+      this.shakeStrength = Math.max(this.shakeStrength, 4.2);
+      this.trimParticles();
+      return;
+    }
     if (event.type !== 'hit') return;
     const defender = snapshot.fighters[event.defender];
     const attacker = snapshot.fighters[event.attacker];
@@ -60,6 +84,14 @@ export class FightRenderer {
     } else if (!event.blocked) {
       this.shakeFrames = Math.max(this.shakeFrames, 3);
       this.shakeStrength = Math.max(this.shakeStrength, 2.5);
+    }
+    this.trimParticles();
+  }
+
+  private trimParticles(): void {
+    const maxParticles = 120;
+    if (this.particles.length > maxParticles) {
+      this.particles.splice(0, this.particles.length - maxParticles);
     }
   }
 
@@ -145,7 +177,14 @@ export class FightRenderer {
       const alpha = p.life / p.maxLife;
       ctx.save();
       ctx.globalAlpha = alpha;
-      const color = p.tone === 'cold' ? '#b8edff' : p.tone === 'block' ? '#f1f4ff' : '#ffcf7e';
+      const color =
+        p.tone === 'cold'
+          ? '#b8edff'
+          : p.tone === 'block'
+            ? '#f1f4ff'
+            : p.tone === 'break'
+              ? '#ff6b65'
+              : '#ffcf7e';
       ellipse(ctx, p.x, p.y, p.radius * alpha + 1, p.radius * 0.65 * alpha + 0.8, color);
       ctx.restore();
     }

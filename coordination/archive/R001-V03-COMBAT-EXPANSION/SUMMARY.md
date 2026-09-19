@@ -1,7 +1,7 @@
 # R001 Archive — V0.3 Combat Expansion
 
 Round: R001-V03-COMBAT-EXPANSION
-Closure state: READY_FOR_ROUND_COMPLETE
+Closure state: ROUND_COMPLETE
 Date: 2026-09-19
 
 ## Goal
@@ -95,4 +95,4 @@ Process changes to keep:
 - archive full forum transcripts for post-round review.
 
 ## Closure token
-Pending Neureon issuance of `ROUND_COMPLETE`.
+`ROUND_COMPLETE` issued by Neureon after QA, release, archive and lock checks passed.

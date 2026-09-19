@@ -22,8 +22,10 @@ const COMMAND_BUFFER_FRAMES = 6;
 const DOWN_GRACE_SAMPLES = 4;
 
 const MAX_SUPER = 100;
-const SUPER_GAIN_DEALT = 0.12;
+const SUPER_GAIN_NORMAL_DEALT = 0.15;
+const SUPER_GAIN_SPECIAL_DEALT = 0.10;
 const SUPER_GAIN_RECEIVED = 0.055;
+const PUSH_GUARD_RECOVERY_FRAMES = 6;
 
 const BACKWARD_WALK_SCALE = 0.78;
 const FORWARD_DASH_FRAMES = 12;
@@ -445,6 +447,18 @@ export class CombatSimulation {
       return;
     }
 
+    if (fighter.pushGuardRecoveryFrames > 0) {
+      fighter.pushGuardRecoveryFrames -= 1;
+      fighter.blocking = false;
+      fighter.crouching = false;
+      fighter.dashKind = null;
+      fighter.dashFrame = 0;
+      fighter.vx *= 0.82;
+      this.integrateVertical(fighter, def.gravity);
+      this.clampFighter(fighter);
+      return;
+    }
+
     if (fighter.ultimatePhase !== 'idle') {
       this.updateUltimate(index);
       return;
@@ -601,9 +615,17 @@ export class CombatSimulation {
     defender.vx = 0;
 
     const direction = attacker.x < defender.x ? -1 : 1;
+    const attackerBefore = attacker.x;
     attacker.x += direction * PUSH_GUARD_SEPARATION;
-    attacker.vx = direction * 4.5;
     this.clampFighter(attacker);
+    const attackerTravel = Math.abs(attacker.x - attackerBefore);
+    const overflow = Math.max(0, PUSH_GUARD_SEPARATION - attackerTravel);
+    if (overflow > 0) {
+      defender.x -= direction * overflow;
+      this.clampFighter(defender);
+    }
+    attacker.vx = direction * 4.5;
+    defender.pushGuardRecoveryFrames = PUSH_GUARD_RECOVERY_FRAMES;
     this.events.push({ type: 'push-guard', defender: defenderIndex, attacker: attackerIndex });
     return true;
   }
@@ -628,12 +650,21 @@ export class CombatSimulation {
     }
   }
 
-  private applyDamage(attackerIndex: FighterIndex, defenderIndex: FighterIndex, requestedDamage: number): number {
+  private applyDamage(
+    attackerIndex: FighterIndex,
+    defenderIndex: FighterIndex,
+    requestedDamage: number,
+    source: HitSource,
+    blocked = false,
+  ): number {
     const defender = this.fighters[defenderIndex];
     const actualDamage = Math.max(0, Math.min(defender.health, requestedDamage));
     defender.health = Math.max(0, defender.health - requestedDamage);
-    if (actualDamage > 0) {
-      this.addSuper(attackerIndex, actualDamage * SUPER_GAIN_DEALT);
+
+    // V0.5 rewards clean interaction, not chip or guaranteed Ultimate damage.
+    if (actualDamage > 0 && !blocked && source !== 'ultimate') {
+      const dealtRate = source === 'normal' ? SUPER_GAIN_NORMAL_DEALT : SUPER_GAIN_SPECIAL_DEALT;
+      this.addSuper(attackerIndex, actualDamage * dealtRate);
       this.addSuper(defenderIndex, actualDamage * SUPER_GAIN_RECEIVED);
     }
     return actualDamage;
@@ -701,19 +732,24 @@ export class CombatSimulation {
     if (this.isBackdashStrikeInvulnerable(defender)) return;
 
     const blocked = this.canBlock(defender, defenderInput, hitbox.level);
+    const source: HitSource = move.category === 'normal'
+      ? 'normal'
+      : move.category === 'ultimate'
+        ? 'ultimate'
+        : 'special';
 
     attacker.moveHasHit = true;
     attacker.moveContact = blocked ? 'block' : 'hit';
     let actualDamage = 0;
     if (blocked) {
-      actualDamage = this.applyDamage(attackerIndex, defenderIndex, hitbox.chipDamage);
+      actualDamage = this.applyDamage(attackerIndex, defenderIndex, hitbox.chipDamage, source, true);
       defender.blockstunFrames = hitbox.blockstun;
       defender.blocking = true;
       defender.vx = attacker.facing * hitbox.knockback * 0.35;
       this.applyCornerBlockTransfer(attackerIndex, defenderIndex, hitbox.knockback);
       this.damageGuard(defenderIndex, hitbox.guardDamage);
     } else {
-      actualDamage = this.applyDamage(attackerIndex, defenderIndex, hitbox.damage);
+      actualDamage = this.applyDamage(attackerIndex, defenderIndex, hitbox.damage, source, false);
       defender.stunFrames = hitbox.hitstun;
       defender.blocking = false;
       defender.vx = attacker.facing * hitbox.knockback;
@@ -727,7 +763,7 @@ export class CombatSimulation {
       blocked,
       damage: actualDamage,
       strong: hitbox.strong,
-      source: move.category === 'normal' ? 'normal' : move.category === 'ultimate' ? 'ultimate' : 'special',
+      source,
       finisher: defender.health <= 0,
     });
   }
@@ -749,6 +785,7 @@ export class CombatSimulation {
       && defender.dashKind === null
       && defender.stunFrames === 0
       && defender.guardBreakFrames === 0
+      && defender.pushGuardRecoveryFrames === 0
       && defender.capturedBy === null
       && defender.guard > 0;
   }
@@ -832,6 +869,11 @@ export class CombatSimulation {
     if (fighter.moveFrame < move.spawnProjectileFrame) return;
 
     const definition = this.registry.getProjectile(move.projectileKey);
+    if (this.projectiles.some((projectile) => projectile.active && projectile.owner === index && projectile.kind === definition.key)) {
+      fighter.moveEffectTriggered = true;
+      fighter.projectileCooldown = Math.max(fighter.projectileCooldown, definition.cooldown);
+      return;
+    }
     const projectile: ProjectileState = {
       id: this.nextProjectileId++,
       owner: index,
@@ -875,7 +917,7 @@ export class CombatSimulation {
       const defenderInput = inputs[defenderIndex];
       const blocked = this.canBlock(defender, defenderInput);
       const requestedDamage = blocked ? definition.chipDamage : definition.damage;
-      const actualDamage = this.applyDamage(projectile.owner, defenderIndex, requestedDamage);
+      const actualDamage = this.applyDamage(projectile.owner, defenderIndex, requestedDamage, 'projectile', blocked);
       if (blocked) {
         defender.blockstunFrames = definition.blockstun;
         defender.blocking = true;
@@ -1093,7 +1135,7 @@ export class CombatSimulation {
   }
 
   private applyUltimateHit(attackerIndex: FighterIndex, defenderIndex: FighterIndex, damage: number, knockback: number): void {
-    const actualDamage = this.applyDamage(attackerIndex, defenderIndex, damage);
+    const actualDamage = this.applyDamage(attackerIndex, defenderIndex, damage, 'ultimate', false);
     const attacker = this.fighters[attackerIndex];
     const defender = this.fighters[defenderIndex];
     defender.vx = attacker.ultimateFacing * knockback;

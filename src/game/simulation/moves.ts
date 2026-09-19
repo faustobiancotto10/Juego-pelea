@@ -102,12 +102,16 @@ export function getAttackStart(fighter: FighterId): MoveDefinition {
   return getMoveDefinition(fighter, fighter === 'chameleon' ? 'claw1' : 'nose1');
 }
 
-export function getSpecialMove(fighter: FighterId, down: boolean, close: boolean): MoveDefinition {
+export function getSpecialMove(fighter: FighterId, down: boolean, close = false): MoveDefinition {
   if (fighter === 'chameleon') {
     if (down) return getMoveDefinition(fighter, 'tongueLow');
     return getMoveDefinition(fighter, close ? 'coletazo' : 'tongueStraight');
   }
   return getMoveDefinition(fighter, down || close ? 'tramontana' : 'chorizoThrow');
+}
+
+export function getCloseSpecialMove(fighter: FighterId): MoveDefinition {
+  return getMoveDefinition(fighter, fighter === 'chameleon' ? 'coletazo' : 'tramontana');
 }
 
 export function getUltimateMove(fighter: FighterId): MoveDefinition {

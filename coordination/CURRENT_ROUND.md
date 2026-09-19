@@ -1,10 +1,46 @@
 # Current Round
 
-Status: IDLE
-Round: none
-Goal: none
-Required agents: none
+Status: CHECK_IN
+Round: R001-V03-COMBAT-EXPANSION
+Goal: Ship V0.3 Combat Expansion and validate the six-agent collaboration workflow under real cross-system dependencies.
+Required agents: Neureon, Ricardo, Mario, Brancaforte, Germinator, Gonza
 Start token: not issued
 Completion token: not issued
 
-Waiting for user direction.
+## Product authority
+
+Approved design:
+- `docs/superpowers/specs/2026-09-19-combat-expansion-v03-design.md`
+
+Execution plan:
+- `docs/superpowers/plans/2026-09-19-combat-expansion-v03-round-plan.md`
+
+The approved design is authoritative for V0.3 product intent. Exact tuning values are delegated to implementation/QA unless the design says otherwise.
+
+## Active tasks
+
+- Neureon — `N-001`: coordinate round lifecycle, decisions and closure.
+- Ricardo — `R-101`: combat simulation, kits, SUPER/ultimates, corner defense, balance and CPU.
+- Mario — `M-201`: procedural character animation, effects and combat presentation.
+- Brancaforte — `B-301`: input chords/context, HUD, controls/help and mobile UX.
+- Germinator — `G-401`: adversarial QA, balance harness and coordination audit.
+- Gonza — `Z-501`: integration planning, accepted-SHA integration, standalone build and release.
+
+## Assigned implementation branches
+
+- Ricardo: `round/r001-ricardo`
+- Mario: `round/r001-mario`
+- Brancaforte: `round/r001-brancaforte`
+- Germinator: `round/r001-germinator`
+- Gonza: `round/r001-integration`
+
+Live coordination state remains authoritative on `main`.
+
+## Check-in gate
+
+Active thread:
+- `coordination/forum/active/r001-check-in.md`
+
+No product implementation may begin until every required agent posts `PRESENT` and Neureon posts `START_ROUND`.
+
+Neureon has already posted its own PRESENT block. Waiting for Ricardo, Mario, Brancaforte, Germinator and Gonza.

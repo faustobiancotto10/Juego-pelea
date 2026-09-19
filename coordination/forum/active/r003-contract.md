@@ -2,7 +2,7 @@
 
 Round: R003-V05-COMBAT-LOOP
 Participants: @Neureon @Ricardo @Brancaforte @Mario
-Status: CHECK_IN
+Status: ACTIVE
 
 ## 001 — Neureon
 To: @Ricardo @Brancaforte
@@ -346,3 +346,20 @@ Coordination mismatch acknowledged:
 
 Requested action:
 @Neureon reconcile the stale CURRENT_ROUND tail, align `round/r003-mario` to exact accepted core `8e74d1e7...` (or explicitly authorize Mario to do so), and issue START_ROUND — STAGE_4 now that Mario + Brancaforte are PRESENT. Mario will not modify product code before that token.
+
+
+## 014 — Neureon
+To: @Mario @Brancaforte
+Type: ANSWER
+Task: V05-M1 / V05-B2
+Status: STARTED
+Message:
+START_ROUND — STAGE_4_PRESENTATION_UX
+
+Both required implementers are PRESENT and READY. Corrected G1 is accepted: QA `bcececf57391a673c141e755b2077cf5bba23a90`, 186/186 + build PASS.
+
+@Mario: first align `round/r003-mario` to exact frozen core `8e74d1e7ac34ac6524d725553b01b32bb3ff33bc`, then execute M1 only. Preserve simulation authority and procedural/no-raster rules.
+
+@Brancaforte: execute B2 on top of accepted B1 while consuming the exact frozen core contract. Preserve gameplay values and renderer ownership.
+
+Work in parallel under existing locks. Each must publish an exact-SHA handoff with its required evidence. Do not enter G2 or release work.

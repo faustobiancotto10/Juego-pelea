@@ -288,3 +288,157 @@ export function drawLaunchTrail(
 
   ctx.restore();
 }
+
+
+export interface ColetazoPresentation {
+  windup: number;
+  strike: number;
+  followThrough: number;
+  recovery: number;
+  sweep: number;
+  trail: number;
+}
+
+export function getColetazoPresentation(moveFrame: number): ColetazoPresentation {
+  const frame = Math.max(0, moveFrame);
+  if (frame <= 5) {
+    const windup = clamp01(frame / 5);
+    return { windup, strike: 0, followThrough: 0, recovery: 0, sweep: lerp(0, -0.58, windup), trail: 0 };
+  }
+  if (frame <= 10) {
+    const strike = clamp01((frame - 5) / 5);
+    return { windup: 1 - strike, strike, followThrough: 0, recovery: 0, sweep: lerp(-0.58, 1, strike), trail: strike };
+  }
+  if (frame <= 17) {
+    const followThrough = clamp01((frame - 10) / 7);
+    return { windup: 0, strike: 1 - followThrough, followThrough, recovery: 0, sweep: lerp(1, 0.72, followThrough), trail: 1 - followThrough * 0.55 };
+  }
+  const recovery = clamp01((frame - 17) / 13);
+  return { windup: 0, strike: 0, followThrough: 1 - recovery, recovery, sweep: lerp(0.72, 0, recovery), trail: Math.max(0, 0.35 - recovery * 0.35) };
+}
+
+export function drawColetazoTrail(
+  ctx: CanvasRenderingContext2D,
+  x: number,
+  y: number,
+  facing: -1 | 1,
+  presentation: ColetazoPresentation,
+): void {
+  const t = clamp01(presentation.trail);
+  if (t <= 0.01) return;
+
+  ctx.save();
+  ctx.translate(x, y);
+  ctx.scale(facing, 1);
+  ctx.lineCap = 'round';
+
+  const sweep = presentation.sweep;
+  const startAngle = -2.65 + sweep * 0.62;
+  const endAngle = -1.65 + sweep * 1.18;
+  for (let i = 0; i < 3; i += 1) {
+    ctx.globalAlpha = t * (0.34 - i * 0.075);
+    ctx.strokeStyle = i === 0 ? '#d9f58f' : '#79c95d';
+    ctx.lineWidth = 11 - i * 2.5;
+    ctx.beginPath();
+    ctx.arc(-4, -82, 92 + i * 16, startAngle - i * 0.06, endAngle + i * 0.09);
+    ctx.stroke();
+  }
+
+  if (presentation.strike > 0.62) {
+    ctx.globalAlpha = 0.18 + presentation.strike * 0.22;
+    ctx.fillStyle = '#edffb8';
+    ctx.beginPath();
+    ctx.moveTo(72, -154);
+    ctx.lineTo(124, -116);
+    ctx.lineTo(82, -91);
+    ctx.lineTo(142, -72);
+    ctx.lineTo(69, -62);
+    ctx.closePath();
+    ctx.fill();
+  }
+
+  ctx.restore();
+}
+
+export function drawCapturedLock(
+  ctx: CanvasRenderingContext2D,
+  x: number,
+  y: number,
+  accent: string,
+  timeSeconds: number,
+): void {
+  ctx.save();
+  ctx.translate(x, y);
+  const breathe = 0.5 + 0.5 * Math.sin(timeSeconds * 14);
+  ctx.globalAlpha = 0.2 + breathe * 0.12;
+  ctx.strokeStyle = accent;
+  ctx.lineWidth = 3;
+  ctx.setLineDash([9, 9]);
+  ctx.beginPath();
+  ctx.ellipse(0, -96, 45 + breathe * 5, 82 + breathe * 4, 0, 0, Math.PI * 2);
+  ctx.stroke();
+  ctx.setLineDash([]);
+
+  ctx.globalAlpha = 0.12 + breathe * 0.08;
+  ctx.beginPath();
+  ctx.arc(0, -96, 60 + breathe * 7, -0.95, 0.95);
+  ctx.stroke();
+  ctx.restore();
+}
+
+export function drawCamaleoniSequenceCuts(
+  ctx: CanvasRenderingContext2D,
+  x: number,
+  y: number,
+  facing: -1 | 1,
+  intensity: number,
+  timeSeconds: number,
+): void {
+  const t = clamp01(intensity);
+  if (t <= 0) return;
+
+  ctx.save();
+  ctx.translate(x, y);
+  ctx.scale(facing, 1);
+  ctx.lineCap = 'round';
+
+  for (let i = 0; i < 3; i += 1) {
+    const wave = Math.sin(timeSeconds * 22 + i * 1.8);
+    ctx.globalAlpha = 0.18 + 0.24 * t;
+    ctx.strokeStyle = i === 1 ? '#f0ffe8' : '#9ef5a5';
+    ctx.lineWidth = 5 - i;
+    ctx.beginPath();
+    ctx.moveTo(-8 + i * 11, -150 + i * 36);
+    ctx.quadraticCurveTo(60 + wave * 10, -125 + i * 16, 112 + i * 8, -92 + i * 10);
+    ctx.stroke();
+  }
+
+  ctx.restore();
+}
+
+export function drawSupernarizInhalePulse(
+  ctx: CanvasRenderingContext2D,
+  x: number,
+  y: number,
+  facing: -1 | 1,
+  intensity: number,
+  timeSeconds: number,
+): void {
+  const t = clamp01(intensity);
+  if (t <= 0) return;
+
+  ctx.save();
+  ctx.translate(x, y);
+  ctx.scale(facing, 1);
+  const pulse = 0.5 + 0.5 * Math.sin(timeSeconds * 12);
+  ctx.globalAlpha = 0.18 + t * 0.34;
+  ctx.strokeStyle = '#fff2df';
+  ctx.lineWidth = 3.5;
+  for (let i = 0; i < 3; i += 1) {
+    const radius = 26 + i * 18 + pulse * 7;
+    ctx.beginPath();
+    ctx.arc(38, -145, radius, -0.72, 0.72);
+    ctx.stroke();
+  }
+  ctx.restore();
+}

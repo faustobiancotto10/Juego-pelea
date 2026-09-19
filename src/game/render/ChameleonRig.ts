@@ -1,4 +1,5 @@
 import type { FighterSnapshot } from '../types.js';
+import { getColetazoPresentation } from './CombatEffects.js';
 import { GROUND_Y, clamp01, ellipse, lerp, pulse, roundedLine } from './drawUtils.js';
 
 function tongueFactor(f: FighterSnapshot): number {
@@ -17,11 +18,6 @@ function clawFactor(f: FighterSnapshot): number {
   return pulse(f.moveFrame, 1, 6, 14);
 }
 
-function coletazoFactor(f: FighterSnapshot): number {
-  if (f.moveId !== 'coletazo') return 0;
-  return pulse(f.moveFrame, 2, 9, 24);
-}
-
 export function drawChameleon(ctx: CanvasRenderingContext2D, f: FighterSnapshot, time: number): void {
   const feetY = GROUND_Y - f.y;
   const idle = Math.sin(time * 5.2 + f.x * 0.01) * 1.4;
@@ -31,24 +27,37 @@ export function drawChameleon(ctx: CanvasRenderingContext2D, f: FighterSnapshot,
   const block = f.blocking ? 1 : 0;
   const guardBreak = f.guardBreakFrames > 0 ? 1 : 0;
   const claw = clawFactor(f);
-  const coletazo = coletazoFactor(f);
+  const coletazo = f.moveId === 'coletazo'
+    ? getColetazoPresentation(f.moveFrame)
+    : { windup: 0, strike: 0, followThrough: 0, recovery: 0, sweep: 0, trail: 0 };
   const ultimateStartup = f.ultimatePhase === 'startup' ? 1 : 0;
   const ultimateCapture = f.ultimatePhase === 'capture' ? 1 : 0;
   const ultimateSequence = f.ultimatePhase === 'sequence' ? 1 : 0;
   const tongue = tongueFactor(f);
+  const vanishCoil = ultimateStartup * 0.8;
+  const dashDrive = ultimateCapture;
+  const comboBeat = ultimateSequence;
   const lowTongue = f.moveId === 'tongueLow';
   const airClaw = f.moveId === 'airClaw' ? claw : 0;
   const forwardLean =
     tongue * 0.12
     + claw * 0.07
     + airClaw * 0.11
-    + coletazo * 0.08
-    - ultimateStartup * 0.08
-    + ultimateCapture * 0.18
-    + ultimateSequence * 0.11
+    - coletazo.windup * 0.17
+    + coletazo.strike * 0.15
+    + coletazo.followThrough * 0.1
+    - vanishCoil * 0.12
+    + dashDrive * 0.24
+    + comboBeat * 0.16
     + hurtLean
     - ko * 1.16;
-  const bodyDrop = crouch * 30 + ultimateStartup * 7 + ko * 42;
+  const bodyDrop =
+    crouch * 30
+    + coletazo.windup * 7
+    - coletazo.strike * 3
+    + vanishCoil * 11
+    - dashDrive * 4
+    + ko * 42;
 
   ctx.save();
   ctx.translate(f.x, feetY);
@@ -63,39 +72,44 @@ export function drawChameleon(ctx: CanvasRenderingContext2D, f: FighterSnapshot,
   ctx.restore();
 
   // Tail: a real articulated curve, not a pasted picture. It counterbalances attacks.
-  const ultimateTailBeat = ultimateSequence * Math.sin(time * 21) * 26;
+  const ultimateTailBeat =
+    comboBeat * Math.sin(time * 21) * 30
+    - vanishCoil * 20
+    + dashDrive * 18;
   const tailCounter = -tongue * 28 - claw * 12 + ultimateTailBeat + Math.sin(time * 2.8) * 5;
-  const tailMidX = lerp(-67, 76, coletazo);
-  const tailMidY = lerp(-10 + tailCounter * 0.18, -88, coletazo);
-  const tailTipX = lerp(-49, 118, coletazo);
-  const tailTipY = lerp(-40 + tailCounter * 0.35, -56, coletazo);
+  const sweep = coletazo.sweep;
+  const tailMidX = sweep < 0 ? lerp(-67, -104, -sweep / 0.58) : lerp(-67, 84, sweep);
+  const tailMidY = sweep < 0 ? lerp(-10 + tailCounter * 0.18, -48, -sweep / 0.58) : lerp(-10 + tailCounter * 0.18, -91, sweep);
+  const tailTipX = sweep < 0 ? lerp(-49, -136, -sweep / 0.58) : lerp(-49, 136, sweep);
+  const tailTipY = sweep < 0 ? lerp(-40 + tailCounter * 0.35, -86, -sweep / 0.58) : lerp(-40 + tailCounter * 0.35, -60, sweep);
   ctx.save();
   ctx.strokeStyle = '#315f2d';
   ctx.lineWidth = 22;
   ctx.lineCap = 'round';
   ctx.beginPath();
   ctx.moveTo(-20, -73 + bodyDrop * 0.35);
-  ctx.bezierCurveTo(lerp(-78, -62, coletazo), lerp(-70, -55, coletazo), lerp(-94, 24, coletazo), lerp(-24 + tailCounter * 0.15, -94, coletazo), tailMidX, tailMidY);
-  ctx.bezierCurveTo(lerp(-39, 98, coletazo), lerp(10 + tailCounter * 0.12, -102, coletazo), lerp(-23, 132, coletazo), lerp(-30 + tailCounter * 0.32, -76, coletazo), tailTipX, tailTipY);
+  ctx.bezierCurveTo(sweep < 0 ? lerp(-78, -112, -sweep / 0.58) : lerp(-78, -56, sweep), sweep < 0 ? lerp(-70, -74, -sweep / 0.58) : lerp(-70, -52, sweep), sweep < 0 ? lerp(-94, -142, -sweep / 0.58) : lerp(-94, 32, sweep), sweep < 0 ? lerp(-24 + tailCounter * 0.15, -74, -sweep / 0.58) : lerp(-24 + tailCounter * 0.15, -98, sweep), tailMidX, tailMidY);
+  ctx.bezierCurveTo(sweep < 0 ? lerp(-39, -118, -sweep / 0.58) : lerp(-39, 106, sweep), sweep < 0 ? lerp(10 + tailCounter * 0.12, -104, -sweep / 0.58) : lerp(10 + tailCounter * 0.12, -106, sweep), sweep < 0 ? lerp(-23, -148, -sweep / 0.58) : lerp(-23, 142, sweep), sweep < 0 ? lerp(-30 + tailCounter * 0.32, -92, -sweep / 0.58) : lerp(-30 + tailCounter * 0.32, -80, sweep), tailTipX, tailTipY);
   ctx.stroke();
   ctx.strokeStyle = '#6cae42';
   ctx.lineWidth = 11;
   ctx.beginPath();
   ctx.moveTo(-20, -73 + bodyDrop * 0.35);
-  ctx.bezierCurveTo(lerp(-78, -62, coletazo), lerp(-70, -55, coletazo), lerp(-94, 24, coletazo), lerp(-24 + tailCounter * 0.15, -94, coletazo), tailMidX, tailMidY);
-  ctx.bezierCurveTo(lerp(-39, 98, coletazo), lerp(10 + tailCounter * 0.12, -102, coletazo), lerp(-23, 132, coletazo), lerp(-30 + tailCounter * 0.32, -76, coletazo), tailTipX, tailTipY);
+  ctx.bezierCurveTo(sweep < 0 ? lerp(-78, -112, -sweep / 0.58) : lerp(-78, -56, sweep), sweep < 0 ? lerp(-70, -74, -sweep / 0.58) : lerp(-70, -52, sweep), sweep < 0 ? lerp(-94, -142, -sweep / 0.58) : lerp(-94, 32, sweep), sweep < 0 ? lerp(-24 + tailCounter * 0.15, -74, -sweep / 0.58) : lerp(-24 + tailCounter * 0.15, -98, sweep), tailMidX, tailMidY);
+  ctx.bezierCurveTo(sweep < 0 ? lerp(-39, -118, -sweep / 0.58) : lerp(-39, 106, sweep), sweep < 0 ? lerp(10 + tailCounter * 0.12, -104, -sweep / 0.58) : lerp(10 + tailCounter * 0.12, -106, sweep), sweep < 0 ? lerp(-23, -148, -sweep / 0.58) : lerp(-23, 142, sweep), sweep < 0 ? lerp(-30 + tailCounter * 0.32, -92, -sweep / 0.58) : lerp(-30 + tailCounter * 0.32, -80, sweep), tailTipX, tailTipY);
   ctx.stroke();
   ctx.restore();
 
   const hipY = -54 + bodyDrop;
   const shoulderY = -112 + bodyDrop * 0.45 + idle;
+  const hipCounter = coletazo.windup * -13 + coletazo.strike * 11 + coletazo.followThrough * 7;
 
   // Compact reptilian legs.
   const step = f.grounded ? Math.sin(time * 10 + f.x * 0.03) * Math.min(8, Math.abs(f.vx) * 1.8) : 0;
   const kneeBend = crouch * 18 + (!f.grounded ? 12 : 0);
-  roundedLine(ctx, -13, hipY, -18 - step, -24 + kneeBend, 20, '#5d9d3c');
+  roundedLine(ctx, -13 + hipCounter * 0.18, hipY, -18 - step - hipCounter * 0.12, -24 + kneeBend, 20, '#5d9d3c');
   roundedLine(ctx, -18 - step, -24 + kneeBend, -28 - step * 0.35, -3, 16, '#76b54d');
-  roundedLine(ctx, 12, hipY, 19 + step, -26 + kneeBend, 20, '#5d9d3c');
+  roundedLine(ctx, 12 + hipCounter * 0.2, hipY, 19 + step + hipCounter * 0.16, -26 + kneeBend, 20, '#5d9d3c');
   roundedLine(ctx, 19 + step, -26 + kneeBend, 30 + step * 0.35, -3, 16, '#76b54d');
   roundedLine(ctx, -31 - step * 0.35, -2, -14 - step * 0.35, -2, 6, '#adc96b');
   roundedLine(ctx, 17 + step * 0.35, -2, 34 + step * 0.35, -2, 6, '#adc96b');
@@ -108,15 +122,30 @@ export function drawChameleon(ctx: CanvasRenderingContext2D, f: FighterSnapshot,
   const frontReach =
     18
     + claw * (f.moveId === 'claw2' ? 42 : f.moveId === 'airClaw' ? 52 : 31)
-    + ultimateSequence * 28;
-  const frontY = shoulderY + block * 16 - claw * 8 + airClaw * 18;
+    - vanishCoil * 9
+    + dashDrive * 24
+    + comboBeat * 34;
+  const frontY =
+    shoulderY
+    + block * 16
+    - claw * 8
+    + airClaw * 18
+    + vanishCoil * 13
+    - dashDrive * 9
+    - comboBeat * 10;
   roundedLine(ctx, 12, shoulderY, frontReach, frontY, 11, '#62a444');
   ellipse(ctx, frontReach + 3, frontY, 7, 6, '#86bd5e');
   roundedLine(ctx, -12, shoulderY + 4, -24 + block * 13, shoulderY + 18 - block * 25, 10, '#568f3a');
   ellipse(ctx, -25 + block * 13, shoulderY + 18 - block * 25, 7, 6, '#80b75a');
 
   // Oversized stylized human-like head from the reference concept, reconstructed with vector forms.
-  const headX = 4 + tongue * 14 + ultimateCapture * 9 + ultimateSequence * 6 + block * -3;
+  const headX =
+    4
+    + tongue * 14
+    - vanishCoil * 8
+    + dashDrive * 14
+    + comboBeat * 9
+    + block * -3;
   const headY = -155 + bodyDrop * 0.43 + idle + (!f.grounded ? 3 : 0);
   ellipse(ctx, headX, headY, 42, 39, '#c98f68', -0.04, '#633f31', 2.5);
   // Ear and cheek contour.

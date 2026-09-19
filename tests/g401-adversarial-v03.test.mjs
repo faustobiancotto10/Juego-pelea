@@ -80,3 +80,43 @@ test('new V0.3 intents preserve deterministic fixed-step outcomes', () => {
     }
   }
 });
+
+
+test('SUPER starts empty for a fresh fight and a fresh simulation resets it', () => {
+  const first = new CombatSimulation('chameleon', 'supernariz', { skipIntro: true });
+  const second = new CombatSimulation('chameleon', 'supernariz', { skipIntro: true });
+
+  for (const snap of [first.getSnapshot(), second.getSnapshot()]) {
+    assert.equal(snap.fighters[0].superMeter, 0);
+    assert.equal(snap.fighters[1].superMeter, 0);
+    assert.equal(snap.fighters[0].superReady, false);
+    assert.equal(snap.fighters[1].superReady, false);
+  }
+});
+
+test('active offense can reach SUPER READY before dealing the full 1000 HP', () => {
+  const sim = new CombatSimulation('chameleon', 'supernariz', { skipIntro: true });
+
+  // Start inside reliable tongue range.
+  stepN(sim, 48, input({ right: true }), input({ left: true }));
+
+  let snap = sim.getSnapshot();
+  let sawReady = snap.fighters[0].superReady;
+  let safety = 0;
+
+  while (snap.phase === 'fight' && snap.fighters[1].health > 0 && !sawReady && safety < 900) {
+    // Fire a straight tongue on a fresh press, then recover and re-close space.
+    sim.step(input({ special: true }), EMPTY_INPUT);
+    snap = stepN(sim, 34, EMPTY_INPUT, EMPTY_INPUT);
+    sawReady ||= snap.fighters[0].superReady;
+
+    if (!sawReady && snap.phase === 'fight') {
+      snap = stepN(sim, 12, input({ right: true }), input({ left: true }));
+      sawReady ||= snap.fighters[0].superReady;
+    }
+    safety += 46;
+  }
+
+  assert.equal(sawReady, true, 'a strongly winning attacker should be able to reach READY before KO');
+  assert.ok(snap.fighters[1].health > 0, 'READY should be reachable before the defender loses the full 1000 HP');
+});

@@ -44,7 +44,11 @@ function camaleoniUltimateAlpha(fighter: FighterSnapshot): number {
   const definition = ULTIMATES.camaleoniUltimate!;
 
   if (fighter.ultimatePhase === 'startup') {
-    const progress = clamp01(fighter.ultimatePhaseFrame / definition.startupFrames);
+    const phaseProgress = clamp01(fighter.ultimatePhaseFrame / definition.startupFrames);
+    // Preserve the established quick disappear beat while phaseFrame remains
+    // authoritative for the full startup timeline.
+    const earlyDisappear = clamp01(fighter.moveFrame / 9);
+    const progress = Math.max(phaseProgress, earlyDisappear);
     return lerp(1, 0.12, clamp01(progress * 1.35));
   }
 

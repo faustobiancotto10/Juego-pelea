@@ -14,3 +14,4 @@ Reservations for later stages do not authorize work before Neureon opens the gat
 | src/game/render/ | Mario | V05-M1 | Stage 4 procedural animation/effect timing |
 | tests/render-v05.test.mjs | Mario | V05-M1 | render cadence/state-mutation/procedural regressions |
 | README.md | Brancaforte | V05-B2 | controls documentation for final V0.5 grammar |
+| tests/g402-v04.test.mjs | Brancaforte | V05-B2 | migrate historical integrated touch regression to C1 commands contract |

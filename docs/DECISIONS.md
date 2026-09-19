@@ -10,3 +10,12 @@
 - 2026-09-18: Combo cancels require contact (hit or block). Whiffed light attacks must complete recovery instead of allowing free mash chains.
 - 2026-09-18: CPU decisions use reaction thresholds and short commitment windows so it cannot switch from offense to perfect defense every frame.
 - 2026-09-18: Text-heavy help remains DOM UI. Opening the controls panel during a fight pauses simulation; combat truth remains outside the UI layer.
+
+- 2026-09-19: V0.3 uses a common fighter-kit structure: melee, long-range special, close-range special, ultimate, plus universal movement/defense. Mechanical differences require explicit tradeoffs rather than free advantages.
+- 2026-09-19: The fighter formerly displayed as Camaleón is renamed **Camaleoni Cagoni**, normally shortened to **Camaleoni** in UI. Stable internal IDs may remain unchanged when migration would add risk without player benefit.
+- 2026-09-19: Camaleoni's long special is Lengua and close special is Coletazo. Supernariz's long special is Chorizo and close special is Tramontana.
+- 2026-09-19: Melee reach stays within a comparable band. Meaningful reach advantages must be offset by startup, recovery, damage, knockback, cancelability or another observable cost; Supernariz must not retain uncompensated close-range and long-range superiority.
+- 2026-09-19: V0.3 adds one-charge SUPER meter primarily from damage dealt and received. No passive/manual charging.
+- 2026-09-19: Ultimates are unblockable forward capture attacks with finite considerable range. Position, range or crossing behind can evade before capture; after capture the sequence is guaranteed. A committed miss consumes meter and has recovery.
+- 2026-09-19: Camaleoni's ultimate is an invisibility/near-invisibility forward dash capture into a guaranteed combo. Supernariz's ultimate is forward suction into a heavy nazazo and large launch.
+- 2026-09-19: V0.3 adds corner pushback transfer and Push Guard using existing controls; no fourth persistent mobile action button is added.

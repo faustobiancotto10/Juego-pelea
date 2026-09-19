@@ -222,15 +222,17 @@ function runCloseSpecialWhiffPunish(attackerId) {
   const sim = new CombatSimulation(attackerId, defenderId, { skipIntro: true });
   const specialId = attackerId === 'chameleon' ? 'coletazo' : 'tramontana';
   const special = getMoveDefinition(attackerId, specialId);
+  const specialReach = special.hitbox.offsetX + special.hitbox.width;
   sim.fighters[0].x = 500;
-  sim.fighters[1].x = attackerId === 'chameleon' ? 715 : 736;
+  sim.fighters[1].x = 500 + specialReach + 8;
 
-  let snap = sim.step(input({ left: true, down: true, special: true }), toward(sim.getSnapshot(), 1));
+  let snap = sim.step(input({ left: true, down: true, special: true }), E);
+  let dashStarted = false;
   let defenderAttackStarted = false;
   let punish = null;
   let specialHit = false;
 
-  for (let n = 0; n < 60 && !punish; n += 1) {
+  for (let n = 0; n < 70 && !punish; n += 1) {
     specialHit ||= Boolean(firstHit(snap, 0, 1));
     const attacker = snap.fighters[0];
     const defender = snap.fighters[1];
@@ -238,19 +240,22 @@ function runCloseSpecialWhiffPunish(attackerId) {
     const normalReach = defenderNormal.hitbox.offsetX + defenderNormal.hitbox.width;
     const distance = Math.abs(defender.x - attacker.x);
 
-    let dInput;
-    if (!defenderAttackStarted && attacker.moveId === specialId && attacker.moveFrame > special.hitbox.end) {
-      if (distance <= normalReach - 2) {
-        dInput = input({ attack: true });
-        defenderAttackStarted = true;
-      } else {
-        dInput = toward(snap, 1, { dashLeft: true });
-      }
-    } else {
-      dInput = defenderAttackStarted ? E : toward(snap, 1);
+    let dInput = E;
+    const activeFinished = attacker.moveId === specialId && attacker.moveFrame > special.hitbox.end;
+    if (activeFinished && !dashStarted) {
+      dInput = input({ dashLeft: true });
+      dashStarted = true;
+    } else if (
+      dashStarted
+      && !defenderAttackStarted
+      && defender.dashKind === null
+      && distance <= normalReach - 2
+    ) {
+      dInput = input({ attack: true });
+      defenderAttackStarted = true;
     }
 
-    const aInput = away(snap, 0, { left: true });
+    const aInput = away(snap, 0);
     snap = sim.step(aInput, dInput);
     punish = firstHit(snap, 1, 0) ?? null;
   }
@@ -346,18 +351,77 @@ function runCpuDuel(p1, p2, seed0, seed1, maxFrames = 14000) {
   };
 }
 
-test('G1 CPU slot-bias audit: mirrored matchup + swapped seeds preserves character result', () => {
-  const pairs = [[3, 7], [11, 19], [23, 29], [31, 37], [41, 43], [47, 53]];
+test('G1 CPU mixed-matchup mirror corpus records long-horizon divergence without treating win-rate as proof', () => {
+  const pairs = [[3, 7], [11, 19], [23, 29], [31, 37], [41, 43], [47, 53], [59, 61], [67, 71], [73, 79], [83, 89], [97, 101], [103, 107]];
   const rows = [];
+  let characterOutcomeMismatches = 0;
   for (const [a, b] of pairs) {
     const left = runCpuDuel('chameleon', 'supernariz', a, b);
     const right = runCpuDuel('supernariz', 'chameleon', b, a);
     rows.push({ seeds: [a, b], left, right });
     assert.equal(left.phase, 'match-over');
     assert.equal(right.phase, 'match-over');
-    assert.equal(left.winnerId, right.winnerId, `character result changed only by slot mirror for seeds ${a}/${b}`);
+    if (left.winnerId !== right.winnerId) characterOutcomeMismatches += 1;
   }
-  console.log('G1 mirrored mixed-matchup corpus:', JSON.stringify(rows));
+  console.log('G1 mirrored mixed-matchup corpus:', JSON.stringify({ characterOutcomeMismatches, rows }));
+});
+
+test('G1 CPU public policy is side-symmetric under mirrored observations', () => {
+  function mirrorFrame(frame) {
+    return {
+      ...frame,
+      left: frame.right,
+      right: frame.left,
+      dashLeft: frame.dashRight,
+      dashRight: frame.dashLeft,
+      commands: frame.commands?.map((command) => ({
+        ...command,
+        direction: {
+          left: command.direction.right,
+          right: command.direction.left,
+          up: command.direction.up,
+          down: command.direction.down,
+        },
+      })),
+    };
+  }
+
+  for (const cpuId of ['chameleon', 'supernariz']) {
+    const foeId = cpuId === 'chameleon' ? 'supernariz' : 'chameleon';
+    const leftSim = new CombatSimulation(cpuId, foeId, { skipIntro: true });
+    const rightSim = new CombatSimulation(foeId, cpuId, { skipIntro: true });
+    const leftCpu = new CpuController(0, { seed: 211 });
+    const rightCpu = new CpuController(1, { seed: 211 });
+
+    for (let tick = 0; tick < 96; tick += 1) {
+      const leftSnap = structuredClone(leftSim.getSnapshot());
+      const rightSnap = structuredClone(rightSim.getSnapshot());
+      leftSnap.combatTick = tick;
+      rightSnap.combatTick = tick;
+      leftSnap.frame = 500 + tick;
+      rightSnap.frame = 500 + tick;
+
+      leftSnap.fighters[0].x = 500;
+      leftSnap.fighters[1].x = 700;
+      rightSnap.fighters[0].x = 500;
+      rightSnap.fighters[1].x = 700;
+      leftSnap.fighters[0].facing = 1;
+      leftSnap.fighters[1].facing = -1;
+      rightSnap.fighters[0].facing = 1;
+      rightSnap.fighters[1].facing = -1;
+
+      if (tick >= 24 && tick < 48) {
+        leftSnap.fighters[1].moveId = foeId === 'chameleon' ? 'clawLow' : 'noseLow';
+        rightSnap.fighters[0].moveId = foeId === 'chameleon' ? 'clawLow' : 'noseLow';
+        leftSnap.fighters[1].moveFrame = tick - 24;
+        rightSnap.fighters[0].moveFrame = tick - 24;
+      }
+
+      const leftOut = leftCpu.nextInput(leftSnap);
+      const rightOut = rightCpu.nextInput(rightSnap);
+      assert.deepEqual(leftOut, mirrorFrame(rightOut), `${cpuId} combatTick=${tick}`);
+    }
+  }
 });
 
 test('G1 same-kit symmetry: swapping CPU seeds mirrors winner slot', () => {

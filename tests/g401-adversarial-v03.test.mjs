@@ -176,14 +176,17 @@ test('an invalid ultimate request cannot spend meter or emit capture/whiff from 
 
 
 function blockedTongueHit(sim) {
-  let snap = sim.step(input({ left: true }), input({ special: true }));
-  const seen = [...snap.events];
+  let snap = sim.step(EMPTY_INPUT, input({ special: true }));
 
-  for (let i = 0; i < 24 && !seen.some((event) => event.type === 'hit' && event.blocked); i += 1) {
-    snap = sim.step(input({ left: true }), EMPTY_INPUT);
-    seen.push(...snap.events);
-  }
-  assert.ok(seen.some((event) => event.type === 'hit' && event.blocked), 'setup must produce a blocked tongue hit');
+  // tongueStraight first becomes active at move frame 9. Stay neutral through
+  // startup so the defender does not walk out of the authored threat space.
+  for (let i = 0; i < 8; i += 1) snap = sim.step(EMPTY_INPUT, EMPTY_INPUT);
+
+  snap = sim.step(input({ left: true }), EMPTY_INPUT);
+  assert.ok(
+    snap.events.some((event) => event.type === 'hit' && event.blocked),
+    'setup must produce a blocked tongue hit on its first active frame',
+  );
   return snap;
 }
 
@@ -212,7 +215,7 @@ test('Push Guard is rejected below its GUARD cost and during Guard Break', () =>
   for (let hit = 0; hit < 4; hit += 1) {
     snap = blockedTongueHit(sim);
     for (let i = 0; i < 40 && snap.fighters[1].moveId !== null; i += 1) {
-      snap = sim.step(input({ left: true }), EMPTY_INPUT);
+      snap = sim.step(EMPTY_INPUT, EMPTY_INPUT);
     }
   }
 
@@ -224,7 +227,7 @@ test('Push Guard is rejected below its GUARD cost and during Guard Break', () =>
   assert.equal(snap.fighters[0].guard, guardBeforeRejectedPush);
 
   for (let i = 0; i < 40 && snap.fighters[1].moveId !== null; i += 1) {
-    snap = sim.step(input({ left: true }), EMPTY_INPUT);
+    snap = sim.step(EMPTY_INPUT, EMPTY_INPUT);
   }
   snap = blockedTongueHit(sim);
   assert.ok(snap.fighters[0].guardBreakFrames > 0, 'next blocked tongue should trigger Guard Break');

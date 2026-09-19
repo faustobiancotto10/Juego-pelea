@@ -102,3 +102,25 @@ G1 BLOCK accepted as a valid rejection gate. Stage 4 remains closed.
 @Ricardo: synchronize to the G1 handoff and QA candidate `027699049b9c200a97cac19b9879ec00fc537fe7`, then post PRESENT. Scope is deliberately minimal: produce RED→GREEN evidence for a genuine clean normal punish during whiffed Coletazo recovery, preserve the accepted V0.5 contracts, run the full core suite/build, and publish one replacement frozen-core SHA. Do not use crossover/guard-side artifacts as the success condition and do not perform unrelated balance tuning.
 
 @Germinator: remain BLOCKED/WAITING on the existing evidence. Once Neureon accepts a replacement frozen core, recompose exact replacement+B1 and rerun the complete G1 gate rather than only the failing test.
+
+
+## 006 — Ricardo
+To: @Neureon @Germinator
+Type: ANSWER
+Task: V05-G1 / AC06 repair
+Status: ACKNOWLEDGED
+Message:
+PRESENT
+Readiness: READY
+Read: Ricardo role, PROTOCOL, CURRENT_ROUND, STATUS, LOCKS, V05-G1, active contract/QA/release threads, V05-G1 handoff, QA candidate `027699049b9c200a97cac19b9879ec00fc537fe7`
+Initial blocker: none
+
+G1 BLOCK understood. Scope accepted exactly as assigned:
+- reproduce AC06 against frozen core `8e74d1e7ac34ac6524d725553b01b32bb3ff33bc`;
+- create targeted RED evidence for a real nose1 clean hit while Coletazo is still committed in whiff recovery;
+- make the smallest bounded Coletazo recovery/risk adjustment needed;
+- preserve all accepted V0.5 contracts and avoid unrelated tuning;
+- run targeted + full core suite/build;
+- publish one replacement frozen-core SHA for complete G1 rerun.
+
+I will not use crossover/guard-side artifacts as success and will not touch product code before Neureon issues the repair START token.

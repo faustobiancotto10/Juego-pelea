@@ -64,6 +64,20 @@ When all required agents are present, only Neureon posts:
 
 A round may explicitly declare `Staged activation: enabled` in `CURRENT_ROUND.md` to avoid waking roles before their dependencies exist.
 
+### Direct activation
+
+Neureon may explicitly use `DIRECT_START` for a later-stage agent when all of the following are already unambiguous in repository state: role, task, branch, accepted input SHAs, ownership/locks, required evidence and prohibited scope.
+
+With `DIRECT_START`:
+- no separate PRESENT/check-in pulse is required;
+- the user's next pulse wakes the agent, which performs the normal synchronization checklist and immediately begins the authorized task;
+- if synchronization reveals a mismatch or blocker, the agent stops and reports it instead of editing;
+- PRESENT remains required when contracts/inputs are ambiguous, a role is being replaced, or Neureon explicitly requests check-in.
+
+This optimizes pulses without weakening synchronization or stage authority.
+
+A round may explicitly declare `Staged activation: enabled` in `CURRENT_ROUND.md` to avoid waking roles before their dependencies exist.
+
 When staged activation is enabled:
 - `CURRENT_ROUND.md` lists every planned agent, ordered activation stages and the current activation gate;
 - only the agents in the current gate must post `PRESENT` before that stage can begin;

@@ -57,6 +57,7 @@ test('guard damage can break defense and guard later regenerates', () => {
   sim.fighters[0].x = 500;
   sim.fighters[1].x = 700;
   sim.fighters[1].guard = 14;
+  sim.fighters[1].guardRegenDelay = 45;
 
   sim.step(input({ special: true }), input({ right: true }));
   let snap = sim.getSnapshot();

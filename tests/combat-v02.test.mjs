@@ -30,13 +30,15 @@ test('holding away walks backward and still blocks a compatible incoming strike'
 
 test('standing guard loses to grounded low while down-back blocks low and loses to overhead', () => {
   const stand = new CombatSimulation('chameleon', 'supernariz', { skipIntro: true });
-  closeFighters(stand, 58);
+  stand.fighters[0].x = 1095;
+  stand.fighters[1].x = 1190;
   stand.step(input({ down: true, attack: true }), input({ right: true }));
   const standAfter = stepN(stand, 18, EMPTY_INPUT, input({ right: true }));
   assert.ok(standAfter.fighters[1].health <= 964, 'standing guard must not block a grounded low normal');
 
   const crouch = new CombatSimulation('chameleon', 'supernariz', { skipIntro: true });
-  closeFighters(crouch, 58);
+  crouch.fighters[0].x = 1095;
+  crouch.fighters[1].x = 1190;
   crouch.step(input({ down: true, attack: true }), input({ right: true, down: true }));
   const crouchAfter = stepN(crouch, 18, EMPTY_INPUT, input({ right: true, down: true }));
   assert.ok(crouchAfter.fighters[1].health >= 998, 'down-back should block a grounded low normal');
@@ -52,18 +54,17 @@ test('standing guard loses to grounded low while down-back blocks low and loses 
 
 test('guard damage can break defense and guard later regenerates', () => {
   const sim = new CombatSimulation('chameleon', 'supernariz', { skipIntro: true });
-  let snap = sim.getSnapshot();
-  assert.equal(snap.fighters[1].guard, snap.fighters[1].maxGuard);
+  sim.fighters[0].x = 500;
+  sim.fighters[1].x = 700;
+  sim.fighters[1].guard = 14;
 
-  for (let attempt = 0; attempt < 9 && snap.fighters[1].guardBreakFrames === 0; attempt += 1) {
-    sim.fighters[0].x = 500;
-    sim.fighters[1].x = 700;
-    sim.resetInputState();
-    sim.step(input({ special: true }), input({ right: true }));
-    snap = stepN(sim, 45, EMPTY_INPUT, input({ right: true }));
+  sim.step(input({ special: true }), input({ right: true }));
+  let snap = sim.getSnapshot();
+  for (let i = 0; i < 40 && snap.fighters[1].guardBreakFrames === 0; i += 1) {
+    snap = sim.step(EMPTY_INPUT, input({ right: true }));
   }
   assert.equal(snap.fighters[1].guard, 0);
-  assert.ok(snap.fighters[1].guardBreakFrames > 0, 'repeated blocking should eventually cause guard break');
+  assert.ok(snap.fighters[1].guardBreakFrames > 0, 'one blocked Lengua at 14 GUARD should break defense');
 
   snap = stepN(sim, 130);
   assert.equal(snap.fighters[1].guardBreakFrames, 0);

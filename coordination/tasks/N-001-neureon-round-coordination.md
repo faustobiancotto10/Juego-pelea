@@ -2,7 +2,7 @@
 
 Round: R001-V03-COMBAT-EXPANSION
 Owner: Neureon
-Status: WORKING
+Status: VERIFIED
 
 ## Goal
 
@@ -44,19 +44,19 @@ Coordinate the complete V0.3 round from CHECK_IN through ROUND_COMPLETE without 
 
 - [x] all six required agents post PRESENT
 - [x] START_ROUND is issued only after complete check-in
-- [ ] cross-agent contract disputes are resolved or explicitly escalated
-- [ ] global state transitions are evidence-based
-- [ ] durable V0.3 decisions are promoted to permanent docs
-- [ ] workflow retrospective is captured
-- [ ] ROUND_COMPLETE is issued only after QA/release evidence and archive/reset
+- [x] cross-agent contract disputes are resolved or explicitly escalated
+- [x] global state transitions are evidence-based
+- [x] durable V0.3 decisions are promoted to permanent docs
+- [x] workflow retrospective is captured
+- [x] ROUND_COMPLETE is issued only after QA/release evidence and archive/reset
 
 ## Required tests / evidence
 
 - [x] check-in thread
-- [ ] task/status/lock consistency
-- [ ] Germinator final QA verdict
-- [ ] Gonza release evidence
-- [ ] round archive
+- [x] task/status/lock consistency
+- [x] Germinator final QA verdict
+- [x] Gonza release evidence
+- [x] round archive
 
 ## Related forum threads
 

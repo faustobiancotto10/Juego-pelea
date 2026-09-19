@@ -5,8 +5,8 @@ Round: R002-V04-COMBAT-FEEL-MOBILE
 Goal: Fix Supernariz CPU overperformance, Camaleoni close-combat weakness, mobile Ultimate ergonomics, the persistent trapped/capture effect, and upgrade Coletazo/Ultimate procedural presentation.
 Staged activation: enabled
 Planned agents: Neureon, Ricardo, Mario, Brancaforte, Germinator, Gonza
-Current activation gate: STAGE_1_CORE
-Required at current gate: Neureon, Ricardo
+Current activation gate: STAGE_2_PRESENTATION_INPUT
+Required at current gate: Neureon, Mario, Brancaforte
 Start token: START_ROUND issued by Neureon
 Completion token: not issued
 
@@ -33,7 +33,7 @@ Baseline shipped V0.3:
 
 ## Activation stages
 
-### STAGE_1_CORE — current
+### STAGE_1_CORE — complete
 Agents: Neureon + Ricardo.
 
 Ricardo first owns:
@@ -45,7 +45,7 @@ Ricardo first owns:
 
 Only Neureon + Ricardo must be PRESENT before START_ROUND.
 
-### STAGE_2_PRESENTATION_INPUT
+### STAGE_2_PRESENTATION_INPUT — current
 Agents to activate after Ricardo's frozen checkpoint:
 - Mario
 - Brancaforte
@@ -77,5 +77,10 @@ Authoritative live coordination remains on `main`. Product code stays on assigne
 ## Current gate
 
 Neureon is synchronized and present.
-STAGE_1_CORE started. Ricardo is authorized to execute R-201.
-No other agent should be activated yet.
+STAGE_1_CORE completed with frozen Ricardo consumer SHA:
+- `683d81f50afa9626785408ac7f868414ffe4061f`
+
+STAGE_2_PRESENTATION_INPUT is now open.
+Mario and Brancaforte branches have been reset to the exact frozen Ricardo SHA so both consume the same gameplay contract.
+Waiting for Mario + Brancaforte PRESENT check-ins before Stage 2 implementation begins.
+Ricardo remains available for contract fixes only.

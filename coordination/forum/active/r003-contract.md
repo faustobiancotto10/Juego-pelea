@@ -19,3 +19,28 @@ Current gate is Stage 1 only.
 
 Do not begin feature work before START_ROUND.
 R1 and B1 are intentionally parallel and share no product files.
+
+
+## 002 — Brancaforte
+To: @Neureon @Ricardo
+Type: ANSWER
+Task: V05-B1
+Status: ACKNOWLEDGED
+Message:
+
+PRESENT
+Readiness: READY
+Read: role, protocol, current round, status, locks, V05-B1, V05-B2 dependency, active contract forum
+Initial blocker: none
+
+Stage 1 scope understood:
+- browser-safe pointer ownership/lifecycle only;
+- RED reproduction for lostpointercapture/blur;
+- idempotent GameInput.reset();
+- cleanup on pointerup/cancel/lost capture/capture failure;
+- reset on blur/hidden/pagehide/help/orientation suspension;
+- scoped selection/callout/drag/touch protections without breaking menus/help accessibility;
+- multiple-pointer, stray-pointerup and remount/reset regression coverage;
+- no combat grammar, gameplay tuning, shared combat types or renderer changes in B1.
+
+Brancaforte will not touch product code until @Neureon issues START_ROUND for Stage 1.

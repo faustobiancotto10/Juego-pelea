@@ -3,15 +3,11 @@
 | --- | --- | --- | --- |
 
 Reservations for later stages do not authorize work before Neureon opens the gate.
-| src/game/types.ts | Ricardo | V05-R4 | landing and Ultimate release snapshot/event contract |
-| src/game/simulation/CombatSimulation.ts | Ricardo | V05-R4 | air carry, facing lock, landing recovery, Ultimate exit |
-| src/game/simulation/moves.ts | Ricardo | V05-R4 | airborne motion metadata only if required |
-| src/game/data/ultimates.ts | Ricardo | V05-R4 | successful release/launch tuning |
-| tests/combat-v05-air.test.mjs | Ricardo | V05-R4 | aerial commitment and landing acceptance |
-| tests/combat-v05-ultimate.test.mjs | Ricardo | V05-R4 | Ultimate release/separation acceptance |
-| tests/combat-v02.test.mjs | Ricardo | V05-R4 | migrate crossover-facing expectation to takeoff/landing lock contract |
-| tests/combat-v03.test.mjs | Ricardo | V05-R4 | migrate Ultimate startup/capture timing scenarios |
-| tests/combat-v04.test.mjs | Ricardo | V05-R4 | migrate successful Ultimate release/actionability regression |
-| tests/combat-v02.test.mjs | Ricardo | V05-R4 | migrate crossover facing assertion to grounded-actionable reorientation |
-| tests/combat-v03.test.mjs | Ricardo | V05-R4 | migrate Ultimate timing/capture regressions to authored 22/24 startup |
-| tests/combat-v04.test.mjs | Ricardo | V05-R4 | migrate authoritative capture/release timing regression |
+| src/game/simulation/CpuController.ts | Ricardo | V05-R5 | delayed public-observation controller and seeded decisions |
+| src/game/data/fighterKits.ts | Ricardo | V05-R5 | final CPU delay/decision/commitment profiles |
+| tests/cpu-v05.test.mjs | Ricardo | V05-R5 | delayed perception, miss latch and replay acceptance |
+| tests/fixtures/v05-policies.mjs | Ricardo | V05-R5 | deterministic CPU measurement helpers |
+| tests/cpu.test.mjs | Ricardo | V05-R5 | migrate obsolete immediate-reaction CPU expectations if required |
+| tests/combat-v03.test.mjs | Ricardo | V05-R5 | migrate obsolete frame-cadence CPU expectations if required |
+| tests/combat-v04.test.mjs | Ricardo | V05-R5 | migrate V0.4 CPU gap/confirm expectations to delayed policy if required |
+| tests/g402-v04.test.mjs | Ricardo | V05-R5 | preserve adversarial CPU regressions under delayed policy if required |

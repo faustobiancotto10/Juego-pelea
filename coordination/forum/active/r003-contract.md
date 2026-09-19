@@ -158,3 +158,24 @@ START_ROUND — STAGE_2_CORE
 @Brancaforte: remain WAITING_FOR_TEAM. B2 is not authorized until G1 accepts the core.
 
 No other agent is activated yet.
+
+
+## 007 — Ricardo
+To: @Neureon @Brancaforte @Mario
+Type: PROPOSAL
+Task: V05-R2
+Status: IMPLEMENTING
+Message:
+R2 baseline trace checkpoint is green at `7bba059a5ad108164dd0b8b7b978783f5ea99e68` (CI run #418). I am now applying the approved C3 extraction with zero intended gameplay/binding changes.
+
+Shared-type impact for later consumers:
+- `FighterId` becomes a registry-validated string instead of the closed two-literal union. Released IDs remain exactly `chameleon` and `supernariz`.
+- `ProjectileSnapshot.kind` becomes a string registry key instead of literal `'chorizo'`.
+- no new snapshot/event fields in R2;
+- default `playableIds` remains only the two released fighters; injected test fixture is never selectable;
+- UI/render consumers may continue branching on the two released IDs, but must not treat an unknown ID as implicitly Supernariz when later generalized.
+- `CombatSimulationOptions.registry?` and `CpuController(...,{registry?})` are test/content injection seams; default behavior uses `DEFAULT_COMBAT_REGISTRY`.
+
+R2 will keep existing up-Coletazo/down-Lengua behavior through a temporary legacy binding adapter. R3 removes that adapter and freezes the final grammar.
+
+No action required from Brancaforte/Mario in this stage; this message records the shared contract before the type edit.

@@ -5,9 +5,9 @@ Round: R003-V05-COMBAT-LOOP
 Goal: Repair combat commitment/input foundations and redesign the V0.5 combat loop so active fighting is more rewarding than passive guard + Special repetition.
 Staged activation: enabled
 Planned agents: Neureon, Ricardo, Brancaforte, Germinator, Mario, Gonza
-Current activation gate: STAGE_2_CORE
-Required at current gate: Neureon, Ricardo
-Start token: START_ROUND — STAGE_2_CORE
+Current activation gate: STAGE_3_CORE_QA
+Required at current gate: Neureon, Germinator
+Start token: pending Germinator PRESENT
 Completion token: not issued
 
 ## Product authority
@@ -59,12 +59,12 @@ Parallel:
 
 No shared product files between them.
 
-### STAGE_2_CORE — current
+### STAGE_2_CORE — complete
 Ricardo R2 → R3 → R4 → R5:
 content boundary, command buffer/combos/grammar, air+Ultimate exit, CPU perception.
 Freeze one exact core consumer SHA.
 
-### STAGE_3_CORE_QA
+### STAGE_3_CORE_QA — current
 Germinator G1 independently attacks the frozen core.
 
 ### STAGE_4_PRESENTATION_UX
@@ -94,4 +94,4 @@ Stage 1 accepted checkpoints:
 - R1 Ricardo: `5f6d59eb2dae2e386c55593a9af346e184d5611f`
 - B1 Brancaforte: `4eddddad0a69df0b6562e28f3e55fd66bafd4fc5`
 
-Stage 2 is authorized for Ricardo only: execute R2 → R3 → R4 → R5 sequentially, with a handoff/checkpoint after each task. Brancaforte remains WAITING_FOR_TEAM until Stage 4. After R5, freeze the exact core consumer SHA and activate Germinator G1.
+Stage 2 frozen core accepted for QA activation: `8e74d1e7ac34ac6524d725553b01b32bb3ff33bc` (Ricardo R5; CI #512, 161/161 + build per handoff). Ricardo is WAITING_FOR_TEAM. Germinator must synchronize and post PRESENT before Neureon issues START_ROUND for G1 against this exact SHA.

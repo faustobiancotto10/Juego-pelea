@@ -5,9 +5,9 @@ Round: R003-V05-COMBAT-LOOP
 Goal: Repair combat commitment/input foundations and redesign the V0.5 combat loop so active fighting is more rewarding than passive guard + Special repetition.
 Staged activation: enabled
 Planned agents: Neureon, Ricardo, Brancaforte, Germinator, Mario, Gonza
-Current activation gate: STAGE_4_PRESENTATION_UX
-Required at current gate: Neureon, Mario, Brancaforte
-Start token: START_ROUND — STAGE_4_PRESENTATION_UX
+Current activation gate: STAGE_5_INTEGRATED_EXPERIENCE
+Required at current gate: Neureon, Germinator
+Start token: pending Germinator G2 PRESENT
 Completion token: not issued
 
 ## Product authority
@@ -67,12 +67,12 @@ Freeze one exact core consumer SHA.
 ### STAGE_3_CORE_QA — complete
 Germinator G1 independently attacks the frozen core.
 
-### STAGE_4_PRESENTATION_UX — current
+### STAGE_4_PRESENTATION_UX — complete
 Parallel on accepted core:
 - Mario M1 presentation/animation.
 - Brancaforte B2 final input grammar/UI responsiveness.
 
-### STAGE_5_INTEGRATED_EXPERIENCE
+### STAGE_5_INTEGRATED_EXPERIENCE — current
 Germinator G2 + Neureon: integrated adversarial QA and human/device playtest gate.
 
 ### STAGE_6_RELEASE

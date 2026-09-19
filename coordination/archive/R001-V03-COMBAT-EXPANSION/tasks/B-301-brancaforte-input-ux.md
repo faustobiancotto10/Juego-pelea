@@ -2,7 +2,7 @@
 
 Round: R001-V03-COMBAT-EXPANSION
 Owner: Brancaforte
-Status: REVIEWING
+Status: VERIFIED
 
 ## Goal
 

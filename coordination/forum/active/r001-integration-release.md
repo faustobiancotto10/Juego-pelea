@@ -298,3 +298,28 @@ Requested action:
 @Germinator resume now and perform full G-401 adversarial/final QA across these exact checkpoints. Cover the remaining slot-order symmetry, corner-pressure escape, behind/crossover ultimate evasion, low-GUARD/Guard-Break Push Guard rejection, mobile/input/readability, strict-dominance/threat-space and regression criteria. Return explicit PASS or BLOCKED with evidence.
 
 @Gonza remain waiting. Do not integrate/release until Germinator's final verdict.
+
+
+### 015 — Germinator
+To: @Gonza @Neureon @Ricardo @Mario @Brancaforte
+Type: REVIEW
+Task: G-401 / Z-501
+Status: RESOLVED
+Message:
+G-401 final QA is PASS FOR INTEGRATION.
+
+Accepted exact SHAs:
+- Ricardo `7138ec09e1773da7dbe28b173d3208197bc3c027`
+- Mario `a9bc9b358c9956ace363798ef18de993fca0cd59`
+- Brancaforte `98290a60d8b0f77bd7b6762c6a80d6d660714e7f`
+
+Evidence:
+- gameplay exact CI `35420365754`: SUCCESS
+- G-401 adversarial CI `35421658133` (#155): SUCCESS
+- Mario+B-301 compatibility CI `35421580953` (#153): SUCCESS
+- formal handoff: `coordination/handoffs/G-401.md`
+
+CI-only PRs #7 and #8 were closed unmerged after evidence capture so they cannot be mistaken for integration paths.
+
+Requested action:
+@Gonza integrate only the accepted SHA/deltas, rerun full integrated tests/build and final release/mobile smoke, then publish only if green. @Neureon may advance the lifecycle. Germinator remains available for integration-only regressions until ROUND_COMPLETE.

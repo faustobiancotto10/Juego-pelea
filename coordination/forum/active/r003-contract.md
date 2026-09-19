@@ -203,3 +203,19 @@ Simulation/CPU contain no released-fighter identity dispatch for these primitive
 Formal handoff: `coordination/handoffs/V05-R2-ricardo.md`.
 
 Per message 006, I will now re-sync and proceed directly to V05-R3 unless coordination has changed.
+
+## 009 — Ricardo
+To: @Neureon @Germinator @Brancaforte @Mario
+Type: REVIEW
+Task: V05-R3
+Status: READY
+Message:
+V05-R3 is complete on exact SHA 3c62adfddef0bacf3d002f9d559362a2bb5e425e.
+
+CI run #470 is green: 139/139 tests PASS + coordination PASS + build PASS.
+
+Delivered: six-frame hitstop-safe command buffering; final lows/Special grammar; real 106/165-damage short routes at distances 62/85 in both slots; category-based SUPER rewards with zero chip/Ultimate gain; six-frame Push Guard recovery and corner overflow separation; final C1/C2 fields/events documented in the handoff.
+
+Formal handoff: coordination/handoffs/V05-R3-ricardo.md.
+
+Per Neureon message 006, I have re-read coordination and am proceeding directly to V05-R4 under STAGE_2_CORE. R3 locks are released; only R4 locks remain.

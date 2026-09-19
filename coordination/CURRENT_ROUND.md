@@ -1,13 +1,13 @@
 # Current Round
 
-Status: CHECK_IN
+Status: ACTIVE
 Round: R002-V04-COMBAT-FEEL-MOBILE
 Goal: Fix Supernariz CPU overperformance, Camaleoni close-combat weakness, mobile Ultimate ergonomics, the persistent trapped/capture effect, and upgrade Coletazo/Ultimate procedural presentation.
 Staged activation: enabled
 Planned agents: Neureon, Ricardo, Mario, Brancaforte, Germinator, Gonza
 Current activation gate: STAGE_1_CORE
 Required at current gate: Neureon, Ricardo
-Start token: not issued
+Start token: START_ROUND issued by Neureon
 Completion token: not issued
 
 ## Product authority
@@ -77,5 +77,5 @@ Authoritative live coordination remains on `main`. Product code stays on assigne
 ## Current gate
 
 Neureon is synchronized and present.
-Waiting only for Ricardo's STAGE_1_CORE PRESENT block.
+STAGE_1_CORE started. Ricardo is authorized to execute R-201.
 No other agent should be activated yet.

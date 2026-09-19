@@ -78,6 +78,10 @@ test('V0.3 action priority routes defensive SPECIAL to Push Guard and gives Ulti
     { attack: false, special: false, ultimate: false, pushGuard: true },
   );
   assert.deepEqual(
+    module.resolveActionButtons({ attack: true, special: true, ultimate: false }, true),
+    { attack: false, special: false, ultimate: false, pushGuard: true },
+  );
+  assert.deepEqual(
     module.resolveActionButtons({ attack: false, special: true, ultimate: false }, false),
     { attack: false, special: true, ultimate: false, pushGuard: false },
   );

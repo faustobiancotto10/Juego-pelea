@@ -17,3 +17,6 @@ Reservations for later stages do not authorize work before Neureon opens the gat
 | tests/combat-v04.test.mjs | Ricardo | V05-R3 | update mapping/tuning assumptions |
 | src/game/data/combatRegistry.ts | Ricardo | V05-R3 | remove temporary R2 legacy binding validation at final kit freeze |
 | tests/fixtures/v05-registry.mjs | Ricardo | V05-R3 | keep injected registry fixture valid under mandatory low-slot contract |
+| tests/fighter-registry-v05.test.mjs | Ricardo | V05-R3 | migrate R2 trace fixture expectations to intentional R3 tuning while preserving registry proof |
+| tests/simulation.test.mjs | Ricardo | V05-R3 | update generic damage regression to final Lengua tuning |
+| tests/polish.test.mjs | Ricardo | V05-R3 | preserve round-reset projectile regression under later Chorizo spawn timing |

@@ -11,6 +11,9 @@ function makeContext() {
     get(target, prop) {
       if (prop in target) return target[prop];
       if (prop === 'measureText') return () => ({ width: 0 });
+      if (prop === 'createLinearGradient' || prop === 'createRadialGradient') {
+        return () => ({ addColorStop() {} });
+      }
       return () => {};
     },
     set(target, prop, value) {

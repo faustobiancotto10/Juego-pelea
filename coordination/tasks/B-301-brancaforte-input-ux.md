@@ -2,7 +2,7 @@
 
 Round: R001-V03-COMBAT-EXPANSION
 Owner: Brancaforte
-Status: READY
+Status: REVIEWING
 
 ## Goal
 
@@ -36,26 +36,26 @@ Expose the V0.3 mechanics through the existing three-button mobile control surfa
 
 ## Acceptance criteria
 
-- [ ] permanent layout remains D-pad + ATTACK + SPECIAL + JUMP
-- [ ] ATTACK + SPECIAL reliably emits one Ultimate intent when SUPER is ready
-- [ ] chord/buffer handling does not also leak accidental normal/special actions
-- [ ] contextual SPECIAL resolves cleanly across long/close/air/directional contexts through agreed intents
-- [ ] blocking + SPECIAL can request Push Guard only through the agreed combat contract
-- [ ] HUD clearly shows HP, GUARD and SUPER for both fighters
-- [ ] SUPER READY state is obvious without covering the fight
-- [ ] useful restrained Chorizo cooldown feedback is provided
-- [ ] controls/help explains guard, dash/backdash, Push Guard and Ultimate chord
-- [ ] first-ready SUPER hint is transient, not a mandatory tutorial
-- [ ] user-facing fighter text uses Camaleoni
+- [x] permanent layout remains D-pad + ATTACK + SPECIAL + JUMP
+- [x] ATTACK + SPECIAL reliably emits one Ultimate intent when SUPER is ready
+- [x] chord/buffer handling does not also leak accidental normal/special actions
+- [x] contextual SPECIAL resolves cleanly across long/close/air/directional contexts through agreed intents
+- [x] blocking + SPECIAL can request Push Guard only through the agreed combat contract
+- [x] HUD clearly shows HP, GUARD and SUPER for both fighters
+- [x] SUPER READY state is obvious without covering the fight
+- [x] useful restrained Chorizo cooldown feedback is provided
+- [x] controls/help explains guard, dash/backdash, Push Guard and Ultimate chord
+- [x] first-ready SUPER hint is transient, not a mandatory tutorial
+- [x] user-facing fighter text uses Camaleoni
 
 ## Required tests / evidence
 
-- [ ] keyboard and touch/chord/input-priority tests
-- [ ] HUD snapshot rendering tests
-- [ ] mobile landscape/safe-area smoke
-- [ ] controls/help pause behavior regression
-- [ ] proof UI/input does not decide combat outcomes
-- [ ] commit SHA + input/UI contract handoff
+- [x] keyboard and touch/chord/input-priority tests
+- [x] HUD snapshot rendering tests
+- [x] mobile landscape/safe-area structural smoke (CI/static contract; subjective integrated readability remains Germinator-owned)
+- [x] controls/help pause behavior regression
+- [x] proof UI/input does not decide combat outcomes
+- [x] commit SHA + input/UI contract handoff
 
 ## Related forum threads
 
@@ -65,3 +65,15 @@ Expose the V0.3 mechanics through the existing three-button mobile control surfa
 ## Checkpoints
 
 - first checkpoint: answer/review Ricardo's proposed action/snapshot contract
+
+
+## Validation checkpoint
+
+- frozen gameplay base: `7138ec09e1773da7dbe28b173d3208197bc3c027`
+- clean B-301 handoff commit: `98290a60d8b0f77bd7b6762c6a80d6d660714e7f`
+- CI-equivalent integrated head: `17179290f63fdc52bce3dfd49f917c758ed73ac2`
+- GitHub Actions run: `35421021039` — SUCCESS
+- full suite: 68/68 tests PASS
+- build: PASS
+- handoff: `coordination/handoffs/B-301.md`
+- next owner action: Germinator final input/mobile/readability QA; Gonza integrates only after QA acceptance

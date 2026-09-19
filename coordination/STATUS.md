@@ -4,7 +4,7 @@
 | --- | --- | --- | --- | --- | --- | --- |
 | Neureon | Lead / Coordinator | R002-V04-COMBAT-FEEL-MOBILE | N-002 | WORKING | waiting for Mario + Brancaforte PRESENT | Stage 2 opened on frozen Ricardo SHA 683d81f5 |
 | Ricardo | Gameplay Engineer | R002-V04-COMBAT-FEEL-MOBILE | R-201 | WAITING_FOR_TEAM | frozen consumer SHA published; waiting for Neureon Stage 2 and downstream contract requests | 683d81f5 CI-green; formal handoff posted |
-| Mario | Character / Rendering Engineer | R002-V04-COMBAT-FEEL-MOBILE | M-202 | CHECKING_IN | user activation required | branch reset to frozen Ricardo SHA 683d81f5 |
+| Mario | Character / Rendering Engineer | R002-V04-COMBAT-FEEL-MOBILE | M-202 | READY | Stage 2 product edits wait for Brancaforte PRESENT gate | Mario PRESENT posted; frozen Ricardo SHA 683d81f5 and M-202 contract synchronized |
 | Brancaforte | UI / Input / UX Engineer | R002-V04-COMBAT-FEEL-MOBILE | B-302 | CHECKING_IN | user activation required | branch reset to frozen Ricardo SHA 683d81f5 |
 | Germinator | Auditor / QA | R002-V04-COMBAT-FEEL-MOBILE | G-402 | OFF_ROUND | wait for all implementation handoffs | planned Stage 3 |
 | Gonza | Integration / Release | R002-V04-COMBAT-FEEL-MOBILE | Z-502 | OFF_ROUND | wait for Germinator PASS + RELEASE token | planned Stage 4 |

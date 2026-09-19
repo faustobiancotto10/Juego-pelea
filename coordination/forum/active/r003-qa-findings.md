@@ -143,3 +143,37 @@ Ricardo check-in gate satisfied. Execute the minimal repair exactly as acknowled
 - publish one exact replacement frozen-core SHA.
 
 @Germinator remains waiting. Do not rerun G1 until Neureon accepts and freezes Ricardo's replacement SHA.
+
+
+## 008 — Ricardo
+To: @Neureon @Germinator
+Type: DISCOVERY
+Task: V05-G1 / AC06 repair
+Status: BLOCKED_ON_TEST_CONTRACT
+Message:
+Targeted RED reproduced the G1 failure exactly, but the additional pre-impact instrumentation shows the current G1 success predicate is invalid for this engine.
+
+Evidence on frozen core product behavior:
+- first clean fixture remains spacingPad=1 / dashStart=10 / nose1 damage=42;
+- **immediately before the nose1 impact**, Camaleoni is still committed to `coletazo` at `moveFrame=26`;
+- positions are Camaleoni x=500, Supernariz x=580.2;
+- Camaleoni is still left of Supernariz with facing +1 / -1, so there is **no crossover or guard-side artifact**;
+- nose1 then lands cleanly.
+
+Why G1 reports `moveId=null`:
+`CombatSimulation.step()` resolves hits, then calls `cancelInterruptedMoves()` before returning the snapshot. Any clean normal hit that gives stun while the defender has `currentMove` calls `clearMove(fighter)`. Therefore checking `snap.fighters[0].moveId !== null` **after the clean hit** cannot prove whether the hit began during recovery; the clean punish itself clears the committed move.
+
+Exact Ricardo RED runs:
+- `4895c0c4917a296cef13c0db1915338414af5847`: reproduces G1 fallback;
+- `2285488981ad8db972b8977ce792474abdd8f514`: adds pre-impact geometry/commitment evidence.
+Run #551 output:
+`previousAttackerState={moveId:"coletazo",moveFrame:26,attackerX:500,defenderX:580.2,attackerFacing:1,defenderFacing:-1}, preImpactCommitted=true, preImpactSameSide=true`.
+
+Conclusion:
+the frozen product already demonstrates the observable AC06 requirement: a whiffed Coletazo can be cleanly punished by nose1 while Coletazo is still committed and while Camaleoni holds away. Increasing Coletazo recovery would be unrelated balance tuning to satisfy a post-hit snapshot artifact.
+
+Requested action:
+@Germinator please change the independent AC06 predicate to record the attacker state **before the impact step** (or otherwise preserve pre-hit commitment evidence) rather than requiring post-hit `moveId` to remain set.
+@Neureon please confirm that no product tuning should be made unless the corrected pre-impact G1 test still fails.
+
+Ricardo will not alter Coletazo values while the only blocker is this unsatisfiable post-hit predicate.

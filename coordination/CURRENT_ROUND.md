@@ -1,13 +1,13 @@
 # Current Round
 
-Status: CHECK_IN
+Status: ACTIVE
 Round: R003-V05-COMBAT-LOOP
 Goal: Repair combat commitment/input foundations and redesign the V0.5 combat loop so active fighting is more rewarding than passive guard + Special repetition.
 Staged activation: enabled
 Planned agents: Neureon, Ricardo, Brancaforte, Germinator, Mario, Gonza
 Current activation gate: STAGE_1_REPAIR_FOUNDATIONS
 Required at current gate: Neureon, Ricardo, Brancaforte
-Start token: not issued
+Start token: START_ROUND — STAGE_1_REPAIR_FOUNDATIONS
 Completion token: not issued
 
 ## Product authority
@@ -90,5 +90,5 @@ Live coordination remains on `main`. Product code stays on assigned branches. Go
 
 ## Current gate
 
-Waiting for Ricardo and Brancaforte PRESENT.
-After both check in, Neureon will issue START_ROUND for Stage 1 only.
+Ricardo and Brancaforte are PRESENT. Stage 1 is authorized and running.
+Advance only after both R1 and B1 handoffs are complete and verified.

@@ -274,3 +274,40 @@ Measured cue corpus: **71 recognized / 29 missed** out of 100. Four deterministi
 Formal contract, profiles, metrics and risks: `coordination/handoffs/V05-R5-ricardo.md`.
 
 R2→R5 core is now frozen. Ricardo will not modify `8e74d1e7ac34ac6524d725553b01b32bb3ff33bc` unless Neureon explicitly coordinates a replacement after a blocking finding. Requested next gate: activate Germinator G1 on this exact SHA.
+
+
+## 012 — Brancaforte
+To: @Neureon @Mario @Ricardo @Germinator
+Type: ALERT
+Task: V05-B2
+Status: ACKNOWLEDGED
+Message:
+
+PRESENT
+Readiness: READY
+Read: role, protocol, CURRENT_ROUND, STATUS, LOCKS, V05-B2, active contract/QA/release threads, final V05-G1 handoff, frozen R5 handoff
+Initial blocker: START_ROUND for Stage 4 not yet issued
+
+Accepted consumer inputs understood:
+- frozen core: `8e74d1e7ac34ac6524d725553b01b32bb3ff33bc`
+- accepted B1 foundation: `4eddddad0a69df0b6562e28f3e55fd66bafd4fc5`
+- corrected G1 verdict: APPROVE FOR PRESENTATION
+- final G1 QA candidate: `bcececf57391a673c141e755b2077cf5bba23a90`, CI #561, 186/186 + build
+
+B2 scope understood:
+- bounded DOM action-edge queue with direction-at-press;
+- press/release between simulation samples survives exactly once;
+- mobile down/down-forward grace;
+- same-sample Ultimate/Push Guard exclusivity;
+- no stale held-SPECIAL → later Push Guard conversion;
+- dedicated desktop Ultimate key per accepted V0.5 plan;
+- GameInput.reset + CombatSimulation.resetInputState suspension handshake;
+- accurate help for ranged Special, close Special and grounded low;
+- landscape/safe-area verification;
+- no gameplay tuning, renderer work or shared combat redesign.
+
+Coordination mismatch detected:
+`CURRENT_ROUND.md` header/current activation gate says `STAGE_4_PRESENTATION_UX` with Mario + Brancaforte check-in pending, while its trailing “Current gate” paragraph still contains stale text saying G1 BLOCK and Stage 4 closed. `STATUS.md` and final `V05-G1.md` both reflect the corrected approval.
+
+Requested action:
+@Neureon reconcile the stale tail in CURRENT_ROUND, then issue the Stage 4 START token after @Mario also posts PRESENT. Brancaforte will not modify product code before that token.

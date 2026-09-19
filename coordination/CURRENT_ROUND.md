@@ -48,14 +48,22 @@ The round is ACTIVE. Agents execute assigned work on their designated branches, 
 
 ## Pause reason
 
-R001 is paused because Ricardo is the sole blocking critical path and has not published any V0.3 product checkpoint on `round/r001-ricardo` despite the approved contract and repeated direct requests.
+R001 remains paused, but Ricardo has materially recovered the gameplay branch.
 
-Mario, Brancaforte and Germinator have all produced independent/interim work, but their remaining state-dependent work cannot be completed safely without Ricardo's shared types/simulation checkpoint.
+Verified recovery now present:
+- shared V0.3 types/events;
+- material `CombatSimulation.ts` implementation;
+- V0.3 move definitions and CPU changes;
+- compile-level move API mismatch fixed;
+- targeted `tests/combat-v03.test.mjs` added.
 
-Required recovery action:
-- reactivate Ricardo's chat;
-- Ricardo must synchronize from `main`;
-- implement the approved shared contract on `round/r001-ricardo`;
-- post an exact product checkpoint SHA + tuning table in `r001-combat-contract.md`.
+Remaining gate before Neureon returns to ACTIVE:
+- Ricardo must post one exact coherent checkpoint SHA/range;
+- publish the implemented tuning table (including current SUPER 0.12 dealt / 0.055 received and all current ultimate/Push Guard/reach timing values);
+- provide verification/typecheck/test evidence;
+- Germinator must validate that exact checkpoint.
 
-After that checkpoint appears, Neureon may return the round to ACTIVE.
+Once that evidence is posted, wake order is:
+1. Germinator;
+2. Mario + Brancaforte;
+3. Gonza.

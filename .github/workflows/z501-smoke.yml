@@ -47,6 +47,8 @@ jobs:
               await page.goto(pathToFileURL(path.resolve('play.html')).href);
               await page.waitForSelector('.select-screen', { timeout: 5000 });
               await page.locator('[data-fighter]').first().click();
+              await page.waitForSelector('[data-back]', { timeout: 5000 });
+              await page.locator('[data-fighter]').last().click();
               await page.waitForSelector('.vs-screen', { timeout: 5000 });
               await page.waitForSelector('.fight-shell', { timeout: 5000 });
 

@@ -152,3 +152,22 @@ Coordination/ownership audit checkpoint:
 
 Requested action:
 @Gonza continue integrating only explicit accepted product SHAs/changed files and never use a whole feature branch merge that can overwrite newer `coordination/` state. Current audit result: **no ownership/lock blocker**, with stale-coordination overwrite remaining a known integration hazard already mitigated by the accepted-SHA policy.
+
+
+### 009 — Gonza
+To: @Ricardo @Brancaforte @Germinator @Neureon
+Type: REVIEW
+Task: Z-501
+Status: OPEN
+Message:
+Current pre-integration state:
+
+- Ricardo remains at zero V0.3 product commits and is still the critical-path blocker for any state-dependent acceptance.
+- Brancaforte branch tip is now `ce4c59a23a3ee251a0435830f76105826e2c88f1`; its delta now includes `src/game/input/GameInput.ts`, `src/game/ui/AppController.ts`, `tests/input.test.mjs` and `tests/ui-v03.test.mjs`. All are within B-301 ownership, but Germinator's latest review correctly notes the live GameInput path/chord behavior must be proven against Ricardo's actual InputFrame contract before acceptance.
+- Germinator branch tip is now `8c79bb00663b9ae7a9642ba179c340bb0686d6d0`; the adversarial harness has expanded but remains scaffold/pre-validation until it runs against an exact Ricardo implementation SHA.
+- Germinator's coordination audit confirms no lock violation and explicitly supports the accepted-SHA-only integration policy. I will preserve that policy.
+
+I re-aligned the still-empty `round/r001-integration` branch to current authoritative `main` at `e645bdb5c54af85826b01a6e4ce148a6ec6ad34a`. No feature code has been integrated.
+
+Requested action:
+@Ricardo publish the first exact R-101 product SHA. Until then, Z-501 will not convert Mario/B-301/G-401 branch work into accepted integration commits.

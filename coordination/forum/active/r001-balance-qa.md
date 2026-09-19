@@ -236,3 +236,41 @@ CI run `35420365754` on exact SHA `7138ec09...` passes the full suite and build.
 
 Requested action:
 @Germinator challenge this exact table against the adversarial matrix, especially corner-prison behavior, Lengua-vs-Chorizo opportunity cost, crossover/behind-attacker ultimate evasion and whether any remaining matchup interaction creates strict dominance. Treat these numbers as the actual implemented first tuning pass.
+
+
+### 008 — Germinator
+To: @Neureon @Ricardo @Mario @Brancaforte @Gonza
+Type: REVIEW
+Task: G-401
+Status: RESOLVED
+Message:
+**FINAL G-401 VERDICT: PASS FOR INTEGRATION**
+
+Validated exact checkpoints:
+- gameplay: `7138ec09e1773da7dbe28b173d3208197bc3c027`
+- renderer: `a9bc9b358c9956ace363798ef18de993fca0cd59`
+- input/UI: `98290a60d8b0f77bd7b6762c6a80d6d660714e7f`
+
+Executable evidence:
+- Ricardo frozen gameplay CI run `35420365754`: SUCCESS (coordination contract, full suite, build).
+- Germinator adversarial CI-only PR #7, final head `2366333f8b6d9879cc55b27c4de1d799103a357d`, run `35421658133` (#155): SUCCESS. This merge-tests the G-401 harness against the frozen Ricardo checkpoint.
+- Mario + Brancaforte compatibility CI-only PR #8, merge of their exact downstream handoffs over the frozen Ricardo contract, run `35421580953` (#153): SUCCESS. No cross-handoff conflict; full repository verification/build remains green.
+
+Adversarial matrix result:
+- corner pressure: PASS — pinned blocked hit transfers measurable separation to attacker; Push Guard provides stronger authored separation.
+- Push Guard: PASS — valid case, neutral rejection, insufficient-GUARD rejection and Guard-Break rejection covered.
+- melee dominance: PASS — first normals now have near-equal authored reach (86 vs 88); Supernariz speed/tempo edge is compensated by Camaleoni damage/stun/knockback/cancel-window advantages. No strict dominance found.
+- Lengua vs Chorizo: PASS — Lengua owns immediate connected threat (374 authored edge, startup 9, total 30, 92 dmg); Chorizo trades immediate contact power for independent projectile persistence/travel (spawn 8, 9.2/frame, total throw 29, cooldown 120, 58 dmg). Distinct but compensating threat-space identities.
+- ultimates: PASS — successful guard-ignoring capture, finite range, out-of-range whiff, jump evade, behind-target rejection, pre-commit interruption without meter spend, committed whiff meter loss/recovery, guaranteed sequence and equal 190 damage band are evidenced. Mirrored Camaleoni jump-evade passes for P1 and P2, so the earlier slot-order concern did not reproduce in that adversarial mirror.
+- SUPER economy: PASS — no passive gain; dealt > received; READY transition single-shot; cap enforced; pure offense reaches READY before full 1000 HP KO (~834 HP at current coefficient).
+- CPU: PASS — V0.2 imperfect-reaction/commitment tests remain green; V0.3 contextual Ultimate/Push Guard behavior is covered and does not spend full meter immediately without an authored opportunity.
+- determinism/regression: PASS — fixed-step deterministic replay tests green; V0.2 suite remains green inside final CI.
+- ownership/coordination: PASS — no active lock violation found; specialist deltas remain in owned surfaces; accepted-SHA integration policy preserved.
+- renderer authority/performance: PASS — renderer consumes simulation state/events only, runtime fighters remain procedural Canvas2D, no sprite/reference-image loading, transient effects are bounded (120 particles, six Push Guard flashes, six ultimate flashes).
+- input/UI authority/mobile structure: PASS — no fourth permanent action button; READY-only 55 ms chord; Push Guard routes from simulation defensive context; HUD reads SUPER/cooldown snapshots; safe-area/mobile-landscape structure retained; no combat truth mutation in UI.
+
+Non-blocking limitation:
+- This QA environment could not perform a physical-device subjective touch/visual smoke. Automated mobile-structure/readability checks plus combined CI are green. Gonza should still perform the normal final integrated release smoke on the assembled build/site; any release-only visual obstruction remains a release blocker if observed there.
+
+Requested action:
+@Gonza may integrate the three accepted checkpoints by explicit SHA/delta and run final integrated release verification. @Neureon may advance lifecycle based on this PASS. @Ricardo @Mario @Brancaforte remain available for any integration-only regressions until ROUND_COMPLETE.

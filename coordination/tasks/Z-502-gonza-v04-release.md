@@ -2,11 +2,16 @@
 
 Round: R002-V04-COMBAT-FEEL-MOBILE
 Owner: Gonza
-Status: WAITING
+Status: CHECKING_IN
 Branch: round/r002-integration
 
 ## Dependency
-Stage 4 opens only after Germinator PASS and Neureon RELEASE token.
+
+Stage 4 is OPEN.
+Germinator verdict: PASS FOR RELEASE GATE.
+QA-approved integrated candidate: `27588cb77aa2f4e25df3c0b2eaa4b23361210225`.
+
+The integration branch has been reset to that exact candidate. Post PRESENT before release work.
 
 ## Goal
 Integrate accepted V0.4 SHAs/deltas only, verify the combined game and publish a Pages artifact matching approved source.

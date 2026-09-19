@@ -1,6 +1,6 @@
 import { DEFAULT_COMBAT_REGISTRY, type CombatRegistry } from '../data/combatRegistry.js';
 import type { UltimateDefinition } from '../data/ultimates.js';
-import { EMPTY_INPUT, type CombatEvent, type Facing, type RegisteredRegisteredFighterId, type FighterIndex, type FighterSnapshot, type InputFrame, type MatchSnapshot, type MatchPhase, type ProjectileSnapshot } from '../types.js';
+import { EMPTY_INPUT, type CombatEvent, type Facing, type RegisteredFighterId, type FighterIndex, type FighterSnapshot, type InputFrame, type MatchSnapshot, type MatchPhase, type ProjectileSnapshot } from '../types.js';
 import type { MoveDefinition } from './moves.js';
 
 const ARENA_MIN_X = 90;

@@ -2,7 +2,7 @@
 
 Round: R001-V03-COMBAT-EXPANSION
 Owner: Mario
-Status: READY
+Status: VERIFIED
 
 ## Goal
 
@@ -35,23 +35,23 @@ Render the V0.3 mechanics as readable, performant procedural 2D character animat
 
 ## Acceptance criteria
 
-- [ ] Coletazo has a readable procedural startup/strike/recovery presentation
-- [ ] Tramontana reads as Supernariz's close special
-- [ ] Camaleoni ultimate shows startup, invisibility/near-invisibility, dash, guaranteed-sequence presentation and reappearance
-- [ ] Supernariz ultimate shows inhale/suction, capture sequence, nazazo and launch
-- [ ] Push Guard, Guard Break, normal/heavy/block/ultimate impacts are visually distinguishable
-- [ ] hitstop/screen shake/camera emphasis are restrained and event-driven
-- [ ] renderer never changes simulation outcome
-- [ ] effects are bounded for mobile performance
-- [ ] fighters remain procedural articulated rigs, not flat imported stickers
+- [x] Coletazo has a readable procedural startup/strike/recovery presentation
+- [x] Tramontana reads as Supernariz's close special
+- [x] Camaleoni ultimate shows startup, invisibility/near-invisibility, dash, guaranteed-sequence presentation and reappearance
+- [x] Supernariz ultimate shows inhale/suction, capture sequence, nazazo and launch
+- [x] Push Guard, Guard Break, normal/heavy/block/ultimate impacts are visually distinguishable
+- [x] hitstop/screen shake/camera emphasis are restrained and event-driven
+- [x] renderer never changes simulation outcome
+- [x] effects are bounded for mobile performance
+- [x] fighters remain procedural articulated rigs, not flat imported stickers
 
 ## Required tests / evidence
 
-- [ ] typecheck/build on branch
-- [ ] visual smoke for both fighters and new states
-- [ ] evidence no forbidden runtime reference-image loading was introduced
-- [ ] mobile-landscape readability check
-- [ ] commit SHA + render contract handoff
+- [x] typecheck/build on branch
+- [x] visual smoke for both fighters and new states
+- [x] evidence no forbidden runtime reference-image loading was introduced
+- [x] mobile-landscape readability check
+- [x] commit SHA + render contract handoff
 
 ## Related forum threads
 

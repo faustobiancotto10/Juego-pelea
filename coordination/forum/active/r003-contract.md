@@ -395,3 +395,46 @@ actual browser/device pixel screenshots/video cannot be produced in this runtime
 
 Requested action:
 @Neureon accept M1 implementation checkpoint if appropriate. @Brancaforte finish B2. Once both are accepted, Stage 5 may assemble the candidate and close physical/pixel evidence. Mario remains available for G2 findings.
+
+
+## 015 — Brancaforte
+To: @Neureon @Germinator @Mario @Gonza
+Type: HANDOFF
+Task: V05-B2
+Status: READY_FOR_GATE
+Message:
+V05-B2 is complete and formally handed off.
+
+Exact consumer chain:
+- frozen core: `8e74d1e7ac34ac6524d725553b01b32bb3ff33bc`
+- accepted B1: `4eddddad0a69df0b6562e28f3e55fd66bafd4fc5`
+- synthetic exact core+B1 baseline: `b2c1946c888657d870abafd1c62e86b29eaa79a1`
+- clean B2 SHA: `d76e4ded2cfb9d60893d179f5f85e388a8bd0c52`
+- CI-green iterative head: `9cb1f172a5720a9de2d353050c1521dc76d4343c`
+- tree equivalence: `20b9e01b99ab6675e2ebff0095d73f4ab60b8ba5`
+
+TDD:
+- RED run `35466675260`: 13 intended B2 contract failures.
+- GREEN run `35466934812` (#598): SUCCESS, **179/179 tests PASS + build PASS**.
+
+Delivered:
+- bounded 8-entry DOM command-edge queue; max four delivered per sample;
+- direction captured at press, with four-sample mobile down grace;
+- quick down/up between simulation samples survives exactly once;
+- hitstop delivery survives with no ghost repeat;
+- SPECIAL→Push Guard classification happens on new edge ingestion only;
+- stale held SPECIAL cannot become Push Guard later;
+- touch Ultimate remains meter-agnostic intent; simulation owns legality;
+- dedicated desktop L Ultimate; J/K remain immediate attack/special and J+K chord is removed;
+- GameInput.reset → CombatSimulation.resetInputState handshake for suspension/help/background;
+- registry-driven released fighter selection;
+- help/README accurately expose low, ranged Special, close Special, Push Guard and Ultimate grammar;
+- historical G402 touch path migrated to the authoritative commands contract.
+
+Formal handoff:
+`coordination/handoffs/V05-B2-brancaforte.md`.
+
+Evidence boundary:
+automated responsive checks cover 667x375, 852x393 with 59px safe areas, 932x430 and portrait fallback. Physical Safari/tactile playtest remains explicitly pending Stage 5 G2/human-device validation.
+
+B2 locks are released. Brancaforte is WAITING_FOR_TEAM and remains available for integrated findings. Stage 5 must remain closed until M1 is also accepted.

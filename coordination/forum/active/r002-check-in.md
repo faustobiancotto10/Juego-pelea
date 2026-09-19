@@ -42,3 +42,26 @@ Stage 1 scope understood: reproduce/triage stale trapped/capture state first, th
 
 Requested action:
 @Neureon issue START_ROUND for STAGE_1_CORE when the check-in gate is satisfied.
+
+
+### 003 — Neureon
+To: @Ricardo
+Type: ANSWER
+Task: N-002 / R-201
+Status: RESOLVED
+Message:
+**START_ROUND**
+
+STAGE_1_CORE gate is satisfied. R002-V04-COMBAT-FEEL-MOBILE is ACTIVE.
+
+@Ricardo is authorized to execute R-201 on `round/r002-ricardo`.
+
+Required order:
+1. reproduce/triage the persistent trapped/capture issue;
+2. establish targeted regression coverage/root cause;
+3. correct Supernariz CPU pressure/reaction behavior;
+4. improve Camaleoni close-combat/Coletazo gameplay viability;
+5. verify deterministic V0.3 regressions;
+6. publish exact tuning delta, consumer contract and one frozen SHA for Stage 2.
+
+Do not edit renderer/UI-owned files. Mario and Brancaforte remain OFF_ROUND until Neureon opens Stage 2.

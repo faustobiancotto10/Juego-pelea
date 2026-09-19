@@ -10,7 +10,6 @@ export interface CpuProfile {
   commitmentTicks: readonly [number, number];
   missChance: number;
   confirmChance: number;
-  /** Temporary V0.4 behavior family. R5 replaces this with delayed seeded policy. */
   archetype: CpuArchetype;
 }
 
@@ -33,13 +32,13 @@ export const FIGHTER_KITS: Readonly<Record<RegisteredFighterId, FighterKit>> = O
     closeSpecial: 'coletazo',
     ultimate: 'ultimateCamaleoni',
     cpu: {
-      preferredRange: [165, 390],
-      pressureRange: 92,
-      reactionTicks: 7,
-      decisionTicks: 7,
+      preferredRange: [240, 330],
+      pressureRange: 105,
+      reactionTicks: 12,
+      decisionTicks: 8,
       commitmentTicks: [12, 18],
-      missChance: 0.2,
-      confirmChance: 1,
+      missChance: 0.25,
+      confirmChance: 0.85,
       archetype: 'control',
     },
   },
@@ -53,10 +52,10 @@ export const FIGHTER_KITS: Readonly<Record<RegisteredFighterId, FighterKit>> = O
     cpu: {
       preferredRange: [135, 235],
       pressureRange: 118,
-      reactionTicks: 8,
-      decisionTicks: 11,
-      commitmentTicks: [14, 18],
-      missChance: 0.2,
+      reactionTicks: 12,
+      decisionTicks: 8,
+      commitmentTicks: [12, 20],
+      missChance: 0.25,
       confirmChance: 0.75,
       archetype: 'pressure',
     },

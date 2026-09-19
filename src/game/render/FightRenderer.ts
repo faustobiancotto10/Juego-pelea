@@ -46,14 +46,26 @@ interface UltimateFlash {
   accent: string;
 }
 
+interface UltimateReleaseTrail {
+  x: number;
+  y: number;
+  facing: -1 | 1;
+  life: number;
+  maxLife: number;
+  accent: string;
+}
+
 export class FightRenderer {
   private readonly ctx: CanvasRenderingContext2D;
   private particles: Particle[] = [];
   private pushGuardFlashes: PushGuardFlash[] = [];
   private ultimateFlashes: UltimateFlash[] = [];
+  private ultimateReleaseTrails: UltimateReleaseTrail[] = [];
   private shakeFrames = 0;
   private shakeStrength = 0;
   private lastSnapshot: MatchSnapshot | null = null;
+  private lastConsumedEventFrame: number | null = null;
+  private lastRenderedSimulationFrame: number | null = null;
 
   constructor(private readonly canvas: HTMLCanvasElement) {
     const ctx = canvas.getContext('2d');
@@ -63,6 +75,8 @@ export class FightRenderer {
 
   consumeEvents(snapshot: MatchSnapshot): void {
     this.lastSnapshot = snapshot;
+    if (this.lastConsumedEventFrame === snapshot.frame) return;
+    this.lastConsumedEventFrame = snapshot.frame;
     for (const event of snapshot.events) this.consumeEvent(event, snapshot);
   }
 
@@ -98,6 +112,34 @@ export class FightRenderer {
       return;
     }
 
+    if (event.type === 'ultimate-release') {
+      const attacker = snapshot.fighters[event.attacker];
+      const defender = snapshot.fighters[event.defender];
+      const accent = attacker.id === 'chameleon' ? '#b8ffae' : '#ffbf87';
+      this.ultimateReleaseTrails.push({
+        x: defender.x,
+        y: GROUND_Y - defender.y,
+        facing: attacker.facing,
+        life: 22,
+        maxLife: 22,
+        accent,
+      });
+      if (this.ultimateReleaseTrails.length > 6) {
+        this.ultimateReleaseTrails.splice(0, this.ultimateReleaseTrails.length - 6);
+      }
+      this.ultimateFlashes.push({
+        x: defender.x,
+        y: GROUND_Y - defender.y - 92,
+        life: 20,
+        maxLife: 20,
+        accent,
+      });
+      if (this.ultimateFlashes.length > 6) this.ultimateFlashes.splice(0, this.ultimateFlashes.length - 6);
+      this.shakeFrames = Math.max(this.shakeFrames, 10);
+      this.shakeStrength = Math.max(this.shakeStrength, 7.2);
+      return;
+    }
+
     if (event.type === 'guard-break') {
       const defender = snapshot.fighters[event.defender];
       const centerX = defender.x;
@@ -127,7 +169,8 @@ export class FightRenderer {
     const attacker = snapshot.fighters[event.attacker];
     const centerX = defender.x - defender.facing * 22;
     const centerY = GROUND_Y - defender.y - (defender.crouching ? 64 : 100);
-    const ultimateHit = attacker.ultimatePhase === 'sequence';
+    const ultimateHit = event.source === 'ultimate';
+    const ultimateFinisher = ultimateHit && event.finisher;
     const tone: Particle['tone'] = event.blocked
       ? 'block'
       : ultimateHit
@@ -137,7 +180,7 @@ export class FightRenderer {
           : attacker.moveId === 'coletazo'
             ? 'tail'
             : 'warm';
-    const count = event.strong ? 18 : 10;
+    const count = ultimateFinisher ? 26 : event.strong ? 18 : 10;
     for (let i = 0; i < count; i += 1) {
       const angle = (Math.PI * 2 * i) / count + (snapshot.frame % 7) * 0.1;
       const speed = (event.strong ? 5.5 : 3.6) * (0.65 + ((i * 37) % 10) / 20);
@@ -146,9 +189,9 @@ export class FightRenderer {
         y: centerY,
         vx: Math.cos(angle) * speed,
         vy: Math.sin(angle) * speed - 1.2,
-        life: event.strong ? 22 : 15,
-        maxLife: event.strong ? 22 : 15,
-        radius: event.strong ? 4.2 : 3.1,
+        life: ultimateFinisher ? 28 : event.strong ? 22 : 15,
+        maxLife: ultimateFinisher ? 28 : event.strong ? 22 : 15,
+        radius: ultimateFinisher ? 5.2 : event.strong ? 4.2 : 3.1,
         tone,
       });
     }
@@ -161,8 +204,8 @@ export class FightRenderer {
         accent: attacker.id === 'chameleon' ? '#a8ff9f' : '#ffb879',
       });
       if (this.ultimateFlashes.length > 6) this.ultimateFlashes.splice(0, this.ultimateFlashes.length - 6);
-      this.shakeFrames = Math.max(this.shakeFrames, 8);
-      this.shakeStrength = Math.max(this.shakeStrength, 6.2);
+      this.shakeFrames = Math.max(this.shakeFrames, ultimateFinisher ? 10 : 7);
+      this.shakeStrength = Math.max(this.shakeStrength, ultimateFinisher ? 7.6 : 5.8);
     } else if (event.strong && !event.blocked) {
       this.shakeFrames = 7;
       this.shakeStrength = 5.5;
@@ -181,7 +224,10 @@ export class FightRenderer {
   }
 
   render(snapshot: MatchSnapshot, timeSeconds: number): void {
+    void timeSeconds;
     this.lastSnapshot = snapshot;
+    const simulationDelta = this.consumeSimulationFrameDelta(snapshot.frame);
+    const simulationTimeSeconds = snapshot.frame / 60;
     this.resize();
     const ctx = this.ctx;
     const dpr = Math.min(2, window.devicePixelRatio || 1);
@@ -203,12 +249,14 @@ export class FightRenderer {
       const seed = snapshot.frame * 12.9898;
       shakeX = Math.sin(seed) * this.shakeStrength;
       shakeY = Math.cos(seed * 1.37) * this.shakeStrength * 0.6;
-      this.shakeFrames -= 1;
-      this.shakeStrength *= 0.82;
+      if (simulationDelta > 0) {
+        this.shakeFrames = Math.max(0, this.shakeFrames - simulationDelta);
+        this.shakeStrength *= Math.pow(0.82, simulationDelta);
+      }
     }
 
     ctx.setTransform(scale, 0, 0, scale, offsetX + shakeX * scale, offsetY + shakeY * scale);
-    drawStage(ctx, timeSeconds);
+    drawStage(ctx, simulationTimeSeconds);
 
     this.syncAuthoritativeUltimateEffects(snapshot);
 
@@ -225,7 +273,7 @@ export class FightRenderer {
       );
     }
 
-    this.drawUltimateFields(snapshot, timeSeconds);
+    this.drawUltimateFields(snapshot, simulationTimeSeconds);
 
     // Draw farther/airborne fighter first for a stable fighting-game layer order.
     const ordered = [...snapshot.fighters].sort((a, b) => (b.y - a.y) || (a.x - b.x));
@@ -237,24 +285,25 @@ export class FightRenderer {
           fighter.x,
           GROUND_Y - fighter.y,
           captor.id === 'chameleon' ? '#9ef5a5' : '#ffd0a1',
-          timeSeconds,
+          simulationTimeSeconds,
         );
       }
-      drawFighter(ctx, fighter, timeSeconds);
+      drawFighter(ctx, fighter, simulationTimeSeconds);
     }
 
-    this.updateAndDrawTransientCombatEffects();
-    this.updateAndDrawParticles();
+    this.updateAndDrawTransientCombatEffects(simulationDelta);
+    this.updateAndDrawParticles(simulationDelta);
     this.drawPhaseText(snapshot);
   }
 
-  private syncAuthoritativeUltimateEffects(snapshot: MatchSnapshot): void {
-    const hasUltimateState = snapshot.fighters.some(
-      (fighter) => fighter.ultimatePhase !== 'idle' || fighter.capturedBy !== null,
-    );
-    if (snapshot.phase !== 'fight' || !hasUltimateState) {
-      this.ultimateFlashes = [];
+  private consumeSimulationFrameDelta(frame: number): number {
+    if (this.lastRenderedSimulationFrame === null || frame < this.lastRenderedSimulationFrame) {
+      this.lastRenderedSimulationFrame = frame;
+      return 0;
     }
+    const delta = frame - this.lastRenderedSimulationFrame;
+    this.lastRenderedSimulationFrame = frame;
+    return Math.max(0, delta);
   }
 
   private drawUltimateFields(snapshot: MatchSnapshot, timeSeconds: number): void {
@@ -272,11 +321,14 @@ export class FightRenderer {
         && target.capturedBy === attackerIndex;
 
       if (fighter.ultimatePhase === 'startup') {
-        drawCaptureStartup(ctx, fighter.x, feetY, fighter.facing, 0.92, accent);
+        const startupProgress = fighter.id === 'chameleon'
+          ? Math.min(1, fighter.ultimatePhaseFrame / 22)
+          : Math.min(1, fighter.ultimatePhaseFrame / 24);
+        drawCaptureStartup(ctx, fighter.x, feetY, fighter.facing, 0.5 + startupProgress * 0.5, accent);
         if (fighter.id === 'chameleon') {
-          drawCamaleoniVeil(ctx, fighter.x, feetY, fighter.facing, 0.28, timeSeconds);
+          drawCamaleoniVeil(ctx, fighter.x, feetY, fighter.facing, 0.22 + startupProgress * 0.32, timeSeconds);
         } else {
-          drawSupernarizInhalePulse(ctx, fighter.x, feetY, fighter.facing, 0.72, timeSeconds);
+          drawSupernarizInhalePulse(ctx, fighter.x, feetY, fighter.facing, 0.48 + startupProgress * 0.5, timeSeconds);
         }
         continue;
       }
@@ -293,38 +345,40 @@ export class FightRenderer {
       }
 
       if (fighter.ultimatePhase === 'sequence') {
-        if (!targetIsAuthoritativelyCaptured) continue;
+        if (!targetIsAuthoritativelyCaptured || !fighter.ultimateConnected) continue;
 
         if (fighter.id === 'chameleon') {
-          drawCamaleoniVeil(ctx, fighter.x, feetY, fighter.facing, 0.34, timeSeconds);
-          drawDashAfterimage(ctx, fighter.x, feetY, fighter.facing, 0.52, '#c2ffb8');
-          drawCamaleoniSequenceCuts(ctx, fighter.x, feetY, fighter.facing, 1, timeSeconds);
+          const finisherApproach = Math.min(1, Math.max(0, (fighter.ultimatePhaseFrame - 8) / 8));
+          drawCamaleoniVeil(ctx, fighter.x, feetY, fighter.facing, 0.2 + (1 - finisherApproach) * 0.24, timeSeconds);
+          drawDashAfterimage(ctx, fighter.x, feetY, fighter.facing, 0.35 + (1 - finisherApproach) * 0.28, '#c2ffb8');
+          drawCamaleoniSequenceCuts(ctx, fighter.x, feetY, fighter.facing, 0.7 + finisherApproach * 0.3, timeSeconds);
         } else {
-          drawSupernarizInhalePulse(ctx, fighter.x, feetY, fighter.facing, 0.55, timeSeconds);
-          drawSuctionField(ctx, fighter.x, feetY, fighter.facing, 0.48, timeSeconds);
-          drawNazazoArc(ctx, fighter.x, feetY, fighter.facing, 1);
-          drawLaunchTrail(ctx, target.x, GROUND_Y - target.y, fighter.facing, 0.72);
+          const nazazoBeat = Math.max(0, 1 - Math.abs(fighter.ultimatePhaseFrame - 14) / 9);
+          drawSupernarizInhalePulse(ctx, fighter.x, feetY, fighter.facing, 0.46, timeSeconds);
+          drawSuctionField(ctx, fighter.x, feetY, fighter.facing, 0.38, timeSeconds);
+          drawNazazoArc(ctx, fighter.x, feetY, fighter.facing, nazazoBeat);
         }
         continue;
       }
 
       if (fighter.ultimatePhase === 'recovery') {
-        if (fighter.id === 'chameleon') {
-          const pulse = 0.64 + Math.sin(timeSeconds * 18) * 0.18;
-          drawReappearanceFlash(ctx, fighter.x, feetY - 98, pulse);
-        } else {
-          drawReappearanceFlash(ctx, fighter.x + fighter.facing * 24, feetY - 118, 0.28);
-        }
+        const recoveryPulse = Math.max(0.2, 1 - fighter.ultimatePhaseFrame / 16);
+        drawReappearanceFlash(
+          ctx,
+          fighter.x + (fighter.id === 'supernariz' ? fighter.facing * 24 : 0),
+          feetY - (fighter.id === 'supernariz' ? 118 : 98),
+          fighter.id === 'chameleon' ? recoveryPulse : recoveryPulse * 0.44,
+        );
       }
     }
   }
 
-  private updateAndDrawTransientCombatEffects(): void {
+  private updateAndDrawTransientCombatEffects(simulationDelta: number): void {
     const ctx = this.ctx;
 
     const pushGuardKept: PushGuardFlash[] = [];
     for (const flash of this.pushGuardFlashes) {
-      flash.life -= 1;
+      flash.life -= simulationDelta;
       if (flash.life <= 0) continue;
       pushGuardKept.push(flash);
       const progress = 1 - flash.life / flash.maxLife;
@@ -334,13 +388,26 @@ export class FightRenderer {
 
     const ultimateKept: UltimateFlash[] = [];
     for (const flash of this.ultimateFlashes) {
-      flash.life -= 1;
+      flash.life -= simulationDelta;
       if (flash.life <= 0) continue;
       ultimateKept.push(flash);
       const progress = 1 - flash.life / flash.maxLife;
       drawUltimateImpact(ctx, flash.x, flash.y, progress, flash.accent);
     }
     this.ultimateFlashes = ultimateKept;
+
+    const releaseKept: UltimateReleaseTrail[] = [];
+    for (const trail of this.ultimateReleaseTrails) {
+      trail.life -= simulationDelta;
+      if (trail.life <= 0) continue;
+      releaseKept.push(trail);
+      const intensity = trail.life / trail.maxLife;
+      drawLaunchTrail(ctx, trail.x, trail.y, trail.facing, intensity);
+      if (intensity > 0.62) {
+        drawUltimateImpact(ctx, trail.x, trail.y - 88, intensity * 0.55, trail.accent);
+      }
+    }
+    this.ultimateReleaseTrails = releaseKept;
   }
 
   private drawChorizo(x: number, y: number, vx: number): void {
@@ -371,15 +438,19 @@ export class FightRenderer {
     ctx.restore();
   }
 
-  private updateAndDrawParticles(): void {
+  private updateAndDrawParticles(simulationDelta: number): void {
     const ctx = this.ctx;
     const kept: Particle[] = [];
     for (const p of this.particles) {
-      p.x += p.vx;
-      p.y += p.vy;
-      p.vx *= 0.94;
-      p.vy += 0.18;
-      p.life -= 1;
+      if (simulationDelta > 0) {
+        const decay = Math.pow(0.94, simulationDelta);
+        const distanceScale = (1 - decay) / (1 - 0.94);
+        p.x += p.vx * distanceScale;
+        p.y += p.vy * simulationDelta + 0.18 * simulationDelta * (simulationDelta - 1) * 0.5;
+        p.vx *= decay;
+        p.vy += 0.18 * simulationDelta;
+        p.life -= simulationDelta;
+      }
       if (p.life <= 0) continue;
       kept.push(p);
       const alpha = p.life / p.maxLife;

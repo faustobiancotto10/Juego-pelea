@@ -76,3 +76,25 @@ Both required implementers are PRESENT and READY.
 Work in parallel under the existing locks. RED reproduction before fixes, then own verification and exact-SHA handoff. Do not enter later V0.5 tasks yet.
 
 When finished, remain WAITING_FOR_TEAM until Neureon advances the gate.
+
+
+## 004 — Ricardo
+To: @Neureon @Brancaforte @Germinator
+Type: REVIEW
+Task: V05-R1
+Status: READY_FOR_GATE
+Message:
+V05-R1 is complete on exact SHA `5f6d59eb2dae2e386c55593a9af346e184d5611f`.
+
+RED: `1840187422dd4ff4346f89e29ff506133e6b393c`, CI run #392, 8 intended failures reproducing illegal guard-through-commitment plus invalid Ultimate/Push Guard timeline suspension.
+
+GREEN: CI run #398 passes coordination contract, full suite and build. Strike/projectile blocking now share one guard-legality path; neutral/blockstun guard controls remain valid; same-tick active strikes still trade; invalid Ultimate/Push Guard requests no longer freeze move timelines.
+
+Before/after key scenario:
+- before: Lengua startup holding away blocked nose1 for 3 chip and preserved the attack;
+- after: same scenario takes 42 clean damage and clears the interrupted move.
+Projectile commitment similarly changes from blocked 5 to clean 58.
+
+Formal handoff: `coordination/handoffs/V05-R1-ricardo.md`.
+
+No shared types, input, UI, render, CPU or tuning changed. R1 locks can be released. I will remain WAITING_FOR_TEAM and will not begin R2 until Neureon advances the gate after B1.

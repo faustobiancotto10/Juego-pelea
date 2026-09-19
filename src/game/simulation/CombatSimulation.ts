@@ -1,6 +1,6 @@
 import { DEFAULT_COMBAT_REGISTRY, type CombatRegistry } from '../data/combatRegistry.js';
 import type { UltimateDefinition } from '../data/ultimates.js';
-import { EMPTY_INPUT, type CombatAction, type CombatEvent, type CommandIntent, type Facing, type RegisteredFighterId, type FighterIndex, type FighterSnapshot, type InputFrame, type MatchSnapshot, type MatchPhase, type ProjectileSnapshot } from '../types.js';
+import { EMPTY_INPUT, type CombatAction, type CombatEvent, type CommandIntent, type Facing, type HitSource, type RegisteredFighterId, type FighterIndex, type FighterSnapshot, type InputFrame, type MatchSnapshot, type MatchPhase, type ProjectileSnapshot } from '../types.js';
 import type { MoveDefinition } from './moves.js';
 
 const ARENA_MIN_X = 90;
@@ -18,7 +18,6 @@ const GUARD_BREAK_FRAMES = 42;
 const GUARD_AFTER_BREAK = 55;
 const PUSH_GUARD_COST = 34;
 const PUSH_GUARD_SEPARATION = 122;
-const PUSH_GUARD_BUFFER_FRAMES = 6;
 const COMMAND_BUFFER_FRAMES = 6;
 const DOWN_GRACE_SAMPLES = 4;
 
@@ -44,9 +43,7 @@ interface FighterState extends FighterSnapshot {
   currentMove: MoveDefinition | null;
   moveHasHit: boolean;
   moveEffectTriggered: boolean;
-  ultimatePhaseFrame: number;
   ultimateFacing: Facing;
-  pushGuardBufferFrames: number;
   pendingCommand: PendingCommand | null;
   downGraceSamples: number;
 }
@@ -86,9 +83,6 @@ function commandPriority(action: CombatAction): number {
   return 1;
 }
 
-function pressed(now: InputFrame, before: InputFrame, key: 'jump' | 'attack' | 'special' | 'ultimate'): boolean {
-  return Boolean(now[key]) && !Boolean(before[key]);
-}
 
 function initialSuperFor(options: CombatSimulationOptions, index: FighterIndex): number {
   const configured = options.initialSuper;
@@ -148,7 +142,6 @@ function makeFighter(registry: CombatRegistry, id: RegisteredFighterId, index: F
     moveEffectTriggered: false,
     ultimateFacing: index === 0 ? 1 : -1,
     capturedBy: null,
-    pushGuardBufferFrames: 0,
     pendingCommand: null,
     downGraceSamples: 0,
   };
@@ -252,7 +245,6 @@ export class CombatSimulation {
       fighter.prevInput = copyInput(EMPTY_INPUT);
       fighter.pendingCommand = null;
       fighter.downGraceSamples = 0;
-      fighter.pushGuardBufferFrames = 0;
     }
   }
 
@@ -319,188 +311,12 @@ export class CombatSimulation {
     return this.getSnapshot();
   }
 
-  private updateFighter(index: FighterIndex, input: InputFrame): void {
+  private tryExecutePendingNeutral(index: FighterIndex): boolean {
     const fighter = this.fighters[index];
-    const def = this.registry.getFighter(fighter.id);
-
-    if (fighter.projectileCooldown > 0) fighter.projectileCooldown -= 1;
-    if (fighter.chilledFrames > 0) fighter.chilledFrames -= 1;
-    this.updateGuard(fighter);
-
-    if (fighter.capturedBy !== null) {
-      fighter.blocking = false;
-      fighter.crouching = false;
-      fighter.vx = 0;
-      fighter.vy = 0;
-      return;
-    }
-
-    if (fighter.health <= 0 && fighter.ultimatePhase !== 'sequence') {
-      fighter.blocking = false;
-      fighter.vx = 0;
-      return;
-    }
-
-    if (fighter.ultimatePhase === 'sequence') {
-      this.updateUltimate(index);
-      return;
-    }
-
-    if (fighter.guardBreakFrames > 0) {
-      fighter.guardBreakFrames -= 1;
-      fighter.blocking = false;
-      fighter.crouching = false;
-      fighter.dashKind = null;
-      fighter.dashFrame = 0;
-      fighter.pushGuardBufferFrames = 0;
-      fighter.x += fighter.vx;
-      fighter.vx *= 0.82;
-      this.integrateVertical(fighter, def.gravity);
-      this.clampFighter(fighter);
-      if (fighter.guardBreakFrames === 0) fighter.guard = Math.max(fighter.guard, GUARD_AFTER_BREAK);
-      return;
-    }
-
-    if (fighter.stunFrames > 0) {
-      fighter.stunFrames -= 1;
-      fighter.blocking = false;
-      fighter.crouching = false;
-      fighter.dashKind = null;
-      fighter.dashFrame = 0;
-      fighter.x += fighter.vx;
-      fighter.vx *= 0.86;
-      this.integrateVertical(fighter, def.gravity);
-      this.clampFighter(fighter);
-      return;
-    }
-
-    if (fighter.blockstunFrames > 0) {
-      if (fighter.pendingCommand?.intent.action === 'pushGuard') {
-        fighter.pendingCommand = null;
-        fighter.pushGuardBufferFrames = 0;
-        if (this.tryPushGuard(index)) return;
-      } else if (fighter.pushGuardBufferFrames > 0) {
-        fighter.pushGuardBufferFrames = 0;
-        if (this.tryPushGuard(index)) return;
-      }
-      fighter.blockstunFrames -= 1;
-      fighter.blocking = true;
-      fighter.crouching = input.down;
-      fighter.dashKind = null;
-      fighter.dashFrame = 0;
-      fighter.x += fighter.vx;
-      fighter.vx *= 0.78;
-      this.integrateVertical(fighter, def.gravity);
-      this.clampFighter(fighter);
-      if (fighter.blockstunFrames === 0) fighter.blocking = false;
-      return;
-    }
-
-    if (fighter.pushGuardBufferFrames > 0) fighter.pushGuardBufferFrames -= 1;
-
-    if (fighter.ultimatePhase !== 'idle') {
-      this.updateUltimate(index);
-      return;
-    }
-
-    if (fighter.pendingCommand?.intent.action === 'ultimate' && !fighter.superReady) {
-      fighter.pendingCommand = null;
-    }
-    if (fighter.pendingCommand?.intent.action === 'pushGuard') {
-      fighter.pendingCommand = null;
-    }
-
-    if (fighter.dashKind) {
-      this.updateDash(fighter);
-      this.integrateVertical(fighter, def.gravity);
-      this.clampFighter(fighter);
-      return;
-    }
-
-    if (fighter.currentMove) {
-      fighter.blocking = false;
-      fighter.crouching = false;
-      const current = fighter.currentMove;
-      const pendingAttack = fighter.pendingCommand?.intent.action === 'attack'
-        ? fighter.pendingCommand.intent
-        : null;
-      const canChain = fighter.moveHasHit
-        && pendingAttack !== null
-        && !pendingAttack.direction.down
-        && current.nextAttack
-        && current.cancelStart !== undefined
-        && current.cancelEnd !== undefined
-        && fighter.moveFrame >= current.cancelStart
-        && fighter.moveFrame <= current.cancelEnd;
-      if (canChain && current.nextAttack) {
-        fighter.pendingCommand = null;
-        this.startMove(fighter, this.registry.getMove(fighter.id, current.nextAttack), fighter.comboCount + 1);
-        this.integrateVertical(fighter, def.gravity);
-        return;
-      }
-
-      fighter.moveFrame += 1;
-      this.triggerMoveEffect(index, fighter);
-      if (fighter.moveFrame >= current.totalFrames) this.clearMove(fighter);
-      this.integrateVertical(fighter, def.gravity);
-      this.clampFighter(fighter);
-      return;
-    }
-
-    if (fighter.grounded && (input.dashLeft || input.dashRight)) {
-      const direction = input.dashLeft === input.dashRight ? 0 : input.dashLeft ? -1 : 1;
-      if (direction !== 0) {
-        this.startDash(fighter, direction as Facing);
-        this.updateDash(fighter);
-        this.clampFighter(fighter);
-        return;
-      }
-    }
-
-    const kit = this.registry.getKit(fighter.id);
-    const pending = fighter.pendingCommand?.intent ?? null;
-
-    if (pending?.action === 'ultimate') {
-      fighter.pendingCommand = null;
-      if (fighter.grounded && fighter.superReady && fighter.dashKind === null) {
-        this.startUltimate(index);
-        return;
-      }
-    }
-
-    if (pending?.action === 'special') {
-      fighter.pendingCommand = null;
-      if (fighter.grounded) {
-        let moveId = kit.rangedSpecial;
-        if (pending.direction.down) moveId = kit.closeSpecial;
-        const move = this.registry.getMove(fighter.id, moveId);
-        if (!move.projectileKey || fighter.projectileCooldown <= 0) {
-          this.startMove(fighter, move);
-          return;
-        }
-      }
-    }
-
-    if (pending?.action === 'attack') {
-      fighter.pendingCommand = null;
-      if (!fighter.grounded) {
-        this.startMove(fighter, this.registry.getMove(fighter.id, kit.air), 1);
-        return;
-      }
-      const moveId = pending.direction.down && kit.low ? kit.low : kit.standing;
-      this.startMove(fighter, this.registry.getMove(fighter.id, moveId), 1);
-      return;
-    }
-
-    if (pending?.action === 'jump') {
-      fighter.pendingCommand = null;
-      if (fighter.grounded) {
-        fighter.vy = def.jumpSpeed;
-        fighter.grounded = false;
-        fighter.crouching = false;
-        fighter.blocking = false;
-      }
-    }
+    const pending = fighter.pendingCommand;
+    if (!pending) return false;
+    const command = pending.intent;
+    if (this.tryExecutePendingNeutral(index)) return;
 
     fighter.crouching = fighter.grounded && input.down;
     fighter.blocking = false;
@@ -580,15 +396,6 @@ export class CombatSimulation {
     }
   }
 
-  private primePushGuardBuffers(inputs: readonly [InputFrame, InputFrame]): void {
-    for (const index of [0, 1] as const) {
-      const fighter = this.fighters[index];
-      if (!inputs[index].pushGuard) continue;
-      if (fighter.blocking || fighter.blockstunFrames > 0) {
-        fighter.pushGuardBufferFrames = PUSH_GUARD_BUFFER_FRAMES;
-      }
-    }
-  }
 
   private tryPushGuard(defenderIndex: FighterIndex): boolean {
     const defender = this.fighters[defenderIndex];
@@ -782,7 +589,7 @@ export class CombatSimulation {
     if (defender.guard > 0) return;
     defender.blockstunFrames = 0;
     defender.blocking = false;
-    defender.pushGuardBufferFrames = 0;
+    if (defender.pendingCommand?.intent.action === 'pushGuard') defender.pendingCommand = null;
     defender.guardBreakFrames = GUARD_BREAK_FRAMES;
     defender.vx *= 0.5;
     this.events.push({ type: 'guard-break', defender: defenderIndex });
@@ -819,7 +626,8 @@ export class CombatSimulation {
     fighter.guardBreakFrames = 0;
     fighter.dashKind = null;
     fighter.dashFrame = 0;
-    fighter.pushGuardBufferFrames = 0;
+    fighter.landingRecoveryFrames = 0;
+    fighter.pushGuardRecoveryFrames = 0;
     fighter.pendingCommand = null;
     fighter.downGraceSamples = 0;
     fighter.ultimatePhase = 'idle';
@@ -914,6 +722,7 @@ export class CombatSimulation {
     fighter.moveId = fighter.currentMove.id;
     fighter.moveFrame = 0;
     fighter.moveHasHit = false;
+    fighter.moveContact = 'none';
     fighter.moveEffectTriggered = false;
     fighter.comboCount = 0;
     fighter.ultimatePhase = 'startup';
@@ -1053,9 +862,10 @@ export class CombatSimulation {
     defender.comboCount = 0;
     defender.dashKind = null;
     defender.dashFrame = 0;
+    defender.landingRecoveryFrames = 0;
+    defender.pushGuardRecoveryFrames = 0;
     defender.stunFrames = 0;
     defender.blockstunFrames = 0;
-    defender.pushGuardBufferFrames = 0;
     defender.pendingCommand = null;
     defender.downGraceSamples = 0;
     defender.ultimatePhase = 'idle';
@@ -1108,6 +918,7 @@ export class CombatSimulation {
     if (fighter.ultimatePhase === 'recovery') return;
     fighter.ultimatePhase = 'recovery';
     fighter.ultimatePhaseFrame = 0;
+    fighter.ultimateConnected = false;
     fighter.ultimateTarget = null;
     this.events.push({ type: 'ultimate-whiff', attacker: index });
   }
@@ -1115,6 +926,7 @@ export class CombatSimulation {
   private cancelUltimateBeforeCommit(fighter: FighterState): void {
     fighter.ultimatePhase = 'idle';
     fighter.ultimatePhaseFrame = 0;
+    fighter.ultimateConnected = false;
     fighter.ultimateTarget = null;
     this.clearMove(fighter);
   }
@@ -1122,6 +934,7 @@ export class CombatSimulation {
   private finishUltimate(fighter: FighterState): void {
     fighter.ultimatePhase = 'idle';
     fighter.ultimatePhaseFrame = 0;
+    fighter.ultimateConnected = false;
     fighter.ultimateTarget = null;
     this.clearMove(fighter);
   }

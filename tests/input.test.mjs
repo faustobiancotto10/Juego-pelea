@@ -41,3 +41,9 @@ test('double-tap tracker emits a dash only for two same-direction taps inside it
   assert.equal(tracker.tap('right', 1500), false);
   assert.equal(tracker.tap('right', 1800), false);
 });
+
+
+test('V0.3 input exposes an action-priority resolver before wiring chord behavior', async () => {
+  const module = await import('../dist/game/input/GameInput.js');
+  assert.equal(typeof module.resolveActionButtons, 'function');
+});

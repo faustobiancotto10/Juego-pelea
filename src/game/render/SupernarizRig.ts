@@ -1,4 +1,5 @@
 import type { FighterSnapshot } from '../types.js';
+import { getAirPresentationPose, getMovePresentationPhase } from './PresentationPose.js';
 import { GROUND_Y, ellipse, lerp, polygon, pulse, roundedLine } from './drawUtils.js';
 
 function noseFactor(f: FighterSnapshot): number {
@@ -15,6 +16,11 @@ export function drawSupernariz(ctx: CanvasRenderingContext2D, f: FighterSnapshot
   const crouch = f.crouching ? 1 : 0;
   const block = f.blocking ? 1 : 0;
   const guardBreak = f.guardBreakFrames > 0 ? 1 : 0;
+  const movePhase = getMovePresentationPhase(f);
+  const motion = getAirPresentationPose(f);
+  const lowNose = f.moveId === 'noseLow'
+    ? Math.max(movePhase.active, (1 - movePhase.startup) * (1 - movePhase.recovery) * 0.74)
+    : 0;
   const ultimateStartup = f.ultimatePhase === 'startup' ? 1 : 0;
   const ultimateCapture = f.ultimatePhase === 'capture' ? 1 : 0;
   const ultimateSequence = f.ultimatePhase === 'sequence' ? 1 : 0;
@@ -23,20 +29,29 @@ export function drawSupernariz(ctx: CanvasRenderingContext2D, f: FighterSnapshot
   const throwPose = f.moveId === 'chorizoThrow' ? pulse(f.moveFrame, 1, 8, 21) : 0;
   const ko = f.health <= 0 ? 1 : 0;
   const hurtLean = f.stunFrames > 0 ? -0.16 : 0;
-  const airNose = f.moveId === 'airNose' ? nose : 0;
+  const airNose = f.moveId === 'airNose' ? Math.max(nose, movePhase.active) : 0;
   const inhaleBrace = ultimateStartup * 0.72 + ultimateCapture;
+  const airTilt = -motion.ascent * 0.06 + motion.descent * 0.1;
+  const landingCompression = motion.landing * 18;
   const nazazoDrive = ultimateSequence;
   const lean =
     nose * 0.16
     + airNose * 0.12
     + throwPose * 0.07
     + tramontana * 0.09
+    + lowNose * 0.05
+    + airTilt
     - ultimateStartup * 0.09
     - ultimateCapture * 0.16
     + ultimateSequence * 0.15
     + hurtLean
     - ko * 1.08;
-  const bodyDrop = crouch * 32 + ultimateStartup * 5 + ko * 44;
+  const bodyDrop =
+    crouch * 32
+    + lowNose * 25
+    + landingCompression
+    + ultimateStartup * 5
+    + ko * 44;
 
   ctx.save();
   ctx.translate(f.x, feetY);
@@ -52,7 +67,11 @@ export function drawSupernariz(ctx: CanvasRenderingContext2D, f: FighterSnapshot
   const hipY = -60 + bodyDrop;
   const shoulderY = -126 + bodyDrop * 0.45 + idle;
   const step = f.grounded ? Math.sin(time * 10.5 + f.x * 0.025) * Math.min(9, Math.abs(f.vx) * 1.6) : 0;
-  const knee = crouch * 20 + (!f.grounded ? 12 : 0);
+  const knee =
+    crouch * 20
+    + lowNose * 21
+    + motion.airborne * (10 + motion.apex * 13)
+    + motion.landing * 24;
 
   // Cape goes behind the body with a wind-responsive Bézier silhouette.
   ctx.save();
@@ -100,6 +119,7 @@ export function drawSupernariz(ctx: CanvasRenderingContext2D, f: FighterSnapshot
     30
     + throwPose * 38
     + tramontana * 24
+    + lowNose * 22
     - inhaleBrace * 20
     + nazazoDrive * 46
     + block * -2;
@@ -108,6 +128,7 @@ export function drawSupernariz(ctx: CanvasRenderingContext2D, f: FighterSnapshot
     + 20
     - throwPose * 21
     - tramontana * 14
+    + lowNose * 42
     - inhaleBrace * 24
     - nazazoDrive * 12
     - block * 26;
@@ -118,7 +139,13 @@ export function drawSupernariz(ctx: CanvasRenderingContext2D, f: FighterSnapshot
 
   // Stylized head and hair.
   const headX = 4 + nose * 8 - inhaleBrace * 8 + nazazoDrive * 8;
-  const headY = -170 + bodyDrop * 0.42 + idle;
+  const headY =
+    -170
+    + bodyDrop * 0.42
+    + idle
+    - motion.ascent * 5
+    + motion.apex * 3
+    + motion.descent * 7;
   ellipse(ctx, headX, headY, 36, 39, '#d4a07f', -0.03, '#694435', 2.4);
   ctx.save();
   ctx.fillStyle = '#191a1b';
@@ -135,11 +162,19 @@ export function drawSupernariz(ctx: CanvasRenderingContext2D, f: FighterSnapshot
   // The nose is an articulated tapered vector path; combo moves change its length and arc.
   const noseLength = lerp(
     39,
-    f.moveId === 'nose3' ? 142 : f.moveId === 'airNose' ? 128 : 118,
-    nose,
+    f.moveId === 'nose3' ? 142 : f.moveId === 'airNose' ? 128 : f.moveId === 'noseLow' ? 108 : 118,
+    Math.max(nose, lowNose),
   ) + nazazoDrive * 24 - inhaleBrace * 8;
   const noseLift =
-    (f.moveId === 'nose2' ? -12 * nose : f.moveId === 'nose3' ? 7 * nose : f.moveId === 'airNose' ? 20 * nose : 0)
+    (f.moveId === 'nose2'
+      ? -12 * nose
+      : f.moveId === 'nose3'
+        ? 7 * nose
+        : f.moveId === 'airNose'
+          ? 20 * nose + motion.descent * 9
+          : f.moveId === 'noseLow'
+            ? 38 * lowNose
+            : 0)
     - inhaleBrace * 8
     + nazazoDrive * 9;
   ctx.save();

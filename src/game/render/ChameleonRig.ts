@@ -1,5 +1,6 @@
 import type { FighterSnapshot } from '../types.js';
 import { getColetazoPresentation } from './CombatEffects.js';
+import { getAirPresentationPose, getMovePresentationPhase } from './PresentationPose.js';
 import { GROUND_Y, clamp01, ellipse, lerp, pulse, roundedLine } from './drawUtils.js';
 
 function tongueFactor(f: FighterSnapshot): number {
@@ -26,7 +27,12 @@ export function drawChameleon(ctx: CanvasRenderingContext2D, f: FighterSnapshot,
   const crouch = f.crouching ? 1 : 0;
   const block = f.blocking ? 1 : 0;
   const guardBreak = f.guardBreakFrames > 0 ? 1 : 0;
+  const movePhase = getMovePresentationPhase(f);
+  const motion = getAirPresentationPose(f);
   const claw = clawFactor(f);
+  const lowClaw = f.moveId === 'clawLow'
+    ? Math.max(movePhase.active, (1 - movePhase.startup) * (1 - movePhase.recovery) * 0.72)
+    : 0;
   const coletazo = f.moveId === 'coletazo'
     ? getColetazoPresentation(f.moveFrame)
     : { windup: 0, strike: 0, followThrough: 0, recovery: 0, sweep: 0, trail: 0 };
@@ -37,12 +43,15 @@ export function drawChameleon(ctx: CanvasRenderingContext2D, f: FighterSnapshot,
   const vanishCoil = ultimateStartup * 0.8;
   const dashDrive = ultimateCapture;
   const comboBeat = ultimateSequence;
-  const lowTongue = f.moveId === 'tongueLow';
-  const airClaw = f.moveId === 'airClaw' ? claw : 0;
+  const airClaw = f.moveId === 'airClaw' ? Math.max(claw, movePhase.active) : 0;
+  const airTilt = -motion.ascent * 0.07 + motion.descent * 0.09;
+  const landingCompression = motion.landing * 18;
   const forwardLean =
     tongue * 0.12
     + claw * 0.07
     + airClaw * 0.11
+    + lowClaw * 0.04
+    + airTilt
     - coletazo.windup * 0.17
     + coletazo.strike * 0.15
     + coletazo.followThrough * 0.1
@@ -53,6 +62,8 @@ export function drawChameleon(ctx: CanvasRenderingContext2D, f: FighterSnapshot,
     - ko * 1.16;
   const bodyDrop =
     crouch * 30
+    + lowClaw * 24
+    + landingCompression
     + coletazo.windup * 7
     - coletazo.strike * 3
     + vanishCoil * 11
@@ -106,7 +117,11 @@ export function drawChameleon(ctx: CanvasRenderingContext2D, f: FighterSnapshot,
 
   // Compact reptilian legs.
   const step = f.grounded ? Math.sin(time * 10 + f.x * 0.03) * Math.min(8, Math.abs(f.vx) * 1.8) : 0;
-  const kneeBend = crouch * 18 + (!f.grounded ? 12 : 0);
+  const kneeBend =
+    crouch * 18
+    + lowClaw * 20
+    + motion.airborne * (10 + motion.apex * 13)
+    + motion.landing * 24;
   roundedLine(ctx, -13 + hipCounter * 0.18, hipY, -18 - step - hipCounter * 0.12, -24 + kneeBend, 20, '#5d9d3c');
   roundedLine(ctx, -18 - step, -24 + kneeBend, -28 - step * 0.35, -3, 16, '#76b54d');
   roundedLine(ctx, 12 + hipCounter * 0.2, hipY, 19 + step + hipCounter * 0.16, -26 + kneeBend, 20, '#5d9d3c');
@@ -122,6 +137,7 @@ export function drawChameleon(ctx: CanvasRenderingContext2D, f: FighterSnapshot,
   const frontReach =
     18
     + claw * (f.moveId === 'claw2' ? 42 : f.moveId === 'airClaw' ? 52 : 31)
+    + lowClaw * 31
     - vanishCoil * 9
     + dashDrive * 24
     + comboBeat * 34;
@@ -129,7 +145,8 @@ export function drawChameleon(ctx: CanvasRenderingContext2D, f: FighterSnapshot,
     shoulderY
     + block * 16
     - claw * 8
-    + airClaw * 18
+    + airClaw * (18 + motion.descent * 16)
+    + lowClaw * 44
     + vanishCoil * 13
     - dashDrive * 9
     - comboBeat * 10;
@@ -146,7 +163,13 @@ export function drawChameleon(ctx: CanvasRenderingContext2D, f: FighterSnapshot,
     + dashDrive * 14
     + comboBeat * 9
     + block * -3;
-  const headY = -155 + bodyDrop * 0.43 + idle + (!f.grounded ? 3 : 0);
+  const headY =
+    -155
+    + bodyDrop * 0.43
+    + idle
+    - motion.ascent * 5
+    + motion.apex * 3
+    + motion.descent * 7;
   ellipse(ctx, headX, headY, 42, 39, '#c98f68', -0.04, '#633f31', 2.5);
   // Ear and cheek contour.
   ellipse(ctx, headX - 37, headY + 2, 7, 11, '#b97c58');
@@ -181,9 +204,8 @@ export function drawChameleon(ctx: CanvasRenderingContext2D, f: FighterSnapshot,
   roundedLine(ctx, mouthX - 8, mouthY, mouthX + 4, mouthY + 1, 2.5, '#4b2020');
 
   if (tongue > 0.01) {
-    const maxLength = lowTongue ? 285 : 310;
-    const length = lerp(10, maxLength, tongue);
-    const targetY = lowTongue ? -62 + bodyDrop * 0.25 : mouthY + 2;
+    const length = lerp(10, 310, tongue);
+    const targetY = mouthY + 2;
     ctx.save();
     ctx.strokeStyle = '#d65573';
     ctx.lineWidth = 9;

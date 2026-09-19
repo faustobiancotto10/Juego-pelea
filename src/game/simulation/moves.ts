@@ -1,5 +1,5 @@
 import { FIGHTER_KITS } from '../data/fighterKits.js';
-import type { FighterId } from '../types.js';
+import type { RegisteredRegisteredFighterId } from '../types.js';
 
 export type AttackLevel = 'mid' | 'low' | 'overhead';
 export type MoveCategory = 'normal' | 'special' | 'projectile' | 'ultimate';
@@ -41,7 +41,7 @@ export interface MoveDefinition {
   cpuReactionFrame?: number;
 }
 
-export const MOVE_SETS: Readonly<Record<FighterId, Readonly<Record<string, MoveDefinition>>>> = {
+export const MOVE_SETS: Readonly<Record<RegisteredFighterId, Readonly<Record<string, MoveDefinition>>>> = {
   chameleon: {
     claw1: {
       id: 'claw1', category: 'normal', bindingRole: 'standing', totalFrames: 19, cpuThreatRange: 190, cpuReactionFrame: 8, cancelStart: 9, cancelEnd: 14, nextAttack: 'claw2',
@@ -101,7 +101,7 @@ export const MOVE_SETS: Readonly<Record<FighterId, Readonly<Record<string, MoveD
   },
 };
 
-export function getMoveDefinition(fighter: FighterId, moveId: string): MoveDefinition {
+export function getMoveDefinition(fighter: RegisteredFighterId, moveId: string): MoveDefinition {
   const moveSet = MOVE_SETS[fighter];
   if (!moveSet) throw new Error(`Unknown move set ${fighter}`);
   const move = moveSet[moveId];
@@ -109,17 +109,17 @@ export function getMoveDefinition(fighter: FighterId, moveId: string): MoveDefin
   return move;
 }
 
-function kitFor(fighter: FighterId) {
+function kitFor(fighter: RegisteredFighterId) {
   const kit = FIGHTER_KITS[fighter];
   if (!kit) throw new Error(`Unknown fighter kit ${fighter}`);
   return kit;
 }
 
-export function getAttackStart(fighter: FighterId): MoveDefinition {
+export function getAttackStart(fighter: RegisteredFighterId): MoveDefinition {
   return getMoveDefinition(fighter, kitFor(fighter).standing);
 }
 
-export function getSpecialMove(fighter: FighterId, down: boolean, close = false): MoveDefinition {
+export function getSpecialMove(fighter: RegisteredFighterId, down: boolean, close = false): MoveDefinition {
   const kit = kitFor(fighter);
   const moveId = close
     ? kit.closeSpecial
@@ -129,14 +129,14 @@ export function getSpecialMove(fighter: FighterId, down: boolean, close = false)
   return getMoveDefinition(fighter, moveId);
 }
 
-export function getCloseSpecialMove(fighter: FighterId): MoveDefinition {
+export function getCloseSpecialMove(fighter: RegisteredFighterId): MoveDefinition {
   return getMoveDefinition(fighter, kitFor(fighter).closeSpecial);
 }
 
-export function getUltimateMove(fighter: FighterId): MoveDefinition {
+export function getUltimateMove(fighter: RegisteredFighterId): MoveDefinition {
   return getMoveDefinition(fighter, kitFor(fighter).ultimate);
 }
 
-export function getAirAttack(fighter: FighterId): MoveDefinition {
+export function getAirAttack(fighter: RegisteredFighterId): MoveDefinition {
   return getMoveDefinition(fighter, kitFor(fighter).air);
 }

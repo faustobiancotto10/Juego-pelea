@@ -184,14 +184,14 @@ test('integrated touch path supports held movement plus one exclusive ULTIMATE w
     ultimate.dispatch('pointerdown', 12);
     frame = gameInput.getFrame({ superReady: true, defensiveContext: false, nowMs: 1016 });
     assert.equal(frame.right, true);
-    assert.equal(frame.ultimate, true);
+    assert.deepEqual((frame.commands ?? []).map((command) => command.action), ['ultimate']);
     assert.equal(frame.attack, false);
     assert.equal(frame.special, false);
     assert.equal(Boolean(frame.pushGuard), false);
 
     frame = gameInput.getFrame({ superReady: true, defensiveContext: false, nowMs: 1032 });
     assert.equal(frame.right, true);
-    assert.equal(frame.ultimate, false, 'held Ultimate must not repeat');
+    assert.deepEqual(frame.commands ?? [], [], 'held Ultimate must not repeat');
   } finally {
     gameInput.destroy();
     if (previousWindow === undefined) delete globalThis.window;

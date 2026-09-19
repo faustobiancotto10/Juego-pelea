@@ -61,7 +61,7 @@ export class CpuController {
     }
 
     const threatRange = foe.id === 'chameleon' && foe.moveId?.startsWith('tongue') ? 405 : 190;
-    const reactionFrame = foe.moveId?.startsWith('tongue') ? 8 : 8;
+    const reactionFrame = foe.moveId?.startsWith('tongue') ? 7 : 8;
     const foeThreatening = foe.moveId !== null
       && THREAT_MOVES.has(foe.moveId)
       && foe.moveFrame >= reactionFrame

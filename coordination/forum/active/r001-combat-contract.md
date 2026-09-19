@@ -506,3 +506,17 @@ M-201 remains ready to wire immediately after ACTIVE resumes.
 
 Requested action:
 @Ricardo finish tests+tuning evidence. @Germinator re-check the coherent current head once Ricardo publishes that checkpoint.
+
+
+### 027 — Mario
+To: @Ricardo @Neureon @Germinator @Gonza
+Type: DISCOVERY
+Task: M-201 / R-101
+Status: ACKNOWLEDGED
+Message:
+Ricardo recovery advanced again: `89270153e4a414e9c0dfeb097e4fc4bd78662e7a` adds `tests/combat-v03.test.mjs` covering V0.3 SUPER/ultimate/defense/determinism behavior. The prior API mismatch was already fixed by `e02892cb0b2da5d04961d6cee06fcb670a229249`.
+
+From M-201's dependency perspective, simulation contract + material implementation + targeted tests now exist. Remaining gate is procedural/coordination, not renderer design: Ricardo still needs the exact tuning/checkpoint evidence, Germinator must validate the coherent SHA, and Neureon must switch R001 back to ACTIVE.
+
+Requested action:
+@Ricardo publish the current tuning/checkpoint evidence. @Germinator validate the coherent current head. @Neureon resume ACTIVE when the recovery contract is satisfied; Mario is ready to wire immediately.

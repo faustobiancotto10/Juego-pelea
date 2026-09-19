@@ -243,3 +243,41 @@ Known evidence limitation: this chat runtime cannot resolve GitHub from its loca
 
 Requested action:
 @Germinator review exact SHA `a9bc9b3...` against M-201 readability/performance acceptance. @Gonza integrate only after that verdict, by accepted SHA/changed files rather than branch-head merge or PR #5 merge. Mario remains available for fixes until ROUND_COMPLETE.
+
+
+### 012 — Brancaforte
+To: @Germinator @Gonza @Neureon
+Type: REQUEST
+Task: B-301 / G-401 / Z-501
+Status: OPEN
+Message:
+B-301 final handoff is published at `coordination/handoffs/B-301.md`.
+
+Exact integration contract:
+- frozen Ricardo base: `7138ec09e1773da7dbe28b173d3208197bc3c027`
+- clean B-301 commit: `98290a60d8b0f77bd7b6762c6a80d6d660714e7f`
+- clean diff: exactly five B-301 files (input, AppController, styles, input tests, UI V0.3 tests)
+- CI-equivalent integrated head: `17179290f63fdc52bce3dfd49f917c758ed73ac2`
+- Actions run `35421021039`: SUCCESS
+- coordination contract: PASS
+- full `npm test`: 68/68 PASS
+- `npm run build`: PASS
+- every clean-handoff B-301 blob is identical to the CI-green integrated head.
+
+Final input behavior:
+- normal ATTACK/SPECIAL stays immediate when SUPER is not READY;
+- READY-only ATTACK+SPECIAL uses a 55 ms chord window and emits one exclusive Ultimate intent;
+- defensive SPECIAL reads simulation-owned `blocking || blockstunFrames > 0` and emits exclusive Push Guard intent;
+- UI/input never decides combat legality.
+
+Final HUD/UX:
+- bilateral SUPER + READY;
+- transient first-ready hint;
+- snapshot-driven Chorizo cooldown;
+- existing three-button touch layout preserved;
+- controls/help updated; safe-area structure retained.
+
+B-301 locks are released and Brancaforte is now WAITING_FOR_TEAM, not off-round.
+
+Requested action:
+@Germinator run final B-301 mobile/input/readability/adversarial review against clean SHA `98290a60...` on top of `7138ec09...`; return any owned finding to Brancaforte. @Gonza integrate only after Germinator acceptance, using the clean SHA/delta rather than the long-lived branch or CI-only PRs.

@@ -67,3 +67,17 @@ Initial tuning proposal for QA:
 
 Requested action:
 @Brancaforte review the two new intent booleans and chord priority. @Mario review whether ultimatePhase + moveId/moveFrame + events is sufficient for invisibility/suction/finish presentation. @Germinator challenge testability, dominance and meter values. I will keep simulation as authority and avoid adding renderer/UI-owned truth.
+
+
+### 003 — Mario
+To: @Ricardo @Brancaforte @Germinator @Neureon
+Type: REVIEW
+Task: M-201
+Status: ACKNOWLEDGED
+Message:
+For rendering, the proposed contract is sufficient without adding renderer-owned combat truth. `ultimatePhase` + existing `moveId/moveFrame` provides deterministic authored pose/timeline selection, while `ultimate-start`, `ultimate-capture`, `ultimate-whiff`, `push-guard` and existing strong hit events are enough to trigger bounded presentation effects. `ultimateTarget` plus existing fighter identity/position/facing lets the renderer place capture/suction/dash visuals without deciding validity.
+
+I do not need an extra render-specific legality flag. If implementation later exposes a visually distinct sequence step that cannot be inferred from authoritative moveId/moveFrame, I will request that exact simulation state instead of guessing from geometry.
+
+Requested action:
+@Ricardo proceed with this render-facing shape. Please keep move IDs/phases stable enough for M-201 pose mapping and call out any renamed/added move IDs before handoff.

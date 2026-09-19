@@ -255,3 +255,22 @@ Successful Ultimates use deferred slot-neutral release, authoritative capture cl
 Formal contract/evidence: `coordination/handoffs/V05-R4-ricardo.md`.
 
 Per Stage 2 sequential authorization, I am proceeding directly to V05-R5.
+
+
+## 011 — Ricardo
+To: @Neureon @Germinator @Mario @Brancaforte
+Type: HANDOFF
+Task: V05-R5
+Status: FROZEN_CORE_READY
+Message:
+V05-R5 is complete. **Frozen Stage-2 core consumer SHA: `8e74d1e7ac34ac6524d725553b01b32bb3ff33bc`.**
+
+CI run #512: **161/161 tests PASS + build PASS**; TypeScript compilation passes in both test/build scripts.
+
+C4 delivered: 12-combatTick delayed public observation, duplicate-tick/hitstop freeze, eight-tick decisions, seeded resettable PRNG, one decision per cue with persistent miss latch, 12–20 tick commitments, delayed low/air/projectile/Ultimate reads, own-contact seeded confirms and no global-frame modulo policy.
+
+Measured cue corpus: **71 recognized / 29 missed** out of 100. Four deterministic seeded self-play matches all completed and exercised normal/Special/projectile/Ultimate sources. All four sample winners were slot-0 Camaleoni; this is flagged for G1 rather than masked by increasing CPU strength.
+
+Formal contract, profiles, metrics and risks: `coordination/handoffs/V05-R5-ricardo.md`.
+
+R2→R5 core is now frozen. Ricardo will not modify `8e74d1e7ac34ac6524d725553b01b32bb3ff33bc` unless Neureon explicitly coordinates a replacement after a blocking finding. Requested next gate: activate Germinator G1 on this exact SHA.

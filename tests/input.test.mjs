@@ -188,3 +188,153 @@ test('GameInput READY chord emits one Ultimate and defensive SPECIAL emits exclu
     harness.cleanup();
   }
 });
+
+
+function createTouchButton(action) {
+  const listeners = new Map();
+  const classes = new Set();
+  return {
+    dataset: { action },
+    disabled: false,
+    classList: {
+      add(name) { classes.add(name); },
+      remove(name) { classes.delete(name); },
+      contains(name) { return classes.has(name); },
+    },
+    addEventListener(type, handler) {
+      const handlers = listeners.get(type) ?? new Set();
+      handlers.add(handler);
+      listeners.set(type, handlers);
+    },
+    removeEventListener(type, handler) {
+      listeners.get(type)?.delete(handler);
+    },
+    setPointerCapture() {},
+    dispatch(type, pointerId = 1) {
+      for (const handler of listeners.get(type) ?? []) {
+        handler({ pointerId, preventDefault() {} });
+      }
+    },
+  };
+}
+
+function createTouchDpad() {
+  const listeners = new Map();
+  return {
+    dataset: {},
+    addEventListener(type, handler) {
+      const handlers = listeners.get(type) ?? new Set();
+      handlers.add(handler);
+      listeners.set(type, handlers);
+    },
+    removeEventListener(type, handler) {
+      listeners.get(type)?.delete(handler);
+    },
+    setPointerCapture() {},
+    getBoundingClientRect() {
+      return { left: 0, top: 0, width: 160, height: 160 };
+    },
+    dispatch(type, clientX, clientY, pointerId = 10) {
+      for (const handler of listeners.get(type) ?? []) {
+        handler({ pointerId, clientX, clientY, preventDefault() {} });
+      }
+    },
+  };
+}
+
+function createTouchGameInputHarness(GameInput) {
+  const listeners = new Map();
+  const previousWindow = globalThis.window;
+  const previousPerformance = globalThis.performance;
+  globalThis.window = {
+    addEventListener(type, handler) {
+      const handlers = listeners.get(type) ?? new Set();
+      handlers.add(handler);
+      listeners.set(type, handlers);
+    },
+    removeEventListener(type, handler) {
+      listeners.get(type)?.delete(handler);
+    },
+  };
+  globalThis.performance = { now: () => 5000 };
+
+  const dpad = createTouchDpad();
+  const attack = createTouchButton('attack');
+  const special = createTouchButton('special');
+  const jump = createTouchButton('jump');
+  const ultimate = createTouchButton('ultimate');
+  const buttons = [attack, special, jump, ultimate];
+  const root = {
+    querySelector(selector) {
+      return selector === '[data-dpad]' ? dpad : null;
+    },
+    querySelectorAll(selector) {
+      return selector === '[data-action]' ? buttons : [];
+    },
+  };
+  const input = new GameInput(root);
+  const cleanup = () => {
+    input.destroy();
+    if (previousWindow === undefined) delete globalThis.window;
+    else globalThis.window = previousWindow;
+    if (previousPerformance === undefined) delete globalThis.performance;
+    else globalThis.performance = previousPerformance;
+  };
+  return { input, dpad, attack, special, jump, ultimate, cleanup };
+}
+
+test('V0.4 touch ULTIMATE emits one exclusive intent and does not repeat while held', async () => {
+  const { GameInput } = await import('../dist/game/input/GameInput.js');
+  const harness = createTouchGameInputHarness(GameInput);
+  try {
+    harness.ultimate.dispatch('pointerdown', 22);
+    const first = harness.input.getFrame({ superReady: true, defensiveContext: false, nowMs: 5000 });
+    assert.deepEqual(
+      { attack: first.attack, special: first.special, ultimate: first.ultimate, pushGuard: first.pushGuard },
+      { attack: false, special: false, ultimate: true, pushGuard: false },
+    );
+
+    const held = harness.input.getFrame({ superReady: true, defensiveContext: false, nowMs: 5016 });
+    assert.equal(held.ultimate, false);
+  } finally {
+    harness.cleanup();
+  }
+});
+
+test('V0.4 touch ULTIMATE can fire while D-pad movement stays held with another pointer', async () => {
+  const { GameInput } = await import('../dist/game/input/GameInput.js');
+  const harness = createTouchGameInputHarness(GameInput);
+  try {
+    harness.dpad.dispatch('pointerdown', 145, 80, 31);
+    const moving = harness.input.getFrame({ superReady: true, defensiveContext: false, nowMs: 6000 });
+    assert.equal(moving.right, true);
+
+    harness.ultimate.dispatch('pointerdown', 32);
+    const ultimate = harness.input.getFrame({ superReady: true, defensiveContext: false, nowMs: 6016 });
+    assert.equal(ultimate.right, true);
+    assert.equal(ultimate.ultimate, true);
+    assert.equal(ultimate.attack, false);
+    assert.equal(ultimate.special, false);
+
+    harness.ultimate.dispatch('pointerup', 32);
+    const after = harness.input.getFrame({ superReady: true, defensiveContext: false, nowMs: 6032 });
+    assert.equal(after.right, true);
+    assert.equal(after.ultimate, false);
+  } finally {
+    harness.cleanup();
+  }
+});
+
+test('V0.4 touch ULTIMATE is inert before SUPER READY while keyboard chord compatibility remains', async () => {
+  const { GameInput } = await import('../dist/game/input/GameInput.js');
+  const harness = createTouchGameInputHarness(GameInput);
+  try {
+    harness.ultimate.dispatch('pointerdown', 40);
+    const notReady = harness.input.getFrame({ superReady: false, defensiveContext: false, nowMs: 7000 });
+    assert.equal(notReady.ultimate, false);
+    assert.equal(notReady.attack, false);
+    assert.equal(notReady.special, false);
+  } finally {
+    harness.cleanup();
+  }
+});

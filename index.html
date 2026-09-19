@@ -5,10 +5,1928 @@
     <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no" />
     <meta name="theme-color" content="#0c1018" />
     <title>First Playable Fight</title>
-    <link rel="stylesheet" href="./styles.css" />
+    <style>
+:root {
+  font-family: "Arial Narrow", "Roboto Condensed", Impact, system-ui, sans-serif;
+  color: #f7f0df;
+  background: #07090e;
+  font-synthesis: none;
+  --ink: #080a10;
+  --cream: #f7f0df;
+  --gold: #d8a84d;
+  --red: #c94537;
+  --green: #67a54d;
+  --blue: #286ab6;
+}
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+html, body, #app { width: 100%; height: 100%; margin: 0; overflow: hidden; }
+body { touch-action: none; overscroll-behavior: none; user-select: none; background: var(--ink); }
+button { font: inherit; color: inherit; }
+
+.select-screen, .vs-screen, .result-screen, .fight-shell { position: relative; width: 100%; height: 100%; overflow: hidden; }
+.select-screen { display: grid; grid-template-rows: auto 1fr auto; padding: max(18px, env(safe-area-inset-top)) max(30px, env(safe-area-inset-right)) max(16px, env(safe-area-inset-bottom)) max(30px, env(safe-area-inset-left)); background: radial-gradient(circle at 50% 25%, #273046 0, #121620 42%, #080a0e 100%); }
+.select-backdrop { position:absolute; inset:0; opacity:.22; background: repeating-linear-gradient(115deg, transparent 0 45px, rgba(255,255,255,.025) 45px 47px), linear-gradient(90deg, rgba(66,127,70,.25), transparent 42%, transparent 58%, rgba(48,94,157,.25)); pointer-events:none; }
+.select-header { position:relative; z-index:1; text-align:center; }
+.game-badge, .fighter-kicker, .result-kicker, .vs-label { font-size: clamp(9px, 1.2vw, 13px); letter-spacing:.22em; font-weight:900; color:#d6ae65; }
+.select-header h1 { margin:5px 0 2px; font-family: Impact, Haettenschweiler, sans-serif; font-size:clamp(30px, 6vw, 68px); letter-spacing:.04em; line-height:.95; text-shadow:0 4px 18px #000; }
+.select-header p { margin:6px 0; color:#b9bdc7; font:600 clamp(11px,1.4vw,15px) system-ui,sans-serif; }
+.fighter-grid { position:relative; z-index:1; width:min(930px,92vw); margin:auto; display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:clamp(14px,3vw,38px); align-items:center; }
+.fighter-card { min-width:0; position:relative; display:grid; grid-template-rows:auto 1fr auto auto auto auto; min-height:min(57vh,430px); padding:16px 18px 14px; border:1px solid rgba(255,255,255,.18); border-radius:8px; background:linear-gradient(160deg, rgba(255,255,255,.08), rgba(0,0,0,.34)); box-shadow:0 18px 55px rgba(0,0,0,.45), inset 0 0 0 1px rgba(255,255,255,.03); text-align:left; cursor:pointer; overflow:hidden; transition:transform .16s ease, border-color .16s ease, filter .16s ease; }
+.fighter-card::after { content:""; position:absolute; inset:auto 0 0; height:4px; background:var(--accent); }
+.fighter-card--chameleon { --accent:#75b958; --accent-dark:#1d5427; }
+.fighter-card--supernariz { --accent:#3b85dc; --accent-dark:#153c78; }
+.fighter-card:hover, .fighter-card:focus-visible { transform:translateY(-4px); border-color:color-mix(in srgb, var(--accent) 70%, white); outline:none; filter:brightness(1.08); }
+.fighter-card.is-player { box-shadow:0 0 0 2px var(--accent),0 18px 55px rgba(0,0,0,.45); }
+.fighter-portrait { position:relative; align-self:stretch; min-height:145px; margin:8px -4px 4px; display:grid; place-items:center; overflow:hidden; isolation:isolate; }
+.fighter-portrait::before { content:""; position:absolute; width:62%; aspect-ratio:1; border-radius:50%; background:radial-gradient(circle at 35% 30%, color-mix(in srgb,var(--accent) 72%,white), var(--accent-dark) 68%, transparent 70%); filter:drop-shadow(0 14px 15px rgba(0,0,0,.5)); transform:skewX(-7deg); }
+.fighter-portrait--chameleon::after { content:""; position:absolute; width:42%; height:42%; border:9px solid #67994c; border-left-color:transparent; border-radius:50%; right:5%; bottom:12%; transform:rotate(20deg); opacity:.9; }
+.fighter-portrait--supernariz::after { content:""; position:absolute; width:40%; height:14%; border-radius:60% 90% 90% 60%; background:#d4a184; left:49%; top:44%; transform:rotate(-8deg); box-shadow:0 4px 7px rgba(0,0,0,.4); }
+.portrait-mark { z-index:2; font:900 clamp(55px,10vw,118px)/1 Impact,sans-serif; color:rgba(5,9,8,.72); text-shadow:0 2px 0 rgba(255,255,255,.1); }
+.fighter-name { font:900 clamp(23px,3.7vw,44px)/.95 Impact,sans-serif; letter-spacing:.035em; text-transform:uppercase; }
+.fighter-role { margin-top:4px; color:var(--accent); font:900 clamp(11px,1.4vw,15px) system-ui,sans-serif; text-transform:uppercase; letter-spacing:.12em; }
+.fighter-moves { margin:7px 0 10px; color:#bfc3cb; font:600 clamp(9px,1.2vw,13px)/1.25 system-ui,sans-serif; }
+.fighter-pick { justify-self:end; padding:6px 10px; border:1px solid rgba(255,255,255,.17); border-radius:3px; font-size:10px; letter-spacing:.13em; font-weight:900; }
+.select-footer { position:relative; z-index:1; display:flex; justify-content:space-between; align-items:center; min-height:24px; color:#7f8590; font:600 10px system-ui,sans-serif; letter-spacing:.08em; text-transform:uppercase; }
+.text-button { border:0; background:transparent; color:#c9cbd0; cursor:pointer; padding:6px 0; }
+
+.vs-screen { display:grid; grid-template-columns:1fr auto 1fr; align-items:center; background:linear-gradient(100deg,#162316,#0b0c11 46% 54%,#111c31); }
+.vs-side { height:100%; display:flex; flex-direction:column; justify-content:center; gap:7px; padding:8vw; background:radial-gradient(circle at center,var(--accent-dark),transparent 60%); }
+.vs-side--right { text-align:right; align-items:flex-end; }
+.vs-side strong { font:900 clamp(38px,8vw,100px)/.88 Impact,sans-serif; text-transform:uppercase; text-shadow:0 8px 25px #000; }
+.vs-side span:not(.vs-label) { color:#b5b7bf; font:800 14px system-ui,sans-serif; text-transform:uppercase; letter-spacing:.18em; }
+.vs-mark { z-index:2; font:900 clamp(48px,8vw,100px) Impact,sans-serif; font-style:italic; color:#efe1bc; text-shadow:0 0 35px rgba(230,172,73,.4); transform:rotate(-5deg); }
+
+.fight-shell { background:#06080c; }
+.fight-canvas { display:block; width:100%; height:100%; }
+.hud { position:absolute; z-index:10; top:max(8px,env(safe-area-inset-top)); left:max(14px,env(safe-area-inset-left)); right:max(14px,env(safe-area-inset-right)); height:64px; display:grid; grid-template-columns:minmax(0,1fr) 82px minmax(0,1fr); gap:10px; pointer-events:none; filter:drop-shadow(0 3px 6px rgba(0,0,0,.8)); }
+.hud-fighter { min-width:0; }
+.hud-fighter--right { text-align:right; }
+.hud-meta { display:flex; justify-content:space-between; align-items:end; margin-bottom:4px; text-transform:uppercase; }
+.hud-fighter--right .hud-meta { flex-direction:row-reverse; }
+.hud-meta strong { font:900 clamp(12px,2vw,22px)/1 Impact,sans-serif; letter-spacing:.05em; }
+.hud-meta span { color:#d7b86f; font:800 9px system-ui,sans-serif; letter-spacing:.13em; }
+.health-track { height:16px; padding:2px; border:2px solid rgba(242,232,202,.82); background:#151319; transform:skewX(-8deg); overflow:hidden; }
+.health-fill { display:block; width:100%; height:100%; background:linear-gradient(90deg,#d65937,#edc253 65%,#ece29f); transform-origin:left; transition:transform 80ms linear; }
+.hud-fighter--right .health-fill { transform-origin:right; }
+.round-pips { display:flex; gap:4px; margin-top:4px; }
+.hud-fighter--right .round-pips { justify-content:flex-end; }
+.round-pips i { width:9px; height:9px; border:1px solid #af8d55; border-radius:50%; background:#27252a; }
+.round-pips i.is-won { background:#e5b44e; box-shadow:0 0 8px #e5b44e; }
+.hud-center { display:flex; flex-direction:column; align-items:center; }
+.round-label { color:#b6a075; font:800 9px system-ui,sans-serif; letter-spacing:.18em; }
+.timer { font:900 clamp(29px,4vw,45px)/.9 Impact,sans-serif; }
+
+.touch-layer { position:absolute; z-index:20; inset:0; pointer-events:none; }
+.dpad { position:absolute; pointer-events:auto; left:max(18px,env(safe-area-inset-left)); bottom:max(15px,env(safe-area-inset-bottom)); width:clamp(116px,18vw,172px); aspect-ratio:1; border-radius:50%; background:radial-gradient(circle,rgba(255,255,255,.11),rgba(0,0,0,.28) 70%); border:1px solid rgba(255,255,255,.13); opacity:.78; touch-action:none; }
+.dpad-cross { position:absolute; inset:50% auto auto 50%; border-radius:9px; background:rgba(18,20,27,.62); border:1px solid rgba(255,255,255,.16); transform:translate(-50%,-50%); }
+.dpad-cross--h { width:86%; height:32%; }
+.dpad-cross--v { width:32%; height:86%; }
+.dpad-center { position:absolute; width:25%; aspect-ratio:1; left:50%; top:50%; transform:translate(-50%,-50%); border-radius:50%; background:#343742; box-shadow:inset 0 0 0 2px rgba(255,255,255,.09); }
+.dpad[data-direction]:not([data-direction=""]) { filter:brightness(1.3); }
+.action-cluster { position:absolute; pointer-events:none; right:max(16px,env(safe-area-inset-right)); bottom:max(15px,env(safe-area-inset-bottom)); width:clamp(190px,29vw,290px); height:clamp(128px,20vw,190px); }
+.action-button { position:absolute; pointer-events:auto; border-radius:50%; border:2px solid rgba(255,255,255,.42); background:linear-gradient(145deg,rgba(255,255,255,.22),rgba(8,9,13,.72)); box-shadow:0 5px 12px rgba(0,0,0,.38),inset 0 0 16px rgba(255,255,255,.06); display:grid; place-items:center; font:900 clamp(9px,1.2vw,13px) system-ui,sans-serif; letter-spacing:.04em; text-shadow:0 2px 4px #000; touch-action:none; }
+.action-button span { pointer-events:none; }
+.action-button--attack { width:clamp(70px,10vw,96px); aspect-ratio:1; right:0; bottom:0; border-color:rgba(226,153,70,.7); }
+.action-button--special { width:clamp(64px,9vw,88px); aspect-ratio:1; right:34%; bottom:34%; border-color:rgba(97,164,218,.72); }
+.action-button--jump { width:clamp(58px,8vw,78px); aspect-ratio:1; right:3%; top:0; border-color:rgba(212,212,220,.65); }
+.action-button.is-pressed { transform:scale(.92); filter:brightness(1.45); }
+.desktop-hint { position:absolute; left:50%; bottom:max(8px,env(safe-area-inset-bottom)); transform:translateX(-50%); z-index:12; color:rgba(255,255,255,.38); font:600 9px system-ui,sans-serif; pointer-events:none; }
+
+.result-screen { display:grid; place-content:center; text-align:center; gap:8px; background:radial-gradient(circle at 50% 35%,var(--accent-dark),#090a0e 58%); }
+.result-screen h1 { margin:0; font:900 clamp(64px,14vw,150px)/.85 Impact,sans-serif; letter-spacing:.03em; text-shadow:0 8px 28px #000; }
+.result-screen p { margin:4px 0 18px; color:#bfc1c7; font:600 16px system-ui,sans-serif; }
+.result-actions { display:flex; justify-content:center; gap:10px; }
+.primary-button,.secondary-button { min-width:150px; padding:13px 20px; border-radius:3px; border:1px solid rgba(255,255,255,.24); font:900 13px system-ui,sans-serif; letter-spacing:.12em; cursor:pointer; }
+.primary-button { background:#d0a34e; color:#17120a; }
+.secondary-button { background:rgba(255,255,255,.07); }
+
+.orientation-prompt { display:none; position:fixed; z-index:999; inset:0; background:#090b10; place-content:center; justify-items:center; text-align:center; gap:10px; padding:30px; }
+.phone-icon { font-size:50px; }
+.orientation-prompt strong { font:900 27px Impact,sans-serif; letter-spacing:.08em; }
+.orientation-prompt span { color:#a7aab2; font:600 14px system-ui,sans-serif; }
+
+@media (orientation: portrait) and (max-width: 900px) { .orientation-prompt { display:grid; } }
+@media (hover:hover) and (pointer:fine) { .touch-layer { opacity:.28; } }
+@media (max-height: 520px) {
+  .select-screen { padding-top:10px; padding-bottom:8px; }
+  .select-header p { display:none; }
+  .fighter-card { min-height:70vh; padding:10px 14px 9px; }
+  .fighter-portrait { min-height:105px; margin:2px; }
+  .fighter-moves { margin:3px 0 6px; }
+  .select-footer { min-height:16px; }
+  .hud { height:50px; top:5px; }
+  .health-track { height:13px; }
+  .desktop-hint { display:none; }
+}
+@media (max-width: 720px) and (orientation: landscape) {
+  .fighter-grid { width:95vw; gap:12px; }
+  .fighter-card { padding:9px 11px 8px; }
+  .fighter-portrait { min-height:92px; }
+  .fighter-pick { display:none; }
+  .fighter-moves { font-size:8px; }
+}
+
+</style>
   </head>
   <body>
     <div id="app"></div>
-    <script type="module" src="./main.js"></script>
+    <script type="module">
+// --- game/data/fighters.js ---
+const FIGHTERS = {
+    chameleon: {
+        id: 'chameleon',
+        displayName: 'Camaleón',
+        role: 'Control de distancia',
+        maxHealth: 1000,
+        walkSpeed: 4.25,
+        jumpSpeed: 12.4,
+        gravity: 0.72,
+        width: 54,
+        height: 118,
+        accent: '#7abf43',
+    },
+    supernariz: {
+        id: 'supernariz',
+        displayName: 'Supernariz',
+        role: 'Rushdown / combos',
+        maxHealth: 1000,
+        walkSpeed: 4.8,
+        jumpSpeed: 12.1,
+        gravity: 0.74,
+        width: 56,
+        height: 122,
+        accent: '#2f6bd7',
+    },
+};
+const FIGHTER_IDS = Object.keys(FIGHTERS);
+fighters.js.map
+
+// --- game/types.js ---
+const EMPTY_INPUT = {
+    left: false,
+    right: false,
+    down: false,
+    up: false,
+    jump: false,
+    attack: false,
+    special: false,
+};
+types.js.map
+
+// --- game/input/dpad.js ---
+const NEUTRAL_DIRECTION = { left: false, right: false, up: false, down: false };
+function directionFromPoint(dx, dy, radius, deadZone) {
+    const distance = Math.hypot(dx, dy);
+    if (distance < deadZone || radius <= 0)
+        return { ...NEUTRAL_DIRECTION };
+    const angle = Math.atan2(dy, dx);
+    const eighth = Math.PI / 8;
+    const right = angle >= -eighth && angle < eighth;
+    const downRight = angle >= eighth && angle < 3 * eighth;
+    const down = angle >= 3 * eighth && angle < 5 * eighth;
+    const downLeft = angle >= 5 * eighth && angle < 7 * eighth;
+    const left = angle >= 7 * eighth || angle < -7 * eighth;
+    const upLeft = angle >= -7 * eighth && angle < -5 * eighth;
+    const up = angle >= -5 * eighth && angle < -3 * eighth;
+    const upRight = angle >= -3 * eighth && angle < -eighth;
+    return {
+        left: left || downLeft || upLeft,
+        right: right || downRight || upRight,
+        up: up || upLeft || upRight,
+        down: down || downLeft || downRight,
+    };
+}
+function composeInputFrame(direction = {}, actions = {}) {
+    return {
+        ...EMPTY_INPUT,
+        ...direction,
+        ...actions,
+    };
+}
+dpad.js.map
+
+// --- game/input/keyboard.js ---
+function inputFromKeyboard(keys) {
+    const left = keys.has('KeyA') || keys.has('ArrowLeft');
+    const right = keys.has('KeyD') || keys.has('ArrowRight');
+    const down = keys.has('KeyS') || keys.has('ArrowDown');
+    const up = keys.has('KeyW') || keys.has('ArrowUp');
+    return composeInputFrame({ left, right, down, up }, {
+        jump: up || keys.has('Space'),
+        attack: keys.has('KeyJ'),
+        special: keys.has('KeyK'),
+    });
+}
+keyboard.js.map
+
+// --- game/input/GameInput.js ---
+const NEUTRAL = { left: false, right: false, up: false, down: false };
+class GameInput {
+    root;
+    keys = new Set();
+    touchDirection = { ...NEUTRAL };
+    touchActions = { attack: false, special: false, jump: false };
+    dpadPointer = null;
+    cleanupCallbacks = [];
+    constructor(root) {
+        this.root = root;
+        this.bindKeyboard();
+        this.bindTouchControls();
+    }
+    getFrame() {
+        const keyboard = inputFromKeyboard(this.keys);
+        const touch = composeInputFrame(this.touchDirection, this.touchActions);
+        return {
+            left: keyboard.left || touch.left,
+            right: keyboard.right || touch.right,
+            down: keyboard.down || touch.down,
+            up: keyboard.up || touch.up,
+            jump: keyboard.jump || touch.jump,
+            attack: keyboard.attack || touch.attack,
+            special: keyboard.special || touch.special,
+        };
+    }
+    destroy() {
+        for (const cleanup of this.cleanupCallbacks.splice(0))
+            cleanup();
+        this.keys.clear();
+        this.touchDirection = { ...NEUTRAL };
+        this.touchActions = { attack: false, special: false, jump: false };
+    }
+    bindKeyboard() {
+        const relevant = new Set(['KeyA', 'KeyD', 'KeyS', 'KeyW', 'ArrowLeft', 'ArrowRight', 'ArrowDown', 'ArrowUp', 'Space', 'KeyJ', 'KeyK']);
+        const onDown = (event) => {
+            if (!relevant.has(event.code))
+                return;
+            event.preventDefault();
+            this.keys.add(event.code);
+        };
+        const onUp = (event) => {
+            if (!relevant.has(event.code))
+                return;
+            event.preventDefault();
+            this.keys.delete(event.code);
+        };
+        const onBlur = () => this.keys.clear();
+        window.addEventListener('keydown', onDown, { passive: false });
+        window.addEventListener('keyup', onUp, { passive: false });
+        window.addEventListener('blur', onBlur);
+        this.cleanupCallbacks.push(() => window.removeEventListener('keydown', onDown), () => window.removeEventListener('keyup', onUp), () => window.removeEventListener('blur', onBlur));
+    }
+    bindTouchControls() {
+        const dpad = this.root.querySelector('[data-dpad]');
+        if (dpad) {
+            const update = (event) => {
+                const rect = dpad.getBoundingClientRect();
+                const cx = rect.left + rect.width / 2;
+                const cy = rect.top + rect.height / 2;
+                this.touchDirection = directionFromPoint(event.clientX - cx, event.clientY - cy, rect.width / 2, rect.width * 0.16);
+                this.paintDpad(dpad);
+            };
+            const down = (event) => {
+                if (this.dpadPointer !== null)
+                    return;
+                this.dpadPointer = event.pointerId;
+                dpad.setPointerCapture(event.pointerId);
+                update(event);
+            };
+            const move = (event) => {
+                if (this.dpadPointer === event.pointerId)
+                    update(event);
+            };
+            const release = (event) => {
+                if (this.dpadPointer !== event.pointerId)
+                    return;
+                this.dpadPointer = null;
+                this.touchDirection = { ...NEUTRAL };
+                this.paintDpad(dpad);
+            };
+            dpad.addEventListener('pointerdown', down);
+            dpad.addEventListener('pointermove', move);
+            dpad.addEventListener('pointerup', release);
+            dpad.addEventListener('pointercancel', release);
+            this.cleanupCallbacks.push(() => dpad.removeEventListener('pointerdown', down), () => dpad.removeEventListener('pointermove', move), () => dpad.removeEventListener('pointerup', release), () => dpad.removeEventListener('pointercancel', release));
+        }
+        for (const button of this.root.querySelectorAll('[data-action]')) {
+            const action = button.dataset.action;
+            if (!['attack', 'special', 'jump'].includes(action))
+                continue;
+            const down = (event) => {
+                event.preventDefault();
+                button.setPointerCapture(event.pointerId);
+                this.touchActions[action] = true;
+                button.classList.add('is-pressed');
+            };
+            const release = (event) => {
+                event.preventDefault();
+                this.touchActions[action] = false;
+                button.classList.remove('is-pressed');
+            };
+            button.addEventListener('pointerdown', down);
+            button.addEventListener('pointerup', release);
+            button.addEventListener('pointercancel', release);
+            button.addEventListener('lostpointercapture', release);
+            this.cleanupCallbacks.push(() => button.removeEventListener('pointerdown', down), () => button.removeEventListener('pointerup', release), () => button.removeEventListener('pointercancel', release), () => button.removeEventListener('lostpointercapture', release));
+        }
+    }
+    paintDpad(dpad) {
+        dpad.dataset.direction = [
+            this.touchDirection.up ? 'u' : '',
+            this.touchDirection.down ? 'd' : '',
+            this.touchDirection.left ? 'l' : '',
+            this.touchDirection.right ? 'r' : '',
+        ].join('');
+    }
+}
+GameInput.js.map
+
+// --- game/render/drawUtils.js ---
+const WORLD_WIDTH = 1280;
+const WORLD_HEIGHT = 720;
+const GROUND_Y = 565;
+function clamp01(value) {
+    return Math.max(0, Math.min(1, value));
+}
+function lerp(a, b, t) {
+    return a + (b - a) * t;
+}
+function easeOutCubic(t) {
+    const x = 1 - clamp01(t);
+    return 1 - x * x * x;
+}
+function pulse(frame, start, peak, end) {
+    if (frame <= start || frame >= end)
+        return 0;
+    if (frame <= peak)
+        return clamp01((frame - start) / Math.max(1, peak - start));
+    return clamp01(1 - (frame - peak) / Math.max(1, end - peak));
+}
+function roundedLine(ctx, x1, y1, x2, y2, width, color) {
+    ctx.save();
+    ctx.strokeStyle = color;
+    ctx.lineWidth = width;
+    ctx.lineCap = 'round';
+    ctx.beginPath();
+    ctx.moveTo(x1, y1);
+    ctx.lineTo(x2, y2);
+    ctx.stroke();
+    ctx.restore();
+}
+function ellipse(ctx, x, y, rx, ry, fill, rotation = 0, stroke, lineWidth = 1) {
+    ctx.save();
+    ctx.beginPath();
+    ctx.ellipse(x, y, rx, ry, rotation, 0, Math.PI * 2);
+    ctx.fillStyle = fill;
+    ctx.fill();
+    if (stroke) {
+        ctx.strokeStyle = stroke;
+        ctx.lineWidth = lineWidth;
+        ctx.stroke();
+    }
+    ctx.restore();
+}
+function polygon(ctx, points, fill, stroke) {
+    if (points.length === 0)
+        return;
+    ctx.save();
+    ctx.beginPath();
+    ctx.moveTo(points[0][0], points[0][1]);
+    for (let i = 1; i < points.length; i += 1)
+        ctx.lineTo(points[i][0], points[i][1]);
+    ctx.closePath();
+    ctx.fillStyle = fill;
+    ctx.fill();
+    if (stroke) {
+        ctx.strokeStyle = stroke;
+        ctx.lineWidth = 2;
+        ctx.stroke();
+    }
+    ctx.restore();
+}
+drawUtils.js.map
+
+// --- game/render/ChameleonRig.js ---
+function tongueFactor(f) {
+    if (f.moveId !== 'tongueStraight' && f.moveId !== 'tongueLow')
+        return 0;
+    const frame = f.moveFrame;
+    if (frame < 6)
+        return 0;
+    if (frame <= 10)
+        return clamp01((frame - 6) / 4);
+    if (frame <= 13)
+        return 1;
+    if (frame <= 22)
+        return clamp01(1 - (frame - 13) / 9);
+    return 0;
+}
+function clawFactor(f) {
+    if (f.moveId === 'airClaw')
+        return pulse(f.moveFrame, 1, 6, 15) * 1.15;
+    if (f.moveId !== 'claw1' && f.moveId !== 'claw2')
+        return 0;
+    return pulse(f.moveFrame, 1, 6, 14);
+}
+function drawChameleon(ctx, f, time) {
+    const feetY = GROUND_Y - f.y;
+    const idle = Math.sin(time * 5.2 + f.x * 0.01) * 1.4;
+    const ko = f.health <= 0 ? 1 : 0;
+    const hurtLean = f.stunFrames > 0 ? -0.13 : 0;
+    const crouch = f.crouching ? 1 : 0;
+    const block = f.blocking ? 1 : 0;
+    const claw = clawFactor(f);
+    const tongue = tongueFactor(f);
+    const lowTongue = f.moveId === 'tongueLow';
+    const airClaw = f.moveId === 'airClaw' ? claw : 0;
+    const forwardLean = tongue * 0.12 + claw * 0.07 + airClaw * 0.11 + hurtLean - ko * 1.16;
+    const bodyDrop = crouch * 30 + ko * 42;
+    ctx.save();
+    ctx.translate(f.x, feetY);
+    ctx.scale(f.facing, 1);
+    ctx.rotate(forwardLean);
+    // Soft ground shadow belongs to the character and tracks jumps naturally.
+    ctx.save();
+    ctx.rotate(-forwardLean);
+    ctx.globalAlpha = 0.2 * (1 - Math.min(0.65, f.y / 260));
+    ellipse(ctx, 0, f.y, 48, 10, '#05070a');
+    ctx.restore();
+    // Tail: a real articulated curve, not a pasted picture. It counterbalances attacks.
+    const tailCounter = -tongue * 28 - claw * 12 + Math.sin(time * 2.8) * 5;
+    ctx.save();
+    ctx.strokeStyle = '#315f2d';
+    ctx.lineWidth = 22;
+    ctx.lineCap = 'round';
+    ctx.beginPath();
+    ctx.moveTo(-20, -73 + bodyDrop * 0.35);
+    ctx.bezierCurveTo(-78, -70, -94, -24 + tailCounter * 0.15, -67, -10 + tailCounter * 0.18);
+    ctx.bezierCurveTo(-39, 10 + tailCounter * 0.12, -23, -30 + tailCounter * 0.32, -49, -40 + tailCounter * 0.35);
+    ctx.stroke();
+    ctx.strokeStyle = '#6cae42';
+    ctx.lineWidth = 11;
+    ctx.beginPath();
+    ctx.moveTo(-20, -73 + bodyDrop * 0.35);
+    ctx.bezierCurveTo(-78, -70, -94, -24 + tailCounter * 0.15, -67, -10 + tailCounter * 0.18);
+    ctx.bezierCurveTo(-39, 10 + tailCounter * 0.12, -23, -30 + tailCounter * 0.32, -49, -40 + tailCounter * 0.35);
+    ctx.stroke();
+    ctx.restore();
+    const hipY = -54 + bodyDrop;
+    const shoulderY = -112 + bodyDrop * 0.45 + idle;
+    // Compact reptilian legs.
+    const step = f.grounded ? Math.sin(time * 10 + f.x * 0.03) * Math.min(8, Math.abs(f.vx) * 1.8) : 0;
+    const kneeBend = crouch * 18 + (!f.grounded ? 12 : 0);
+    roundedLine(ctx, -13, hipY, -18 - step, -24 + kneeBend, 20, '#5d9d3c');
+    roundedLine(ctx, -18 - step, -24 + kneeBend, -28 - step * 0.35, -3, 16, '#76b54d');
+    roundedLine(ctx, 12, hipY, 19 + step, -26 + kneeBend, 20, '#5d9d3c');
+    roundedLine(ctx, 19 + step, -26 + kneeBend, 30 + step * 0.35, -3, 16, '#76b54d');
+    roundedLine(ctx, -31 - step * 0.35, -2, -14 - step * 0.35, -2, 6, '#adc96b');
+    roundedLine(ctx, 17 + step * 0.35, -2, 34 + step * 0.35, -2, 6, '#adc96b');
+    // Torso with a lighter belly plate.
+    ellipse(ctx, 0, -84 + bodyDrop * 0.65, 31, 49 - crouch * 9, '#4f8f38', -0.05, '#274f2c', 3);
+    ellipse(ctx, 8, -82 + bodyDrop * 0.65, 16, 35 - crouch * 7, '#79b654', -0.06);
+    // Tiny arms are intentionally very short: this is part of the fighter's gameplay identity.
+    const frontReach = 18 + claw * (f.moveId === 'claw2' ? 42 : f.moveId === 'airClaw' ? 52 : 31);
+    const frontY = shoulderY + block * 16 - claw * 8 + airClaw * 18;
+    roundedLine(ctx, 12, shoulderY, frontReach, frontY, 11, '#62a444');
+    ellipse(ctx, frontReach + 3, frontY, 7, 6, '#86bd5e');
+    roundedLine(ctx, -12, shoulderY + 4, -24 + block * 13, shoulderY + 18 - block * 25, 10, '#568f3a');
+    ellipse(ctx, -25 + block * 13, shoulderY + 18 - block * 25, 7, 6, '#80b75a');
+    // Oversized stylized human-like head from the reference concept, reconstructed with vector forms.
+    const headX = 4 + tongue * 14 + block * -3;
+    const headY = -155 + bodyDrop * 0.43 + idle + (!f.grounded ? 3 : 0);
+    ellipse(ctx, headX, headY, 42, 39, '#c98f68', -0.04, '#633f31', 2.5);
+    // Ear and cheek contour.
+    ellipse(ctx, headX - 37, headY + 2, 7, 11, '#b97c58');
+    ellipse(ctx, headX + 10, headY + 10, 28, 21, '#d19a72', -0.08);
+    // Curly hair: many small vector locks create a stable silhouette without an image asset.
+    ctx.fillStyle = '#161918';
+    const curlPoints = [
+        [-31, -30, 12], [-18, -38, 13], [-3, -42, 14], [13, -39, 13], [27, -30, 12], [34, -16, 10],
+        [-35, -16, 11], [-25, -48, 9], [-8, -52, 10], [10, -50, 10], [25, -43, 9], [-39, -2, 8],
+    ];
+    for (const [dx, dy, r] of curlPoints) {
+        ctx.beginPath();
+        ctx.arc(headX + dx, headY + dy, r, 0, Math.PI * 2);
+        ctx.fill();
+    }
+    // Brow, eye and beard shadows.
+    roundedLine(ctx, headX + 4, headY - 7, headX + 18, headY - 8, 3, '#35251f');
+    ellipse(ctx, headX + 15, headY - 2, 2.7, 2.3, '#101316');
+    ctx.save();
+    ctx.strokeStyle = '#5e4035';
+    ctx.lineWidth = 2.2;
+    ctx.beginPath();
+    ctx.moveTo(headX + 16, headY + 7);
+    ctx.quadraticCurveTo(headX + 25, headY + 12, headX + 23, headY + 19);
+    ctx.stroke();
+    ctx.restore();
+    const mouthX = headX + 29;
+    const mouthY = headY + 18;
+    roundedLine(ctx, mouthX - 8, mouthY, mouthX + 4, mouthY + 1, 2.5, '#4b2020');
+    if (tongue > 0.01) {
+        const maxLength = lowTongue ? 285 : 310;
+        const length = lerp(10, maxLength, tongue);
+        const targetY = lowTongue ? -62 + bodyDrop * 0.25 : mouthY + 2;
+        ctx.save();
+        ctx.strokeStyle = '#d65573';
+        ctx.lineWidth = 9;
+        ctx.lineCap = 'round';
+        ctx.beginPath();
+        ctx.moveTo(mouthX + 3, mouthY + 1);
+        ctx.quadraticCurveTo(mouthX + length * 0.45, lerp(mouthY, targetY, 0.55) - 3, mouthX + length, targetY);
+        ctx.stroke();
+        ctx.strokeStyle = '#f08ba0';
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        ctx.moveTo(mouthX + 5, mouthY - 1);
+        ctx.quadraticCurveTo(mouthX + length * 0.45, lerp(mouthY, targetY, 0.55) - 5, mouthX + length - 2, targetY - 2);
+        ctx.stroke();
+        ellipse(ctx, mouthX + length, targetY, 9, 6, '#e56d86');
+        ctx.restore();
+    }
+    // Guard shimmer during blocks; chill tint is handled subtly through an overlay.
+    if (block) {
+        ctx.save();
+        ctx.globalAlpha = 0.3;
+        ctx.strokeStyle = '#b8e6a1';
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        ctx.arc(20, -110 + bodyDrop * 0.5, 44, -1.1, 1.05);
+        ctx.stroke();
+        ctx.restore();
+    }
+    if (f.chilledFrames > 0) {
+        ctx.save();
+        ctx.globalAlpha = 0.15 + 0.08 * Math.sin(time * 11);
+        ellipse(ctx, 0, -100 + bodyDrop * 0.5, 50, 94, '#a9e7ff');
+        ctx.restore();
+    }
+    ctx.restore();
+}
+ChameleonRig.js.map
+
+// --- game/render/SupernarizRig.js ---
+function noseFactor(f) {
+    if (f.moveId === 'airNose')
+        return pulse(f.moveFrame, 1, 7, 16) * 0.92;
+    if (!f.moveId?.startsWith('nose'))
+        return 0;
+    if (f.moveId === 'nose1')
+        return pulse(f.moveFrame, 1, 5, 12) * 0.45;
+    if (f.moveId === 'nose2')
+        return pulse(f.moveFrame, 1, 5, 13) * 0.7;
+    return pulse(f.moveFrame, 2, 7, 17);
+}
+function drawSupernariz(ctx, f, time) {
+    const feetY = GROUND_Y - f.y;
+    const idle = Math.sin(time * 5.8 + f.x * 0.01) * 1.2;
+    const crouch = f.crouching ? 1 : 0;
+    const block = f.blocking ? 1 : 0;
+    const nose = noseFactor(f);
+    const tramontana = f.moveId === 'tramontana' ? pulse(f.moveFrame, 3, 10, 24) : 0;
+    const throwPose = f.moveId === 'chorizoThrow' ? pulse(f.moveFrame, 1, 8, 21) : 0;
+    const ko = f.health <= 0 ? 1 : 0;
+    const hurtLean = f.stunFrames > 0 ? -0.16 : 0;
+    const airNose = f.moveId === 'airNose' ? nose : 0;
+    const lean = nose * 0.16 + airNose * 0.12 + throwPose * 0.07 + hurtLean - ko * 1.08;
+    const bodyDrop = crouch * 32 + ko * 44;
+    ctx.save();
+    ctx.translate(f.x, feetY);
+    ctx.scale(f.facing, 1);
+    ctx.rotate(lean);
+    ctx.save();
+    ctx.rotate(-lean);
+    ctx.globalAlpha = 0.22 * (1 - Math.min(0.65, f.y / 260));
+    ellipse(ctx, 0, f.y, 46, 10, '#05070a');
+    ctx.restore();
+    const hipY = -60 + bodyDrop;
+    const shoulderY = -126 + bodyDrop * 0.45 + idle;
+    const step = f.grounded ? Math.sin(time * 10.5 + f.x * 0.025) * Math.min(9, Math.abs(f.vx) * 1.6) : 0;
+    const knee = crouch * 20 + (!f.grounded ? 12 : 0);
+    // Cape goes behind the body with a wind-responsive Bézier silhouette.
+    ctx.save();
+    ctx.fillStyle = '#9e202c';
+    ctx.strokeStyle = '#56131a';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(-18, shoulderY + 5);
+    ctx.bezierCurveTo(-52 - Math.abs(f.vx) * 2, shoulderY + 18, -65 - Math.sin(time * 3) * 10, -62 + bodyDrop * 0.4, -35, -34 + bodyDrop * 0.5);
+    ctx.lineTo(-8, -72 + bodyDrop * 0.45);
+    ctx.closePath();
+    ctx.fill();
+    ctx.stroke();
+    ctx.restore();
+    // Legs and boots.
+    roundedLine(ctx, -12, hipY, -14 - step, -30 + knee, 19, '#2f5fb2');
+    roundedLine(ctx, -14 - step, -30 + knee, -25 - step * 0.45, -5, 15, '#376dc8');
+    roundedLine(ctx, 12, hipY, 17 + step, -29 + knee, 19, '#2f5fb2');
+    roundedLine(ctx, 17 + step, -29 + knee, 28 + step * 0.45, -5, 15, '#376dc8');
+    roundedLine(ctx, -31 - step * 0.45, -4, -13 - step * 0.45, -4, 10, '#a62b34');
+    roundedLine(ctx, 15 + step * 0.45, -4, 34 + step * 0.45, -4, 10, '#a62b34');
+    // Slim suit torso.
+    ellipse(ctx, 0, -94 + bodyDrop * 0.62, 29, 51 - crouch * 8, '#2d61bd', -0.03, '#16376f', 3);
+    // Chest nose insignia.
+    ellipse(ctx, 7, -106 + bodyDrop * 0.58, 16, 8, '#d9a17e', 0.05, '#784b3b', 1.5);
+    roundedLine(ctx, -25, -70 + bodyDrop * 0.65, 25, -70 + bodyDrop * 0.65, 8, '#8c2530');
+    // Belt decorations are programmatic sausage-shaped beads.
+    for (const bx of [-18, 0, 18]) {
+        ellipse(ctx, bx, -65 + bodyDrop * 0.65, 7, 4, '#c46d42', 0.15);
+        roundedLine(ctx, bx - 5, -65 + bodyDrop * 0.65, bx + 5, -65 + bodyDrop * 0.65, 2, '#f0b17f');
+    }
+    // Arms. Throwing arm swings forward for the chorizo special.
+    const frontHandX = 30 + throwPose * 38 + block * -2;
+    const frontHandY = shoulderY + 20 - throwPose * 21 - block * 26;
+    roundedLine(ctx, 17, shoulderY + 3, frontHandX, frontHandY, 13, '#2e65c3');
+    ellipse(ctx, frontHandX + 2, frontHandY, 8, 8, '#a92d37');
+    roundedLine(ctx, -17, shoulderY + 6, -30 + block * 23, shoulderY + 26 - block * 30, 13, '#285aa9');
+    ellipse(ctx, -31 + block * 23, shoulderY + 26 - block * 30, 8, 8, '#a52b35');
+    // Stylized head and hair.
+    const headX = 4 + nose * 8;
+    const headY = -170 + bodyDrop * 0.42 + idle;
+    ellipse(ctx, headX, headY, 36, 39, '#d4a07f', -0.03, '#694435', 2.4);
+    ctx.save();
+    ctx.fillStyle = '#191a1b';
+    ctx.beginPath();
+    ctx.moveTo(headX - 33, headY - 18);
+    ctx.bezierCurveTo(headX - 26, headY - 52, headX + 18, headY - 53, headX + 31, headY - 23);
+    ctx.bezierCurveTo(headX + 13, headY - 35, headX - 8, headY - 30, headX - 33, headY - 18);
+    ctx.fill();
+    ctx.restore();
+    roundedLine(ctx, headX + 4, headY - 7, headX + 17, headY - 8, 3, '#4a3127');
+    ellipse(ctx, headX + 14, headY - 1, 2.5, 2.2, '#101317');
+    roundedLine(ctx, headX + 8, headY + 23, headX + 22, headY + 23, 2.3, '#6b302e');
+    // The nose is an articulated tapered vector path; combo moves change its length and arc.
+    const noseLength = lerp(39, f.moveId === 'nose3' ? 142 : f.moveId === 'airNose' ? 128 : 118, nose);
+    const noseLift = f.moveId === 'nose2' ? -12 * nose : f.moveId === 'nose3' ? 7 * nose : f.moveId === 'airNose' ? 20 * nose : 0;
+    ctx.save();
+    ctx.fillStyle = '#c98668';
+    ctx.strokeStyle = '#754635';
+    ctx.lineWidth = 2.2;
+    ctx.beginPath();
+    ctx.moveTo(headX + 18, headY + 3);
+    ctx.quadraticCurveTo(headX + noseLength * 0.45, headY - 10 + noseLift, headX + noseLength, headY + 5 + noseLift);
+    ctx.quadraticCurveTo(headX + noseLength * 0.55, headY + 19 + noseLift, headX + 18, headY + 16);
+    ctx.closePath();
+    ctx.fill();
+    ctx.stroke();
+    ellipse(ctx, headX + noseLength - 4, headY + 8 + noseLift, 8, 7, '#bc745a');
+    ellipse(ctx, headX + noseLength - 1, headY + 7 + noseLift, 2.1, 1.7, '#5f3a31');
+    ctx.restore();
+    if (tramontana > 0.01) {
+        // Wind/ice ribbon produced entirely in code.
+        ctx.save();
+        ctx.globalAlpha = 0.35 + tramontana * 0.3;
+        ctx.strokeStyle = '#bfeaff';
+        ctx.lineWidth = 9;
+        ctx.lineCap = 'round';
+        for (let i = 0; i < 3; i += 1) {
+            const yy = -132 + i * 28;
+            ctx.beginPath();
+            ctx.moveTo(38, yy);
+            ctx.bezierCurveTo(95, yy - 24 + i * 5, 145, yy + 20, 220 * tramontana + 40, yy - 6);
+            ctx.stroke();
+        }
+        ctx.strokeStyle = '#f1fbff';
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        ctx.moveTo(52, -118);
+        ctx.quadraticCurveTo(125, -160, 225 * tramontana + 30, -121);
+        ctx.stroke();
+        ctx.restore();
+    }
+    if (block) {
+        ctx.save();
+        ctx.globalAlpha = 0.28;
+        ctx.strokeStyle = '#83b5ff';
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        ctx.arc(28, -123 + bodyDrop * 0.45, 46, -1.2, 1.1);
+        ctx.stroke();
+        ctx.restore();
+    }
+    if (f.chilledFrames > 0) {
+        ctx.save();
+        ctx.globalAlpha = 0.13 + 0.07 * Math.sin(time * 12);
+        polygon(ctx, [[-42, -194], [38, -204], [51, -44], [-40, -40]], '#bfefff');
+        ctx.restore();
+    }
+    ctx.restore();
+}
+SupernarizRig.js.map
+
+// --- game/render/FighterRenderer.js ---
+function drawFighter(ctx, fighter, timeSeconds) {
+    if (fighter.id === 'chameleon')
+        drawChameleon(ctx, fighter, timeSeconds);
+    else
+        drawSupernariz(ctx, fighter, timeSeconds);
+}
+FighterRenderer.js.map
+
+// --- game/render/StageRenderer.js ---
+function drawStage(ctx, time) {
+    const sky = ctx.createLinearGradient(0, 0, 0, WORLD_HEIGHT);
+    sky.addColorStop(0, '#111b36');
+    sky.addColorStop(0.45, '#334b67');
+    sky.addColorStop(0.72, '#c77b5e');
+    sky.addColorStop(1, '#e9b66e');
+    ctx.fillStyle = sky;
+    ctx.fillRect(0, 0, WORLD_WIDTH, WORLD_HEIGHT);
+    // Moon/sun haze.
+    const glow = ctx.createRadialGradient(1020, 112, 10, 1020, 112, 145);
+    glow.addColorStop(0, 'rgba(255,231,174,.92)');
+    glow.addColorStop(0.25, 'rgba(255,201,137,.52)');
+    glow.addColorStop(1, 'rgba(255,170,110,0)');
+    ctx.fillStyle = glow;
+    ctx.fillRect(850, 0, 360, 280);
+    ctx.fillStyle = '#ffd9a2';
+    ctx.beginPath();
+    ctx.arc(1020, 112, 43, 0, Math.PI * 2);
+    ctx.fill();
+    // Distant mountain silhouettes.
+    ctx.fillStyle = '#27384b';
+    ctx.beginPath();
+    ctx.moveTo(0, 385);
+    ctx.lineTo(110, 300);
+    ctx.lineTo(195, 354);
+    ctx.lineTo(315, 228);
+    ctx.lineTo(430, 362);
+    ctx.lineTo(540, 280);
+    ctx.lineTo(680, 386);
+    ctx.lineTo(790, 264);
+    ctx.lineTo(930, 368);
+    ctx.lineTo(1080, 248);
+    ctx.lineTo(1280, 380);
+    ctx.lineTo(1280, GROUND_Y);
+    ctx.lineTo(0, GROUND_Y);
+    ctx.closePath();
+    ctx.fill();
+    ctx.fillStyle = '#3d4d58';
+    ctx.beginPath();
+    ctx.moveTo(0, 430);
+    ctx.lineTo(150, 362);
+    ctx.lineTo(260, 414);
+    ctx.lineTo(400, 326);
+    ctx.lineTo(540, 426);
+    ctx.lineTo(720, 355);
+    ctx.lineTo(900, 438);
+    ctx.lineTo(1090, 344);
+    ctx.lineTo(1280, 424);
+    ctx.lineTo(1280, GROUND_Y);
+    ctx.lineTo(0, GROUND_Y);
+    ctx.closePath();
+    ctx.fill();
+    // Wind ribbons in the distance subtly suggest the Tramontana theme without dominating the arena.
+    ctx.save();
+    ctx.globalAlpha = 0.12;
+    ctx.strokeStyle = '#d5ecff';
+    ctx.lineWidth = 4;
+    for (let i = 0; i < 4; i += 1) {
+        const yy = 180 + i * 62;
+        const offset = (time * 18 + i * 90) % 180;
+        ctx.beginPath();
+        ctx.moveTo(-180 + offset, yy);
+        ctx.bezierCurveTo(230 + offset, yy - 35, 510 + offset, yy + 22, 840 + offset, yy - 7);
+        ctx.stroke();
+    }
+    ctx.restore();
+    // Arena platform.
+    const ground = ctx.createLinearGradient(0, GROUND_Y, 0, WORLD_HEIGHT);
+    ground.addColorStop(0, '#524438');
+    ground.addColorStop(0.24, '#302b2b');
+    ground.addColorStop(1, '#151619');
+    ctx.fillStyle = ground;
+    ctx.fillRect(0, GROUND_Y, WORLD_WIDTH, WORLD_HEIGHT - GROUND_Y);
+    ctx.fillStyle = '#927357';
+    ctx.fillRect(0, GROUND_Y - 9, WORLD_WIDTH, 11);
+    ctx.fillStyle = '#c19a70';
+    ctx.fillRect(0, GROUND_Y - 9, WORLD_WIDTH, 2);
+    // Floor perspective and scratches.
+    ctx.save();
+    ctx.globalAlpha = 0.26;
+    ctx.strokeStyle = '#b99c7e';
+    ctx.lineWidth = 1;
+    for (let x = 80; x < WORLD_WIDTH; x += 100) {
+        ctx.beginPath();
+        ctx.moveTo(x, GROUND_Y + 4);
+        ctx.lineTo(WORLD_WIDTH / 2 + (x - WORLD_WIDTH / 2) * 1.5, WORLD_HEIGHT);
+        ctx.stroke();
+    }
+    for (let y = GROUND_Y + 34; y < WORLD_HEIGHT; y += 42) {
+        ctx.beginPath();
+        ctx.moveTo(0, y);
+        ctx.lineTo(WORLD_WIDTH, y);
+        ctx.stroke();
+    }
+    ctx.restore();
+    // Low crowd silhouettes beyond the rail.
+    ctx.fillStyle = '#171c25';
+    for (let x = 28; x < WORLD_WIDTH; x += 34) {
+        const bob = Math.sin(time * 1.8 + x * 0.09) * 2;
+        ctx.beginPath();
+        ctx.arc(x, GROUND_Y - 36 + bob, 9, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillRect(x - 7, GROUND_Y - 28 + bob, 14, 22);
+    }
+    ctx.fillStyle = '#21262e';
+    ctx.fillRect(0, GROUND_Y - 16, WORLD_WIDTH, 10);
+}
+StageRenderer.js.map
+
+// --- game/render/FightRenderer.js ---
+class FightRenderer {
+    canvas;
+    ctx;
+    particles = [];
+    shakeFrames = 0;
+    shakeStrength = 0;
+    lastSnapshot = null;
+    constructor(canvas) {
+        this.canvas = canvas;
+        const ctx = canvas.getContext('2d');
+        if (!ctx)
+            throw new Error('Canvas2D unavailable');
+        this.ctx = ctx;
+    }
+    consumeEvents(snapshot) {
+        this.lastSnapshot = snapshot;
+        for (const event of snapshot.events)
+            this.consumeEvent(event, snapshot);
+    }
+    consumeEvent(event, snapshot) {
+        if (event.type !== 'hit')
+            return;
+        const defender = snapshot.fighters[event.defender];
+        const attacker = snapshot.fighters[event.attacker];
+        const centerX = defender.x - defender.facing * 22;
+        const centerY = GROUND_Y - defender.y - (defender.crouching ? 64 : 100);
+        const tone = event.blocked ? 'block' : attacker.moveId === 'tramontana' ? 'cold' : 'warm';
+        const count = event.strong ? 18 : 10;
+        for (let i = 0; i < count; i += 1) {
+            const angle = (Math.PI * 2 * i) / count + (snapshot.frame % 7) * 0.1;
+            const speed = (event.strong ? 5.5 : 3.6) * (0.65 + ((i * 37) % 10) / 20);
+            this.particles.push({
+                x: centerX,
+                y: centerY,
+                vx: Math.cos(angle) * speed,
+                vy: Math.sin(angle) * speed - 1.2,
+                life: event.strong ? 22 : 15,
+                maxLife: event.strong ? 22 : 15,
+                radius: event.strong ? 4.2 : 3.1,
+                tone,
+            });
+        }
+        if (event.strong && !event.blocked) {
+            this.shakeFrames = 7;
+            this.shakeStrength = 5.5;
+        }
+        else if (!event.blocked) {
+            this.shakeFrames = Math.max(this.shakeFrames, 3);
+            this.shakeStrength = Math.max(this.shakeStrength, 2.5);
+        }
+    }
+    render(snapshot, timeSeconds) {
+        this.lastSnapshot = snapshot;
+        this.resize();
+        const ctx = this.ctx;
+        const dpr = Math.min(2, window.devicePixelRatio || 1);
+        const cssW = this.canvas.clientWidth || window.innerWidth;
+        const cssH = this.canvas.clientHeight || window.innerHeight;
+        const pxW = cssW * dpr;
+        const pxH = cssH * dpr;
+        const scale = Math.min(pxW / WORLD_WIDTH, pxH / WORLD_HEIGHT);
+        const offsetX = (pxW - WORLD_WIDTH * scale) * 0.5;
+        const offsetY = (pxH - WORLD_HEIGHT * scale) * 0.5;
+        ctx.setTransform(1, 0, 0, 1, 0, 0);
+        ctx.fillStyle = '#07090e';
+        ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+        let shakeX = 0;
+        let shakeY = 0;
+        if (this.shakeFrames > 0) {
+            const seed = snapshot.frame * 12.9898;
+            shakeX = Math.sin(seed) * this.shakeStrength;
+            shakeY = Math.cos(seed * 1.37) * this.shakeStrength * 0.6;
+            this.shakeFrames -= 1;
+            this.shakeStrength *= 0.82;
+        }
+        ctx.setTransform(scale, 0, 0, scale, offsetX + shakeX * scale, offsetY + shakeY * scale);
+        drawStage(ctx, timeSeconds);
+        for (const projectile of snapshot.projectiles)
+            this.drawChorizo(projectile.x, GROUND_Y - projectile.y, projectile.vx);
+        // Draw farther/airborne fighter first for a stable fighting-game layer order.
+        const ordered = [...snapshot.fighters].sort((a, b) => (b.y - a.y) || (a.x - b.x));
+        for (const fighter of ordered)
+            drawFighter(ctx, fighter, timeSeconds);
+        this.updateAndDrawParticles();
+        this.drawPhaseText(snapshot);
+    }
+    drawChorizo(x, y, vx) {
+        const ctx = this.ctx;
+        ctx.save();
+        ctx.translate(x, y);
+        ctx.rotate(vx >= 0 ? -0.08 : Math.PI + 0.08);
+        ctx.fillStyle = '#a84f31';
+        ctx.strokeStyle = '#5a2b22';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.roundRect(-25, -7, 50, 14, 7);
+        ctx.fill();
+        ctx.stroke();
+        ctx.strokeStyle = '#ef9d68';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(-18, -3);
+        ctx.lineTo(16, -3);
+        ctx.stroke();
+        ctx.strokeStyle = '#e2c598';
+        ctx.beginPath();
+        ctx.moveTo(-25, 0);
+        ctx.lineTo(-31, -4);
+        ctx.moveTo(25, 0);
+        ctx.lineTo(31, 4);
+        ctx.stroke();
+        ctx.restore();
+    }
+    updateAndDrawParticles() {
+        const ctx = this.ctx;
+        const kept = [];
+        for (const p of this.particles) {
+            p.x += p.vx;
+            p.y += p.vy;
+            p.vx *= 0.94;
+            p.vy += 0.18;
+            p.life -= 1;
+            if (p.life <= 0)
+                continue;
+            kept.push(p);
+            const alpha = p.life / p.maxLife;
+            ctx.save();
+            ctx.globalAlpha = alpha;
+            const color = p.tone === 'cold' ? '#b8edff' : p.tone === 'block' ? '#f1f4ff' : '#ffcf7e';
+            ellipse(ctx, p.x, p.y, p.radius * alpha + 1, p.radius * 0.65 * alpha + 0.8, color);
+            ctx.restore();
+        }
+        this.particles = kept;
+    }
+    drawPhaseText(snapshot) {
+        const ctx = this.ctx;
+        if (snapshot.phase !== 'intro' && snapshot.phase !== 'round-over')
+            return;
+        ctx.save();
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.shadowColor = 'rgba(0,0,0,.55)';
+        ctx.shadowBlur = 16;
+        ctx.fillStyle = '#f6e8c9';
+        ctx.font = '900 64px system-ui, sans-serif';
+        if (snapshot.phase === 'intro') {
+            ctx.fillText(`ROUND ${snapshot.round}`, WORLD_WIDTH / 2, 285);
+            ctx.font = '800 28px system-ui, sans-serif';
+            ctx.fillStyle = '#d8b676';
+            ctx.fillText('PREPARADOS', WORLD_WIDTH / 2, 338);
+        }
+        else {
+            const label = snapshot.roundWinner === null ? 'DRAW' : snapshot.roundTimerFrames <= 0 ? 'TIME' : 'K.O.';
+            ctx.fillText(label, WORLD_WIDTH / 2, 302);
+        }
+        ctx.restore();
+    }
+    resize() {
+        const dpr = Math.min(2, window.devicePixelRatio || 1);
+        const width = Math.max(1, Math.round((this.canvas.clientWidth || window.innerWidth) * dpr));
+        const height = Math.max(1, Math.round((this.canvas.clientHeight || window.innerHeight) * dpr));
+        if (this.canvas.width !== width || this.canvas.height !== height) {
+            this.canvas.width = width;
+            this.canvas.height = height;
+        }
+    }
+}
+FightRenderer.js.map
+
+// --- game/simulation/moves.js ---
+const moves = {
+    chameleon: {
+        claw1: {
+            id: 'claw1', totalFrames: 20, cancelStart: 10, cancelEnd: 15, nextAttack: 'claw2',
+            hitbox: { start: 5, end: 7, offsetX: 24, width: 54, bottom: 28, top: 92, damage: 44, chipDamage: 3, hitstun: 11, blockstun: 8, knockback: 3.0, hitstop: 4, level: 'mid', strong: false },
+        },
+        claw2: {
+            id: 'claw2', totalFrames: 24,
+            hitbox: { start: 6, end: 9, offsetX: 28, width: 66, bottom: 34, top: 100, damage: 58, chipDamage: 4, hitstun: 14, blockstun: 9, knockback: 4.5, hitstop: 5, level: 'mid', strong: true },
+        },
+        tongueStraight: {
+            id: 'tongueStraight', totalFrames: 30,
+            hitbox: { start: 9, end: 12, offsetX: 34, width: 305, bottom: 50, top: 95, damage: 92, chipDamage: 8, hitstun: 18, blockstun: 12, knockback: 7.4, hitstop: 6, level: 'mid', strong: true },
+        },
+        tongueLow: {
+            id: 'tongueLow', totalFrames: 32,
+            hitbox: { start: 10, end: 13, offsetX: 35, width: 285, bottom: 10, top: 42, damage: 76, chipDamage: 7, hitstun: 17, blockstun: 12, knockback: 6.2, hitstop: 5, level: 'low', strong: true },
+        },
+        airClaw: {
+            id: 'airClaw', totalFrames: 22,
+            hitbox: { start: 4, end: 9, offsetX: 20, width: 72, bottom: -38, top: 42, damage: 62, chipDamage: 4, hitstun: 14, blockstun: 9, knockback: 5.2, hitstop: 5, level: 'overhead', strong: true },
+        },
+    },
+    supernariz: {
+        nose1: {
+            id: 'nose1', totalFrames: 18, cancelStart: 10, cancelEnd: 14, nextAttack: 'nose2',
+            hitbox: { start: 4, end: 6, offsetX: 28, width: 78, bottom: 34, top: 106, damage: 42, chipDamage: 3, hitstun: 9, blockstun: 7, knockback: 2.5, hitstop: 3, level: 'mid', strong: false },
+        },
+        nose2: {
+            id: 'nose2', totalFrames: 19, cancelStart: 10, cancelEnd: 14, nextAttack: 'nose3',
+            hitbox: { start: 4, end: 7, offsetX: 34, width: 94, bottom: 28, top: 112, damage: 49, chipDamage: 3, hitstun: 10, blockstun: 8, knockback: 3.1, hitstop: 4, level: 'mid', strong: false },
+        },
+        nose3: {
+            id: 'nose3', totalFrames: 26,
+            hitbox: { start: 6, end: 9, offsetX: 40, width: 126, bottom: 38, top: 118, damage: 74, chipDamage: 5, hitstun: 16, blockstun: 11, knockback: 7.2, hitstop: 6, level: 'mid', strong: true },
+        },
+        chorizoThrow: {
+            id: 'chorizoThrow', totalFrames: 29, spawnProjectileFrame: 8,
+        },
+        tramontana: {
+            id: 'tramontana', totalFrames: 34, chillFrames: 90,
+            hitbox: { start: 8, end: 14, offsetX: 38, width: 205, bottom: 24, top: 112, damage: 38, chipDamage: 4, hitstun: 20, blockstun: 13, knockback: 8.0, hitstop: 4, level: 'mid', strong: true },
+        },
+        airNose: {
+            id: 'airNose', totalFrames: 24,
+            hitbox: { start: 5, end: 10, offsetX: 30, width: 112, bottom: -44, top: 48, damage: 70, chipDamage: 5, hitstun: 15, blockstun: 10, knockback: 6.4, hitstop: 5, level: 'overhead', strong: true },
+        },
+    },
+};
+function getMoveDefinition(fighter, moveId) {
+    const move = moves[fighter][moveId];
+    if (!move)
+        throw new Error(`Unknown move ${fighter}:${moveId}`);
+    return move;
+}
+function getAttackStart(fighter) {
+    return getMoveDefinition(fighter, fighter === 'chameleon' ? 'claw1' : 'nose1');
+}
+function getSpecialMove(fighter, down) {
+    if (fighter === 'chameleon')
+        return getMoveDefinition(fighter, down ? 'tongueLow' : 'tongueStraight');
+    return getMoveDefinition(fighter, down ? 'tramontana' : 'chorizoThrow');
+}
+function getAirAttack(fighter) {
+    return getMoveDefinition(fighter, fighter === 'chameleon' ? 'airClaw' : 'airNose');
+}
+moves.js.map
+
+// --- game/simulation/CombatSimulation.js ---
+const ARENA_MIN_X = 90;
+const ARENA_MAX_X = 1190;
+const START_X = [330, 950];
+const ROUND_TIME_FRAMES = 60 * 60;
+const ROUND_OVER_FRAMES = 90;
+const INTRO_FRAMES = 55;
+const PUSH_DISTANCE = 62;
+function copyInput(input) {
+    return { ...input };
+}
+function pressed(now, before, key) {
+    return now[key] && !before[key];
+}
+function makeFighter(id, index) {
+    const def = FIGHTERS[id];
+    return {
+        id,
+        x: START_X[index],
+        y: 0,
+        vx: 0,
+        vy: 0,
+        facing: index === 0 ? 1 : -1,
+        health: def.maxHealth,
+        maxHealth: def.maxHealth,
+        grounded: true,
+        crouching: false,
+        blocking: false,
+        stunFrames: 0,
+        blockstunFrames: 0,
+        moveId: null,
+        moveFrame: 0,
+        comboCount: 0,
+        chilledFrames: 0,
+        projectileCooldown: 0,
+        roundWins: 0,
+        prevInput: copyInput(EMPTY_INPUT),
+        currentMove: null,
+        moveHasHit: false,
+        moveEffectTriggered: false,
+    };
+}
+function cloneFighter(f) {
+    return {
+        id: f.id,
+        x: f.x,
+        y: f.y,
+        vx: f.vx,
+        vy: f.vy,
+        facing: f.facing,
+        health: f.health,
+        maxHealth: f.maxHealth,
+        grounded: f.grounded,
+        crouching: f.crouching,
+        blocking: f.blocking,
+        stunFrames: f.stunFrames,
+        blockstunFrames: f.blockstunFrames,
+        moveId: f.moveId,
+        moveFrame: f.moveFrame,
+        comboCount: f.comboCount,
+        chilledFrames: f.chilledFrames,
+        projectileCooldown: f.projectileCooldown,
+        roundWins: f.roundWins,
+    };
+}
+function isAwayHeld(input, facing) {
+    return facing === 1 ? input.left : input.right;
+}
+function intervalsOverlap(aMin, aMax, bMin, bMax) {
+    return aMin <= bMax && bMin <= aMax;
+}
+class CombatSimulation {
+    fighters;
+    frame = 0;
+    phase;
+    introFrames;
+    round = 1;
+    roundTimerFrames = ROUND_TIME_FRAMES;
+    roundOverFrames = 0;
+    hitstopFrames = 0;
+    winner = null;
+    roundWinner = null;
+    events = [];
+    projectiles = [];
+    nextProjectileId = 1;
+    constructor(p1, p2, options = {}) {
+        this.fighters = [makeFighter(p1, 0), makeFighter(p2, 1)];
+        this.phase = options.skipIntro ? 'fight' : 'intro';
+        this.introFrames = options.skipIntro ? 0 : INTRO_FRAMES;
+    }
+    getSnapshot() {
+        return {
+            frame: this.frame,
+            phase: this.phase,
+            round: this.round,
+            roundTimerFrames: this.roundTimerFrames,
+            hitstopFrames: this.hitstopFrames,
+            winner: this.winner,
+            roundWinner: this.roundWinner,
+            fighters: [cloneFighter(this.fighters[0]), cloneFighter(this.fighters[1])],
+            projectiles: this.projectiles.filter((p) => p.active).map(({ ttl: _ttl, ...p }) => ({ ...p })),
+            events: this.events.map((event) => ({ ...event })),
+        };
+    }
+    step(p1Input, p2Input) {
+        this.events = [];
+        this.frame += 1;
+        const inputs = [p1Input, p2Input];
+        if (this.phase === 'intro') {
+            this.introFrames -= 1;
+            this.updateFacing();
+            this.saveInputs(inputs);
+            if (this.introFrames <= 0) {
+                this.phase = 'fight';
+                this.events.push({ type: 'round-start', round: this.round });
+            }
+            return this.getSnapshot();
+        }
+        if (this.phase === 'round-over') {
+            this.roundOverFrames -= 1;
+            this.saveInputs(inputs);
+            if (this.roundOverFrames <= 0)
+                this.advanceAfterRound();
+            return this.getSnapshot();
+        }
+        if (this.phase === 'match-over') {
+            this.saveInputs(inputs);
+            return this.getSnapshot();
+        }
+        if (this.hitstopFrames > 0) {
+            this.hitstopFrames -= 1;
+            this.saveInputs(inputs);
+            return this.getSnapshot();
+        }
+        this.updateFacing();
+        for (const index of [0, 1]) {
+            this.updateFighter(index, inputs[index]);
+        }
+        this.resolvePushboxes();
+        this.updateFacing();
+        this.resolveMoveHits(0, 1, inputs[1]);
+        this.resolveMoveHits(1, 0, inputs[0]);
+        this.updateProjectiles(inputs);
+        this.cancelInterruptedMoves();
+        if (this.phase === 'fight') {
+            this.roundTimerFrames = Math.max(0, this.roundTimerFrames - 1);
+            if (this.fighters[0].health <= 0 || this.fighters[1].health <= 0 || this.roundTimerFrames <= 0) {
+                this.finishRound();
+            }
+        }
+        this.saveInputs(inputs);
+        return this.getSnapshot();
+    }
+    updateFighter(index, input) {
+        const fighter = this.fighters[index];
+        const def = FIGHTERS[fighter.id];
+        if (fighter.projectileCooldown > 0)
+            fighter.projectileCooldown -= 1;
+        if (fighter.chilledFrames > 0)
+            fighter.chilledFrames -= 1;
+        if (fighter.stunFrames > 0) {
+            fighter.stunFrames -= 1;
+            fighter.blocking = false;
+            fighter.crouching = false;
+            fighter.x += fighter.vx;
+            fighter.vx *= 0.86;
+            this.integrateVertical(fighter, def.gravity);
+            this.clampFighter(fighter);
+            return;
+        }
+        if (fighter.blockstunFrames > 0) {
+            fighter.blockstunFrames -= 1;
+            fighter.blocking = true;
+            fighter.x += fighter.vx;
+            fighter.vx *= 0.78;
+            this.integrateVertical(fighter, def.gravity);
+            this.clampFighter(fighter);
+            return;
+        }
+        if (fighter.currentMove) {
+            fighter.blocking = false;
+            fighter.crouching = false;
+            const current = fighter.currentMove;
+            const canChain = current.nextAttack
+                && current.cancelStart !== undefined
+                && current.cancelEnd !== undefined
+                && fighter.moveFrame >= current.cancelStart
+                && fighter.moveFrame <= current.cancelEnd
+                && pressed(input, fighter.prevInput, 'attack');
+            if (canChain && current.nextAttack) {
+                this.startMove(fighter, getMoveDefinition(fighter.id, current.nextAttack), fighter.comboCount + 1);
+                this.integrateVertical(fighter, def.gravity);
+                return;
+            }
+            fighter.moveFrame += 1;
+            this.triggerMoveEffect(index, fighter);
+            if (fighter.moveFrame >= current.totalFrames)
+                this.clearMove(fighter);
+            this.integrateVertical(fighter, def.gravity);
+            this.clampFighter(fighter);
+            return;
+        }
+        if (!fighter.grounded && pressed(input, fighter.prevInput, 'attack')) {
+            this.startMove(fighter, getAirAttack(fighter.id), 1);
+            return;
+        }
+        if (fighter.grounded && pressed(input, fighter.prevInput, 'special')) {
+            if (fighter.id !== 'supernariz' || input.down || fighter.projectileCooldown <= 0) {
+                this.startMove(fighter, getSpecialMove(fighter.id, input.down));
+            }
+            return;
+        }
+        if (fighter.grounded && pressed(input, fighter.prevInput, 'attack')) {
+            this.startMove(fighter, getAttackStart(fighter.id), 1);
+            return;
+        }
+        if (fighter.grounded && pressed(input, fighter.prevInput, 'jump')) {
+            fighter.vy = def.jumpSpeed;
+            fighter.grounded = false;
+            fighter.crouching = false;
+            fighter.blocking = false;
+        }
+        const canBlock = fighter.grounded && isAwayHeld(input, fighter.facing);
+        fighter.blocking = canBlock;
+        fighter.crouching = fighter.grounded && input.down;
+        let direction = 0;
+        if (input.left !== input.right)
+            direction = input.left ? -1 : 1;
+        if (!fighter.crouching && !fighter.blocking) {
+            const chillScale = fighter.chilledFrames > 0 ? 0.7 : 1;
+            fighter.vx = direction * def.walkSpeed * chillScale;
+            fighter.x += fighter.vx;
+        }
+        else {
+            fighter.vx = 0;
+        }
+        this.integrateVertical(fighter, def.gravity);
+        this.clampFighter(fighter);
+    }
+    integrateVertical(fighter, gravity) {
+        if (fighter.grounded && fighter.y === 0 && fighter.vy === 0)
+            return;
+        fighter.y += fighter.vy;
+        fighter.vy -= gravity;
+        if (fighter.y <= 0) {
+            fighter.y = 0;
+            fighter.vy = 0;
+            fighter.grounded = true;
+        }
+        else {
+            fighter.grounded = false;
+        }
+    }
+    resolveMoveHits(attackerIndex, defenderIndex, defenderInput) {
+        const attacker = this.fighters[attackerIndex];
+        const defender = this.fighters[defenderIndex];
+        const move = attacker.currentMove;
+        if (!move || attacker.moveHasHit)
+            return;
+        const hitbox = move.hitbox;
+        if (!hitbox)
+            return;
+        if (attacker.moveFrame < hitbox.start || attacker.moveFrame > hitbox.end)
+            return;
+        const attackMinX = attacker.facing === 1
+            ? attacker.x + hitbox.offsetX
+            : attacker.x - hitbox.offsetX - hitbox.width;
+        const attackMaxX = attackMinX + hitbox.width;
+        const hurtHalfWidth = FIGHTERS[defender.id].width * 0.5;
+        const hurtMinX = defender.x - hurtHalfWidth;
+        const hurtMaxX = defender.x + hurtHalfWidth;
+        const hurtTop = defender.crouching ? FIGHTERS[defender.id].height * 0.66 : FIGHTERS[defender.id].height;
+        const hurtBottom = defender.y;
+        const attackBottom = attacker.y + hitbox.bottom;
+        const attackTop = attacker.y + hitbox.top;
+        if (!intervalsOverlap(attackMinX, attackMaxX, hurtMinX, hurtMaxX))
+            return;
+        if (!intervalsOverlap(attackBottom, attackTop, hurtBottom, defender.y + hurtTop))
+            return;
+        const holdingAway = isAwayHeld(defenderInput, defender.facing);
+        const levelAllowsBlock = hitbox.level === 'mid'
+            || (hitbox.level === 'low' && defenderInput.down)
+            || (hitbox.level === 'overhead' && !defenderInput.down);
+        const blocked = defender.grounded && holdingAway && levelAllowsBlock && defender.stunFrames === 0;
+        attacker.moveHasHit = true;
+        if (blocked) {
+            defender.health = Math.max(0, defender.health - hitbox.chipDamage);
+            defender.blockstunFrames = hitbox.blockstun;
+            defender.blocking = true;
+            defender.vx = attacker.facing * hitbox.knockback * 0.35;
+        }
+        else {
+            defender.health = Math.max(0, defender.health - hitbox.damage);
+            defender.stunFrames = hitbox.hitstun;
+            defender.blocking = false;
+            defender.vx = attacker.facing * hitbox.knockback;
+        }
+        if (move.chillFrames && !blocked)
+            defender.chilledFrames = Math.max(defender.chilledFrames, move.chillFrames);
+        this.hitstopFrames = Math.max(this.hitstopFrames, hitbox.hitstop);
+        this.events.push({
+            type: 'hit',
+            attacker: attackerIndex,
+            defender: defenderIndex,
+            blocked,
+            damage: blocked ? hitbox.chipDamage : hitbox.damage,
+            strong: hitbox.strong,
+        });
+    }
+    startMove(fighter, move, comboCount = 0) {
+        fighter.currentMove = move;
+        fighter.moveId = move.id;
+        fighter.moveFrame = 0;
+        fighter.moveHasHit = false;
+        fighter.moveEffectTriggered = false;
+        fighter.comboCount = comboCount;
+        fighter.vx = 0;
+    }
+    clearMove(fighter) {
+        fighter.currentMove = null;
+        fighter.moveId = null;
+        fighter.moveFrame = 0;
+        fighter.moveHasHit = false;
+        fighter.moveEffectTriggered = false;
+        fighter.comboCount = 0;
+    }
+    triggerMoveEffect(index, fighter) {
+        const move = fighter.currentMove;
+        if (!move || fighter.moveEffectTriggered || move.spawnProjectileFrame === undefined)
+            return;
+        if (fighter.moveFrame < move.spawnProjectileFrame)
+            return;
+        if (fighter.id === 'supernariz' && move.id === 'chorizoThrow') {
+            const projectile = {
+                id: this.nextProjectileId++,
+                owner: index,
+                kind: 'chorizo',
+                x: fighter.x + fighter.facing * 68,
+                y: fighter.y + 68,
+                vx: fighter.facing * 9.2,
+                active: true,
+                ttl: 150,
+            };
+            this.projectiles.push(projectile);
+            fighter.projectileCooldown = 120;
+            fighter.moveEffectTriggered = true;
+            this.events.push({ type: 'projectile', owner: index, projectileId: projectile.id });
+        }
+    }
+    updateProjectiles(inputs) {
+        for (const projectile of this.projectiles) {
+            if (!projectile.active)
+                continue;
+            projectile.x += projectile.vx;
+            projectile.ttl -= 1;
+            if (projectile.ttl <= 0 || projectile.x < ARENA_MIN_X - 80 || projectile.x > ARENA_MAX_X + 80) {
+                projectile.active = false;
+                continue;
+            }
+            const defenderIndex = projectile.owner === 0 ? 1 : 0;
+            const defender = this.fighters[defenderIndex];
+            const half = FIGHTERS[defender.id].width * 0.5;
+            const projectileMinX = projectile.x - 22;
+            const projectileMaxX = projectile.x + 22;
+            const hurtTop = defender.y + (defender.crouching ? FIGHTERS[defender.id].height * 0.66 : FIGHTERS[defender.id].height);
+            if (!intervalsOverlap(projectileMinX, projectileMaxX, defender.x - half, defender.x + half))
+                continue;
+            if (projectile.y < defender.y + 18 || projectile.y > hurtTop + 10)
+                continue;
+            const defenderInput = inputs[defenderIndex];
+            const blocked = defender.grounded && isAwayHeld(defenderInput, defender.facing) && defender.stunFrames === 0;
+            const damage = blocked ? 5 : 58;
+            defender.health = Math.max(0, defender.health - damage);
+            if (blocked) {
+                defender.blockstunFrames = 10;
+                defender.blocking = true;
+                defender.vx = Math.sign(projectile.vx) * 2.1;
+            }
+            else {
+                defender.stunFrames = 14;
+                defender.blocking = false;
+                defender.vx = Math.sign(projectile.vx) * 5.0;
+            }
+            projectile.active = false;
+            this.hitstopFrames = Math.max(this.hitstopFrames, 4);
+            this.events.push({ type: 'hit', attacker: projectile.owner, defender: defenderIndex, blocked, damage, strong: false });
+        }
+        this.projectiles = this.projectiles.filter((p) => p.active);
+    }
+    cancelInterruptedMoves() {
+        for (const fighter of this.fighters) {
+            if (fighter.stunFrames > 0 && fighter.currentMove)
+                this.clearMove(fighter);
+        }
+    }
+    updateFacing() {
+        if (this.fighters[0].x < this.fighters[1].x) {
+            this.fighters[0].facing = 1;
+            this.fighters[1].facing = -1;
+        }
+        else if (this.fighters[0].x > this.fighters[1].x) {
+            this.fighters[0].facing = -1;
+            this.fighters[1].facing = 1;
+        }
+    }
+    resolvePushboxes() {
+        const left = this.fighters[0].x <= this.fighters[1].x ? this.fighters[0] : this.fighters[1];
+        const right = left === this.fighters[0] ? this.fighters[1] : this.fighters[0];
+        const overlap = PUSH_DISTANCE - (right.x - left.x);
+        if (overlap <= 0 || left.y > 70 || right.y > 70)
+            return;
+        left.x -= overlap * 0.5;
+        right.x += overlap * 0.5;
+        this.clampFighter(left);
+        this.clampFighter(right);
+    }
+    clampFighter(fighter) {
+        fighter.x = Math.max(ARENA_MIN_X, Math.min(ARENA_MAX_X, fighter.x));
+    }
+    finishRound() {
+        if (this.phase !== 'fight')
+            return;
+        let roundWinner = null;
+        if (this.fighters[0].health !== this.fighters[1].health) {
+            roundWinner = this.fighters[0].health > this.fighters[1].health ? 0 : 1;
+        }
+        this.roundWinner = roundWinner;
+        if (roundWinner !== null)
+            this.fighters[roundWinner].roundWins += 1;
+        this.phase = 'round-over';
+        this.roundOverFrames = ROUND_OVER_FRAMES;
+        this.events.push({ type: 'round-end', winner: roundWinner });
+    }
+    advanceAfterRound() {
+        const matchWinner = this.fighters[0].roundWins >= 2 ? 0 : this.fighters[1].roundWins >= 2 ? 1 : null;
+        if (matchWinner !== null) {
+            this.phase = 'match-over';
+            this.winner = matchWinner;
+            this.events.push({ type: 'match-end', winner: matchWinner });
+            return;
+        }
+        this.round += 1;
+        this.roundWinner = null;
+        this.projectiles = [];
+        this.roundTimerFrames = ROUND_TIME_FRAMES;
+        for (const index of [0, 1]) {
+            const fighter = this.fighters[index];
+            fighter.x = START_X[index];
+            fighter.y = 0;
+            fighter.vx = 0;
+            fighter.vy = 0;
+            fighter.health = fighter.maxHealth;
+            fighter.grounded = true;
+            fighter.crouching = false;
+            fighter.blocking = false;
+            fighter.stunFrames = 0;
+            fighter.blockstunFrames = 0;
+            fighter.chilledFrames = 0;
+            fighter.projectileCooldown = 0;
+            fighter.prevInput = copyInput(EMPTY_INPUT);
+            this.clearMove(fighter);
+        }
+        this.updateFacing();
+        this.phase = 'fight';
+        this.events.push({ type: 'round-start', round: this.round });
+    }
+    saveInputs(inputs) {
+        this.fighters[0].prevInput = copyInput(inputs[0]);
+        this.fighters[1].prevInput = copyInput(inputs[1]);
+    }
+}
+CombatSimulation.js.map
+
+// --- game/simulation/CpuController.js ---
+const THREAT_MOVES = new Set([
+    'claw1', 'claw2', 'tongueStraight', 'tongueLow',
+    'nose1', 'nose2', 'nose3', 'tramontana',
+]);
+function toward(selfX, otherX) {
+    return selfX > otherX ? { left: true, right: false } : { left: false, right: true };
+}
+function away(selfX, otherX) {
+    return selfX > otherX ? { left: false, right: true } : { left: true, right: false };
+}
+class CpuController {
+    cpuIndex;
+    constructor(cpuIndex) {
+        this.cpuIndex = cpuIndex;
+    }
+    nextInput(snapshot) {
+        const out = { ...EMPTY_INPUT };
+        if (snapshot.phase !== 'fight')
+            return out;
+        const self = snapshot.fighters[this.cpuIndex];
+        const otherIndex = this.cpuIndex === 0 ? 1 : 0;
+        const foe = snapshot.fighters[otherIndex];
+        if (self.health <= 0 || self.stunFrames > 0 || self.blockstunFrames > 0)
+            return out;
+        const distance = Math.abs(foe.x - self.x);
+        const foeThreatening = foe.moveId !== null
+            && THREAT_MOVES.has(foe.moveId)
+            && foe.moveFrame >= 3
+            && foe.moveFrame <= 14
+            && distance < (foe.id === 'chameleon' && foe.moveId.startsWith('tongue') ? 360 : 185);
+        if (foeThreatening) {
+            Object.assign(out, away(self.x, foe.x));
+            if (foe.moveId === 'tongueLow')
+                out.down = true;
+            return out;
+        }
+        if (self.moveId !== null) {
+            // Feed follow-up taps into combo windows rather than mashing every frame.
+            if (self.id === 'supernariz' && (self.moveId === 'nose1' || self.moveId === 'nose2') && self.moveFrame === 11) {
+                out.attack = true;
+            }
+            if (self.id === 'chameleon' && self.moveId === 'claw1' && self.moveFrame === 11) {
+                out.attack = true;
+            }
+            return out;
+        }
+        if (!self.grounded) {
+            if (distance < 115 && snapshot.frame % 12 === 0)
+                out.attack = true;
+            return out;
+        }
+        // Character-specific range game.
+        if (self.id === 'supernariz') {
+            if (distance > 360 && self.projectileCooldown <= 0 && snapshot.frame > 0 && snapshot.frame % 120 === 0) {
+                out.special = true;
+                return out;
+            }
+            if (distance >= 135 && distance <= 235 && snapshot.frame % 150 === 0) {
+                out.down = true;
+                out.special = true;
+                return out;
+            }
+            if (distance < 118) {
+                out.attack = true;
+                return out;
+            }
+            Object.assign(out, toward(self.x, foe.x));
+            return out;
+        }
+        // Camaleón prefers a tongue-control band instead of permanent rushdown.
+        if (distance >= 150 && distance <= 355 && snapshot.frame % 72 === 0) {
+            out.special = true;
+            return out;
+        }
+        if (distance < 88) {
+            out.attack = true;
+            return out;
+        }
+        if (distance < 135) {
+            Object.assign(out, away(self.x, foe.x));
+            return out;
+        }
+        Object.assign(out, toward(self.x, foe.x));
+        return out;
+    }
+}
+CpuController.js.map
+
+// --- game/ui/flow.js ---
+function initialFlowState() {
+    return { phase: 'select-player', player: null, cpu: null, winner: null };
+}
+function chooseFighter(state, fighter) {
+    if (state.phase === 'select-player')
+        return { phase: 'select-cpu', player: fighter, cpu: null, winner: null };
+    if (state.phase === 'select-cpu' && state.player)
+        return { phase: 'vs', player: state.player, cpu: fighter, winner: null };
+    return state;
+}
+function startFight(state) {
+    if (state.phase !== 'vs' || !state.player || !state.cpu)
+        return state;
+    return { ...state, phase: 'fight', winner: null };
+}
+function finishFight(state, winner) {
+    if (state.phase !== 'fight')
+        return state;
+    return { ...state, phase: 'result', winner };
+}
+function rematch(state) {
+    if (state.phase !== 'result' || !state.player || !state.cpu)
+        return state;
+    return { ...state, phase: 'vs', winner: null };
+}
+function backToSelect(_state) {
+    return initialFlowState();
+}
+flow.js.map
+
+// --- game/ui/AppController.js ---
+const FIXED_MS = 1000 / 60;
+const FIGHTER_ORDER = ['chameleon', 'supernariz'];
+const fighterCopy = {
+    chameleon: {
+        kicker: 'CONTROL DE DISTANCIA',
+        role: 'Zoner',
+        moves: 'Lengua recta · Lengua baja · Garras',
+        mark: 'C',
+    },
+    supernariz: {
+        kicker: 'PRESIÓN Y COMBOS',
+        role: 'Rushdown',
+        moves: 'Combo de nariz · Chorizo · Tramontana',
+        mark: 'N',
+    },
+};
+class AppController {
+    root;
+    flow = initialFlowState();
+    raf = 0;
+    vsTimer = 0;
+    input = null;
+    matchFinished = false;
+    autoplayPlayer = false;
+    constructor(root) {
+        this.root = root;
+    }
+    start() {
+        const params = new URLSearchParams(location.search);
+        if (params.get('demo') === '1') {
+            this.flow = { phase: 'vs', player: 'chameleon', cpu: 'supernariz', winner: null };
+            this.autoplayPlayer = true;
+            this.showVs(250);
+            return;
+        }
+        this.showCharacterSelect();
+    }
+    showCharacterSelect() {
+        this.cleanupFight();
+        const selectingCpu = this.flow.phase === 'select-cpu';
+        const title = selectingCpu ? 'ELEGÍ AL RIVAL' : 'ELEGÍ TU LUCHADOR';
+        const subtitle = selectingCpu
+            ? `Vas con ${this.flow.player ? FIGHTERS[this.flow.player].displayName : ''}. Ahora elegí la CPU.`
+            : 'Dos estilos opuestos. El mismo lenguaje de controles.';
+        this.root.innerHTML = `
+      <main class="select-screen">
+        <div class="select-backdrop"></div>
+        <header class="select-header">
+          <span class="game-badge">FIRST PLAYABLE · V0.1</span>
+          <h1>${title}</h1>
+          <p>${subtitle}</p>
+        </header>
+        <section class="fighter-grid" aria-label="Selección de luchador">
+          ${FIGHTER_ORDER.map((id) => this.fighterCard(id, selectingCpu)).join('')}
+        </section>
+        <footer class="select-footer">
+          ${selectingCpu ? '<button class="text-button" data-back>← Cambiar mi luchador</button>' : '<span>Touch: D-pad + Ataque + Especial + Salto</span>'}
+          <span>Bloqueo: mantener atrás</span>
+        </footer>
+      </main>
+      ${this.orientationPrompt()}
+    `;
+        for (const button of this.root.querySelectorAll('[data-fighter]')) {
+            button.addEventListener('click', () => {
+                const id = button.dataset.fighter;
+                this.flow = chooseFighter(this.flow, id);
+                if (this.flow.phase === 'select-cpu')
+                    this.showCharacterSelect();
+                else if (this.flow.phase === 'vs')
+                    this.showVs();
+            });
+        }
+        this.root.querySelector('[data-back]')?.addEventListener('click', () => {
+            this.flow = backToSelect(this.flow);
+            this.showCharacterSelect();
+        });
+    }
+    fighterCard(id, cpuSelection) {
+        const info = fighterCopy[id];
+        const selected = this.flow.player === id;
+        return `
+      <button class="fighter-card fighter-card--${id}${selected ? ' is-player' : ''}" data-fighter="${id}" type="button">
+        <span class="fighter-kicker">${info.kicker}</span>
+        <span class="fighter-portrait fighter-portrait--${id}" aria-hidden="true">
+          <span class="portrait-mark">${info.mark}</span>
+          <span class="portrait-detail"></span>
+        </span>
+        <span class="fighter-name">${FIGHTERS[id].displayName}</span>
+        <span class="fighter-role">${info.role}</span>
+        <span class="fighter-moves">${info.moves}</span>
+        <span class="fighter-pick">${cpuSelection ? 'ELEGIR COMO RIVAL' : 'ELEGIR'}</span>
+      </button>
+    `;
+    }
+    showVs(delay = 900) {
+        if (!this.flow.player || !this.flow.cpu)
+            return;
+        const p1 = this.flow.player;
+        const p2 = this.flow.cpu;
+        this.root.innerHTML = `
+      <main class="vs-screen">
+        <div class="vs-side vs-side--left fighter-card--${p1}">
+          <span class="vs-label">JUGADOR</span><strong>${FIGHTERS[p1].displayName}</strong><span>${fighterCopy[p1].role}</span>
+        </div>
+        <div class="vs-mark">VS</div>
+        <div class="vs-side vs-side--right fighter-card--${p2}">
+          <span class="vs-label">CPU</span><strong>${FIGHTERS[p2].displayName}</strong><span>${fighterCopy[p2].role}</span>
+        </div>
+      </main>
+      ${this.orientationPrompt()}
+    `;
+        clearTimeout(this.vsTimer);
+        this.vsTimer = window.setTimeout(() => {
+            this.flow = startFight(this.flow);
+            this.mountFight();
+        }, delay);
+    }
+    mountFight() {
+        if (this.flow.phase !== 'fight' || !this.flow.player || !this.flow.cpu)
+            return;
+        this.matchFinished = false;
+        this.root.innerHTML = `
+      <main class="fight-shell" data-game-phase="fight">
+        <canvas class="fight-canvas" data-fight-canvas aria-label="Arena de combate"></canvas>
+        <div class="hud" aria-live="polite">
+          ${this.hudFighter(0, this.flow.player)}
+          <div class="hud-center"><span class="round-label" data-round>R1</span><strong class="timer" data-timer>60</strong></div>
+          ${this.hudFighter(1, this.flow.cpu)}
+        </div>
+        <div class="touch-layer" data-touch-controls>
+          <div class="dpad" data-dpad aria-label="D-pad de 8 direcciones">
+            <span class="dpad-cross dpad-cross--h"></span><span class="dpad-cross dpad-cross--v"></span><span class="dpad-center"></span>
+          </div>
+          <div class="action-cluster">
+            <button class="action-button action-button--jump" data-action="jump" type="button"><span>JUMP</span></button>
+            <button class="action-button action-button--special" data-action="special" type="button"><span>SPECIAL</span></button>
+            <button class="action-button action-button--attack" data-action="attack" type="button"><span>ATTACK</span></button>
+          </div>
+        </div>
+        <div class="desktop-hint">A/D mover · S agachar · W/Space salto · J ataque · K especial</div>
+      </main>
+      ${this.orientationPrompt()}
+    `;
+        const canvas = this.root.querySelector('[data-fight-canvas]');
+        const touchRoot = this.root.querySelector('[data-touch-controls]');
+        if (!canvas || !touchRoot)
+            throw new Error('Fight UI failed to mount');
+        const simulation = new CombatSimulation(this.flow.player, this.flow.cpu);
+        const renderer = new FightRenderer(canvas);
+        const cpu = new CpuController(1);
+        const playerCpu = this.autoplayPlayer ? new CpuController(0) : null;
+        this.input = new GameInput(touchRoot);
+        let previous = performance.now();
+        let accumulator = 0;
+        let snapshot = simulation.getSnapshot();
+        renderer.consumeEvents(snapshot);
+        const frame = (now) => {
+            const elapsed = Math.min(100, now - previous);
+            previous = now;
+            accumulator += elapsed;
+            while (accumulator >= FIXED_MS) {
+                const humanInput = playerCpu ? playerCpu.nextInput(snapshot) : this.input?.getFrame() ?? { left: false, right: false, down: false, up: false, jump: false, attack: false, special: false };
+                const cpuInput = cpu.nextInput(snapshot);
+                snapshot = simulation.step(humanInput, cpuInput);
+                renderer.consumeEvents(snapshot);
+                accumulator -= FIXED_MS;
+                this.updateHud(snapshot);
+            }
+            renderer.render(snapshot, now / 1000);
+            if (snapshot.phase === 'match-over' && snapshot.winner !== null) {
+                if (!this.matchFinished) {
+                    this.matchFinished = true;
+                    const winner = snapshot.winner;
+                    window.setTimeout(() => this.showResult(winner), 650);
+                }
+                return;
+            }
+            this.raf = requestAnimationFrame(frame);
+        };
+        this.raf = requestAnimationFrame(frame);
+    }
+    hudFighter(index, id) {
+        return `
+      <section class="hud-fighter hud-fighter--${index === 0 ? 'left' : 'right'}">
+        <div class="hud-meta"><strong>${FIGHTERS[id].displayName}</strong><span>${index === 0 ? 'P1' : 'CPU'}</span></div>
+        <div class="health-track"><span class="health-fill" data-health="${index}"></span></div>
+        <div class="round-pips"><i data-win="${index}-0"></i><i data-win="${index}-1"></i></div>
+      </section>
+    `;
+    }
+    updateHud(snapshot) {
+        for (const index of [0, 1]) {
+            const fighter = snapshot.fighters[index];
+            const health = this.root.querySelector(`[data-health="${index}"]`);
+            if (health)
+                health.style.transform = `scaleX(${Math.max(0, fighter.health / fighter.maxHealth)})`;
+            for (let pip = 0; pip < 2; pip += 1) {
+                this.root.querySelector(`[data-win="${index}-${pip}"]`)?.classList.toggle('is-won', pip < fighter.roundWins);
+            }
+        }
+        const timer = this.root.querySelector('[data-timer]');
+        if (timer)
+            timer.textContent = String(Math.ceil(snapshot.roundTimerFrames / 60));
+        const round = this.root.querySelector('[data-round]');
+        if (round)
+            round.textContent = `R${snapshot.round}`;
+        const shell = this.root.querySelector('[data-game-phase]');
+        if (shell)
+            shell.dataset.gamePhase = snapshot.phase;
+    }
+    showResult(winner) {
+        if (this.flow.phase !== 'fight' || !this.flow.player || !this.flow.cpu)
+            return;
+        const playerId = this.flow.player;
+        const cpuId = this.flow.cpu;
+        this.cleanupFight();
+        this.flow = finishFight(this.flow, winner);
+        const playerWon = winner === 0;
+        const winnerId = playerWon ? playerId : cpuId;
+        this.root.innerHTML = `
+      <main class="result-screen fighter-card--${winnerId}">
+        <span class="result-kicker">RESULTADO</span>
+        <h1>${playerWon ? 'VICTORIA' : 'DERROTA'}</h1>
+        <p><strong>${FIGHTERS[winnerId].displayName}</strong> gana el duelo.</p>
+        <div class="result-actions">
+          <button class="primary-button" data-rematch>REVANCHA</button>
+          <button class="secondary-button" data-select>SELECCIÓN</button>
+        </div>
+      </main>
+      ${this.orientationPrompt()}
+    `;
+        this.root.querySelector('[data-rematch]')?.addEventListener('click', () => {
+            this.flow = rematch(this.flow);
+            this.showVs(500);
+        });
+        this.root.querySelector('[data-select]')?.addEventListener('click', () => {
+            this.flow = backToSelect(this.flow);
+            this.autoplayPlayer = false;
+            this.showCharacterSelect();
+        });
+    }
+    cleanupFight() {
+        if (this.raf)
+            cancelAnimationFrame(this.raf);
+        this.raf = 0;
+        clearTimeout(this.vsTimer);
+        this.input?.destroy();
+        this.input = null;
+    }
+    orientationPrompt() {
+        return '<aside class="orientation-prompt"><div class="phone-icon">↻</div><strong>GIRÁ EL TELÉFONO</strong><span>Este prototipo se juega en horizontal.</span></aside>';
+    }
+}
+AppController.js.map
+
+// --- main.js ---
+const app = document.querySelector('#app');
+if (!app)
+    throw new Error('Missing #app');
+new AppController(app).start();
+main.js.map
+
+</script>
   </body>
 </html>

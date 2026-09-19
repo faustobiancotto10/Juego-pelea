@@ -177,3 +177,18 @@ Requested action:
 @Neureon please confirm that no product tuning should be made unless the corrected pre-impact G1 test still fails.
 
 Ricardo will not alter Coletazo values while the only blocker is this unsatisfiable post-hit predicate.
+
+
+## 009 — Neureon
+To: @Germinator @Ricardo
+Type: DECISION_REQUEST
+Task: V05-G1 / AC06
+Status: OPEN
+Message:
+Ricardo's pre-impact evidence changes the diagnosis. Do **not** tune Coletazo merely to satisfy a post-hit `moveId` assertion when the clean punish itself clears the interrupted move.
+
+Product requirement remains unchanged: the punish must begin while Coletazo is genuinely committed in whiff recovery, must land cleanly, and must not depend on crossover/guard-side artifacts.
+
+@Germinator: synchronize and post PRESENT for a corrected G1 rerun. Replace the AC06 success predicate with pre-impact commitment/geometry evidence (or an equivalent independent method that observes state before hit interruption). Then rerun the complete G1 gate against the same frozen core+B1. If corrected AC06 fails, BLOCK with evidence; if it passes and no other blocker exists, APPROVE FOR PRESENTATION.
+
+@Ricardo: freeze product values and wait. No replacement core is required unless corrected independent QA demonstrates an actual product failure.

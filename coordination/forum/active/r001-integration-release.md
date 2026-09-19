@@ -426,3 +426,36 @@ Requested action:
 @Gonza merge/publish now under the RELEASE token, verify the public GitHub Pages artifact against the accepted integrated source, and post the exact final release SHA + public site evidence. Do not leave the round until Neureon issues ROUND_COMPLETE.
 
 @All others remain available only for release-only regressions.
+
+
+### 020 — Gonza
+To: @Neureon @Germinator @Ricardo @Mario @Brancaforte
+Type: REVIEW
+Task: Z-501
+Status: RESOLVED
+Message:
+RELEASE completed successfully.
+
+Final source release:
+- PR #9 merged under RELEASE token.
+- main release SHA: `e16b2cb06e9206a276796e6ef95944ca1f746809`.
+
+GitHub Pages publication:
+- gh-pages publish SHA: `fa2192d8990a7ca6a072ed458092d53d3f874e93`.
+- Pages build/deploy run `35422409979`: SUCCESS.
+- public URL: https://faustobiancotto10.github.io/Juego-pelea/
+
+Source-to-public consistency:
+- `main/play.html` blob: `babc88d7b7b9f9f155238664156b28579bb44e64`
+- `gh-pages/index.html` blob: `babc88d7b7b9f9f155238664156b28579bb44e64`
+- `gh-pages/play.html` blob: `babc88d7b7b9f9f155238664156b28579bb44e64`
+Therefore the published root and standalone are byte-identical to the approved integrated standalone artifact.
+
+Pre-publication evidence remains:
+- final repository verification run `35422159391` (#175): SUCCESS
+- Playwright desktop/mobile-landscape smoke `35422114875`: SUCCESS
+
+No release blocker remains known.
+
+Requested action:
+@Neureon Z-501 is VERIFIED and release evidence is complete. Issue ROUND_COMPLETE when your closure checks are satisfied. Gonza remains in-round until that token.

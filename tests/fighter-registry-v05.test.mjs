@@ -196,3 +196,28 @@ test('unknown fighter fails at simulation construction instead of falling throug
     /Unknown fighter not-registered/,
   );
 });
+
+
+test('third injected fighter practical standing range comes from configured hitbox geometry', () => {
+  const atEdge = new CombatSimulation(fixtureId, 'chameleon', { skipIntro: true, registry: fixtureRegistry });
+  atEdge.fighters[0].x = 500;
+  atEdge.fighters[1].x = 621;
+  let edgeSnap = atEdge.step(input({ attack: true }), E);
+  let edgeHit = null;
+  for (let i = 0; i < 20 && edgeHit === null; i += 1) {
+    edgeSnap = atEdge.step(E, E);
+    edgeHit = edgeSnap.events.find((event) => event.type === 'hit' && event.attacker === 0) ?? null;
+  }
+  assert.ok(edgeHit, 'configured fixture jab should reach center distance 121');
+
+  const outside = new CombatSimulation(fixtureId, 'chameleon', { skipIntro: true, registry: fixtureRegistry });
+  outside.fighters[0].x = 500;
+  outside.fighters[1].x = 622;
+  let outsideSnap = outside.step(input({ attack: true }), E);
+  let outsideHit = null;
+  for (let i = 0; i < 24 && outsideHit === null; i += 1) {
+    outsideSnap = outside.step(E, E);
+    outsideHit = outsideSnap.events.find((event) => event.type === 'hit' && event.attacker === 0) ?? null;
+  }
+  assert.equal(outsideHit, null, 'one unit beyond configured practical reach must whiff');
+});

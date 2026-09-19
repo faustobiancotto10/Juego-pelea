@@ -17,6 +17,11 @@ function clawFactor(f: FighterSnapshot): number {
   return pulse(f.moveFrame, 1, 6, 14);
 }
 
+function coletazoFactor(f: FighterSnapshot): number {
+  if (f.moveId !== 'coletazo') return 0;
+  return pulse(f.moveFrame, 2, 9, 24);
+}
+
 export function drawChameleon(ctx: CanvasRenderingContext2D, f: FighterSnapshot, time: number): void {
   const feetY = GROUND_Y - f.y;
   const idle = Math.sin(time * 5.2 + f.x * 0.01) * 1.4;
@@ -24,11 +29,13 @@ export function drawChameleon(ctx: CanvasRenderingContext2D, f: FighterSnapshot,
   const hurtLean = f.stunFrames > 0 ? -0.13 : 0;
   const crouch = f.crouching ? 1 : 0;
   const block = f.blocking ? 1 : 0;
+  const guardBreak = f.guardBreakFrames > 0 ? 1 : 0;
   const claw = clawFactor(f);
+  const coletazo = coletazoFactor(f);
   const tongue = tongueFactor(f);
   const lowTongue = f.moveId === 'tongueLow';
   const airClaw = f.moveId === 'airClaw' ? claw : 0;
-  const forwardLean = tongue * 0.12 + claw * 0.07 + airClaw * 0.11 + hurtLean - ko * 1.16;
+  const forwardLean = tongue * 0.12 + claw * 0.07 + airClaw * 0.11 + coletazo * 0.08 + hurtLean - ko * 1.16;
   const bodyDrop = crouch * 30 + ko * 42;
 
   ctx.save();
@@ -45,21 +52,25 @@ export function drawChameleon(ctx: CanvasRenderingContext2D, f: FighterSnapshot,
 
   // Tail: a real articulated curve, not a pasted picture. It counterbalances attacks.
   const tailCounter = -tongue * 28 - claw * 12 + Math.sin(time * 2.8) * 5;
+  const tailMidX = lerp(-67, 76, coletazo);
+  const tailMidY = lerp(-10 + tailCounter * 0.18, -88, coletazo);
+  const tailTipX = lerp(-49, 118, coletazo);
+  const tailTipY = lerp(-40 + tailCounter * 0.35, -56, coletazo);
   ctx.save();
   ctx.strokeStyle = '#315f2d';
   ctx.lineWidth = 22;
   ctx.lineCap = 'round';
   ctx.beginPath();
   ctx.moveTo(-20, -73 + bodyDrop * 0.35);
-  ctx.bezierCurveTo(-78, -70, -94, -24 + tailCounter * 0.15, -67, -10 + tailCounter * 0.18);
-  ctx.bezierCurveTo(-39, 10 + tailCounter * 0.12, -23, -30 + tailCounter * 0.32, -49, -40 + tailCounter * 0.35);
+  ctx.bezierCurveTo(lerp(-78, -62, coletazo), lerp(-70, -55, coletazo), lerp(-94, 24, coletazo), lerp(-24 + tailCounter * 0.15, -94, coletazo), tailMidX, tailMidY);
+  ctx.bezierCurveTo(lerp(-39, 98, coletazo), lerp(10 + tailCounter * 0.12, -102, coletazo), lerp(-23, 132, coletazo), lerp(-30 + tailCounter * 0.32, -76, coletazo), tailTipX, tailTipY);
   ctx.stroke();
   ctx.strokeStyle = '#6cae42';
   ctx.lineWidth = 11;
   ctx.beginPath();
   ctx.moveTo(-20, -73 + bodyDrop * 0.35);
-  ctx.bezierCurveTo(-78, -70, -94, -24 + tailCounter * 0.15, -67, -10 + tailCounter * 0.18);
-  ctx.bezierCurveTo(-39, 10 + tailCounter * 0.12, -23, -30 + tailCounter * 0.32, -49, -40 + tailCounter * 0.35);
+  ctx.bezierCurveTo(lerp(-78, -62, coletazo), lerp(-70, -55, coletazo), lerp(-94, 24, coletazo), lerp(-24 + tailCounter * 0.15, -94, coletazo), tailMidX, tailMidY);
+  ctx.bezierCurveTo(lerp(-39, 98, coletazo), lerp(10 + tailCounter * 0.12, -102, coletazo), lerp(-23, 132, coletazo), lerp(-30 + tailCounter * 0.32, -76, coletazo), tailTipX, tailTipY);
   ctx.stroke();
   ctx.restore();
 
@@ -157,6 +168,25 @@ export function drawChameleon(ctx: CanvasRenderingContext2D, f: FighterSnapshot,
     ctx.stroke();
     ctx.restore();
   }
+  // Guard Break remains readable for the full simulation-authored state.
+  if (guardBreak) {
+    ctx.save();
+    const flash = 0.42 + 0.18 * Math.sin(time * 18);
+    ctx.globalAlpha = flash;
+    ctx.strokeStyle = '#ff776f';
+    ctx.lineWidth = 4;
+    ctx.setLineDash([10, 8]);
+    ctx.beginPath();
+    ctx.arc(8, -110 + bodyDrop * 0.5, 57, -1.42, -0.28);
+    ctx.arc(8, -110 + bodyDrop * 0.5, 57, 0.08, 0.92);
+    ctx.arc(8, -110 + bodyDrop * 0.5, 57, 1.18, 2.05);
+    ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.globalAlpha = 0.12;
+    ellipse(ctx, 8, -110 + bodyDrop * 0.5, 61, 98, '#ff8a78');
+    ctx.restore();
+  }
+
   if (f.chilledFrames > 0) {
     ctx.save();
     ctx.globalAlpha = 0.15 + 0.08 * Math.sin(time * 11);

@@ -7,7 +7,7 @@ Staged activation: enabled
 Planned agents: Neureon, Ricardo, Brancaforte, Germinator, Mario, Gonza
 Current activation gate: STAGE_3_CORE_QA
 Required at current gate: Neureon, Germinator
-Start token: G1 BLOCK — repair check-in pending
+Start token: START_REPAIR — AC06 COLETAZO RECOVERY
 Completion token: not issued
 
 ## Product authority

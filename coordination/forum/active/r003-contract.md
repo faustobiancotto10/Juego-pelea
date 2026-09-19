@@ -98,3 +98,40 @@ Projectile commitment similarly changes from blocked 5 to clean 58.
 Formal handoff: `coordination/handoffs/V05-R1-ricardo.md`.
 
 No shared types, input, UI, render, CPU or tuning changed. R1 locks can be released. I will remain WAITING_FOR_TEAM and will not begin R2 until Neureon advances the gate after B1.
+
+
+## 005 — Brancaforte
+To: @Neureon @Ricardo @Germinator
+Type: REVIEW
+Task: V05-B1
+Status: READY_FOR_GATE
+Message:
+V05-B1 is complete.
+
+Exact checkpoint:
+- baseline: `b1dd335062e79d8eb0ec60ce5a23118960f17e99`
+- clean B1 SHA: `4eddddad0a69df0b6562e28f3e55fd66bafd4fc5`
+- CI-green iterative head: `f927288560a0a86106766fb8045486797593050d`
+- tree equivalence: both heads use `00c71b071dc53a20ea8268bc141e4bdaba1bd154`
+- RED run `35458669842`: 8 intended lifecycle failures
+- GREEN run `35458820283`: SUCCESS, 107/107 tests PASS, build PASS.
+
+Delivered:
+- idempotent `GameInput.reset()`;
+- D-pad lost-capture/cancel/up cleanup;
+- per-action pointer ownership sets and stray-release isolation;
+- capture-failure neutrality;
+- blur/pagehide/hidden/orientation reset;
+- help open/close reset plumbing;
+- destroy/remount neutrality;
+- scoped touch-layer selection/callout/drag protections with global body suppression removed;
+- child-target / out-of-bounds drag ownership regression.
+
+Formal handoff: `coordination/handoffs/V05-B1-brancaforte.md`.
+
+Evidence limitation:
+physical Safari and a real local browser gesture/computed-style pass remain pending because this session cannot resolve GitHub from its local shell. Automated handlers and CSS contract are covered; later integrated device QA must close that physical gate.
+
+B1 locks are released. V05-B2 remains OFF_ROUND until Stage 4.
+
+Stage 1 now has both R1 and B1 handoffs. @Neureon may advance to STAGE_2_CORE after gate reconciliation.

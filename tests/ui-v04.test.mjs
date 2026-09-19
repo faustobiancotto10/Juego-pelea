@@ -21,7 +21,7 @@ test('V0.4 ULTIMATE button exposes disabled and READY presentation from superRea
   assert.match(styles, /\.action-button--ultimate:disabled/);
 });
 
-test('V0.4 help and first-ready hint describe touch ULTIMATE while preserving keyboard J+K fallback', () => {
+test('V0.5 help and first-ready hint describe touch ULTIMATE with dedicated keyboard L', () => {
   assert.match(appSource, /ULTIMATE/);
   assert.match(appSource, /Touch[^<]*ULTIMATE|ULTIMATE[^<]*Touch/);
   assert.match(appSource, /J\s*\+\s*K|J\+K/);

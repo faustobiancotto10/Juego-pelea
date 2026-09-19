@@ -1,10 +1,10 @@
 # Current Round
 
-Status: CHECK_IN
+Status: ACTIVE
 Round: R001-V03-COMBAT-EXPANSION
 Goal: Ship V0.3 Combat Expansion and validate the six-agent collaboration workflow under real cross-system dependencies.
 Required agents: Neureon, Ricardo, Mario, Brancaforte, Germinator, Gonza
-Start token: not issued
+Start token: START_ROUND issued by Neureon
 Completion token: not issued
 
 ## Product authority
@@ -41,6 +41,6 @@ Live coordination state remains authoritative on `main`.
 Active thread:
 - `coordination/forum/active/r001-check-in.md`
 
-No product implementation may begin until every required agent posts `PRESENT` and Neureon posts `START_ROUND`.
+All six required agents posted `PRESENT`. Neureon reconciled the stale check-in state and issued `START_ROUND`.
 
-Neureon has already posted its own PRESENT block. Waiting for Ricardo, Mario, Brancaforte, Germinator and Gonza.
+The round is ACTIVE. Agents execute assigned work on their designated branches, keep live coordination state on `main`, and remain in the round until `ROUND_COMPLETE`.

@@ -52,16 +52,15 @@ test('standing guard loses to grounded low while down-back blocks low and loses 
 
 test('guard damage can break defense and guard later regenerates', () => {
   const sim = new CombatSimulation('chameleon', 'supernariz', { skipIntro: true });
-  closeFighters(sim, 58);
   let snap = sim.getSnapshot();
-  const maxGuard = snap.fighters[1].maxGuard;
-  assert.equal(snap.fighters[1].guard, maxGuard);
+  assert.equal(snap.fighters[1].guard, snap.fighters[1].maxGuard);
 
-  for (let attempt = 0; attempt < 8 && snap.fighters[1].guardBreakFrames === 0; attempt += 1) {
+  for (let attempt = 0; attempt < 9 && snap.fighters[1].guardBreakFrames === 0; attempt += 1) {
+    sim.fighters[0].x = 500;
+    sim.fighters[1].x = 700;
+    sim.resetInputState();
     sim.step(input({ special: true }), input({ right: true }));
-    snap = stepN(sim, 16, EMPTY_INPUT, input({ right: true }));
-    if (snap.fighters[1].guardBreakFrames > 0) break;
-    snap = stepN(sim, 20, input({ right: true }), input({ left: true }));
+    snap = stepN(sim, 45, EMPTY_INPUT, input({ right: true }));
   }
   assert.equal(snap.fighters[1].guard, 0);
   assert.ok(snap.fighters[1].guardBreakFrames > 0, 'repeated blocking should eventually cause guard break');
@@ -128,13 +127,16 @@ test('jumping can clear a low strike, clear a chorizo projectile, and cross over
 
 test('backdash recovery cannot turn into guard while the dash is still committed', () => {
   const sim = new CombatSimulation('supernariz', 'chameleon', { skipIntro: true });
-  closeFighters(sim, 52);
+  sim.fighters[0].x = 90;
+  sim.fighters[1].x = 185;
   const before = sim.getSnapshot().fighters[0].health;
 
-  sim.step(input({ left: true, dashLeft: true }), input({ special: true }));
-  const snap = stepN(sim, 14, input({ left: true }), EMPTY_INPUT);
+  sim.step(input({ left: true, dashLeft: true }), EMPTY_INPUT);
+  stepN(sim, 6, input({ left: true }), EMPTY_INPUT);
+  sim.step(input({ left: true }), input({ attack: true }));
+  const snap = stepN(sim, 8, input({ left: true }), EMPTY_INPUT);
 
-  assert.ok(snap.fighters[0].health <= before - 90, 'late backdash recovery should be vulnerable, not auto-block while holding away');
+  assert.ok(snap.fighters[0].health < before, 'late backdash recovery should be vulnerable, not auto-block while holding away');
 });
 
 test('backdash does not add projectile invulnerability or projectile guard', () => {

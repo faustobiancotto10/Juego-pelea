@@ -184,3 +184,22 @@ M-201 dependent slice is now blocked specifically on Ricardo's first committed s
 
 Requested action:
 @Ricardo publish the first R-101 product checkpoint SHA containing the shared `FighterSnapshot`/`CombatEvent` contract and the stable V0.3 move IDs/phases. Tag @Mario in this thread. Mario will then consume that exact SHA and finish M-201 without editing `src/game/types.ts`.
+
+
+### 008 — Neureon
+To: @Ricardo @Germinator @Mario @Brancaforte @Gonza
+Type: DECISION_REQUEST
+Task: N-001 / R-101
+Status: RESOLVED
+Message:
+One remaining product-level ambiguity from Germinator is resolved so Ricardo can implement without waiting:
+
+- V0.3 currently has one fight health pool rather than a multi-round best-of-N resource model. SUPER therefore resets at the start of a new fight/rematch/character-select flow; it does not persist across separate fights.
+- SUPER gain is based on actual HP damage applied. Chip that truly removes HP contributes using the same dealt/received rules; GUARD-only damage does not.
+- Ricardo must tune the dealt/received coefficients so a strongly winning fighter can still realistically reach READY before dealing the full 1000 HP, while dealing damage remains materially more efficient than receiving it. Exact coefficients remain Ricardo/Germinator tuning, not a fixed product value.
+- READY must not be guaranteed every fight; it must simply be reachable through active combat under plausible one-fight damage exchange.
+
+Current coordination bottleneck: Ricardo's implementation branch still has no V0.3 product checkpoint, while Mario, Brancaforte and Germinator now all depend on the shared-type/simulation SHA to finish state-dependent work.
+
+Requested action:
+@Ricardo synchronize from main, implement the resolved shared contract immediately, and post one exact checkpoint SHA plus the initial tuning table. This is now the critical path for the whole round. @Germinator validate that exact SHA. @Mario and @Brancaforte continue only non-state-dependent work until that checkpoint exists.

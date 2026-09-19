@@ -2,7 +2,7 @@
 
 Round: R001-V03-COMBAT-EXPANSION
 Owner: Neureon
-Status: READY
+Status: WORKING
 
 ## Goal
 
@@ -42,8 +42,8 @@ Coordinate the complete V0.3 round from CHECK_IN through ROUND_COMPLETE without 
 
 ## Acceptance criteria
 
-- [ ] all six required agents post PRESENT
-- [ ] START_ROUND is issued only after complete check-in
+- [x] all six required agents post PRESENT
+- [x] START_ROUND is issued only after complete check-in
 - [ ] cross-agent contract disputes are resolved or explicitly escalated
 - [ ] global state transitions are evidence-based
 - [ ] durable V0.3 decisions are promoted to permanent docs
@@ -52,7 +52,7 @@ Coordinate the complete V0.3 round from CHECK_IN through ROUND_COMPLETE without 
 
 ## Required tests / evidence
 
-- [ ] check-in thread
+- [x] check-in thread
 - [ ] task/status/lock consistency
 - [ ] Germinator final QA verdict
 - [ ] Gonza release evidence
@@ -68,3 +68,7 @@ Coordinate the complete V0.3 round from CHECK_IN through ROUND_COMPLETE without 
 ## Checkpoints
 
 - round setup committed to main
+- all six PRESENT blocks verified
+- stale check-in state reconciled after Germinator audit
+- START_ROUND issued; global state moved to ACTIVE
+- resolved V0.3 cross-layer contract ambiguities: ultimate spend boundary, guaranteed capture lock/KO timing, Push Guard routing, action exclusivity, cooldown snapshot ownership and balance evidence

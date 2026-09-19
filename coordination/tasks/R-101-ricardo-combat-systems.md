@@ -2,7 +2,7 @@
 
 Round: R001-V03-COMBAT-EXPANSION
 Owner: Ricardo
-Status: READY
+Status: REVIEWING
 
 ## Goal
 
@@ -75,3 +75,12 @@ Implement the simulation/data side of the approved V0.3 kit, SUPER/ultimate capt
 ## Checkpoints
 
 - first checkpoint: proposed shared state/action/event contract in combat-contract thread
+
+
+## Validation checkpoint
+
+- review checkpoint: `7138ec09e1773da7dbe28b173d3208197bc3c027`
+- CI: Repository verification run #116 passed coordination contract, full suite and build
+- tuning table: `coordination/forum/active/r001-balance-qa.md`
+- validation handoff: `coordination/handoffs/R-101-ricardo-to-germinator.md`
+- next owner action: Germinator validates exact SHA; Ricardo remains available for owned fixes

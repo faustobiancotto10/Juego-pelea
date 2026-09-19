@@ -5,6 +5,7 @@ import { CombatSimulation } from '../dist/game/simulation/CombatSimulation.js';
 import { CpuController } from '../dist/game/simulation/CpuController.js';
 import { FIGHTER_KITS } from '../dist/game/data/fighterKits.js';
 import { EMPTY_INPUT as E } from '../dist/game/types.js';
+import { runSeededDuel } from './fixtures/v05-policies.mjs';
 
 function baseScenario(cpuId = 'supernariz') {
   const foeId = cpuId === 'supernariz' ? 'chameleon' : 'supernariz';
@@ -164,6 +165,7 @@ test('seeded corpus recognizes some cues and permanently misses others instead o
     assert.ok(reactionCount <= 20, 'one cue must not be rerolled into repeated frame-perfect reactions');
   }
 
+  console.log(`R5 cue corpus: recognized=${recognized} missed=${missed}`);
   assert.ok(recognized >= 65 && recognized <= 85, `recognition corpus was ${recognized}/100`);
   assert.ok(missed >= 15 && missed <= 35, `miss corpus was ${missed}/100`);
 });
@@ -222,4 +224,23 @@ test('different seeds are capable of different cue outcomes while each seed is d
     outcomes.add(t.slice(32).map(frame => JSON.stringify(frame)).join('|'));
   }
   assert.ok(outcomes.size > 1);
+});
+
+
+test('seeded integrated CPU duels are replayable and publish bounded policy measurements', () => {
+  const replayA = runSeededDuel(17);
+  const replayB = runSeededDuel(17);
+  assert.deepEqual(replayA, replayB, 'same seeds and simulation stream must replay exactly');
+
+  const corpus = [3, 7, 11, 19].map(seed => ({ seed, ...runSeededDuel(seed) }));
+  const totalDamage = corpus.reduce((sum, row) => sum + row.damage, 0);
+  const totalActions = corpus.reduce(
+    (sum, row) => sum + Object.values(row.categories).reduce((inner, value) => inner + value, 0),
+    0,
+  );
+
+  assert.ok(totalDamage > 0, 'seeded CPU corpus must produce real combat rather than idle out');
+  assert.ok(totalActions > 0, 'seeded CPU corpus must exercise combat categories');
+  assert.ok(corpus.every(row => row.combatTick > 0));
+  console.log('R5 seeded duel corpus:', JSON.stringify(corpus));
 });

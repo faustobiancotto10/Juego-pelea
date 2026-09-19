@@ -27,7 +27,7 @@ function collectUntil(sim, predicate, maxFrames, p1 = EMPTY_INPUT, p2 = EMPTY_IN
   return { snap, events };
 }
 
-test('SUPER has no passive gain and damage dealt is more efficient than damage received', () => {
+test('SUPER has no passive gain and clean Special rewards use the V0.5 category rates', () => {
   const neutral = new CombatSimulation('chameleon', 'supernariz', { skipIntro: true });
   const neutralSnap = stepN(neutral, 180);
   assert.equal(neutralSnap.fighters[0].superMeter, 0);
@@ -42,10 +42,9 @@ test('SUPER has no passive gain and damage dealt is more efficient than damage r
     30,
   );
 
-  assert.equal(snap.fighters[1].health, 908);
-  assert.ok(snap.fighters[0].superMeter > snap.fighters[1].superMeter);
-  assert.ok(snap.fighters[0].superMeter > 10);
-  assert.ok(snap.fighters[1].superMeter > 4);
+  assert.equal(snap.fighters[1].health, 920);
+  assert.equal(snap.fighters[0].superMeter, 8);
+  assert.equal(snap.fighters[1].superMeter, 4.4);
 });
 
 test('SUPER READY is capped and emits once when damage crosses the threshold', () => {
@@ -200,15 +199,15 @@ test('Push Guard request is inert in neutral and cannot spend GUARD', () => {
   assert.equal(snap.events.some((event) => event.type === 'push-guard'), false);
 });
 
-test('Camaleoni keeps Lengua mappings and adds Coletazo on up+SPECIAL', () => {
+test('Camaleoni final Special grammar maps neutral/up to Lengua and down to Coletazo', () => {
   const neutral = new CombatSimulation('chameleon', 'supernariz', { skipIntro: true });
   assert.equal(neutral.step(input({ special: true }), EMPTY_INPUT).fighters[0].moveId, 'tongueStraight');
 
-  const low = new CombatSimulation('chameleon', 'supernariz', { skipIntro: true });
-  assert.equal(low.step(input({ down: true, special: true }), EMPTY_INPUT).fighters[0].moveId, 'tongueLow');
-
   const close = new CombatSimulation('chameleon', 'supernariz', { skipIntro: true });
-  assert.equal(close.step(input({ up: true, special: true }), EMPTY_INPUT).fighters[0].moveId, 'coletazo');
+  assert.equal(close.step(input({ down: true, special: true }), EMPTY_INPUT).fighters[0].moveId, 'coletazo');
+
+  const up = new CombatSimulation('chameleon', 'supernariz', { skipIntro: true });
+  assert.equal(up.step(input({ up: true, special: true }), EMPTY_INPUT).fighters[0].moveId, 'tongueStraight');
 });
 
 test('CPU uses V0.3 actions contextually instead of spending SUPER immediately', () => {

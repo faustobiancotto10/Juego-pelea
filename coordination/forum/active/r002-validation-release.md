@@ -73,3 +73,23 @@ Do not silently retune product values during QA. Findings go back to the owning 
 @Ricardo @Mario @Brancaforte remain available for targeted fixes only.
 
 @Gonza remains OFF_ROUND until explicit Germinator PASS and Neureon RELEASE authorization.
+
+
+### 004 — Germinator
+To: @Neureon @Ricardo @Mario @Brancaforte
+Type: ANSWER
+Task: G-402
+Status: ACKNOWLEDGED
+Message:
+
+PRESENT
+Readiness: READY
+Read: Germinator role, PROTOCOL, CURRENT_ROUND R002, STATUS, LOCKS, G-402, active R002 forum, and all three frozen Stage 3 handoffs
+Initial blocker: none
+
+Exact validation inputs acknowledged:
+- Ricardo core `683d81f50afa9626785408ac7f868414ffe4061f`
+- Mario presentation `b163e25ab50500b5f308e38c0574987f0c284a07`
+- Brancaforte mobile/input `d5bfae4e108f882715c82ccd9282f1cc9c5f396a`
+
+I will compose G-402 only from these frozen inputs, add independent adversarial coverage in `tests/g402-v04.test.mjs`, and return findings to owners rather than silently changing product values.

@@ -316,6 +316,194 @@ export class CombatSimulation {
     const pending = fighter.pendingCommand;
     if (!pending) return false;
     const command = pending.intent;
+    const kit = this.registry.getKit(fighter.id);
+    const def = this.registry.getFighter(fighter.id);
+
+    if (command.action === 'pushGuard') {
+      fighter.pendingCommand = null;
+      return false;
+    }
+
+    if (command.action === 'ultimate') {
+      if (!fighter.superReady) {
+        fighter.pendingCommand = null;
+        return false;
+      }
+      if (!fighter.grounded) return false;
+      fighter.pendingCommand = null;
+      this.startUltimate(index);
+      return true;
+    }
+
+    if (command.action === 'special') {
+      if (!fighter.grounded) return false;
+      const moveId = command.direction.down ? kit.closeSpecial : kit.rangedSpecial;
+      const move = this.registry.getMove(fighter.id, moveId);
+      if (move.projectileKey && fighter.projectileCooldown > 0) {
+        fighter.pendingCommand = null;
+        return false;
+      }
+      fighter.pendingCommand = null;
+      this.startMove(fighter, move);
+      return true;
+    }
+
+    if (command.action === 'attack') {
+      if (!fighter.grounded) {
+        fighter.pendingCommand = null;
+        this.startMove(fighter, this.registry.getMove(fighter.id, kit.air), 1);
+        return true;
+      }
+      fighter.pendingCommand = null;
+      const moveId = command.direction.down && kit.low ? kit.low : kit.standing;
+      this.startMove(fighter, this.registry.getMove(fighter.id, moveId), 1);
+      return true;
+    }
+
+    if (command.action === 'jump') {
+      if (!fighter.grounded) return false;
+      fighter.pendingCommand = null;
+      fighter.vy = def.jumpSpeed;
+      fighter.grounded = false;
+      fighter.crouching = false;
+      fighter.blocking = false;
+      return false;
+    }
+
+    return false;
+  }
+
+  private updateFighter(index: FighterIndex, input: InputFrame): void {
+    const fighter = this.fighters[index];
+    const def = this.registry.getFighter(fighter.id);
+
+    if (fighter.projectileCooldown > 0) fighter.projectileCooldown -= 1;
+    if (fighter.chilledFrames > 0) fighter.chilledFrames -= 1;
+    this.updateGuard(fighter);
+
+    if (fighter.capturedBy !== null) {
+      fighter.blocking = false;
+      fighter.crouching = false;
+      fighter.vx = 0;
+      fighter.vy = 0;
+      return;
+    }
+
+    if (fighter.health <= 0 && fighter.ultimatePhase !== 'sequence') {
+      fighter.blocking = false;
+      fighter.vx = 0;
+      return;
+    }
+
+    if (fighter.ultimatePhase === 'sequence') {
+      this.updateUltimate(index);
+      return;
+    }
+
+    if (fighter.guardBreakFrames > 0) {
+      fighter.guardBreakFrames -= 1;
+      fighter.blocking = false;
+      fighter.crouching = false;
+      fighter.dashKind = null;
+      fighter.dashFrame = 0;
+      fighter.x += fighter.vx;
+      fighter.vx *= 0.82;
+      this.integrateVertical(fighter, def.gravity);
+      this.clampFighter(fighter);
+      if (fighter.guardBreakFrames === 0) fighter.guard = Math.max(fighter.guard, GUARD_AFTER_BREAK);
+      return;
+    }
+
+    if (fighter.stunFrames > 0) {
+      fighter.stunFrames -= 1;
+      fighter.blocking = false;
+      fighter.crouching = false;
+      fighter.dashKind = null;
+      fighter.dashFrame = 0;
+      fighter.x += fighter.vx;
+      fighter.vx *= 0.86;
+      this.integrateVertical(fighter, def.gravity);
+      this.clampFighter(fighter);
+      return;
+    }
+
+    if (fighter.blockstunFrames > 0) {
+      if (fighter.pendingCommand?.intent.action === 'pushGuard') {
+        fighter.pendingCommand = null;
+        if (this.tryPushGuard(index)) return;
+      }
+      fighter.blockstunFrames -= 1;
+      fighter.blocking = true;
+      fighter.crouching = input.down;
+      fighter.dashKind = null;
+      fighter.dashFrame = 0;
+      fighter.x += fighter.vx;
+      fighter.vx *= 0.78;
+      this.integrateVertical(fighter, def.gravity);
+      this.clampFighter(fighter);
+      if (fighter.blockstunFrames === 0) fighter.blocking = false;
+      return;
+    }
+
+    if (fighter.ultimatePhase !== 'idle') {
+      this.updateUltimate(index);
+      return;
+    }
+
+    if (fighter.pendingCommand?.intent.action === 'ultimate' && !fighter.superReady) {
+      fighter.pendingCommand = null;
+    }
+
+    if (fighter.dashKind) {
+      this.updateDash(fighter);
+      this.integrateVertical(fighter, def.gravity);
+      this.clampFighter(fighter);
+      return;
+    }
+
+    if (fighter.currentMove) {
+      fighter.blocking = false;
+      fighter.crouching = false;
+      const current = fighter.currentMove;
+      const pendingAttack = fighter.pendingCommand?.intent.action === 'attack'
+        ? fighter.pendingCommand.intent
+        : null;
+      const canChain = fighter.moveContact === 'hit'
+        && pendingAttack !== null
+        && !pendingAttack.direction.down
+        && current.nextAttack
+        && current.cancelStart !== undefined
+        && current.cancelEnd !== undefined
+        && fighter.moveFrame >= current.cancelStart
+        && fighter.moveFrame <= current.cancelEnd;
+      if (canChain && current.nextAttack) {
+        fighter.pendingCommand = null;
+        this.startMove(fighter, this.registry.getMove(fighter.id, current.nextAttack), fighter.comboCount + 1);
+        this.integrateVertical(fighter, def.gravity);
+        return;
+      }
+
+      fighter.moveFrame += 1;
+      this.triggerMoveEffect(index, fighter);
+      if (fighter.moveFrame >= current.totalFrames) {
+        this.clearMove(fighter);
+        if (this.tryExecutePendingNeutral(index)) return;
+      }
+      this.integrateVertical(fighter, def.gravity);
+      this.clampFighter(fighter);
+      return;
+    }
+
+    if (fighter.grounded && (input.dashLeft || input.dashRight)) {
+      const direction = input.dashLeft === input.dashRight ? 0 : input.dashLeft ? -1 : 1;
+      if (direction !== 0) {
+        this.startDash(fighter, direction as Facing);
+        this.updateDash(fighter);
+        this.clampFighter(fighter);
+        return;
+      }
+    }
+
     if (this.tryExecutePendingNeutral(index)) return;
 
     fighter.crouching = fighter.grounded && input.down;

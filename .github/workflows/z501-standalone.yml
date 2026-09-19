@@ -5,12 +5,17 @@ on:
     branches:
       - main
 
+permissions:
+  contents: write
+
 jobs:
   standalone:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
+      - name: Checkout head branch
         uses: actions/checkout@v4
+        with:
+          ref: ${{ github.head_ref }}
 
       - name: Setup Node
         uses: actions/setup-node@v4
@@ -40,11 +45,23 @@ jobs:
           if (html.includes('src="./main.js"') || html.includes('href="./styles.css"')) {
             throw new Error('Standalone generation left external runtime references');
           }
-          fs.writeFileSync('play.generated.html', html);
+          fs.writeFileSync('play.html', html);
           NODE
+
+      - name: Commit synchronized play.html
+        run: |
+          if git diff --quiet -- play.html; then
+            echo "play.html already synchronized"
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add play.html
+          git commit -m "release: sync standalone play.html for V0.3"
+          git push origin HEAD:${{ github.head_ref }}
 
       - name: Upload standalone
         uses: actions/upload-artifact@v4
         with:
           name: z501-play-html
-          path: play.generated.html
+          path: play.html

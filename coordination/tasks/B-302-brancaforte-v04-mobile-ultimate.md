@@ -2,7 +2,7 @@
 
 Round: R002-V04-COMBAT-FEEL-MOBILE
 Owner: Brancaforte
-Status: CHECKING_IN
+Status: REVIEWING
 Branch: round/r002-brancaforte
 
 ## Dependency
@@ -36,12 +36,24 @@ Replace the uncomfortable mobile Ultimate chord with one dedicated touch button 
 - release/publishing.
 
 ## Acceptance criteria
-- [ ] mobile ULTIMATE button exists and is reachable while holding D-pad
-- [ ] not-ready/READY states are clear
-- [ ] one touch emits exactly one Ultimate intent
-- [ ] no Attack/Special leakage
-- [ ] movement remains held while Ultimate is pressed
+- [x] mobile ULTIMATE button exists and automated multi-pointer test keeps D-pad movement while activating it
+- [x] not-ready/READY states are implemented from authoritative superReady
+- [x] one touch emits exactly one Ultimate intent
+- [x] no Attack/Special leakage
+- [x] movement remains held while Ultimate is pressed (automated multi-pointer regression)
 - [ ] no playfield/HUD obstruction at target mobile-landscape size
-- [ ] desktop compatibility regression passes
-- [ ] help/hints match actual controls
+- [x] desktop compatibility regression passes
+- [x] help/hints match actual controls
 - [ ] clean handoff SHA + tests/build/mobile smoke evidence
+
+
+## Validation checkpoint
+
+- frozen R-201 base: `683d81f50afa9626785408ac7f868414ffe4061f`
+- CI-green iterative head: `3926d862c76ca4d5c2e597d988f7ddfe5c15e574`
+- clean handoff commit: `d5bfae4e108f882715c82ccd9282f1cc9c5f396a`
+- clean tree = CI-green tree: `e806c7d55505473bf9fc747496e0801f843a5ee5`
+- RED run: `35424997781`
+- GREEN run: `35425090149` — coordination contract PASS, full suite 87/87 PASS, build PASS
+- formal handoff: `coordination/handoffs/B-302-brancaforte-v04-mobile-ultimate.md`
+- pending Stage 3 evidence: real iPhone-scale landscape visual/playfield-obstruction and tactile touch smoke; local browser checkout was unavailable because this runtime could not resolve github.com

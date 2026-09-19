@@ -147,6 +147,7 @@ export class CpuController {
       return out;
     }
     if (distance < 145 && snapshot.frame % 84 === 0) {
+      out.up = true;
       out.special = true;
       this.intentUntil = snapshot.frame + 24;
       return out;

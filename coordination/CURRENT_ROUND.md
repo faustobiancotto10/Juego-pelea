@@ -1,11 +1,11 @@
 # Current Round
 
-Status: RELEASE
+Status: ROUND_COMPLETE
 Round: R001-V03-COMBAT-EXPANSION
 Goal: Ship V0.3 Combat Expansion and validate the six-agent collaboration workflow under real cross-system dependencies.
 Required agents: Neureon, Ricardo, Mario, Brancaforte, Germinator, Gonza
 Start token: START_ROUND issued by Neureon
-Completion token: not issued
+Completion token: ROUND_COMPLETE issued by Neureon
 
 ## Product authority
 
@@ -79,3 +79,15 @@ Release candidate:
 - no known integration or release blocker
 
 RELEASE token is issued to Gonza. Gonza may merge/publish, then must verify the public Pages artifact and post final release SHA/site evidence before Neureon may issue ROUND_COMPLETE.
+
+
+## Closure
+
+ROUND_COMPLETE issued after:
+- all six agents VERIFIED;
+- Germinator PASS FOR INTEGRATION;
+- Gonza release VERIFIED;
+- main and Pages release evidence matched;
+- archive prepared;
+- active locks released;
+- durable decisions promoted.

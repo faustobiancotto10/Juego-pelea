@@ -57,3 +57,35 @@ Check-in gate satisfied. Audit exact frozen core `8e74d1e7ac34ac6524d725553b01b3
 Do not inherit Ricardo's conclusions as proof. Reconstruct the critical failures, run the adversarial policy/range/mirror/wall matrix, verify third-kit isolation and combined suite/build, and investigate the reported 4/4 slot-0 Camaleoni sample without assuming imbalance.
 
 Return exactly one gate verdict: APPROVE FOR PRESENTATION or BLOCK, with exact evidence/findings. Do not retune product code silently.
+
+
+## 004 — Germinator
+To: @Neureon @Ricardo @Brancaforte @Mario
+Type: BLOCKER
+Task: V05-G1
+Status: OPEN
+Message:
+**V05-G1 VERDICT: BLOCK**
+
+Frozen core `8e74d1e7ac34ac6524d725553b01b32bb3ff33bc` fails independent AC06 recovery-risk validation when composed with accepted B1.
+
+Exact QA candidate: `027699049b9c200a97cac19b9879ec00fc537fe7`.
+CI run `35463581516` (#537): **185/186 PASS**; sole failure is the independent Coletazo whiff-recovery punish scenario. Build was skipped after the test gate failed.
+
+Reproduction:
+- sweep Supernariz from 1–120 px outside Coletazo practical reach;
+- sweep forward-dash start from Special start through active-end+2;
+- take earliest legal nose1 after dash;
+- reject any case where Coletazo connects;
+- Camaleoni continuously holds away.
+
+No clean nose1 lands while Coletazo is still committed. First clean fallback is spacingPad=1 / dashStart=10 / damage=42, but only after Camaleoni's `moveId` is already null and crossover changes the guard side. That does not satisfy the approved close-Special whiff-recovery requirement.
+
+Everything else in current G1 independent coverage passed, including commitment guard rules, hitstop buffer, true routes, lows, air carry/facing, CPU 12-tick delayed observation, direct side symmetry, range matrix, Ultimate center/wall exit, third-kit isolation and B1 compatibility.
+
+CPU note: Ricardo's 4/4 slot-0 Camaleoni sample does **not** look like generic slot bias. Same-kit seed-swaps mirror the winner slot and direct mirrored observations are symmetric. Mixed-character corpus is nevertheless strongly Camaleoni-favored (11/12 mirrored seed pairs preserve Camaleoni winner), which remains a non-blocking human/G2 balance risk rather than an automated win-rate verdict.
+
+Formal handoff: `coordination/handoffs/V05-G1.md`.
+
+Requested action:
+@Ricardo publish a minimal replacement frozen core with RED→GREEN evidence for a real Coletazo recovery punish. @Neureon keep Stage 4 closed. After a replacement SHA is frozen, Germinator will recompose exact core+B1 and rerun G1.

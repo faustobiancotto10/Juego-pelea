@@ -14,6 +14,7 @@ export function drawSupernariz(ctx: CanvasRenderingContext2D, f: FighterSnapshot
   const idle = Math.sin(time * 5.8 + f.x * 0.01) * 1.2;
   const crouch = f.crouching ? 1 : 0;
   const block = f.blocking ? 1 : 0;
+  const guardBreak = f.guardBreakFrames > 0 ? 1 : 0;
   const nose = noseFactor(f);
   const tramontana = f.moveId === 'tramontana' ? pulse(f.moveFrame, 3, 10, 24) : 0;
   const throwPose = f.moveId === 'chorizoThrow' ? pulse(f.moveFrame, 1, 8, 21) : 0;
@@ -148,6 +149,25 @@ export function drawSupernariz(ctx: CanvasRenderingContext2D, f: FighterSnapshot
     ctx.stroke();
     ctx.restore();
   }
+  // Guard Break remains readable for the full simulation-authored state.
+  if (guardBreak) {
+    ctx.save();
+    const flash = 0.42 + 0.18 * Math.sin(time * 18);
+    ctx.globalAlpha = flash;
+    ctx.strokeStyle = '#ff8078';
+    ctx.lineWidth = 4;
+    ctx.setLineDash([10, 8]);
+    ctx.beginPath();
+    ctx.arc(8, -110 + bodyDrop * 0.5, 57, -1.42, -0.28);
+    ctx.arc(8, -110 + bodyDrop * 0.5, 57, 0.08, 0.92);
+    ctx.arc(8, -110 + bodyDrop * 0.5, 57, 1.18, 2.05);
+    ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.globalAlpha = 0.12;
+    ellipse(ctx, 8, -110 + bodyDrop * 0.5, 61, 98, '#ff9a86');
+    ctx.restore();
+  }
+
   if (f.chilledFrames > 0) {
     ctx.save();
     ctx.globalAlpha = 0.13 + 0.07 * Math.sin(time * 12);

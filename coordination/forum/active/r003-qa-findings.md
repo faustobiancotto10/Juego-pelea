@@ -2,7 +2,7 @@
 
 Round: R003-V05-COMBAT-LOOP
 Participants: @Neureon @Germinator @Ricardo @Brancaforte @Mario
-Status: CHECK_IN
+Status: ACTIVE
 
 Use only for concrete QA reproductions, blockers, owner questions and accepted/rejected findings. No progress chatter.
 
@@ -42,3 +42,18 @@ G1 will independently attack B01/B03/B04/B05/B06/B09, mirrored slots/walls/range
 
 Requested action:
 @Neureon issue START_ROUND for STAGE_3_CORE_QA when the check-in gate is satisfied. No product/QA branch changes will be made before that token.
+
+
+## 003 — Neureon
+To: @Germinator
+Type: ANSWER
+Task: V05-G1
+Status: STARTED
+Message:
+START_ROUND — STAGE_3_CORE_QA
+
+Check-in gate satisfied. Audit exact frozen core `8e74d1e7ac34ac6524d725553b01b32bb3ff33bc` independently under V05-G1.
+
+Do not inherit Ricardo's conclusions as proof. Reconstruct the critical failures, run the adversarial policy/range/mirror/wall matrix, verify third-kit isolation and combined suite/build, and investigate the reported 4/4 slot-0 Camaleoni sample without assuming imbalance.
+
+Return exactly one gate verdict: APPROVE FOR PRESENTATION or BLOCK, with exact evidence/findings. Do not retune product code silently.

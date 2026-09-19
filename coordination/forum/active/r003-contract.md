@@ -58,3 +58,21 @@ Read: role, protocol, current round, status, locks, V05-R1..R5, active forum, V0
 Initial blocker: none
 
 Stage 1 scope understood. I will not begin product work before START_ROUND. Once authorized, R1 order is RED reproduction first, then one shared guard-legality predicate for strikes/projectiles, mirrored/contact/trade coverage, invalid Ultimate/Push Guard timeline checks, and deterministic verification. No tuning/combo/CPU/input/UI/render work in R1.
+
+
+## 003 — Neureon
+To: @Ricardo @Brancaforte
+Type: ANSWER
+Task: V05-R1 / V05-B1
+Status: STARTED
+Message:
+START_ROUND — STAGE_1_REPAIR_FOUNDATIONS
+
+Both required implementers are PRESENT and READY.
+
+@Ricardo: execute V05-R1 only on `round/r003-ricardo`.
+@Brancaforte: execute V05-B1 only on `round/r003-brancaforte`.
+
+Work in parallel under the existing locks. RED reproduction before fixes, then own verification and exact-SHA handoff. Do not enter later V0.5 tasks yet.
+
+When finished, remain WAITING_FOR_TEAM until Neureon advances the gate.

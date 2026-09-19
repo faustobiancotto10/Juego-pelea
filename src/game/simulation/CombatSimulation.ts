@@ -1,6 +1,7 @@
-import { FIGHTERS } from '../data/fighters.js';
+import { DEFAULT_COMBAT_REGISTRY, type CombatRegistry } from '../data/combatRegistry.js';
+import type { UltimateDefinition } from '../data/ultimates.js';
 import { EMPTY_INPUT, type CombatEvent, type Facing, type FighterId, type FighterIndex, type FighterSnapshot, type InputFrame, type MatchSnapshot, type MatchPhase, type ProjectileSnapshot } from '../types.js';
-import { getAirAttack, getAttackStart, getCloseSpecialMove, getMoveDefinition, getSpecialMove, getUltimateMove, type MoveDefinition } from './moves.js';
+import type { MoveDefinition } from './moves.js';
 
 const ARENA_MIN_X = 90;
 const ARENA_MAX_X = 1190;
@@ -31,25 +32,6 @@ const BACK_DASH_SPEED = 7.2;
 const BACK_DASH_INVULN_START = 2;
 const BACK_DASH_INVULN_END = 7;
 
-const CHORIZO_COOLDOWN = 120;
-
-const CAMALEONI_ULT_STARTUP = 9;
-const CAMALEONI_ULT_CAPTURE_FRAMES = 8;
-const CAMALEONI_ULT_DASH_SPEED = 18;
-const CAMALEONI_ULT_CAPTURE_REACH = 138;
-const CAMALEONI_ULT_CAPTURE_VERTICAL = 82;
-const CAMALEONI_ULT_SEQUENCE_FRAMES = 24;
-const CAMALEONI_ULT_RECOVERY_FRAMES = 24;
-
-const SUPERNARIZ_ULT_STARTUP = 11;
-const SUPERNARIZ_ULT_CAPTURE_FRAMES = 18;
-const SUPERNARIZ_ULT_SUCTION_RANGE = 330;
-const SUPERNARIZ_ULT_SUCTION_SPEED = 12;
-const SUPERNARIZ_ULT_CAPTURE_DISTANCE = 90;
-const SUPERNARIZ_ULT_CAPTURE_VERTICAL = 96;
-const SUPERNARIZ_ULT_SEQUENCE_FRAMES = 22;
-const SUPERNARIZ_ULT_RECOVERY_FRAMES = 28;
-
 interface FighterState extends FighterSnapshot {
   prevInput: InputFrame;
   currentMove: MoveDefinition | null;
@@ -68,6 +50,8 @@ export interface CombatSimulationOptions {
   skipIntro?: boolean;
   /** Deterministic scenario setup for tests/harnesses. Omit in normal play. */
   initialSuper?: number | readonly [number, number];
+  /** Optional bounded content registry for tests/future fighter packs. */
+  registry?: CombatRegistry;
 }
 
 function copyInput(input: InputFrame): InputFrame {
@@ -85,8 +69,14 @@ function initialSuperFor(options: CombatSimulationOptions, index: FighterIndex):
   return 0;
 }
 
-function makeFighter(id: FighterId, index: FighterIndex, superMeter = 0): FighterState {
-  const def = FIGHTERS[id];
+function projectileCooldownMaxFor(registry: CombatRegistry, id: FighterId): number {
+  const kit = registry.getKit(id);
+  const ranged = registry.getMove(id, kit.rangedSpecial);
+  return ranged.projectileKey ? registry.getProjectile(ranged.projectileKey).cooldown : 0;
+}
+
+function makeFighter(registry: CombatRegistry, id: FighterId, index: FighterIndex, superMeter = 0): FighterState {
+  const def = registry.getFighter(id);
   return {
     id,
     x: START_X[index],
@@ -110,7 +100,7 @@ function makeFighter(id: FighterId, index: FighterIndex, superMeter = 0): Fighte
     comboCount: 0,
     chilledFrames: 0,
     projectileCooldown: 0,
-    projectileCooldownMax: id === 'supernariz' ? CHORIZO_COOLDOWN : 0,
+    projectileCooldownMax: projectileCooldownMaxFor(registry, id),
     superMeter,
     maxSuper: MAX_SUPER,
     superReady: superMeter >= MAX_SUPER,
@@ -176,6 +166,7 @@ function intervalsOverlap(aMin: number, aMax: number, bMin: number, bMax: number
 }
 
 export class CombatSimulation {
+  private readonly registry: CombatRegistry;
   private fighters: [FighterState, FighterState];
   private frame = 0;
   private phase: MatchPhase;
@@ -191,9 +182,10 @@ export class CombatSimulation {
   private nextProjectileId = 1;
 
   constructor(p1: FighterId, p2: FighterId, options: CombatSimulationOptions = {}) {
+    this.registry = options.registry ?? DEFAULT_COMBAT_REGISTRY;
     this.fighters = [
-      makeFighter(p1, 0, initialSuperFor(options, 0)),
-      makeFighter(p2, 1, initialSuperFor(options, 1)),
+      makeFighter(this.registry, p1, 0, initialSuperFor(options, 0)),
+      makeFighter(this.registry, p2, 1, initialSuperFor(options, 1)),
     ];
     this.phase = options.skipIntro ? 'fight' : 'intro';
     this.introFrames = options.skipIntro ? 0 : INTRO_FRAMES;
@@ -277,7 +269,7 @@ export class CombatSimulation {
 
   private updateFighter(index: FighterIndex, input: InputFrame): void {
     const fighter = this.fighters[index];
-    const def = FIGHTERS[fighter.id];
+    const def = this.registry.getFighter(fighter.id);
 
     if (fighter.projectileCooldown > 0) fighter.projectileCooldown -= 1;
     if (fighter.chilledFrames > 0) fighter.chilledFrames -= 1;
@@ -389,7 +381,7 @@ export class CombatSimulation {
         && fighter.moveFrame <= current.cancelEnd
         && pressed(input, fighter.prevInput, 'attack');
       if (canChain && current.nextAttack) {
-        this.startMove(fighter, getMoveDefinition(fighter.id, current.nextAttack), fighter.comboCount + 1);
+        this.startMove(fighter, this.registry.getMove(fighter.id, current.nextAttack), fighter.comboCount + 1);
         this.integrateVertical(fighter, def.gravity);
         return;
       }
@@ -412,23 +404,25 @@ export class CombatSimulation {
       }
     }
 
+    const kit = this.registry.getKit(fighter.id);
+
     if (!fighter.grounded && pressed(input, fighter.prevInput, 'attack')) {
-      this.startMove(fighter, getAirAttack(fighter.id), 1);
+      this.startMove(fighter, this.registry.getMove(fighter.id, kit.air), 1);
       return;
     }
 
     if (fighter.grounded && pressed(input, fighter.prevInput, 'special')) {
-      if (fighter.id === 'chameleon') {
-        if (input.up && !input.down) this.startMove(fighter, getCloseSpecialMove(fighter.id));
-        else this.startMove(fighter, getSpecialMove(fighter.id, input.down));
-      } else if (input.down || fighter.projectileCooldown <= 0) {
-        this.startMove(fighter, getSpecialMove(fighter.id, input.down));
-      }
+      let moveId = kit.rangedSpecial;
+      if (input.down && kit.legacyDownSpecial) moveId = kit.legacyDownSpecial;
+      else if (input.up && !input.down && kit.legacyUpSpecial) moveId = kit.legacyUpSpecial;
+
+      const move = this.registry.getMove(fighter.id, moveId);
+      if (!move.projectileKey || fighter.projectileCooldown <= 0) this.startMove(fighter, move);
       return;
     }
 
     if (fighter.grounded && pressed(input, fighter.prevInput, 'attack')) {
-      this.startMove(fighter, getAttackStart(fighter.id), 1);
+      this.startMove(fighter, this.registry.getMove(fighter.id, kit.standing), 1);
       return;
     }
 
@@ -570,10 +564,11 @@ export class CombatSimulation {
       ? attacker.x + hitbox.offsetX
       : attacker.x - hitbox.offsetX - hitbox.width;
     const attackMaxX = attackMinX + hitbox.width;
-    const hurtHalfWidth = FIGHTERS[defender.id].width * 0.5;
+    const defenderDef = this.registry.getFighter(defender.id);
+    const hurtHalfWidth = defenderDef.width * 0.5;
     const hurtMinX = defender.x - hurtHalfWidth;
     const hurtMaxX = defender.x + hurtHalfWidth;
-    const hurtTop = defender.crouching ? FIGHTERS[defender.id].height * 0.66 : FIGHTERS[defender.id].height;
+    const hurtTop = defender.crouching ? defenderDef.height * 0.66 : defenderDef.height;
     const hurtBottom = defender.y;
     const attackBottom = attacker.y + hitbox.bottom;
     const attackTop = attacker.y + hitbox.top;
@@ -701,29 +696,30 @@ export class CombatSimulation {
 
   private triggerMoveEffect(index: FighterIndex, fighter: FighterState): void {
     const move = fighter.currentMove;
-    if (!move || fighter.moveEffectTriggered || move.spawnProjectileFrame === undefined) return;
+    if (!move || fighter.moveEffectTriggered || move.spawnProjectileFrame === undefined || !move.projectileKey) return;
     if (fighter.moveFrame < move.spawnProjectileFrame) return;
-    if (fighter.id === 'supernariz' && move.id === 'chorizoThrow') {
-      const projectile: ProjectileState = {
-        id: this.nextProjectileId++,
-        owner: index,
-        kind: 'chorizo',
-        x: fighter.x + fighter.facing * 68,
-        y: fighter.y + 68,
-        vx: fighter.facing * 9.2,
-        active: true,
-        ttl: 150,
-      };
-      this.projectiles.push(projectile);
-      fighter.projectileCooldown = CHORIZO_COOLDOWN;
-      fighter.moveEffectTriggered = true;
-      this.events.push({ type: 'projectile', owner: index, projectileId: projectile.id });
-    }
+
+    const definition = this.registry.getProjectile(move.projectileKey);
+    const projectile: ProjectileState = {
+      id: this.nextProjectileId++,
+      owner: index,
+      kind: definition.key,
+      x: fighter.x + fighter.facing * definition.spawnOffsetX,
+      y: fighter.y + definition.spawnOffsetY,
+      vx: fighter.facing * definition.speed,
+      active: true,
+      ttl: definition.ttl,
+    };
+    this.projectiles.push(projectile);
+    fighter.projectileCooldown = definition.cooldown;
+    fighter.moveEffectTriggered = true;
+    this.events.push({ type: 'projectile', owner: index, projectileId: projectile.id });
   }
 
   private updateProjectiles(inputs: readonly [InputFrame, InputFrame]): void {
     for (const projectile of this.projectiles) {
       if (!projectile.active) continue;
+      const definition = this.registry.getProjectile(projectile.kind);
       projectile.x += projectile.vx;
       projectile.ttl -= 1;
       if (projectile.ttl <= 0 || projectile.x < ARENA_MIN_X - 80 || projectile.x > ARENA_MAX_X + 80) {
@@ -734,38 +730,49 @@ export class CombatSimulation {
       const defenderIndex: FighterIndex = projectile.owner === 0 ? 1 : 0;
       const defender = this.fighters[defenderIndex];
       if (defender.capturedBy !== null) continue;
-      const half = FIGHTERS[defender.id].width * 0.5;
-      const projectileMinX = projectile.x - 22;
-      const projectileMaxX = projectile.x + 22;
-      const hurtTop = defender.y + (defender.crouching ? FIGHTERS[defender.id].height * 0.66 : FIGHTERS[defender.id].height);
+      const defenderDef = this.registry.getFighter(defender.id);
+      const half = defenderDef.width * 0.5;
+      const projectileMinX = projectile.x - definition.collisionHalfWidth;
+      const projectileMaxX = projectile.x + definition.collisionHalfWidth;
+      const projectileMinY = projectile.y - definition.collisionHalfHeight;
+      const projectileMaxY = projectile.y + definition.collisionHalfHeight;
+      const hurtTop = defender.y + (defender.crouching ? defenderDef.height * 0.66 : defenderDef.height);
       if (!intervalsOverlap(projectileMinX, projectileMaxX, defender.x - half, defender.x + half)) continue;
-      if (projectile.y < defender.y + 18 || projectile.y > hurtTop + 10) continue;
+      if (!intervalsOverlap(projectileMinY, projectileMaxY, defender.y + 18, hurtTop + 10)) continue;
 
       const defenderInput = inputs[defenderIndex];
       const blocked = this.canBlock(defender, defenderInput);
-      const requestedDamage = blocked ? 5 : 58;
+      const requestedDamage = blocked ? definition.chipDamage : definition.damage;
       const actualDamage = this.applyDamage(projectile.owner, defenderIndex, requestedDamage);
       if (blocked) {
-        defender.blockstunFrames = 10;
+        defender.blockstunFrames = definition.blockstun;
         defender.blocking = true;
-        defender.vx = Math.sign(projectile.vx) * 2.1;
-        this.applyCornerBlockTransfer(projectile.owner, defenderIndex, 6);
-        this.damageGuard(defenderIndex, 14);
+        defender.vx = Math.sign(projectile.vx) * definition.blockKnockback;
+        this.applyCornerBlockTransfer(projectile.owner, defenderIndex, definition.cornerTransferKnockback);
+        this.damageGuard(defenderIndex, definition.guardDamage);
       } else {
-        defender.stunFrames = 14;
+        defender.stunFrames = definition.hitstun;
         defender.blocking = false;
-        defender.vx = Math.sign(projectile.vx) * 5.0;
+        defender.vx = Math.sign(projectile.vx) * definition.knockback;
       }
       projectile.active = false;
-      this.hitstopFrames = Math.max(this.hitstopFrames, 4);
-      this.events.push({ type: 'hit', attacker: projectile.owner, defender: defenderIndex, blocked, damage: actualDamage, strong: false });
+      this.hitstopFrames = Math.max(this.hitstopFrames, definition.hitstop);
+      this.events.push({
+        type: 'hit',
+        attacker: projectile.owner,
+        defender: defenderIndex,
+        blocked,
+        damage: actualDamage,
+        strong: definition.strong,
+      });
     }
     this.projectiles = this.projectiles.filter((p) => p.active);
   }
 
   private startUltimate(index: FighterIndex): void {
     const fighter = this.fighters[index];
-    fighter.currentMove = getUltimateMove(fighter.id);
+    const kit = this.registry.getKit(fighter.id);
+    fighter.currentMove = this.registry.getMove(fighter.id, kit.ultimate);
     fighter.moveId = fighter.currentMove.id;
     fighter.moveFrame = 0;
     fighter.moveHasHit = false;
@@ -781,8 +788,15 @@ export class CombatSimulation {
     this.events.push({ type: 'ultimate-start', attacker: index });
   }
 
+  private activeUltimateDefinition(fighter: FighterState): UltimateDefinition {
+    const move = fighter.currentMove;
+    if (!move?.ultimateKey) throw new Error(`Missing ultimate definition for ${fighter.id}:${fighter.moveId ?? 'none'}`);
+    return this.registry.getUltimate(move.ultimateKey);
+  }
+
   private updateUltimate(index: FighterIndex): void {
     const fighter = this.fighters[index];
+    const definition = this.activeUltimateDefinition(fighter);
     fighter.blocking = false;
     fighter.crouching = false;
     fighter.dashKind = null;
@@ -792,8 +806,7 @@ export class CombatSimulation {
     fighter.ultimatePhaseFrame += 1;
 
     if (fighter.ultimatePhase === 'startup') {
-      const startup = fighter.id === 'chameleon' ? CAMALEONI_ULT_STARTUP : SUPERNARIZ_ULT_STARTUP;
-      if (fighter.ultimatePhaseFrame >= startup) {
+      if (fighter.ultimatePhaseFrame >= definition.startupFrames) {
         fighter.superMeter = 0;
         fighter.superReady = false;
         fighter.ultimatePhase = 'capture';
@@ -803,69 +816,72 @@ export class CombatSimulation {
     }
 
     if (fighter.ultimatePhase === 'capture') {
-      if (fighter.id === 'chameleon') this.updateCamaleoniCapture(index);
-      else this.updateSupernarizCapture(index);
+      if (definition.kind === 'dashCapture') this.updateDashCapture(index, definition);
+      else this.updateSuctionCapture(index, definition);
       return;
     }
 
     if (fighter.ultimatePhase === 'sequence') {
-      this.updateUltimateSequence(index);
+      this.updateUltimateSequence(index, definition);
       return;
     }
 
-    if (fighter.ultimatePhase === 'recovery') {
-      const recovery = fighter.id === 'chameleon' ? CAMALEONI_ULT_RECOVERY_FRAMES : SUPERNARIZ_ULT_RECOVERY_FRAMES;
-      if (fighter.ultimatePhaseFrame >= recovery) this.finishUltimate(fighter);
+    if (fighter.ultimatePhase === 'recovery' && fighter.ultimatePhaseFrame >= definition.recoveryFrames) {
+      this.finishUltimate(fighter);
     }
   }
 
-  private updateCamaleoniCapture(index: FighterIndex): void {
+  private updateDashCapture(index: FighterIndex, definition: UltimateDefinition): void {
     const attacker = this.fighters[index];
     const defenderIndex: FighterIndex = index === 0 ? 1 : 0;
     const defender = this.fighters[defenderIndex];
+    const dashSpeed = definition.dashSpeed ?? 0;
 
-    attacker.x += attacker.ultimateFacing * CAMALEONI_ULT_DASH_SPEED;
+    attacker.x += attacker.ultimateFacing * dashSpeed;
     this.clampFighter(attacker);
 
     const signedDistance = (defender.x - attacker.x) * attacker.ultimateFacing;
     const verticalDistance = Math.abs(defender.y - attacker.y);
     const inRegion = signedDistance >= 0
-      && signedDistance <= CAMALEONI_ULT_CAPTURE_REACH
-      && verticalDistance <= CAMALEONI_ULT_CAPTURE_VERTICAL;
+      && signedDistance <= definition.captureReach
+      && verticalDistance <= definition.captureVertical;
 
     if (inRegion) {
       this.beginUltimateSequence(index, defenderIndex);
       return;
     }
 
-    if (attacker.ultimatePhaseFrame >= CAMALEONI_ULT_CAPTURE_FRAMES) {
+    if (attacker.ultimatePhaseFrame >= definition.captureFrames) {
       this.enterUltimateWhiffRecovery(index);
     }
   }
 
-  private updateSupernarizCapture(index: FighterIndex): void {
+  private updateSuctionCapture(index: FighterIndex, definition: UltimateDefinition): void {
     const attacker = this.fighters[index];
     const defenderIndex: FighterIndex = index === 0 ? 1 : 0;
     const defender = this.fighters[defenderIndex];
+    const suctionRange = definition.suctionRange ?? 0;
+    const suctionSpeed = definition.suctionSpeed ?? 0;
+    const captureDistance = definition.captureDistance ?? definition.captureReach;
 
     const signedDistance = (defender.x - attacker.x) * attacker.ultimateFacing;
     const verticalDistance = Math.abs(defender.y - attacker.y);
     const inField = signedDistance > 0
-      && signedDistance <= SUPERNARIZ_ULT_SUCTION_RANGE
-      && verticalDistance <= SUPERNARIZ_ULT_CAPTURE_VERTICAL;
+      && signedDistance <= suctionRange
+      && verticalDistance <= definition.captureVertical;
 
     if (inField) {
       const pullDirection = Math.sign(attacker.x - defender.x);
-      defender.x += pullDirection * SUPERNARIZ_ULT_SUCTION_SPEED;
+      defender.x += pullDirection * suctionSpeed;
       this.clampFighter(defender);
       const remaining = Math.abs(defender.x - attacker.x);
-      if (remaining <= SUPERNARIZ_ULT_CAPTURE_DISTANCE) {
+      if (remaining <= captureDistance) {
         this.beginUltimateSequence(index, defenderIndex);
         return;
       }
     }
 
-    if (attacker.ultimatePhaseFrame >= SUPERNARIZ_ULT_CAPTURE_FRAMES) {
+    if (attacker.ultimatePhaseFrame >= definition.captureFrames) {
       this.enterUltimateWhiffRecovery(index);
     }
   }
@@ -904,7 +920,7 @@ export class CombatSimulation {
     defender.ultimateTarget = null;
   }
 
-  private updateUltimateSequence(attackerIndex: FighterIndex): void {
+  private updateUltimateSequence(attackerIndex: FighterIndex, definition: UltimateDefinition): void {
     const attacker = this.fighters[attackerIndex];
     const defenderIndex = attacker.ultimateTarget;
     if (defenderIndex === null) {
@@ -919,28 +935,15 @@ export class CombatSimulation {
     defender.capturedBy = attackerIndex;
     defender.vx = 0;
     defender.vy = 0;
-
-    if (attacker.id === 'chameleon') {
-      defender.x = attacker.x + attacker.ultimateFacing * 62;
-      this.clampFighter(defender);
-      if (attacker.ultimatePhaseFrame === 6) this.applyUltimateHit(attackerIndex, defenderIndex, 70, 6.5);
-      if (attacker.ultimatePhaseFrame === 16) this.applyUltimateHit(attackerIndex, defenderIndex, 120, 13.5);
-      if (attacker.ultimatePhaseFrame >= CAMALEONI_ULT_SEQUENCE_FRAMES) {
-        defender.capturedBy = null;
-        defender.vx = attacker.ultimateFacing * 13.5;
-        attacker.ultimateTarget = null;
-        attacker.ultimatePhase = 'recovery';
-        attacker.ultimatePhaseFrame = 0;
-      }
-      return;
-    }
-
-    defender.x = attacker.x + attacker.ultimateFacing * 74;
+    defender.x = attacker.x + attacker.ultimateFacing * definition.sequenceOffsetX;
     this.clampFighter(defender);
-    if (attacker.ultimatePhaseFrame === 14) this.applyUltimateHit(attackerIndex, defenderIndex, 190, 15.5);
-    if (attacker.ultimatePhaseFrame >= SUPERNARIZ_ULT_SEQUENCE_FRAMES) {
+
+    const hit = definition.sequenceHits.find((beat) => beat.frame === attacker.ultimatePhaseFrame);
+    if (hit) this.applyUltimateHit(attackerIndex, defenderIndex, hit.damage, hit.knockback);
+
+    if (attacker.ultimatePhaseFrame >= definition.sequenceFrames) {
       defender.capturedBy = null;
-      defender.vx = attacker.ultimateFacing * 15.5;
+      defender.vx = attacker.ultimateFacing * definition.releaseKnockback;
       attacker.ultimateTarget = null;
       attacker.ultimatePhase = 'recovery';
       attacker.ultimatePhaseFrame = 0;

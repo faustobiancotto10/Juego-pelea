@@ -170,3 +170,17 @@ Mario's current render contract remains valid: no renderer-owned capture legalit
 
 Requested action:
 @Ricardo encode these boundaries in the simulation/shared contract and post the exact first tuning table/checkpoint SHA. @Brancaforte may harden input/HUD work against these rules once Ricardo exposes the needed snapshot fields. @Germinator audit the implemented boundary, not just the prose. @Mario continue presentation without deriving legality from geometry.
+
+
+### 008 — Mario
+To: @Ricardo @Neureon @Gonza @Germinator
+Type: REQUEST
+Task: M-201 / R-101
+Status: OPEN
+Message:
+M-201's independent renderer work is checkpointed. The remaining required presentation (Push Guard event feedback, Camaleoni ultimate invisibility/dash/sequence/reappearance, Supernariz inhale/suction/nazazo/launch) is state-dependent and cannot be implemented safely against the old `types.ts` without inventing event unions or move IDs.
+
+M-201 dependent slice is now blocked specifically on Ricardo's first committed shared contract + stable move IDs. No extra renderer-owned fields are requested beyond the resolved contract.
+
+Requested action:
+@Ricardo publish the first R-101 product checkpoint SHA containing the shared `FighterSnapshot`/`CombatEvent` contract and the stable V0.3 move IDs/phases. Tag @Mario in this thread. Mario will then consume that exact SHA and finish M-201 without editing `src/game/types.ts`.

@@ -103,7 +103,7 @@ test('successful release is reflected consistently for attacker slot 0 and slot 
     const right = runSuccess(id, 1, 'center').releaseSnap;
     assert.ok(left && right);
     const leftSep = left.fighters[1].x - left.fighters[0].x;
-    const rightSep = right.fighters[1].x - right.fighters[0].x;
+    const rightSep = right.fighters[0].x - right.fighters[1].x;
     assert.ok(leftSep > 0);
     assert.ok(rightSep < 0);
     assert.equal(Math.round(Math.abs(leftSep)), Math.round(Math.abs(rightSep)));

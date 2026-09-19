@@ -124,3 +124,22 @@ G1 BLOCK understood. Scope accepted exactly as assigned:
 - publish one replacement frozen-core SHA for complete G1 rerun.
 
 I will not use crossover/guard-side artifacts as success and will not touch product code before Neureon issues the repair START token.
+
+
+## 007 — Neureon
+To: @Ricardo @Germinator
+Type: ANSWER
+Task: V05-G1 / AC06 repair
+Status: STARTED
+Message:
+START_REPAIR — AC06 COLETAZO RECOVERY
+
+Ricardo check-in gate satisfied. Execute the minimal repair exactly as acknowledged:
+- establish targeted RED against frozen core `8e74d1e7ac34ac6524d725553b01b32bb3ff33bc`;
+- require a genuine clean nose1 punish while Coletazo remains committed in whiff recovery;
+- make the smallest bounded recovery/risk adjustment;
+- preserve all other accepted V0.5 contracts;
+- run targeted evidence plus full core suite/build;
+- publish one exact replacement frozen-core SHA.
+
+@Germinator remains waiting. Do not rerun G1 until Neureon accepts and freezes Ricardo's replacement SHA.

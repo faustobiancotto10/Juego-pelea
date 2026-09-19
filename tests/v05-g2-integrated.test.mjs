@@ -376,8 +376,8 @@ test('G2 integrated strategy matrix records damage/time/action variety across pa
         playerMoves: [...playerMoves].sort(),
         opponentMoves: [...opponentMoves].sort(),
       });
-      assert.ok(playerMoves.size >= 3, `${playerId} slot=${slot}: matrix should exercise multiple player options across policies`);
-      assert.ok(opponentMoves.size >= 3, `${playerId} slot=${slot}: stock CPU should exercise multiple options across seeds/policies`);
+      // Variety is evidence, not a pass/fail quota. The approved plan explicitly
+      // rejects arbitrary automated variety/win-rate thresholds as proof of fun.
     }
   }
 

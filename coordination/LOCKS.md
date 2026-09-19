@@ -15,3 +15,5 @@ Reservations for later stages do not authorize work before Neureon opens the gat
 | tests/combat-v02.test.mjs | Ricardo | V05-R3 | replace obsolete low-tongue expectations |
 | tests/combat-v03.test.mjs | Ricardo | V05-R3 | update mapping/meter expectations |
 | tests/combat-v04.test.mjs | Ricardo | V05-R3 | update mapping/tuning assumptions |
+| src/game/data/combatRegistry.ts | Ricardo | V05-R3 | remove temporary R2 legacy binding validation at final kit freeze |
+| tests/fixtures/v05-registry.mjs | Ricardo | V05-R3 | keep injected registry fixture valid under mandatory low-slot contract |

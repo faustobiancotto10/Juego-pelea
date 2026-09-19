@@ -42,6 +42,10 @@ function dashAway(selfX: number, otherX: number): Pick<InputFrame, 'dashLeft' | 
   return selfX > otherX ? { dashLeft: false, dashRight: true } : { dashLeft: true, dashRight: false };
 }
 
+function awayFromFacing(facing: 1 | -1): Pick<InputFrame, 'left' | 'right'> {
+  return facing === 1 ? { left: true, right: false } : { left: false, right: true };
+}
+
 function cloneInput(input: InputFrame): InputFrame {
   return { ...input };
 }
@@ -148,8 +152,8 @@ export class CpuController {
 
     // Own blockstun is current legality, not hidden opponent perception.
     if (self.blockstunFrames > 0) {
-      const foeX = delayed?.foeX ?? (self.x - self.facing * 100);
-      Object.assign(out, away(self.x, foeX));
+      if (delayed) Object.assign(out, away(self.x, delayed.foeX));
+      else Object.assign(out, awayFromFacing(self.facing));
       if (self.guard >= 34 && this.isDecisionTick(snapshot.combatTick, profile) && this.nextRandom() < 0.22) {
         out.pushGuard = true;
       }

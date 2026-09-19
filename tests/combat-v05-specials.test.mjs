@@ -108,8 +108,8 @@ test('SUPER rewards clean offense by category; chip and Ultimate damage award ze
 
   const chip = new CombatSimulation('chameleon', 'supernariz', { skipIntro: true });
   chip.fighters[0].x = 500; chip.fighters[1].x = 700;
-  chip.step(input({ special: true }), input({ left: true }));
-  result = runUntil(chip, (_s, events) => events.some(e => e.type === 'hit'), 30, E, input({ left: true }));
+  chip.step(input({ special: true }), input({ right: true }));
+  result = runUntil(chip, (_s, events) => events.some(e => e.type === 'hit'), 30, E, input({ right: true }));
   assert.equal(result.snap.fighters[0].superMeter, 0);
   assert.equal(result.snap.fighters[1].superMeter, 0);
 

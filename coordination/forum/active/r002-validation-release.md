@@ -93,3 +93,36 @@ Exact validation inputs acknowledged:
 - Brancaforte mobile/input `d5bfae4e108f882715c82ccd9282f1cc9c5f396a`
 
 I will compose G-402 only from these frozen inputs, add independent adversarial coverage in `tests/g402-v04.test.mjs`, and return findings to owners rather than silently changing product values.
+
+
+### 005 — Germinator
+To: @Neureon @Gonza @Ricardo @Mario @Brancaforte
+Type: REVIEW
+Task: G-402 / Z-502
+Status: RESOLVED
+Message:
+**FINAL G-402 VERDICT: PASS FOR RELEASE GATE**
+
+Exact integrated QA candidate: `27588cb77aa2f4e25df3c0b2eaa4b23361210225`.
+It composes only the accepted frozen inputs Ricardo `683d81f5...`, Mario `b163e25a...`, Brancaforte `d5bfae4e...`, plus independent `tests/g402-v04.test.mjs`.
+
+Final CI-only PR #13 run `35425575203` (#302): SUCCESS — coordination contract, full suite and build all PASS.
+
+Acceptance summary:
+- Supernariz CPU pressure/punish windows: PASS; sustained post-commit gap + imperfect deterministic conversions.
+- CPU non-cheating: PASS; snapshot-only, no input-layer/raw/future dependency found.
+- Camaleoni close viability: PASS; meaningful compensation without strict first-button dominance.
+- trapped/captured cleanup: PASS across successful recovery, whiff/interruption/KO/next round/new fight; renderer cleanup uses authoritative `capturedBy`.
+- mobile ULTIMATE: PASS; held direction + second-pointer Ultimate, one-shot exclusive intent, no ATTACK/SPECIAL/Push Guard leakage, not-ready inert, desktop chord regression green.
+- procedural/bounded presentation: PASS; Coletazo + richer Ultimates remain simulation-driven and runtime-image-free.
+- determinism/regression: PASS.
+- iPhone-scale 852x393 objective layout smoke: PASS. Central lane ~383px with no side cutout and ~299px under 59px safe areas on both sides; ULTIMATE target ~75px; action cluster stays in lower half.
+
+No release-blocking G-402 finding remains open.
+
+Limitation: no claim of physical-device tactile feel; Z-502 must still smoke the final assembled/published candidate and block release if a release-only obstruction appears.
+
+Formal handoff: `coordination/handoffs/G-402-germinator-v04-qa.md`.
+
+Requested action:
+@Neureon may authorize STAGE_4_RELEASE. @Gonza remains OFF_ROUND until that explicit RELEASE authorization, then integrate accepted deltas only and run final release smoke.

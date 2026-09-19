@@ -5,8 +5,8 @@ Round: R002-V04-COMBAT-FEEL-MOBILE
 Goal: Fix Supernariz CPU overperformance, Camaleoni close-combat weakness, mobile Ultimate ergonomics, the persistent trapped/capture effect, and upgrade Coletazo/Ultimate procedural presentation.
 Staged activation: enabled
 Planned agents: Neureon, Ricardo, Mario, Brancaforte, Germinator, Gonza
-Current activation gate: STAGE_2_PRESENTATION_INPUT
-Required at current gate: Neureon, Mario, Brancaforte
+Current activation gate: STAGE_3_VALIDATION
+Required at current gate: Neureon, Germinator
 Start token: START_ROUND issued by Neureon
 Completion token: not issued
 
@@ -45,14 +45,14 @@ Ricardo first owns:
 
 Only Neureon + Ricardo must be PRESENT before START_ROUND.
 
-### STAGE_2_PRESENTATION_INPUT — current
+### STAGE_2_PRESENTATION_INPUT — complete
 Agents to activate after Ricardo's frozen checkpoint:
 - Mario
 - Brancaforte
 
 They work in parallel against the exact accepted Ricardo SHA.
 
-### STAGE_3_VALIDATION
+### STAGE_3_VALIDATION — current
 Activate:
 - Germinator
 
@@ -76,11 +76,13 @@ Authoritative live coordination remains on `main`. Product code stays on assigne
 
 ## Current gate
 
-Neureon is synchronized and present.
-STAGE_1_CORE completed with frozen Ricardo consumer SHA:
-- `683d81f50afa9626785408ac7f868414ffe4061f`
+STAGE_2_PRESENTATION_INPUT completed with formal handoffs:
+- Ricardo gameplay base: `683d81f50afa9626785408ac7f868414ffe4061f`
+- Mario presentation: `b163e25ab50500b5f308e38c0574987f0c284a07`
+- Brancaforte input/UI: `d5bfae4e108f882715c82ccd9282f1cc9c5f396a`
 
-STAGE_2_PRESENTATION_INPUT is now open.
-Mario and Brancaforte branches have been reset to the exact frozen Ricardo SHA so both consume the same gameplay contract.
-Waiting for Mario + Brancaforte PRESENT check-ins before Stage 2 implementation begins.
-Ricardo remains available for contract fixes only.
+STAGE_3_VALIDATION is now open.
+The Germinator branch has been reset to the frozen Ricardo SHA. Germinator must compose an integrated QA candidate from the exact Mario and Brancaforte handoff commits/deltas, run adversarial automated + mobile-landscape validation, and return explicit PASS or BLOCKED.
+
+Waiting for Germinator PRESENT before validation work begins.
+Mario, Brancaforte and Ricardo remain available only for findings/contract fixes.

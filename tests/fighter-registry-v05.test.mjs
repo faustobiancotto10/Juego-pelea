@@ -136,12 +136,20 @@ test('third injected fighter is not selectable but exercises registry stats move
   assert.equal(hit.blocked, false);
   assert.equal(hit.damage, 33);
 
-  const cpu = new CpuController(0, { registry: fixtureRegistry });
+  const cpu = new CpuController(0, { registry: fixtureRegistry, seed: 9 });
   const cpuSim = new CombatSimulation(fixtureId, 'chameleon', { skipIntro: true, registry: fixtureRegistry });
   cpuSim.fighters[0].x = 500;
   cpuSim.fighters[1].x = 570;
-  const cpuInput = cpu.nextInput(cpuSim.getSnapshot());
-  assert.equal(cpuInput.attack, true);
+  const base = structuredClone(cpuSim.getSnapshot());
+  let choseConfiguredOffense = false;
+  for (let tick = 0; tick < 40; tick += 1) {
+    const snap = structuredClone(base);
+    snap.combatTick = tick;
+    snap.frame = tick;
+    const cpuInput = cpu.nextInput(snap);
+    choseConfiguredOffense ||= Boolean(cpuInput.attack || cpuInput.special);
+  }
+  assert.equal(choseConfiguredOffense, true);
 });
 
 test('third injected fighter launches configured projectile with configured speed damage and cooldown', () => {

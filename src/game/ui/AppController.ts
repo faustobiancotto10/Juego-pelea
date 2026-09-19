@@ -340,12 +340,18 @@ export class AppController {
     const open = () => {
       panel?.classList.add('is-open');
       panel?.setAttribute('aria-hidden', 'false');
-      if (pausesFight) this.paused = true;
+      if (pausesFight) {
+        this.input?.reset();
+        this.paused = true;
+      }
     };
     const close = () => {
       panel?.classList.remove('is-open');
       panel?.setAttribute('aria-hidden', 'true');
-      if (pausesFight) this.paused = false;
+      if (pausesFight) {
+        this.input?.reset();
+        this.paused = false;
+      }
     };
     for (const button of this.root.querySelectorAll<HTMLButtonElement>('[data-controls-button]')) button.addEventListener('click', open);
     this.root.querySelector<HTMLButtonElement>('[data-controls-close]')?.addEventListener('click', close);

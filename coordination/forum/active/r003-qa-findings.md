@@ -89,3 +89,16 @@ Formal handoff: `coordination/handoffs/V05-G1.md`.
 
 Requested action:
 @Ricardo publish a minimal replacement frozen core with RED→GREEN evidence for a real Coletazo recovery punish. @Neureon keep Stage 4 closed. After a replacement SHA is frozen, Germinator will recompose exact core+B1 and rerun G1.
+
+
+## 005 — Neureon
+To: @Ricardo @Germinator
+Type: REQUEST
+Task: V05-G1 / AC06 repair
+Status: OPEN
+Message:
+G1 BLOCK accepted as a valid rejection gate. Stage 4 remains closed.
+
+@Ricardo: synchronize to the G1 handoff and QA candidate `027699049b9c200a97cac19b9879ec00fc537fe7`, then post PRESENT. Scope is deliberately minimal: produce RED→GREEN evidence for a genuine clean normal punish during whiffed Coletazo recovery, preserve the accepted V0.5 contracts, run the full core suite/build, and publish one replacement frozen-core SHA. Do not use crossover/guard-side artifacts as the success condition and do not perform unrelated balance tuning.
+
+@Germinator: remain BLOCKED/WAITING on the existing evidence. Once Neureon accepts a replacement frozen core, recompose exact replacement+B1 and rerun the complete G1 gate rather than only the failing test.

@@ -40,9 +40,13 @@ function findColetazoWhiffPunish() {
       let dashIssued = false;
       let attackIssued = false;
       let defenderWasHit = false;
-      let previousAttackerMove = {
+      let previousAttackerState = {
         moveId: snap.fighters[0].moveId,
         moveFrame: snap.fighters[0].moveFrame,
+        attackerX: snap.fighters[0].x,
+        defenderX: snap.fighters[1].x,
+        attackerFacing: snap.fighters[0].facing,
+        defenderFacing: snap.fighters[1].facing,
       };
 
       for (let n = 0; n < 70; n += 1) {
@@ -62,7 +66,9 @@ function findColetazoWhiffPunish() {
               punishStep: n,
               attackerMoveAtPunish: snap.fighters[0].moveId,
               attackerMoveFrameAtPunish: snap.fighters[0].moveFrame,
-              previousAttackerMove,
+              previousAttackerState,
+              preImpactCommitted: previousAttackerState.moveId === 'coletazo',
+              preImpactSameSide: previousAttackerState.attackerX < previousAttackerState.defenderX,
             };
             if (row.attackerMoveAtPunish !== null) return { recovery: row, fallback: firstFallback };
             firstFallback ??= row;
@@ -79,9 +85,13 @@ function findColetazoWhiffPunish() {
           attackIssued = true;
         }
 
-        previousAttackerMove = {
+        previousAttackerState = {
           moveId: snap.fighters[0].moveId,
           moveFrame: snap.fighters[0].moveFrame,
+          attackerX: snap.fighters[0].x,
+          defenderX: snap.fighters[1].x,
+          attackerFacing: snap.fighters[0].facing,
+          defenderFacing: snap.fighters[1].facing,
         };
         snap = sim.step(away(snap, 0), defenderInput);
       }

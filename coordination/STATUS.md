@@ -2,8 +2,8 @@
 
 | Agent | Role | Round | Tasks | State | Dependency / blocker | Last checkpoint |
 | --- | --- | --- | --- | --- | --- | --- |
-| Neureon | Lead / Coordinator | R001-V03-COMBAT-EXPANSION | N-001 | WORKING | none | resolved ultimate spend/lock, Push Guard routing, input exclusivity, cooldown and balance-evidence contract boundaries |
-| Ricardo | Gameplay Engineer | R001-V03-COMBAT-EXPANSION | R-101 | WORKING | none | PRESENT; begin shared combat state/action/event contract |
+| Neureon | Lead / Coordinator | R001-V03-COMBAT-EXPANSION | N-001 | WORKING | none | resolved SUPER lifecycle/chip contribution; Ricardo identified as current critical path |
+| Ricardo | Gameplay Engineer | R001-V03-COMBAT-EXPANSION | R-101 | WORKING | critical-path checkpoint required; other state-dependent work is waiting | contract approved; must implement shared types/simulation and publish exact SHA + tuning table |
 | Mario | Character / Rendering Engineer | R001-V03-COMBAT-EXPANSION | M-201 | WAITING | Ricardo must publish shared-type/event + stable move-ID checkpoint | independent render slice checkpointed; explicit dependency request posted in combat-contract thread |
 | Brancaforte | UI / Input / UX Engineer | R001-V03-COMBAT-EXPANSION | B-301 | WORKING | state-dependent work waits on reviewed Ricardo contract | PRESENT; inspect input/UI path and review contract when posted |
 | Germinator | Auditor / QA | R001-V03-COMBAT-EXPANSION | G-401 | WORKING | semantic execution waits on Ricardo V0.3 product checkpoint SHA | QA scaffold 35edd777 committed + syntax-validated; baseline risks quantified; contract boundaries resolved |

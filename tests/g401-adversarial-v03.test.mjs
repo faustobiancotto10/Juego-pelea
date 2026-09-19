@@ -173,3 +173,137 @@ test('an invalid ultimate request cannot spend meter or emit capture/whiff from 
     event.type === 'ultimate-whiff'
   ));
 });
+
+
+async function blockedNoseHit(sim) {
+  const seen = [];
+  sim.step(input({ left: true }), input({ attack: true }));
+  let snap = sim.getSnapshot();
+
+  for (let i = 0; i < 36; i += 1) {
+    snap = sim.step(input({ left: true }), input({ left: true }));
+    seen.push(...snap.events);
+    if (seen.some((event) => event.type === 'hit' && event.blocked)) break;
+  }
+  assert.ok(seen.some((event) => event.type === 'hit' && event.blocked), 'setup must produce a blocked nose hit');
+
+  for (let i = 0; i < 30 && snap.fighters[1].moveId !== null; i += 1) {
+    snap = sim.step(input({ left: true }), input({ left: true }));
+  }
+  return snap;
+}
+
+test('ultimate startup can be interrupted before commitment without spending SUPER or recording whiff', () => {
+  const sim = new CombatSimulation('chameleon', 'supernariz', { skipIntro: true, initialSuper: [100, 0] });
+  stepN(sim, 60, input({ right: true }), input({ left: true }));
+
+  let snap = sim.step(input({ ultimate: true }), input({ attack: true }));
+  const events = [...snap.events];
+  for (let i = 0; i < 12 && snap.fighters[0].ultimatePhase !== 'idle'; i += 1) {
+    snap = sim.step(EMPTY_INPUT, EMPTY_INPUT);
+    events.push(...snap.events);
+  }
+
+  assert.equal(snap.fighters[0].ultimatePhase, 'idle');
+  assert.equal(snap.fighters[0].superMeter, 100);
+  assert.equal(events.some((event) => event.type === 'ultimate-whiff' && event.attacker === 0), false);
+  assert.ok(events.some((event) => event.type === 'hit' && event.attacker === 1 && !event.blocked));
+});
+
+test('Push Guard is rejected below its GUARD cost and during Guard Break', async () => {
+  const sim = new CombatSimulation('chameleon', 'supernariz', { skipIntro: true });
+  stepN(sim, 58, input({ right: true }), input({ left: true }));
+
+  let snap = sim.getSnapshot();
+  while (snap.fighters[0].guard >= 34 && snap.fighters[0].guardBreakFrames === 0) {
+    snap = await blockedNoseHit(sim);
+  }
+  assert.ok(snap.fighters[0].guard > 0 && snap.fighters[0].guard < 34, 'setup must leave low positive GUARD');
+
+  sim.step(input({ left: true }), input({ attack: true }));
+  let blocked = false;
+  for (let i = 0; i < 16 && !blocked; i += 1) {
+    snap = sim.step(input({ left: true }), EMPTY_INPUT);
+    blocked = snap.events.some((event) => event.type === 'hit' && event.blocked);
+  }
+  assert.equal(blocked, true);
+
+  const guardBeforeRejectedPush = snap.fighters[0].guard;
+  snap = sim.step(input({ left: true, pushGuard: true }), EMPTY_INPUT);
+  assert.equal(snap.events.some((event) => event.type === 'push-guard'), false);
+  assert.equal(snap.fighters[0].guard, guardBeforeRejectedPush);
+
+  while (snap.fighters[0].guardBreakFrames === 0) {
+    for (let i = 0; i < 32 && snap.fighters[1].moveId !== null; i += 1) {
+      snap = sim.step(input({ left: true }), input({ left: true }));
+    }
+    sim.step(input({ left: true }), input({ attack: true }));
+    for (let i = 0; i < 18 && snap.fighters[0].guardBreakFrames === 0; i += 1) {
+      snap = sim.step(input({ left: true }), EMPTY_INPUT);
+    }
+  }
+
+  const guardAtBreak = snap.fighters[0].guard;
+  snap = sim.step(input({ pushGuard: true }), EMPTY_INPUT);
+  assert.equal(snap.events.some((event) => event.type === 'push-guard'), false);
+  assert.equal(snap.fighters[0].guard, guardAtBreak);
+});
+
+test('blocked wall pressure transfers separation back to the attacker', () => {
+  const sim = new CombatSimulation('chameleon', 'supernariz', { skipIntro: true });
+
+  stepN(sim, 125, input({ left: true }), input({ left: true }));
+  stepN(sim, 35, input({ left: true }), input({ left: true }));
+  let snap = sim.getSnapshot();
+
+  assert.equal(snap.fighters[0].x, 90);
+  const separationBefore = snap.fighters[1].x - snap.fighters[0].x;
+
+  sim.step(input({ left: true }), input({ attack: true }));
+  let sawBlockedHit = false;
+  for (let i = 0; i < 18 && !sawBlockedHit; i += 1) {
+    snap = sim.step(input({ left: true }), EMPTY_INPUT);
+    sawBlockedHit = snap.events.some((event) => event.type === 'hit' && event.blocked);
+  }
+
+  assert.equal(sawBlockedHit, true);
+  assert.ok(
+    snap.fighters[1].x - snap.fighters[0].x > separationBefore,
+    'a blocked hit on a pinned defender must push pressure back toward the attacker',
+  );
+});
+
+function runMirroredCamaleoniJumpEvade(camaleoniIndex) {
+  const sim = camaleoniIndex === 0
+    ? new CombatSimulation('chameleon', 'supernariz', { skipIntro: true, initialSuper: [100, 0] })
+    : new CombatSimulation('supernariz', 'chameleon', { skipIntro: true, initialSuper: [0, 100] });
+
+  stepN(sim, 48, input({ right: true }), input({ left: true }));
+
+  let snap = camaleoniIndex === 0
+    ? sim.step(input({ ultimate: true }), input({ jump: true }))
+    : sim.step(input({ jump: true }), input({ ultimate: true }));
+  const events = [...snap.events];
+
+  for (let i = 0; i < 45 && !events.some((event) => event.type === 'ultimate-whiff' || event.type === 'ultimate-capture'); i += 1) {
+    snap = sim.step(EMPTY_INPUT, EMPTY_INPUT);
+    events.push(...snap.events);
+  }
+  return events;
+}
+
+test('Camaleoni jump-evade result is symmetric when Camaleoni is P1 or P2', () => {
+  for (const index of [0, 1]) {
+    const events = runMirroredCamaleoniJumpEvade(index);
+    assert.ok(events.some((event) => event.type === 'ultimate-whiff' && event.attacker === index));
+    assert.equal(events.some((event) => event.type === 'ultimate-capture' && event.attacker === index), false);
+  }
+});
+
+test('ultimate capture geometry explicitly rejects targets behind the locked attacker facing', async () => {
+  const { readFile } = await import('node:fs/promises');
+  const source = await readFile(new URL('../src/game/simulation/CombatSimulation.ts', import.meta.url), 'utf8');
+
+  assert.match(source, /signedDistance\s*>=\s*0[\s\S]*CAMALEONI_ULT_CAPTURE_REACH/);
+  assert.match(source, /signedDistance\s*>\s*0[\s\S]*SUPERNARIZ_ULT_SUCTION_RANGE/);
+});

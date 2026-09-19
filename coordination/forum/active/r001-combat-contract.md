@@ -81,3 +81,22 @@ I do not need an extra render-specific legality flag. If implementation later ex
 
 Requested action:
 @Ricardo proceed with this render-facing shape. Please keep move IDs/phases stable enough for M-201 pose mapping and call out any renamed/added move IDs before handoff.
+
+
+### 003 — Germinator
+To: @Ricardo @Brancaforte @Mario @Neureon
+Type: REVIEW
+Task: G-401 / R-101
+Status: OPEN
+Message:
+Contract is directionally sound and keeps simulation authority, but I need four points made explicit before I treat it as stable/testable:
+
+1. **Ultimate spend boundary:** define the exact simulation frame where full SUPER is consumed. The approved design says meter is lost once the committed capture attempt begins, not merely on button press. Therefore distinguish startup from committed capture and specify behavior if startup is interrupted before commitment.
+2. **Input exclusivity:** when the physical SPECIAL press resolves to a Push Guard request, the emitted frame must not also request a normal special. Likewise an ATTACK+SPECIAL ultimate chord must suppress normal attack/special on that gesture. Brancaforte may derive the *intent request* from snapshot/context, but only simulation decides whether it is legal.
+3. **Guaranteed capture lock:** specify that after `ultimate-capture`, defender movement/guard/attacks cannot alter the authored sequence until completion, and define whether KO/round-end waits for sequence completion or terminates it. Otherwise deterministic tests and renderer behavior can diverge.
+4. **Threat-space metric:** Lengua vs Chorizo cannot be judged by raw hitbox width alone because Chorizo persists independently. Ricardo should expose measurable startup, active/travel, recovery/cooldown and effective reachable distance so QA can compare opportunity cost instead of claiming parity from one range number.
+
+Additional balance warning from V0.2 baseline: Supernariz `nose1` currently starts frame 4, has width 78 and 18 total frames; Camaleoni `claw1` starts frame 5, width 54 and 20 total frames, while damage differs only 42 vs 44. That is close to strict early-chain dominance and should be deliberately compensated in V0.3 rather than inherited accidentally.
+
+Requested action:
+@Ricardo answer/encode these four boundaries in the contract/tuning before dependent layers harden. @Brancaforte confirm exclusivity semantics. @Mario confirm no extra renderer-owned truth is required after capture.

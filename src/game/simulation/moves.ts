@@ -35,12 +35,12 @@ export interface MoveDefinition {
 const moves: Record<FighterId, Record<string, MoveDefinition>> = {
   chameleon: {
     claw1: {
-      id: 'claw1', totalFrames: 20, cancelStart: 10, cancelEnd: 15, nextAttack: 'claw2',
-      hitbox: { start: 5, end: 7, offsetX: 24, width: 62, bottom: 28, top: 92, damage: 44, chipDamage: 3, hitstun: 11, blockstun: 8, knockback: 3.0, hitstop: 4, level: 'mid', strong: false, guardDamage: 9 },
+      id: 'claw1', totalFrames: 19, cancelStart: 9, cancelEnd: 14, nextAttack: 'claw2',
+      hitbox: { start: 5, end: 7, offsetX: 24, width: 70, bottom: 28, top: 92, damage: 46, chipDamage: 3, hitstun: 12, blockstun: 8, knockback: 3.2, hitstop: 4, level: 'mid', strong: false, guardDamage: 9 },
     },
     claw2: {
-      id: 'claw2', totalFrames: 24,
-      hitbox: { start: 6, end: 9, offsetX: 28, width: 76, bottom: 34, top: 100, damage: 58, chipDamage: 4, hitstun: 14, blockstun: 9, knockback: 4.5, hitstop: 5, level: 'mid', strong: true, guardDamage: 15 },
+      id: 'claw2', totalFrames: 22,
+      hitbox: { start: 5, end: 8, offsetX: 28, width: 82, bottom: 34, top: 100, damage: 60, chipDamage: 4, hitstun: 15, blockstun: 9, knockback: 5.0, hitstop: 5, level: 'mid', strong: true, guardDamage: 15 },
     },
     tongueStraight: {
       id: 'tongueStraight', totalFrames: 30,
@@ -51,8 +51,8 @@ const moves: Record<FighterId, Record<string, MoveDefinition>> = {
       hitbox: { start: 10, end: 13, offsetX: 35, width: 315, bottom: 10, top: 42, damage: 76, chipDamage: 7, hitstun: 17, blockstun: 12, knockback: 6.2, hitstop: 5, level: 'low', strong: true, guardDamage: 22 },
     },
     coletazo: {
-      id: 'coletazo', totalFrames: 36,
-      hitbox: { start: 7, end: 11, offsetX: 18, width: 142, bottom: 24, top: 104, damage: 54, chipDamage: 4, hitstun: 15, blockstun: 10, knockback: 13.0, hitstop: 5, level: 'mid', strong: true, guardDamage: 16 },
+      id: 'coletazo', totalFrames: 31,
+      hitbox: { start: 6, end: 10, offsetX: 18, width: 146, bottom: 24, top: 104, damage: 52, chipDamage: 4, hitstun: 14, blockstun: 9, knockback: 13.5, hitstop: 5, level: 'mid', strong: true, guardDamage: 15 },
     },
     ultimateCamaleoni: {
       id: 'ultimateCamaleoni', totalFrames: 72, ultimate: true,

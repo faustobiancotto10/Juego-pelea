@@ -52,6 +52,8 @@ export interface FighterSnapshot {
   superReady: boolean;
   ultimatePhase: UltimatePhase;
   ultimateTarget: FighterIndex | null;
+  /** Simulation-owned defender capture lock. Renderer may consume but never infer it. */
+  capturedBy: FighterIndex | null;
   roundWins: number;
 }
 

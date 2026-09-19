@@ -1,14 +1,19 @@
 import type { CombatEvent, MatchSnapshot } from '../types.js';
 import {
+  drawCamaleoniSequenceCuts,
   drawCamaleoniVeil,
   drawCaptureStartup,
+  drawCapturedLock,
+  drawColetazoTrail,
   drawDashAfterimage,
   drawLaunchTrail,
   drawNazazoArc,
   drawPushGuardBurst,
   drawReappearanceFlash,
   drawSuctionField,
+  drawSupernarizInhalePulse,
   drawUltimateImpact,
+  getColetazoPresentation,
 } from './CombatEffects.js';
 import { drawFighter } from './FighterRenderer.js';
 import { drawStage } from './StageRenderer.js';
@@ -22,7 +27,7 @@ interface Particle {
   life: number;
   maxLife: number;
   radius: number;
-  tone: 'warm' | 'cold' | 'block' | 'break' | 'ultimate';
+  tone: 'warm' | 'cold' | 'block' | 'break' | 'ultimate' | 'tail';
 }
 
 interface PushGuardFlash {
@@ -129,7 +134,9 @@ export class FightRenderer {
         ? 'ultimate'
         : attacker.moveId === 'tramontana'
           ? 'cold'
-          : 'warm';
+          : attacker.moveId === 'coletazo'
+            ? 'tail'
+            : 'warm';
     const count = event.strong ? 18 : 10;
     for (let i = 0; i < count; i += 1) {
       const angle = (Math.PI * 2 * i) / count + (snapshot.frame % 7) * 0.1;
@@ -203,28 +210,74 @@ export class FightRenderer {
     ctx.setTransform(scale, 0, 0, scale, offsetX + shakeX * scale, offsetY + shakeY * scale);
     drawStage(ctx, timeSeconds);
 
+    this.syncAuthoritativeUltimateEffects(snapshot);
+
     for (const projectile of snapshot.projectiles) this.drawChorizo(projectile.x, GROUND_Y - projectile.y, projectile.vx);
+
+    for (const fighter of snapshot.fighters) {
+      if (fighter.moveId !== 'coletazo') continue;
+      drawColetazoTrail(
+        ctx,
+        fighter.x,
+        GROUND_Y - fighter.y,
+        fighter.facing,
+        getColetazoPresentation(fighter.moveFrame),
+      );
+    }
 
     this.drawUltimateFields(snapshot, timeSeconds);
 
     // Draw farther/airborne fighter first for a stable fighting-game layer order.
     const ordered = [...snapshot.fighters].sort((a, b) => (b.y - a.y) || (a.x - b.x));
-    for (const fighter of ordered) drawFighter(ctx, fighter, timeSeconds);
+    for (const fighter of ordered) {
+      if (fighter.capturedBy !== null) {
+        const captor = snapshot.fighters[fighter.capturedBy];
+        drawCapturedLock(
+          ctx,
+          fighter.x,
+          GROUND_Y - fighter.y,
+          captor.id === 'chameleon' ? '#9ef5a5' : '#ffd0a1',
+          timeSeconds,
+        );
+      }
+      drawFighter(ctx, fighter, timeSeconds);
+    }
 
     this.updateAndDrawTransientCombatEffects();
     this.updateAndDrawParticles();
     this.drawPhaseText(snapshot);
   }
 
+  private syncAuthoritativeUltimateEffects(snapshot: MatchSnapshot): void {
+    const hasUltimateState = snapshot.fighters.some(
+      (fighter) => fighter.ultimatePhase !== 'idle' || fighter.capturedBy !== null,
+    );
+    if (snapshot.phase !== 'fight' || !hasUltimateState) {
+      this.ultimateFlashes = [];
+    }
+  }
+
   private drawUltimateFields(snapshot: MatchSnapshot, timeSeconds: number): void {
     const ctx = this.ctx;
-    for (const fighter of snapshot.fighters) {
+
+    for (const attackerIndex of [0, 1] as const) {
+      const fighter = snapshot.fighters[attackerIndex];
       if (fighter.ultimatePhase === 'idle') continue;
+
       const feetY = GROUND_Y - fighter.y;
       const accent = fighter.id === 'chameleon' ? '#9df5a4' : '#ffd0a1';
+      const target = fighter.ultimateTarget === null ? null : snapshot.fighters[fighter.ultimateTarget];
+      const targetIsAuthoritativelyCaptured =
+        target !== null
+        && target.capturedBy === attackerIndex;
 
       if (fighter.ultimatePhase === 'startup') {
-        drawCaptureStartup(ctx, fighter.x, feetY, fighter.facing, 0.78, accent);
+        drawCaptureStartup(ctx, fighter.x, feetY, fighter.facing, 0.92, accent);
+        if (fighter.id === 'chameleon') {
+          drawCamaleoniVeil(ctx, fighter.x, feetY, fighter.facing, 0.28, timeSeconds);
+        } else {
+          drawSupernarizInhalePulse(ctx, fighter.x, feetY, fighter.facing, 0.72, timeSeconds);
+        }
         continue;
       }
 
@@ -233,27 +286,35 @@ export class FightRenderer {
           drawCamaleoniVeil(ctx, fighter.x, feetY, fighter.facing, 1, timeSeconds);
           drawDashAfterimage(ctx, fighter.x, feetY, fighter.facing, 1, '#a5f7ad');
         } else {
+          drawSupernarizInhalePulse(ctx, fighter.x, feetY, fighter.facing, 1, timeSeconds);
           drawSuctionField(ctx, fighter.x, feetY, fighter.facing, 1, timeSeconds);
         }
         continue;
       }
 
       if (fighter.ultimatePhase === 'sequence') {
-        const target = fighter.ultimateTarget === null ? null : snapshot.fighters[fighter.ultimateTarget];
+        if (!targetIsAuthoritativelyCaptured) continue;
+
         if (fighter.id === 'chameleon') {
-          drawCamaleoniVeil(ctx, fighter.x, feetY, fighter.facing, 0.42, timeSeconds);
-          drawDashAfterimage(ctx, fighter.x, feetY, fighter.facing, 0.45, '#b8ffb2');
+          drawCamaleoniVeil(ctx, fighter.x, feetY, fighter.facing, 0.34, timeSeconds);
+          drawDashAfterimage(ctx, fighter.x, feetY, fighter.facing, 0.52, '#c2ffb8');
+          drawCamaleoniSequenceCuts(ctx, fighter.x, feetY, fighter.facing, 1, timeSeconds);
         } else {
-          drawSuctionField(ctx, fighter.x, feetY, fighter.facing, 0.42, timeSeconds);
-          drawNazazoArc(ctx, fighter.x, feetY, fighter.facing, 0.92);
-          if (target) drawLaunchTrail(ctx, target.x, GROUND_Y - target.y, fighter.facing, 0.68);
+          drawSupernarizInhalePulse(ctx, fighter.x, feetY, fighter.facing, 0.55, timeSeconds);
+          drawSuctionField(ctx, fighter.x, feetY, fighter.facing, 0.48, timeSeconds);
+          drawNazazoArc(ctx, fighter.x, feetY, fighter.facing, 1);
+          drawLaunchTrail(ctx, target.x, GROUND_Y - target.y, fighter.facing, 0.72);
         }
         continue;
       }
 
-      if (fighter.ultimatePhase === 'recovery' && fighter.id === 'chameleon') {
-        const pulse = 0.58 + Math.sin(timeSeconds * 18) * 0.16;
-        drawReappearanceFlash(ctx, fighter.x, feetY - 98, pulse);
+      if (fighter.ultimatePhase === 'recovery') {
+        if (fighter.id === 'chameleon') {
+          const pulse = 0.64 + Math.sin(timeSeconds * 18) * 0.18;
+          drawReappearanceFlash(ctx, fighter.x, feetY - 98, pulse);
+        } else {
+          drawReappearanceFlash(ctx, fighter.x + fighter.facing * 24, feetY - 118, 0.28);
+        }
       }
     }
   }
@@ -333,7 +394,9 @@ export class FightRenderer {
               ? '#ff6b65'
               : p.tone === 'ultimate'
                 ? '#fff0a8'
-                : '#ffcf7e';
+                : p.tone === 'tail'
+                  ? '#d9f58f'
+                  : '#ffcf7e';
       ellipse(ctx, p.x, p.y, p.radius * alpha + 1, p.radius * 0.65 * alpha + 0.8, color);
       ctx.restore();
     }

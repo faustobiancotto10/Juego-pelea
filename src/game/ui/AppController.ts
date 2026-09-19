@@ -62,7 +62,7 @@ export class AppController {
       <main class="select-screen">
         <div class="select-backdrop"></div>
         <header class="select-header">
-          <span class="game-badge">FIRST PLAYABLE · V0.3</span>
+          <span class="game-badge">FIRST PLAYABLE · V0.4</span>
           <h1>${title}</h1>
           <p>${subtitle}</p>
         </header>
@@ -70,7 +70,7 @@ export class AppController {
           ${FIGHTER_ORDER.map((id) => this.fighterCard(id, selectingCpu)).join('')}
         </section>
         <footer class="select-footer">
-          ${selectingCpu ? '<button class="text-button" data-back>← Cambiar mi luchador</button>' : '<span>Touch: D-pad + Ataque + Especial + Salto</span>'}
+          ${selectingCpu ? '<button class="text-button" data-back>← Cambiar mi luchador</button>' : '<span>Touch: D-pad + Ataque + Especial + Salto + ULTIMATE</span>'}
           <button class="text-button controls-link" data-controls-button type="button">? CONTROLES</button>
           <span>Atrás: retroceder / bloquear</span>
         </footer>
@@ -149,12 +149,13 @@ export class AppController {
         </div>
         <button class="fight-controls-button" data-controls-button type="button" aria-label="Ver controles">?</button>
         ${this.hasShownCombatHint ? '' : '<div class="combat-hint" data-combat-hint><strong>Atrás = retroceder / bloquear</strong><span>Doble atrás = BACKDASH · Bloquear consume GUARD</span></div>'}
-        <div class="super-hint is-hidden" data-super-hint><strong>SUPER READY</strong><span>ATTACK + SPECIAL</span></div>
+        <div class="super-hint is-hidden" data-super-hint><strong>SUPER READY</strong><span>TOCÁ ULTIMATE · teclado J+K</span></div>
         <div class="touch-layer" data-touch-controls>
           <div class="dpad" data-dpad aria-label="D-pad de 8 direcciones">
             <span class="dpad-cross dpad-cross--h"></span><span class="dpad-cross dpad-cross--v"></span><span class="dpad-center"></span>
           </div>
           <div class="action-cluster">
+            <button class="action-button action-button--ultimate" data-action="ultimate" data-ultimate-button type="button" aria-label="Ultimate: requiere SUPER READY" disabled><span>ULTIMATE</span></button>
             <button class="action-button action-button--jump" data-action="jump" type="button"><span>JUMP</span></button>
             <button class="action-button action-button--special" data-action="special" type="button"><span>SPECIAL</span></button>
             <button class="action-button action-button--attack" data-action="attack" type="button"><span>ATTACK</span></button>
@@ -264,6 +265,16 @@ export class AppController {
         this.root.querySelector<HTMLElement>(`[data-win="${index}-${pip}"]`)?.classList.toggle('is-won', pip < fighter.roundWins);
       }
     }
+    const ultimateButton = this.root.querySelector<HTMLButtonElement>('[data-ultimate-button]');
+    if (ultimateButton) {
+      ultimateButton.disabled = !snapshot.fighters[0].superReady;
+      ultimateButton.classList.toggle('is-ready', snapshot.fighters[0].superReady);
+      ultimateButton.setAttribute(
+        'aria-label',
+        snapshot.fighters[0].superReady ? 'Ultimate READY' : 'Ultimate: requiere SUPER READY',
+      );
+    }
+
     if (!this.hasShownSuperReadyHint && snapshot.fighters[0].superReady) {
       this.hasShownSuperReadyHint = true;
       const hint = this.root.querySelector<HTMLElement>('[data-super-hint]');
@@ -347,9 +358,9 @@ export class AppController {
           <div class="controls-heading"><span>GUÍA RÁPIDA</span><strong>CONTROLES</strong><button data-controls-close type="button" aria-label="Cerrar controles">×</button></div>
           <div class="controls-grid">
             <section><h3>MOVIMIENTO</h3><p><b>D-pad</b><span>Moverse</span></p><p><b>Atrás</b><span>Retroceder / bloquear</span></p><p><b>Abajo + atrás</b><span>Bloqueo bajo</span></p><p><b>Doble adelante</b><span>Dash</span></p><p><b>Doble atrás</b><span>Backdash / esquiva</span></p></section>
-            <section><h3>ACCIONES</h3><p><b>JUMP</b><span>Saltar</span></p><p><b>ATTACK</b><span>Ataque</span></p><p><b>SPECIAL</b><span>Especial contextual</span></p><p><b>SPECIAL bloqueando</b><span>Push Guard: pide separación usando GUARD</span></p><p><b>ATTACK + SPECIAL</b><span>Ultimate cuando SUPER está READY</span></p></section>
+            <section><h3>ACCIONES</h3><p><b>JUMP</b><span>Saltar</span></p><p><b>ATTACK</b><span>Ataque</span></p><p><b>SPECIAL</b><span>Especial contextual</span></p><p><b>SPECIAL bloqueando</b><span>Push Guard: pide separación usando GUARD</span></p><p><b>ULTIMATE (Touch)</b><span>Ultimate cuando SUPER está READY</span></p><p><b>J + K (teclado)</b><span>Fallback de Ultimate en desktop cuando SUPER está READY</span></p></section>
           </div>
-          <div class="controls-tips"><strong>COMBATE</strong><span>Bloquear consume GUARD · Dash y Backdash comprometen movimiento · Saltar evita lows y algunos proyectiles · Push Guard solo se intenta mientras bloqueás · el Ultimate se activa con ATTACK + SPECIAL</span></div>
+          <div class="controls-tips"><strong>COMBATE</strong><span>Bloquear consume GUARD · Dash y Backdash comprometen movimiento · Saltar evita lows y algunos proyectiles · Push Guard solo se intenta mientras bloqueás · Touch: ULTIMATE · Teclado: J+K</span></div>
         </div>
       </aside>
     `;

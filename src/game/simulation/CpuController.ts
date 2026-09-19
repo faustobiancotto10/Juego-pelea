@@ -22,6 +22,8 @@ function dashAway(selfX: number, otherX: number): Pick<InputFrame, 'dashLeft' | 
 export class CpuController {
   private intent: CpuIntent = 'neutral';
   private intentUntil = -1;
+  private lastMoveId: string | null = null;
+  private postCommitUntil = -1;
 
   constructor(private readonly cpuIndex: FighterIndex) {}
 
@@ -30,6 +32,8 @@ export class CpuController {
     if (snapshot.phase !== 'fight') {
       this.intent = 'neutral';
       this.intentUntil = -1;
+      this.lastMoveId = null;
+      this.postCommitUntil = -1;
       return out;
     }
 
@@ -38,7 +42,21 @@ export class CpuController {
     const foe = snapshot.fighters[otherIndex];
     const distance = Math.abs(foe.x - self.x);
 
+    const moveJustEnded = this.lastMoveId !== null && self.moveId === null;
+    if (moveJustEnded) {
+      const baseGap = self.id === 'supernariz' ? 11 : 7;
+      const deterministicVariation = (snapshot.frame + this.cpuIndex * 5) % 4;
+      this.postCommitUntil = snapshot.frame + baseGap + deterministicVariation;
+      this.intent = 'neutral';
+      this.intentUntil = -1;
+    }
+    this.lastMoveId = self.moveId;
+
     if (self.health <= 0 || self.stunFrames > 0 || self.guardBreakFrames > 0) return out;
+
+    // A committed attack creates an authored punish/reaction gap. During this
+    // window the CPU does not immediately block, counterattack or special.
+    if (snapshot.frame < this.postCommitUntil) return out;
 
     if (self.blockstunFrames > 0) {
       const canSpendGuard = self.guard >= 34;
@@ -78,8 +96,14 @@ export class CpuController {
     }
 
     if (self.moveId !== null) {
-      if (self.id === 'supernariz' && (self.moveId === 'nose1' || self.moveId === 'nose2') && self.moveFrame === 11) {
-        out.attack = true;
+      if (self.id === 'supernariz' && self.moveFrame === 11) {
+        if (self.moveId === 'nose1') {
+          // Keep the pressure identity but intentionally miss some legal confirms.
+          out.attack = (snapshot.frame + this.cpuIndex * 3) % 4 !== 0;
+        } else if (self.moveId === 'nose2') {
+          // Deeper conversion is less reliable than the first confirm.
+          out.attack = (snapshot.frame + this.cpuIndex * 5) % 3 !== 1;
+        }
       }
       if (self.id === 'chameleon' && self.moveId === 'claw1' && self.moveFrame === 11) out.attack = true;
       return out;
@@ -119,20 +143,28 @@ export class CpuController {
     }
 
     if (self.id === 'supernariz') {
-      if (distance > 360 && self.projectileCooldown <= 0 && snapshot.frame > 0 && snapshot.frame % 120 === 0) {
+      if (distance > 360 && self.projectileCooldown <= 0 && snapshot.frame > 0 && snapshot.frame % 120 === 0 && Math.floor(snapshot.frame / 120) % 3 !== 2) {
         out.special = true;
         this.intentUntil = snapshot.frame + 24;
         return out;
       }
-      if (distance >= 135 && distance <= 235 && snapshot.frame % 150 === 0) {
+      if (distance >= 135 && distance <= 235 && snapshot.frame % 150 === 0 && Math.floor(snapshot.frame / 150) % 3 !== 2) {
         out.down = true;
         out.special = true;
         this.intentUntil = snapshot.frame + 25;
         return out;
       }
       if (distance < 118) {
-        out.attack = true;
-        this.intentUntil = snapshot.frame + 18;
+        const presses = (snapshot.frame + this.cpuIndex * 7) % 5 !== 4;
+        if (presses) {
+          out.attack = true;
+          this.intentUntil = snapshot.frame + 18;
+        } else {
+          // Deliberately leave a small close-range decision gap instead of
+          // converting every eligible pressure restart.
+          this.intent = 'neutral';
+          this.intentUntil = snapshot.frame + 6;
+        }
         return out;
       }
       this.intent = 'approach';

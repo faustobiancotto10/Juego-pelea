@@ -57,7 +57,6 @@ interface FighterState extends FighterSnapshot {
   moveEffectTriggered: boolean;
   ultimatePhaseFrame: number;
   ultimateFacing: Facing;
-  capturedBy: FighterIndex | null;
   pushGuardBufferFrames: number;
 }
 
@@ -161,6 +160,7 @@ function cloneFighter(f: FighterState): FighterSnapshot {
     superReady: f.superReady,
     ultimatePhase: f.ultimatePhase,
     ultimateTarget: f.ultimateTarget,
+    capturedBy: f.capturedBy,
     dashKind: f.dashKind,
     dashFrame: f.dashFrame,
     roundWins: f.roundWins,
@@ -666,6 +666,24 @@ export class CombatSimulation {
     fighter.comboCount = 0;
   }
 
+  private clearTransientCombatState(fighter: FighterState): void {
+    fighter.vx = 0;
+    fighter.vy = 0;
+    fighter.crouching = false;
+    fighter.blocking = false;
+    fighter.stunFrames = 0;
+    fighter.blockstunFrames = 0;
+    fighter.guardBreakFrames = 0;
+    fighter.dashKind = null;
+    fighter.dashFrame = 0;
+    fighter.pushGuardBufferFrames = 0;
+    fighter.ultimatePhase = 'idle';
+    fighter.ultimatePhaseFrame = 0;
+    fighter.ultimateTarget = null;
+    fighter.capturedBy = null;
+    this.clearMove(fighter);
+  }
+
   private triggerMoveEffect(index: FighterIndex, fighter: FighterState): void {
     const move = fighter.currentMove;
     if (!move || fighter.moveEffectTriggered || move.spawnProjectileFrame === undefined) return;
@@ -1011,6 +1029,13 @@ export class CombatSimulation {
     }
     this.roundWinner = roundWinner;
     if (roundWinner !== null) this.fighters[roundWinner].roundWins += 1;
+
+    // Result phases do not advance fighter state, so clear every transient combat
+    // lock/timeline before entering round-over. This prevents Ultimate recovery,
+    // capture locks or target state from freezing into round-over/match-over.
+    this.clearTransientCombatState(this.fighters[0]);
+    this.clearTransientCombatState(this.fighters[1]);
+
     this.phase = 'round-over';
     this.roundOverFrames = ROUND_OVER_FRAMES;
     this.events.push({ type: 'round-end', winner: roundWinner });
@@ -1042,20 +1067,11 @@ export class CombatSimulation {
       fighter.grounded = true;
       fighter.crouching = false;
       fighter.blocking = false;
-      fighter.stunFrames = 0;
-      fighter.blockstunFrames = 0;
       fighter.chilledFrames = 0;
       fighter.projectileCooldown = 0;
-      fighter.dashKind = null;
-      fighter.dashFrame = 0;
       fighter.prevInput = copyInput(EMPTY_INPUT);
-      fighter.capturedBy = null;
-      fighter.pushGuardBufferFrames = 0;
-      fighter.ultimatePhase = 'idle';
-      fighter.ultimatePhaseFrame = 0;
-      fighter.ultimateTarget = null;
       fighter.superReady = fighter.superMeter >= fighter.maxSuper;
-      this.clearMove(fighter);
+      this.clearTransientCombatState(fighter);
     }
     this.updateFacing();
     this.phase = 'fight';

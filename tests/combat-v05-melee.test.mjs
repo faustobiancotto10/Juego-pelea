@@ -60,7 +60,7 @@ function route(id, distance, slot = 0) {
 
     const attackInput = wantsChain ? input({ attack: true }) : E;
     const defenseInput = firstHitSeen
-      ? (defender === 0 ? input({ left: true }) : input({ right: true }))
+      ? (defender === 0 ? input({ right: true }) : input({ right: true }))
       : E;
 
     snap = sim.step(
@@ -108,17 +108,17 @@ test('DOWN+ATTACK selects the low; standing away loses and down-away blocks it',
 
     const standing = new CombatSimulation(id, id, { skipIntro: true });
     startPositions(standing, 95);
-    let snap = standing.step(input({ down: true, attack: true }), input({ left: true }));
+    let snap = standing.step(input({ down: true, attack: true }), input({ right: true }));
     assert.equal(snap.fighters[0].moveId, lowId);
-    snap = runUntil(standing, s => s.events.some(e => e.type === 'hit'), 20, E, input({ left: true }));
+    snap = runUntil(standing, s => s.events.some(e => e.type === 'hit'), 20, E, input({ right: true }));
     const standingHit = snap.events.find(e => e.type === 'hit');
     assert.ok(standingHit);
     assert.equal(standingHit.blocked, false);
 
     const crouch = new CombatSimulation(id, id, { skipIntro: true });
     startPositions(crouch, 95);
-    snap = crouch.step(input({ down: true, attack: true }), input({ left: true, down: true }));
-    snap = runUntil(crouch, s => s.events.some(e => e.type === 'hit'), 20, E, input({ left: true, down: true }));
+    snap = crouch.step(input({ down: true, attack: true }), input({ right: true, down: true }));
+    snap = runUntil(crouch, s => s.events.some(e => e.type === 'hit'), 20, E, input({ right: true, down: true }));
     const crouchHit = snap.events.find(e => e.type === 'hit');
     assert.ok(crouchHit);
     assert.equal(crouchHit.blocked, true);

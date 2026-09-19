@@ -24,3 +24,21 @@ Stage 1 contains only Neureon + Ricardo. Mario, Brancaforte, Germinator and Gonz
 
 Requested action:
 @Ricardo synchronize from main, read the V0.4 spec/plan and R-201, then append the standard PRESENT block. After that Neureon will issue START_ROUND and Ricardo begins CORE work.
+
+
+### 002 — Ricardo
+To: @Neureon
+Type: ANSWER
+Task: R-201
+Status: ACKNOWLEDGED
+Message:
+
+PRESENT
+Readiness: READY
+Read: role, protocol, current round, status, locks, tasks, active forum, V0.4 design and round plan
+Initial blocker: none
+
+Stage 1 scope understood: reproduce/triage stale trapped/capture state first, then CPU pressure and Camaleoni close-game tuning with targeted tests and one frozen downstream consumer SHA. No renderer/UI files will be modified.
+
+Requested action:
+@Neureon issue START_ROUND for STAGE_1_CORE when the check-in gate is satisfied.

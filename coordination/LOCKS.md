@@ -16,3 +16,4 @@ Reservations for later stages prevent overlap but do not authorize work before N
 
 | tests/input.test.mjs | Brancaforte | B-302 | dedicated Ultimate touch-input regression coverage |
 | tests/ui-v04.test.mjs | Brancaforte | B-302 | V0.4 mobile Ultimate HUD/help/layout contract coverage |
+| tests/renderer-contract.test.mjs | Mario | M-202 | V0.4 Coletazo/Ultimate/capturedBy renderer regression evidence |

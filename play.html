@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no" />
     <meta name="theme-color" content="#0c1018" />
-    <title>Juego Pelea V0.3</title>
+    <title>Juego Pelea V0.4</title>
     <style>
 :root {
   font-family: "Arial Narrow", "Roboto Condensed", Impact, system-ui, sans-serif;
@@ -83,12 +83,16 @@ button { font: inherit; color: inherit; }
 .dpad-cross--v { width:32%; height:86%; }
 .dpad-center { position:absolute; width:25%; aspect-ratio:1; left:50%; top:50%; transform:translate(-50%,-50%); border-radius:50%; background:#343742; box-shadow:inset 0 0 0 2px rgba(255,255,255,.09); }
 .dpad[data-direction]:not([data-direction=""]) { filter:brightness(1.3); }
-.action-cluster { position:absolute; pointer-events:none; right:max(16px,env(safe-area-inset-right)); bottom:max(15px,env(safe-area-inset-bottom)); width:clamp(190px,29vw,290px); height:clamp(128px,20vw,190px); }
+.action-cluster { position:absolute; pointer-events:none; right:max(16px,env(safe-area-inset-right)); bottom:max(15px,env(safe-area-inset-bottom)); width:clamp(230px,33vw,330px); height:clamp(134px,21vw,200px); }
 .action-button { position:absolute; pointer-events:auto; border-radius:50%; border:2px solid rgba(255,255,255,.42); background:linear-gradient(145deg,rgba(255,255,255,.22),rgba(8,9,13,.72)); box-shadow:0 5px 12px rgba(0,0,0,.38),inset 0 0 16px rgba(255,255,255,.06); display:grid; place-items:center; font:900 clamp(9px,1.2vw,13px) system-ui,sans-serif; letter-spacing:.04em; text-shadow:0 2px 4px #000; touch-action:none; }
 .action-button span { pointer-events:none; }
 .action-button--attack { width:clamp(70px,10vw,96px); aspect-ratio:1; right:0; bottom:0; border-color:rgba(226,153,70,.7); }
 .action-button--special { width:clamp(64px,9vw,88px); aspect-ratio:1; right:34%; bottom:34%; border-color:rgba(97,164,218,.72); }
 .action-button--jump { width:clamp(58px,8vw,78px); aspect-ratio:1; right:3%; top:0; border-color:rgba(212,212,220,.65); }
+.action-button--ultimate { width:clamp(62px,8.8vw,86px); aspect-ratio:1; left:0; bottom:0; border-color:rgba(228,190,82,.48); color:rgba(241,225,181,.72); font-size:clamp(7px,1vw,10px); letter-spacing:.02em; }
+.action-button--ultimate:disabled { opacity:.34; filter:saturate(.55); box-shadow:0 4px 10px rgba(0,0,0,.28),inset 0 0 12px rgba(255,255,255,.035); }
+.action-button--ultimate.is-ready { opacity:1; border-color:rgba(255,220,112,.95); color:#fff0b4; background:radial-gradient(circle at 38% 32%,rgba(255,229,141,.34),rgba(122,80,20,.74) 62%,rgba(8,9,13,.78)); box-shadow:0 0 18px rgba(255,204,84,.55),0 5px 12px rgba(0,0,0,.38),inset 0 0 18px rgba(255,244,181,.14); animation:ultimate-ready-pulse 1.15s ease-in-out infinite; }
+@keyframes ultimate-ready-pulse { 50% { filter:brightness(1.18); box-shadow:0 0 24px rgba(255,211,104,.72),0 5px 12px rgba(0,0,0,.38),inset 0 0 18px rgba(255,244,181,.18); } }
 .action-button.is-pressed { transform:scale(.92); filter:brightness(1.45); }
 .desktop-hint { position:absolute; left:50%; bottom:max(8px,env(safe-area-inset-bottom)); transform:translateX(-50%); z-index:12; color:rgba(255,255,255,.38); font:600 9px system-ui,sans-serif; pointer-events:none; }
 
@@ -216,10 +220,12 @@ button { font: inherit; color: inherit; }
   .super-track { height:5px; }
   .super-hint { top:56px; padding:5px 9px; font-size:8px; }
   .special-cooldown { margin-top:2px; }
+  .action-cluster { width:clamp(218px,35vw,292px); height:clamp(120px,20vw,168px); }
+  .action-button--ultimate { width:clamp(58px,8.4vw,76px); }
 }
 
 @media (prefers-reduced-motion:reduce) {
-  .super-hint { animation:none; }
+  .super-hint, .action-button--ultimate.is-ready { animation:none; }
 }
 
 </style>
@@ -417,6 +423,7 @@ button { font: inherit; color: inherit; }
       __publicField(this, "cleanupCallbacks", []);
       __publicField(this, "doubleTap", new DoubleTapTracker(230));
       __publicField(this, "actionChord", new ActionChordBuffer(55));
+      __publicField(this, "touchUltimateQueued", false);
       __publicField(this, "dashLeft", false);
       __publicField(this, "dashRight", false);
       this.root = root;
@@ -426,15 +433,23 @@ button { font: inherit; color: inherit; }
     getFrame(context = { superReady: false, defensiveContext: false }) {
       const keyboard = inputFromKeyboard(this.keys);
       const touch = composeInputFrame(this.touchDirection, this.touchActions);
-      const rawAttack = keyboard.attack || touch.attack;
-      const rawSpecial = keyboard.special || touch.special;
       let buffered;
       if (context.superReady) {
-        buffered = this.actionChord.sample(rawAttack, rawSpecial, context.nowMs ?? performance.now());
+        const keyboardActions = this.actionChord.sample(keyboard.attack, keyboard.special, context.nowMs ?? performance.now());
+        buffered = {
+          attack: keyboardActions.attack || touch.attack,
+          special: keyboardActions.special || touch.special,
+          ultimate: keyboardActions.ultimate || this.touchUltimateQueued
+        };
       } else {
-        this.actionChord.sync(rawAttack, rawSpecial);
-        buffered = { attack: rawAttack, special: rawSpecial, ultimate: false };
+        this.actionChord.sync(keyboard.attack, keyboard.special);
+        buffered = {
+          attack: keyboard.attack || touch.attack,
+          special: keyboard.special || touch.special,
+          ultimate: false
+        };
       }
+      this.touchUltimateQueued = false;
       const actions = resolveActionButtons(buffered, context.defensiveContext);
       const frame = {
         left: keyboard.left || touch.left,
@@ -461,6 +476,7 @@ button { font: inherit; color: inherit; }
       this.touchActions = { attack: false, special: false, jump: false };
       this.doubleTap.reset();
       this.actionChord.reset();
+      this.touchUltimateQueued = false;
       this.dashLeft = false;
       this.dashRight = false;
     }
@@ -541,17 +557,36 @@ button { font: inherit; color: inherit; }
       }
       for (const button of this.root.querySelectorAll("[data-action]")) {
         const action = button.dataset.action;
-        if (!["attack", "special", "jump"].includes(action))
+        if (action === "ultimate") {
+          const down2 = (event) => {
+            event.preventDefault();
+            button.setPointerCapture(event.pointerId);
+            this.touchUltimateQueued = true;
+            button.classList.add("is-pressed");
+          };
+          const release2 = (event) => {
+            event.preventDefault();
+            button.classList.remove("is-pressed");
+          };
+          button.addEventListener("pointerdown", down2);
+          button.addEventListener("pointerup", release2);
+          button.addEventListener("pointercancel", release2);
+          button.addEventListener("lostpointercapture", release2);
+          this.cleanupCallbacks.push(() => button.removeEventListener("pointerdown", down2), () => button.removeEventListener("pointerup", release2), () => button.removeEventListener("pointercancel", release2), () => button.removeEventListener("lostpointercapture", release2));
           continue;
+        }
+        if (!["attack", "special", "jump"].includes(action ?? ""))
+          continue;
+        const touchAction = action;
         const down = (event) => {
           event.preventDefault();
           button.setPointerCapture(event.pointerId);
-          this.touchActions[action] = true;
+          this.touchActions[touchAction] = true;
           button.classList.add("is-pressed");
         };
         const release = (event) => {
           event.preventDefault();
-          this.touchActions[action] = false;
+          this.touchActions[touchAction] = false;
           button.classList.remove("is-pressed");
         };
         button.addEventListener("pointerdown", down);
@@ -825,6 +860,113 @@ button { font: inherit; color: inherit; }
     }
     ctx.restore();
   }
+  function getColetazoPresentation(moveFrame) {
+    const frame = Math.max(0, moveFrame);
+    if (frame <= 5) {
+      const windup = clamp01(frame / 5);
+      return { windup, strike: 0, followThrough: 0, recovery: 0, sweep: lerp(0, -0.58, windup), trail: 0 };
+    }
+    if (frame <= 10) {
+      const strike = clamp01((frame - 5) / 5);
+      return { windup: 1 - strike, strike, followThrough: 0, recovery: 0, sweep: lerp(-0.58, 1, strike), trail: strike };
+    }
+    if (frame <= 17) {
+      const followThrough = clamp01((frame - 10) / 7);
+      return { windup: 0, strike: 1 - followThrough, followThrough, recovery: 0, sweep: lerp(1, 0.72, followThrough), trail: 1 - followThrough * 0.55 };
+    }
+    const recovery = clamp01((frame - 17) / 13);
+    return { windup: 0, strike: 0, followThrough: 1 - recovery, recovery, sweep: lerp(0.72, 0, recovery), trail: Math.max(0, 0.35 - recovery * 0.35) };
+  }
+  function drawColetazoTrail(ctx, x, y, facing, presentation) {
+    const t = clamp01(presentation.trail);
+    if (t <= 0.01)
+      return;
+    ctx.save();
+    ctx.translate(x, y);
+    ctx.scale(facing, 1);
+    ctx.lineCap = "round";
+    const sweep = presentation.sweep;
+    const startAngle = -2.65 + sweep * 0.62;
+    const endAngle = -1.65 + sweep * 1.18;
+    for (let i = 0; i < 3; i += 1) {
+      ctx.globalAlpha = t * (0.34 - i * 0.075);
+      ctx.strokeStyle = i === 0 ? "#d9f58f" : "#79c95d";
+      ctx.lineWidth = 11 - i * 2.5;
+      ctx.beginPath();
+      ctx.arc(-4, -82, 92 + i * 16, startAngle - i * 0.06, endAngle + i * 0.09);
+      ctx.stroke();
+    }
+    if (presentation.strike > 0.62) {
+      ctx.globalAlpha = 0.18 + presentation.strike * 0.22;
+      ctx.fillStyle = "#edffb8";
+      ctx.beginPath();
+      ctx.moveTo(72, -154);
+      ctx.lineTo(124, -116);
+      ctx.lineTo(82, -91);
+      ctx.lineTo(142, -72);
+      ctx.lineTo(69, -62);
+      ctx.closePath();
+      ctx.fill();
+    }
+    ctx.restore();
+  }
+  function drawCapturedLock(ctx, x, y, accent, timeSeconds) {
+    ctx.save();
+    ctx.translate(x, y);
+    const breathe = 0.5 + 0.5 * Math.sin(timeSeconds * 14);
+    ctx.globalAlpha = 0.2 + breathe * 0.12;
+    ctx.strokeStyle = accent;
+    ctx.lineWidth = 3;
+    ctx.setLineDash([9, 9]);
+    ctx.beginPath();
+    ctx.ellipse(0, -96, 45 + breathe * 5, 82 + breathe * 4, 0, 0, Math.PI * 2);
+    ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.globalAlpha = 0.12 + breathe * 0.08;
+    ctx.beginPath();
+    ctx.arc(0, -96, 60 + breathe * 7, -0.95, 0.95);
+    ctx.stroke();
+    ctx.restore();
+  }
+  function drawCamaleoniSequenceCuts(ctx, x, y, facing, intensity, timeSeconds) {
+    const t = clamp01(intensity);
+    if (t <= 0)
+      return;
+    ctx.save();
+    ctx.translate(x, y);
+    ctx.scale(facing, 1);
+    ctx.lineCap = "round";
+    for (let i = 0; i < 3; i += 1) {
+      const wave = Math.sin(timeSeconds * 22 + i * 1.8);
+      ctx.globalAlpha = 0.18 + 0.24 * t;
+      ctx.strokeStyle = i === 1 ? "#f0ffe8" : "#9ef5a5";
+      ctx.lineWidth = 5 - i;
+      ctx.beginPath();
+      ctx.moveTo(-8 + i * 11, -150 + i * 36);
+      ctx.quadraticCurveTo(60 + wave * 10, -125 + i * 16, 112 + i * 8, -92 + i * 10);
+      ctx.stroke();
+    }
+    ctx.restore();
+  }
+  function drawSupernarizInhalePulse(ctx, x, y, facing, intensity, timeSeconds) {
+    const t = clamp01(intensity);
+    if (t <= 0)
+      return;
+    ctx.save();
+    ctx.translate(x, y);
+    ctx.scale(facing, 1);
+    const pulse2 = 0.5 + 0.5 * Math.sin(timeSeconds * 12);
+    ctx.globalAlpha = 0.18 + t * 0.34;
+    ctx.strokeStyle = "#fff2df";
+    ctx.lineWidth = 3.5;
+    for (let i = 0; i < 3; i += 1) {
+      const radius = 26 + i * 18 + pulse2 * 7;
+      ctx.beginPath();
+      ctx.arc(38, -145, radius, -0.72, 0.72);
+      ctx.stroke();
+    }
+    ctx.restore();
+  }
 
   // dist/game/render/ChameleonRig.js
   function tongueFactor(f) {
@@ -848,11 +990,6 @@ button { font: inherit; color: inherit; }
       return 0;
     return pulse(f.moveFrame, 1, 6, 14);
   }
-  function coletazoFactor(f) {
-    if (f.moveId !== "coletazo")
-      return 0;
-    return pulse(f.moveFrame, 2, 9, 24);
-  }
   function drawChameleon(ctx, f, time) {
     const feetY = GROUND_Y - f.y;
     const idle = Math.sin(time * 5.2 + f.x * 0.01) * 1.4;
@@ -862,15 +999,18 @@ button { font: inherit; color: inherit; }
     const block = f.blocking ? 1 : 0;
     const guardBreak = f.guardBreakFrames > 0 ? 1 : 0;
     const claw = clawFactor(f);
-    const coletazo = coletazoFactor(f);
+    const coletazo = f.moveId === "coletazo" ? getColetazoPresentation(f.moveFrame) : { windup: 0, strike: 0, followThrough: 0, recovery: 0, sweep: 0, trail: 0 };
     const ultimateStartup = f.ultimatePhase === "startup" ? 1 : 0;
     const ultimateCapture = f.ultimatePhase === "capture" ? 1 : 0;
     const ultimateSequence = f.ultimatePhase === "sequence" ? 1 : 0;
     const tongue = tongueFactor(f);
+    const vanishCoil = ultimateStartup * 0.8;
+    const dashDrive = ultimateCapture;
+    const comboBeat = ultimateSequence;
     const lowTongue = f.moveId === "tongueLow";
     const airClaw = f.moveId === "airClaw" ? claw : 0;
-    const forwardLean = tongue * 0.12 + claw * 0.07 + airClaw * 0.11 + coletazo * 0.08 - ultimateStartup * 0.08 + ultimateCapture * 0.18 + ultimateSequence * 0.11 + hurtLean - ko * 1.16;
-    const bodyDrop = crouch * 30 + ultimateStartup * 7 + ko * 42;
+    const forwardLean = tongue * 0.12 + claw * 0.07 + airClaw * 0.11 - coletazo.windup * 0.17 + coletazo.strike * 0.15 + coletazo.followThrough * 0.1 - vanishCoil * 0.12 + dashDrive * 0.24 + comboBeat * 0.16 + hurtLean - ko * 1.16;
+    const bodyDrop = crouch * 30 + coletazo.windup * 7 - coletazo.strike * 3 + vanishCoil * 11 - dashDrive * 4 + ko * 42;
     ctx.save();
     ctx.translate(f.x, feetY);
     ctx.scale(f.facing, 1);
@@ -880,48 +1020,50 @@ button { font: inherit; color: inherit; }
     ctx.globalAlpha = 0.2 * (1 - Math.min(0.65, f.y / 260));
     ellipse(ctx, 0, f.y, 48, 10, "#05070a");
     ctx.restore();
-    const ultimateTailBeat = ultimateSequence * Math.sin(time * 21) * 26;
+    const ultimateTailBeat = comboBeat * Math.sin(time * 21) * 30 - vanishCoil * 20 + dashDrive * 18;
     const tailCounter = -tongue * 28 - claw * 12 + ultimateTailBeat + Math.sin(time * 2.8) * 5;
-    const tailMidX = lerp(-67, 76, coletazo);
-    const tailMidY = lerp(-10 + tailCounter * 0.18, -88, coletazo);
-    const tailTipX = lerp(-49, 118, coletazo);
-    const tailTipY = lerp(-40 + tailCounter * 0.35, -56, coletazo);
+    const sweep = coletazo.sweep;
+    const tailMidX = sweep < 0 ? lerp(-67, -104, -sweep / 0.58) : lerp(-67, 84, sweep);
+    const tailMidY = sweep < 0 ? lerp(-10 + tailCounter * 0.18, -48, -sweep / 0.58) : lerp(-10 + tailCounter * 0.18, -91, sweep);
+    const tailTipX = sweep < 0 ? lerp(-49, -136, -sweep / 0.58) : lerp(-49, 136, sweep);
+    const tailTipY = sweep < 0 ? lerp(-40 + tailCounter * 0.35, -86, -sweep / 0.58) : lerp(-40 + tailCounter * 0.35, -60, sweep);
     ctx.save();
     ctx.strokeStyle = "#315f2d";
     ctx.lineWidth = 22;
     ctx.lineCap = "round";
     ctx.beginPath();
     ctx.moveTo(-20, -73 + bodyDrop * 0.35);
-    ctx.bezierCurveTo(lerp(-78, -62, coletazo), lerp(-70, -55, coletazo), lerp(-94, 24, coletazo), lerp(-24 + tailCounter * 0.15, -94, coletazo), tailMidX, tailMidY);
-    ctx.bezierCurveTo(lerp(-39, 98, coletazo), lerp(10 + tailCounter * 0.12, -102, coletazo), lerp(-23, 132, coletazo), lerp(-30 + tailCounter * 0.32, -76, coletazo), tailTipX, tailTipY);
+    ctx.bezierCurveTo(sweep < 0 ? lerp(-78, -112, -sweep / 0.58) : lerp(-78, -56, sweep), sweep < 0 ? lerp(-70, -74, -sweep / 0.58) : lerp(-70, -52, sweep), sweep < 0 ? lerp(-94, -142, -sweep / 0.58) : lerp(-94, 32, sweep), sweep < 0 ? lerp(-24 + tailCounter * 0.15, -74, -sweep / 0.58) : lerp(-24 + tailCounter * 0.15, -98, sweep), tailMidX, tailMidY);
+    ctx.bezierCurveTo(sweep < 0 ? lerp(-39, -118, -sweep / 0.58) : lerp(-39, 106, sweep), sweep < 0 ? lerp(10 + tailCounter * 0.12, -104, -sweep / 0.58) : lerp(10 + tailCounter * 0.12, -106, sweep), sweep < 0 ? lerp(-23, -148, -sweep / 0.58) : lerp(-23, 142, sweep), sweep < 0 ? lerp(-30 + tailCounter * 0.32, -92, -sweep / 0.58) : lerp(-30 + tailCounter * 0.32, -80, sweep), tailTipX, tailTipY);
     ctx.stroke();
     ctx.strokeStyle = "#6cae42";
     ctx.lineWidth = 11;
     ctx.beginPath();
     ctx.moveTo(-20, -73 + bodyDrop * 0.35);
-    ctx.bezierCurveTo(lerp(-78, -62, coletazo), lerp(-70, -55, coletazo), lerp(-94, 24, coletazo), lerp(-24 + tailCounter * 0.15, -94, coletazo), tailMidX, tailMidY);
-    ctx.bezierCurveTo(lerp(-39, 98, coletazo), lerp(10 + tailCounter * 0.12, -102, coletazo), lerp(-23, 132, coletazo), lerp(-30 + tailCounter * 0.32, -76, coletazo), tailTipX, tailTipY);
+    ctx.bezierCurveTo(sweep < 0 ? lerp(-78, -112, -sweep / 0.58) : lerp(-78, -56, sweep), sweep < 0 ? lerp(-70, -74, -sweep / 0.58) : lerp(-70, -52, sweep), sweep < 0 ? lerp(-94, -142, -sweep / 0.58) : lerp(-94, 32, sweep), sweep < 0 ? lerp(-24 + tailCounter * 0.15, -74, -sweep / 0.58) : lerp(-24 + tailCounter * 0.15, -98, sweep), tailMidX, tailMidY);
+    ctx.bezierCurveTo(sweep < 0 ? lerp(-39, -118, -sweep / 0.58) : lerp(-39, 106, sweep), sweep < 0 ? lerp(10 + tailCounter * 0.12, -104, -sweep / 0.58) : lerp(10 + tailCounter * 0.12, -106, sweep), sweep < 0 ? lerp(-23, -148, -sweep / 0.58) : lerp(-23, 142, sweep), sweep < 0 ? lerp(-30 + tailCounter * 0.32, -92, -sweep / 0.58) : lerp(-30 + tailCounter * 0.32, -80, sweep), tailTipX, tailTipY);
     ctx.stroke();
     ctx.restore();
     const hipY = -54 + bodyDrop;
     const shoulderY = -112 + bodyDrop * 0.45 + idle;
+    const hipCounter = coletazo.windup * -13 + coletazo.strike * 11 + coletazo.followThrough * 7;
     const step = f.grounded ? Math.sin(time * 10 + f.x * 0.03) * Math.min(8, Math.abs(f.vx) * 1.8) : 0;
     const kneeBend = crouch * 18 + (!f.grounded ? 12 : 0);
-    roundedLine(ctx, -13, hipY, -18 - step, -24 + kneeBend, 20, "#5d9d3c");
+    roundedLine(ctx, -13 + hipCounter * 0.18, hipY, -18 - step - hipCounter * 0.12, -24 + kneeBend, 20, "#5d9d3c");
     roundedLine(ctx, -18 - step, -24 + kneeBend, -28 - step * 0.35, -3, 16, "#76b54d");
-    roundedLine(ctx, 12, hipY, 19 + step, -26 + kneeBend, 20, "#5d9d3c");
+    roundedLine(ctx, 12 + hipCounter * 0.2, hipY, 19 + step + hipCounter * 0.16, -26 + kneeBend, 20, "#5d9d3c");
     roundedLine(ctx, 19 + step, -26 + kneeBend, 30 + step * 0.35, -3, 16, "#76b54d");
     roundedLine(ctx, -31 - step * 0.35, -2, -14 - step * 0.35, -2, 6, "#adc96b");
     roundedLine(ctx, 17 + step * 0.35, -2, 34 + step * 0.35, -2, 6, "#adc96b");
     ellipse(ctx, 0, -84 + bodyDrop * 0.65, 31, 49 - crouch * 9, "#4f8f38", -0.05, "#274f2c", 3);
     ellipse(ctx, 8, -82 + bodyDrop * 0.65, 16, 35 - crouch * 7, "#79b654", -0.06);
-    const frontReach = 18 + claw * (f.moveId === "claw2" ? 42 : f.moveId === "airClaw" ? 52 : 31) + ultimateSequence * 28;
-    const frontY = shoulderY + block * 16 - claw * 8 + airClaw * 18;
+    const frontReach = 18 + claw * (f.moveId === "claw2" ? 42 : f.moveId === "airClaw" ? 52 : 31) - vanishCoil * 9 + dashDrive * 24 + comboBeat * 34;
+    const frontY = shoulderY + block * 16 - claw * 8 + airClaw * 18 + vanishCoil * 13 - dashDrive * 9 - comboBeat * 10;
     roundedLine(ctx, 12, shoulderY, frontReach, frontY, 11, "#62a444");
     ellipse(ctx, frontReach + 3, frontY, 7, 6, "#86bd5e");
     roundedLine(ctx, -12, shoulderY + 4, -24 + block * 13, shoulderY + 18 - block * 25, 10, "#568f3a");
     ellipse(ctx, -25 + block * 13, shoulderY + 18 - block * 25, 7, 6, "#80b75a");
-    const headX = 4 + tongue * 14 + ultimateCapture * 9 + ultimateSequence * 6 + block * -3;
+    const headX = 4 + tongue * 14 - vanishCoil * 8 + dashDrive * 14 + comboBeat * 9 + block * -3;
     const headY = -155 + bodyDrop * 0.43 + idle + (!f.grounded ? 3 : 0);
     ellipse(ctx, headX, headY, 42, 39, "#c98f68", -0.04, "#633f31", 2.5);
     ellipse(ctx, headX - 37, headY + 2, 7, 11, "#b97c58");
@@ -1043,7 +1185,9 @@ button { font: inherit; color: inherit; }
     const ko = f.health <= 0 ? 1 : 0;
     const hurtLean = f.stunFrames > 0 ? -0.16 : 0;
     const airNose = f.moveId === "airNose" ? nose : 0;
-    const lean = nose * 0.16 + airNose * 0.12 + throwPose * 0.07 + tramontana * 0.09 - ultimateStartup * 0.05 - ultimateCapture * 0.1 + ultimateSequence * 0.08 + hurtLean - ko * 1.08;
+    const inhaleBrace = ultimateStartup * 0.72 + ultimateCapture;
+    const nazazoDrive = ultimateSequence;
+    const lean = nose * 0.16 + airNose * 0.12 + throwPose * 0.07 + tramontana * 0.09 - ultimateStartup * 0.09 - ultimateCapture * 0.16 + ultimateSequence * 0.15 + hurtLean - ko * 1.08;
     const bodyDrop = crouch * 32 + ultimateStartup * 5 + ko * 44;
     ctx.save();
     ctx.translate(f.x, feetY);
@@ -1064,7 +1208,7 @@ button { font: inherit; color: inherit; }
     ctx.lineWidth = 2;
     ctx.beginPath();
     ctx.moveTo(-18, shoulderY + 5);
-    ctx.bezierCurveTo(-52 - Math.abs(f.vx) * 2, shoulderY + 18, -65 - Math.sin(time * 3) * 10, -62 + bodyDrop * 0.4, -35, -34 + bodyDrop * 0.5);
+    ctx.bezierCurveTo(-52 - Math.abs(f.vx) * 2 - inhaleBrace * 24, shoulderY + 18 - inhaleBrace * 10, -65 - Math.sin(time * 3) * 10 - inhaleBrace * 34 + nazazoDrive * 16, -62 + bodyDrop * 0.4 - inhaleBrace * 12, -35 - inhaleBrace * 18 + nazazoDrive * 12, -34 + bodyDrop * 0.5);
     ctx.lineTo(-8, -72 + bodyDrop * 0.45);
     ctx.closePath();
     ctx.fill();
@@ -1083,13 +1227,13 @@ button { font: inherit; color: inherit; }
       ellipse(ctx, bx, -65 + bodyDrop * 0.65, 7, 4, "#c46d42", 0.15);
       roundedLine(ctx, bx - 5, -65 + bodyDrop * 0.65, bx + 5, -65 + bodyDrop * 0.65, 2, "#f0b17f");
     }
-    const frontHandX = 30 + throwPose * 38 + tramontana * 24 - ultimateCapture * 12 + ultimateSequence * 30 + block * -2;
-    const frontHandY = shoulderY + 20 - throwPose * 21 - tramontana * 14 - ultimateCapture * 18 - ultimateSequence * 9 - block * 26;
+    const frontHandX = 30 + throwPose * 38 + tramontana * 24 - inhaleBrace * 20 + nazazoDrive * 46 + block * -2;
+    const frontHandY = shoulderY + 20 - throwPose * 21 - tramontana * 14 - inhaleBrace * 24 - nazazoDrive * 12 - block * 26;
     roundedLine(ctx, 17, shoulderY + 3, frontHandX, frontHandY, 13, "#2e65c3");
     ellipse(ctx, frontHandX + 2, frontHandY, 8, 8, "#a92d37");
     roundedLine(ctx, -17, shoulderY + 6, -30 + block * 23, shoulderY + 26 - block * 30, 13, "#285aa9");
     ellipse(ctx, -31 + block * 23, shoulderY + 26 - block * 30, 8, 8, "#a52b35");
-    const headX = 4 + nose * 8 - ultimateCapture * 5;
+    const headX = 4 + nose * 8 - inhaleBrace * 8 + nazazoDrive * 8;
     const headY = -170 + bodyDrop * 0.42 + idle;
     ellipse(ctx, headX, headY, 36, 39, "#d4a07f", -0.03, "#694435", 2.4);
     ctx.save();
@@ -1103,8 +1247,8 @@ button { font: inherit; color: inherit; }
     roundedLine(ctx, headX + 4, headY - 7, headX + 17, headY - 8, 3, "#4a3127");
     ellipse(ctx, headX + 14, headY - 1, 2.5, 2.2, "#101317");
     roundedLine(ctx, headX + 8, headY + 23, headX + 22, headY + 23, 2.3, "#6b302e");
-    const noseLength = lerp(39, f.moveId === "nose3" ? 142 : f.moveId === "airNose" ? 128 : 118, nose);
-    const noseLift = f.moveId === "nose2" ? -12 * nose : f.moveId === "nose3" ? 7 * nose : f.moveId === "airNose" ? 20 * nose : 0;
+    const noseLength = lerp(39, f.moveId === "nose3" ? 142 : f.moveId === "airNose" ? 128 : 118, nose) + nazazoDrive * 24 - inhaleBrace * 8;
+    const noseLift = (f.moveId === "nose2" ? -12 * nose : f.moveId === "nose3" ? 7 * nose : f.moveId === "airNose" ? 20 * nose : 0) - inhaleBrace * 8 + nazazoDrive * 9;
     ctx.save();
     ctx.fillStyle = "#c98668";
     ctx.strokeStyle = "#754635";
@@ -1177,14 +1321,24 @@ button { font: inherit; color: inherit; }
   }
 
   // dist/game/render/FighterRenderer.js
+  function camaleoniUltimateAlpha(fighter, timeSeconds) {
+    if (fighter.id !== "chameleon")
+      return 1;
+    if (fighter.ultimatePhase === "startup") {
+      const fade = clamp01(fighter.moveFrame / 9);
+      return lerp(1, 0.34, fade);
+    }
+    if (fighter.ultimatePhase === "capture") {
+      return 0.1 + (0.035 + 0.035 * Math.sin(timeSeconds * 24));
+    }
+    if (fighter.ultimatePhase === "sequence") {
+      return 0.68 + 0.1 * Math.sin(timeSeconds * 17);
+    }
+    return 1;
+  }
   function drawFighter(ctx, fighter, timeSeconds) {
     ctx.save();
-    if (fighter.id === "chameleon") {
-      if (fighter.ultimatePhase === "capture")
-        ctx.globalAlpha = 0.12;
-      else if (fighter.ultimatePhase === "sequence")
-        ctx.globalAlpha = 0.78;
-    }
+    ctx.globalAlpha *= camaleoniUltimateAlpha(fighter, timeSeconds);
     if (fighter.id === "chameleon")
       drawChameleon(ctx, fighter, timeSeconds);
     else
@@ -1380,7 +1534,7 @@ button { font: inherit; color: inherit; }
       const centerX = defender.x - defender.facing * 22;
       const centerY = GROUND_Y - defender.y - (defender.crouching ? 64 : 100);
       const ultimateHit = attacker.ultimatePhase === "sequence";
-      const tone = event.blocked ? "block" : ultimateHit ? "ultimate" : attacker.moveId === "tramontana" ? "cold" : "warm";
+      const tone = event.blocked ? "block" : ultimateHit ? "ultimate" : attacker.moveId === "tramontana" ? "cold" : attacker.moveId === "coletazo" ? "tail" : "warm";
       const count = event.strong ? 18 : 10;
       for (let i = 0; i < count; i += 1) {
         const angle = Math.PI * 2 * i / count + snapshot.frame % 7 * 0.1;
@@ -1449,25 +1603,50 @@ button { font: inherit; color: inherit; }
       }
       ctx.setTransform(scale, 0, 0, scale, offsetX + shakeX * scale, offsetY + shakeY * scale);
       drawStage(ctx, timeSeconds);
+      this.syncAuthoritativeUltimateEffects(snapshot);
       for (const projectile of snapshot.projectiles)
         this.drawChorizo(projectile.x, GROUND_Y - projectile.y, projectile.vx);
+      for (const fighter of snapshot.fighters) {
+        if (fighter.moveId !== "coletazo")
+          continue;
+        drawColetazoTrail(ctx, fighter.x, GROUND_Y - fighter.y, fighter.facing, getColetazoPresentation(fighter.moveFrame));
+      }
       this.drawUltimateFields(snapshot, timeSeconds);
       const ordered = [...snapshot.fighters].sort((a, b) => b.y - a.y || a.x - b.x);
-      for (const fighter of ordered)
+      for (const fighter of ordered) {
+        if (fighter.capturedBy !== null) {
+          const captor = snapshot.fighters[fighter.capturedBy];
+          drawCapturedLock(ctx, fighter.x, GROUND_Y - fighter.y, captor.id === "chameleon" ? "#9ef5a5" : "#ffd0a1", timeSeconds);
+        }
         drawFighter(ctx, fighter, timeSeconds);
+      }
       this.updateAndDrawTransientCombatEffects();
       this.updateAndDrawParticles();
       this.drawPhaseText(snapshot);
     }
+    syncAuthoritativeUltimateEffects(snapshot) {
+      const hasUltimateState = snapshot.fighters.some((fighter) => fighter.ultimatePhase !== "idle" || fighter.capturedBy !== null);
+      if (snapshot.phase !== "fight" || !hasUltimateState) {
+        this.ultimateFlashes = [];
+      }
+    }
     drawUltimateFields(snapshot, timeSeconds) {
       const ctx = this.ctx;
-      for (const fighter of snapshot.fighters) {
+      for (const attackerIndex of [0, 1]) {
+        const fighter = snapshot.fighters[attackerIndex];
         if (fighter.ultimatePhase === "idle")
           continue;
         const feetY = GROUND_Y - fighter.y;
         const accent = fighter.id === "chameleon" ? "#9df5a4" : "#ffd0a1";
+        const target = fighter.ultimateTarget === null ? null : snapshot.fighters[fighter.ultimateTarget];
+        const targetIsAuthoritativelyCaptured = target !== null && target.capturedBy === attackerIndex;
         if (fighter.ultimatePhase === "startup") {
-          drawCaptureStartup(ctx, fighter.x, feetY, fighter.facing, 0.78, accent);
+          drawCaptureStartup(ctx, fighter.x, feetY, fighter.facing, 0.92, accent);
+          if (fighter.id === "chameleon") {
+            drawCamaleoniVeil(ctx, fighter.x, feetY, fighter.facing, 0.28, timeSeconds);
+          } else {
+            drawSupernarizInhalePulse(ctx, fighter.x, feetY, fighter.facing, 0.72, timeSeconds);
+          }
           continue;
         }
         if (fighter.ultimatePhase === "capture") {
@@ -1475,26 +1654,33 @@ button { font: inherit; color: inherit; }
             drawCamaleoniVeil(ctx, fighter.x, feetY, fighter.facing, 1, timeSeconds);
             drawDashAfterimage(ctx, fighter.x, feetY, fighter.facing, 1, "#a5f7ad");
           } else {
+            drawSupernarizInhalePulse(ctx, fighter.x, feetY, fighter.facing, 1, timeSeconds);
             drawSuctionField(ctx, fighter.x, feetY, fighter.facing, 1, timeSeconds);
           }
           continue;
         }
         if (fighter.ultimatePhase === "sequence") {
-          const target = fighter.ultimateTarget === null ? null : snapshot.fighters[fighter.ultimateTarget];
+          if (!targetIsAuthoritativelyCaptured)
+            continue;
           if (fighter.id === "chameleon") {
-            drawCamaleoniVeil(ctx, fighter.x, feetY, fighter.facing, 0.42, timeSeconds);
-            drawDashAfterimage(ctx, fighter.x, feetY, fighter.facing, 0.45, "#b8ffb2");
+            drawCamaleoniVeil(ctx, fighter.x, feetY, fighter.facing, 0.34, timeSeconds);
+            drawDashAfterimage(ctx, fighter.x, feetY, fighter.facing, 0.52, "#c2ffb8");
+            drawCamaleoniSequenceCuts(ctx, fighter.x, feetY, fighter.facing, 1, timeSeconds);
           } else {
-            drawSuctionField(ctx, fighter.x, feetY, fighter.facing, 0.42, timeSeconds);
-            drawNazazoArc(ctx, fighter.x, feetY, fighter.facing, 0.92);
-            if (target)
-              drawLaunchTrail(ctx, target.x, GROUND_Y - target.y, fighter.facing, 0.68);
+            drawSupernarizInhalePulse(ctx, fighter.x, feetY, fighter.facing, 0.55, timeSeconds);
+            drawSuctionField(ctx, fighter.x, feetY, fighter.facing, 0.48, timeSeconds);
+            drawNazazoArc(ctx, fighter.x, feetY, fighter.facing, 1);
+            drawLaunchTrail(ctx, target.x, GROUND_Y - target.y, fighter.facing, 0.72);
           }
           continue;
         }
-        if (fighter.ultimatePhase === "recovery" && fighter.id === "chameleon") {
-          const pulse2 = 0.58 + Math.sin(timeSeconds * 18) * 0.16;
-          drawReappearanceFlash(ctx, fighter.x, feetY - 98, pulse2);
+        if (fighter.ultimatePhase === "recovery") {
+          if (fighter.id === "chameleon") {
+            const pulse2 = 0.64 + Math.sin(timeSeconds * 18) * 0.18;
+            drawReappearanceFlash(ctx, fighter.x, feetY - 98, pulse2);
+          } else {
+            drawReappearanceFlash(ctx, fighter.x + fighter.facing * 24, feetY - 118, 0.28);
+          }
         }
       }
     }
@@ -1563,7 +1749,7 @@ button { font: inherit; color: inherit; }
         const alpha = p.life / p.maxLife;
         ctx.save();
         ctx.globalAlpha = alpha;
-        const color = p.tone === "cold" ? "#b8edff" : p.tone === "block" ? "#f1f4ff" : p.tone === "break" ? "#ff6b65" : p.tone === "ultimate" ? "#fff0a8" : "#ffcf7e";
+        const color = p.tone === "cold" ? "#b8edff" : p.tone === "block" ? "#f1f4ff" : p.tone === "break" ? "#ff6b65" : p.tone === "ultimate" ? "#fff0a8" : p.tone === "tail" ? "#d9f58f" : "#ffcf7e";
         ellipse(ctx, p.x, p.y, p.radius * alpha + 1, p.radius * 0.65 * alpha + 0.8, color);
         ctx.restore();
       }
@@ -1607,16 +1793,16 @@ button { font: inherit; color: inherit; }
     chameleon: {
       claw1: {
         id: "claw1",
-        totalFrames: 20,
-        cancelStart: 10,
-        cancelEnd: 15,
+        totalFrames: 19,
+        cancelStart: 9,
+        cancelEnd: 14,
         nextAttack: "claw2",
-        hitbox: { start: 5, end: 7, offsetX: 24, width: 62, bottom: 28, top: 92, damage: 44, chipDamage: 3, hitstun: 11, blockstun: 8, knockback: 3, hitstop: 4, level: "mid", strong: false, guardDamage: 9 }
+        hitbox: { start: 5, end: 7, offsetX: 24, width: 70, bottom: 28, top: 92, damage: 46, chipDamage: 3, hitstun: 12, blockstun: 8, knockback: 3.2, hitstop: 4, level: "mid", strong: false, guardDamage: 9 }
       },
       claw2: {
         id: "claw2",
-        totalFrames: 24,
-        hitbox: { start: 6, end: 9, offsetX: 28, width: 76, bottom: 34, top: 100, damage: 58, chipDamage: 4, hitstun: 14, blockstun: 9, knockback: 4.5, hitstop: 5, level: "mid", strong: true, guardDamage: 15 }
+        totalFrames: 22,
+        hitbox: { start: 5, end: 8, offsetX: 28, width: 82, bottom: 34, top: 100, damage: 60, chipDamage: 4, hitstun: 15, blockstun: 9, knockback: 5, hitstop: 5, level: "mid", strong: true, guardDamage: 15 }
       },
       tongueStraight: {
         id: "tongueStraight",
@@ -1630,8 +1816,8 @@ button { font: inherit; color: inherit; }
       },
       coletazo: {
         id: "coletazo",
-        totalFrames: 36,
-        hitbox: { start: 7, end: 11, offsetX: 18, width: 142, bottom: 24, top: 104, damage: 54, chipDamage: 4, hitstun: 15, blockstun: 10, knockback: 13, hitstop: 5, level: "mid", strong: true, guardDamage: 16 }
+        totalFrames: 31,
+        hitbox: { start: 6, end: 10, offsetX: 18, width: 146, bottom: 24, top: 104, damage: 52, chipDamage: 4, hitstun: 14, blockstun: 9, knockback: 13.5, hitstop: 5, level: "mid", strong: true, guardDamage: 15 }
       },
       ultimateCamaleoni: {
         id: "ultimateCamaleoni",
@@ -1846,6 +2032,7 @@ button { font: inherit; color: inherit; }
       superReady: f.superReady,
       ultimatePhase: f.ultimatePhase,
       ultimateTarget: f.ultimateTarget,
+      capturedBy: f.capturedBy,
       dashKind: f.dashKind,
       dashFrame: f.dashFrame,
       roundWins: f.roundWins
@@ -2301,6 +2488,23 @@ button { font: inherit; color: inherit; }
       fighter.moveEffectTriggered = false;
       fighter.comboCount = 0;
     }
+    clearTransientCombatState(fighter) {
+      fighter.vx = 0;
+      fighter.vy = 0;
+      fighter.crouching = false;
+      fighter.blocking = false;
+      fighter.stunFrames = 0;
+      fighter.blockstunFrames = 0;
+      fighter.guardBreakFrames = 0;
+      fighter.dashKind = null;
+      fighter.dashFrame = 0;
+      fighter.pushGuardBufferFrames = 0;
+      fighter.ultimatePhase = "idle";
+      fighter.ultimatePhaseFrame = 0;
+      fighter.ultimateTarget = null;
+      fighter.capturedBy = null;
+      this.clearMove(fighter);
+    }
     triggerMoveEffect(index, fighter) {
       const move = fighter.currentMove;
       if (!move || fighter.moveEffectTriggered || move.spawnProjectileFrame === void 0)
@@ -2623,6 +2827,8 @@ button { font: inherit; color: inherit; }
       this.roundWinner = roundWinner;
       if (roundWinner !== null)
         this.fighters[roundWinner].roundWins += 1;
+      this.clearTransientCombatState(this.fighters[0]);
+      this.clearTransientCombatState(this.fighters[1]);
       this.phase = "round-over";
       this.roundOverFrames = ROUND_OVER_FRAMES;
       this.events.push({ type: "round-end", winner: roundWinner });
@@ -2652,20 +2858,11 @@ button { font: inherit; color: inherit; }
         fighter.grounded = true;
         fighter.crouching = false;
         fighter.blocking = false;
-        fighter.stunFrames = 0;
-        fighter.blockstunFrames = 0;
         fighter.chilledFrames = 0;
         fighter.projectileCooldown = 0;
-        fighter.dashKind = null;
-        fighter.dashFrame = 0;
         fighter.prevInput = copyInput(EMPTY_INPUT);
-        fighter.capturedBy = null;
-        fighter.pushGuardBufferFrames = 0;
-        fighter.ultimatePhase = "idle";
-        fighter.ultimatePhaseFrame = 0;
-        fighter.ultimateTarget = null;
         fighter.superReady = fighter.superMeter >= fighter.maxSuper;
-        this.clearMove(fighter);
+        this.clearTransientCombatState(fighter);
       }
       this.updateFacing();
       this.phase = "fight";
@@ -2703,6 +2900,8 @@ button { font: inherit; color: inherit; }
       __publicField(this, "cpuIndex");
       __publicField(this, "intent", "neutral");
       __publicField(this, "intentUntil", -1);
+      __publicField(this, "lastMoveId", null);
+      __publicField(this, "postCommitUntil", -1);
       this.cpuIndex = cpuIndex;
     }
     nextInput(snapshot) {
@@ -2710,13 +2909,26 @@ button { font: inherit; color: inherit; }
       if (snapshot.phase !== "fight") {
         this.intent = "neutral";
         this.intentUntil = -1;
+        this.lastMoveId = null;
+        this.postCommitUntil = -1;
         return out;
       }
       const self = snapshot.fighters[this.cpuIndex];
       const otherIndex = this.cpuIndex === 0 ? 1 : 0;
       const foe = snapshot.fighters[otherIndex];
       const distance = Math.abs(foe.x - self.x);
+      const moveJustEnded = this.lastMoveId !== null && self.moveId === null;
+      if (moveJustEnded) {
+        const baseGap = self.id === "supernariz" ? 11 : 7;
+        const deterministicVariation = (snapshot.frame + this.cpuIndex * 5) % 4;
+        this.postCommitUntil = snapshot.frame + baseGap + deterministicVariation;
+        this.intent = "neutral";
+        this.intentUntil = -1;
+      }
+      this.lastMoveId = self.moveId;
       if (self.health <= 0 || self.stunFrames > 0 || self.guardBreakFrames > 0)
+        return out;
+      if (snapshot.frame < this.postCommitUntil)
         return out;
       if (self.blockstunFrames > 0) {
         const canSpendGuard = self.guard >= 34;
@@ -2749,8 +2961,12 @@ button { font: inherit; color: inherit; }
         return out;
       }
       if (self.moveId !== null) {
-        if (self.id === "supernariz" && (self.moveId === "nose1" || self.moveId === "nose2") && self.moveFrame === 11) {
-          out.attack = true;
+        if (self.id === "supernariz" && self.moveFrame === 11) {
+          if (self.moveId === "nose1") {
+            out.attack = (snapshot.frame + this.cpuIndex * 3) % 4 !== 0;
+          } else if (self.moveId === "nose2") {
+            out.attack = (snapshot.frame + this.cpuIndex * 5) % 3 !== 1;
+          }
         }
         if (self.id === "chameleon" && self.moveId === "claw1" && self.moveFrame === 11)
           out.attack = true;
@@ -2786,20 +3002,26 @@ button { font: inherit; color: inherit; }
         return out;
       }
       if (self.id === "supernariz") {
-        if (distance > 360 && self.projectileCooldown <= 0 && snapshot.frame > 0 && snapshot.frame % 120 === 0) {
+        if (distance > 360 && self.projectileCooldown <= 0 && snapshot.frame > 0 && snapshot.frame % 120 === 0 && Math.floor(snapshot.frame / 120) % 3 !== 2) {
           out.special = true;
           this.intentUntil = snapshot.frame + 24;
           return out;
         }
-        if (distance >= 135 && distance <= 235 && snapshot.frame % 150 === 0) {
+        if (distance >= 135 && distance <= 235 && snapshot.frame % 150 === 0 && Math.floor(snapshot.frame / 150) % 3 !== 2) {
           out.down = true;
           out.special = true;
           this.intentUntil = snapshot.frame + 25;
           return out;
         }
         if (distance < 118) {
-          out.attack = true;
-          this.intentUntil = snapshot.frame + 18;
+          const presses = (snapshot.frame + this.cpuIndex * 7) % 5 !== 4;
+          if (presses) {
+            out.attack = true;
+            this.intentUntil = snapshot.frame + 18;
+          } else {
+            this.intent = "neutral";
+            this.intentUntil = snapshot.frame + 6;
+          }
           return out;
         }
         this.intent = "approach";
@@ -2918,7 +3140,7 @@ button { font: inherit; color: inherit; }
       <main class="select-screen">
         <div class="select-backdrop"></div>
         <header class="select-header">
-          <span class="game-badge">FIRST PLAYABLE \xB7 V0.3</span>
+          <span class="game-badge">FIRST PLAYABLE \xB7 V0.4</span>
           <h1>${title}</h1>
           <p>${subtitle}</p>
         </header>
@@ -2926,7 +3148,7 @@ button { font: inherit; color: inherit; }
           ${FIGHTER_ORDER.map((id) => this.fighterCard(id, selectingCpu)).join("")}
         </section>
         <footer class="select-footer">
-          ${selectingCpu ? '<button class="text-button" data-back>\u2190 Cambiar mi luchador</button>' : "<span>Touch: D-pad + Ataque + Especial + Salto</span>"}
+          ${selectingCpu ? '<button class="text-button" data-back>\u2190 Cambiar mi luchador</button>' : "<span>Touch: D-pad + Ataque + Especial + Salto + ULTIMATE</span>"}
           <button class="text-button controls-link" data-controls-button type="button">? CONTROLES</button>
           <span>Atr\xE1s: retroceder / bloquear</span>
         </footer>
@@ -3005,12 +3227,13 @@ button { font: inherit; color: inherit; }
         </div>
         <button class="fight-controls-button" data-controls-button type="button" aria-label="Ver controles">?</button>
         ${this.hasShownCombatHint ? "" : '<div class="combat-hint" data-combat-hint><strong>Atr\xE1s = retroceder / bloquear</strong><span>Doble atr\xE1s = BACKDASH \xB7 Bloquear consume GUARD</span></div>'}
-        <div class="super-hint is-hidden" data-super-hint><strong>SUPER READY</strong><span>ATTACK + SPECIAL</span></div>
+        <div class="super-hint is-hidden" data-super-hint><strong>SUPER READY</strong><span>TOC\xC1 ULTIMATE \xB7 teclado J+K</span></div>
         <div class="touch-layer" data-touch-controls>
           <div class="dpad" data-dpad aria-label="D-pad de 8 direcciones">
             <span class="dpad-cross dpad-cross--h"></span><span class="dpad-cross dpad-cross--v"></span><span class="dpad-center"></span>
           </div>
           <div class="action-cluster">
+            <button class="action-button action-button--ultimate" data-action="ultimate" data-ultimate-button type="button" aria-label="Ultimate: requiere SUPER READY" disabled><span>ULTIMATE</span></button>
             <button class="action-button action-button--jump" data-action="jump" type="button"><span>JUMP</span></button>
             <button class="action-button action-button--special" data-action="special" type="button"><span>SPECIAL</span></button>
             <button class="action-button action-button--attack" data-action="attack" type="button"><span>ATTACK</span></button>
@@ -3110,6 +3333,12 @@ button { font: inherit; color: inherit; }
           this.root.querySelector(`[data-win="${index}-${pip}"]`)?.classList.toggle("is-won", pip < fighter.roundWins);
         }
       }
+      const ultimateButton = this.root.querySelector("[data-ultimate-button]");
+      if (ultimateButton) {
+        ultimateButton.disabled = !snapshot.fighters[0].superReady;
+        ultimateButton.classList.toggle("is-ready", snapshot.fighters[0].superReady);
+        ultimateButton.setAttribute("aria-label", snapshot.fighters[0].superReady ? "Ultimate READY" : "Ultimate: requiere SUPER READY");
+      }
       if (!this.hasShownSuperReadyHint && snapshot.fighters[0].superReady) {
         this.hasShownSuperReadyHint = true;
         const hint = this.root.querySelector("[data-super-hint]");
@@ -3196,9 +3425,9 @@ button { font: inherit; color: inherit; }
           <div class="controls-heading"><span>GU\xCDA R\xC1PIDA</span><strong>CONTROLES</strong><button data-controls-close type="button" aria-label="Cerrar controles">\xD7</button></div>
           <div class="controls-grid">
             <section><h3>MOVIMIENTO</h3><p><b>D-pad</b><span>Moverse</span></p><p><b>Atr\xE1s</b><span>Retroceder / bloquear</span></p><p><b>Abajo + atr\xE1s</b><span>Bloqueo bajo</span></p><p><b>Doble adelante</b><span>Dash</span></p><p><b>Doble atr\xE1s</b><span>Backdash / esquiva</span></p></section>
-            <section><h3>ACCIONES</h3><p><b>JUMP</b><span>Saltar</span></p><p><b>ATTACK</b><span>Ataque</span></p><p><b>SPECIAL</b><span>Especial contextual</span></p><p><b>SPECIAL bloqueando</b><span>Push Guard: pide separaci\xF3n usando GUARD</span></p><p><b>ATTACK + SPECIAL</b><span>Ultimate cuando SUPER est\xE1 READY</span></p></section>
+            <section><h3>ACCIONES</h3><p><b>JUMP</b><span>Saltar</span></p><p><b>ATTACK</b><span>Ataque</span></p><p><b>SPECIAL</b><span>Especial contextual</span></p><p><b>SPECIAL bloqueando</b><span>Push Guard: pide separaci\xF3n usando GUARD</span></p><p><b>ULTIMATE (Touch)</b><span>Ultimate cuando SUPER est\xE1 READY</span></p><p><b>J + K (teclado)</b><span>Fallback de Ultimate en desktop cuando SUPER est\xE1 READY</span></p></section>
           </div>
-          <div class="controls-tips"><strong>COMBATE</strong><span>Bloquear consume GUARD \xB7 Dash y Backdash comprometen movimiento \xB7 Saltar evita lows y algunos proyectiles \xB7 Push Guard solo se intenta mientras bloque\xE1s \xB7 el Ultimate se activa con ATTACK + SPECIAL</span></div>
+          <div class="controls-tips"><strong>COMBATE</strong><span>Bloquear consume GUARD \xB7 Dash y Backdash comprometen movimiento \xB7 Saltar evita lows y algunos proyectiles \xB7 Push Guard solo se intenta mientras bloque\xE1s \xB7 Touch: ULTIMATE \xB7 Teclado: J+K</span></div>
         </div>
       </aside>
     `;

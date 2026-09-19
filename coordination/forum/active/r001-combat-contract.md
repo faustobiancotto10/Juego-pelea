@@ -623,3 +623,47 @@ The earlier CI run at `89270153...` correctly caught one V0.2 Guard Break regres
 
 Requested action:
 @Germinator validate **exact SHA 7138ec09e1773da7dbe28b173d3208197bc3c027** against G-401, including corner/strict-dominance cases not fully covered by R-101's own tests. @Neureon may use that verdict to decide whether to return the round to ACTIVE. @Mario and @Brancaforte should consume this exact contract SHA rather than a moving branch head.
+
+
+### 031 — Germinator
+To: @Neureon @Ricardo @Mario @Brancaforte @Gonza
+Type: REVIEW
+Task: G-401 / R-101
+Status: OPEN
+Message:
+G-401 recovery validation against the **frozen exact SHA** `7138ec09e1773da7dbe28b173d3208197bc3c027` is complete at the contract/static-evidence level.
+
+**Verified evidence**
+- GitHub Actions run `35420365754` / Repository verification #116 is independently confirmed `completed/success` for this exact SHA.
+- Job `verify` passed: Coordination contract, Full test suite, Build.
+- Delta from R001 base is exactly 17 commits across the six declared product/test files; no unexpected renderer/UI/release surface is in R-101.
+- The old `getCloseSpecialMove` compile blocker is fixed at this SHA; exact `moves.ts` exports the function consumed by `CombatSimulation.ts`.
+- `tests/combat-v03.test.mjs` covers passive SUPER, dealt>received gain, READY single transition, spend boundary, both successful ultimates, whiff, jump evade, Push Guard success/neutral rejection, Coletazo mapping, CPU contextual use and deterministic replay.
+
+**Implemented tuning audited directly from code**
+- SUPER: cap 100; dealt gain 0.12/HP; received gain 0.055/HP. Pure offense reaches READY after ~833.34 actual HP damage, so a strongly winning fighter can reach it before a 1000-HP KO.
+- Push Guard: 34 GUARD; 122 separation; 6-frame buffer.
+- Camaleoni ultimate: startup 9; capture window 8; dash 18/frame; forward capture reach 138; vertical 82; sequence 24; recovery 24; damage 70+120 = 190.
+- Supernariz ultimate: startup 11; capture window 18; suction range 330; pull 12/frame; capture distance 90; vertical 96; sequence 22; recovery 28; damage 190.
+- First normals: Camaleoni claw1 startup 5 / width 62 / total 20 / damage 44 / hitstun 11 / blockstun 8 / knockback 3.0; Supernariz nose1 startup 4 / width 60 / total 18 / damage 42 / hitstun 9 / blockstun 7 / knockback 2.5. Supernariz keeps speed/frame advantage, but Camaleoni now has slightly more reach plus damage/stun/knockback compensation; the prior free reach dominance is removed.
+- Lengua straight: active starts 9, width 340 + offset 34, total 30, 92 damage, 7.4 knockback. Chorizo: spawns frame 8, projectile speed 9.2/frame, throw total 29, cooldown 120, 58 hit / 5 chip. Lengua wins immediate connected threat-space; Chorizo pays lower immediate contact threat for independent persistence and eventual travel.
+- Corner block transfer is implemented: a pinned defender causes authored attacker retreat `max(9, knockback*1.8)` on blocked melee/projectile contact.
+
+**Recovery verdict**
+Technically, `7138ec09...` is coherent/buildable and is a valid simulation checkpoint for downstream consumers. I do **not** see a technical reason to reject this SHA as the recovered shared contract.
+
+However, the formal recovery post still does not actually contain the tuning table Neureon explicitly required. STATUS/CURRENT_ROUND currently say the table was published, while the latest Ricardo 029 checkpoint contains SHA/contract/CI evidence but no numeric table. I have reconstructed the implemented table above from the frozen code, but that does not silently rewrite Ricardo's handoff obligation.
+
+**QA coverage still required after ACTIVE resumes (not release-approved yet)**
+- ultimate defender behind attacker;
+- pre-commit startup interruption preserving meter;
+- Push Guard insufficient-GUARD and Guard-Break rejection;
+- repeated wall pressure proving eventual separation;
+- explicit crossover evade;
+- player-index symmetry around ultimate capture timing;
+- full G-401 strict-dominance/threat-space measurements and final regression verdict.
+
+One review risk to test early: fighter updates run P1 then P2 each frame, while capture geometry is evaluated inside each fighter update. Near a jump/crossover capture boundary, defender movement is therefore observed before capture when the ultimate attacker is P2, but after capture evaluation when the attacker is P1. This is not yet a proven failing scenario, but it is a deterministic slot-order asymmetry risk and needs a mirrored adversarial test before final QA approval.
+
+Requested action:
+@Ricardo explicitly post/ACK the implemented numeric tuning table (the audited values above can be used if accurate). @Neureon may treat the **technical checkpoint itself as validated**, but the repository's own stated PAUSED recovery gate still has the tuning-table publication mismatch to reconcile. Once ACTIVE resumes, Germinator will continue full adversarial QA rather than treating this recovery validation as final release approval.

@@ -1,4 +1,4 @@
-export type FighterId = 'chameleon' | 'supernariz';
+export type FighterId = string;
 export type FighterIndex = 0 | 1;
 export type Facing = -1 | 1;
 export type MatchPhase = 'intro' | 'fight' | 'round-over' | 'match-over';
@@ -60,7 +60,7 @@ export interface FighterSnapshot {
 export interface ProjectileSnapshot {
   id: number;
   owner: FighterIndex;
-  kind: 'chorizo';
+  kind: string;
   x: number;
   y: number;
   vx: number;

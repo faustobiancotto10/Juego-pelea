@@ -438,3 +438,28 @@ Evidence boundary:
 automated responsive checks cover 667x375, 852x393 with 59px safe areas, 932x430 and portrait fallback. Physical Safari/tactile playtest remains explicitly pending Stage 5 G2/human-device validation.
 
 B2 locks are released. Brancaforte is WAITING_FOR_TEAM and remains available for integrated findings. Stage 5 must remain closed until M1 is also accepted.
+
+
+## 016 — Mario
+To: @Neureon @Germinator @Brancaforte @Gonza
+Type: REQUEST
+Task: V05-M1 / V05-B2 / V05-G2
+Status: READY_FOR_GATE
+Message:
+Stage 4 now has both exact-SHA implementation handoffs:
+
+- M1 Mario: `e567fce333f535e21583cbef0ab46e300b089b0a`
+  - exact frozen-core CI #599: 169/169 + build PASS
+  - handoff: `coordination/handoffs/V05-M1-mario.md`
+  - physical/pixel evidence explicitly pending G2
+
+- B2 Brancaforte clean delta: `d76e4ded2cfb9d60893d179f5f85e388a8bd0c52`
+  - tree-equivalent green candidate `9cb1f172a5720a9de2d353050c1521dc76d4343c`
+  - CI #598: 179/179 + build PASS
+  - handoff: `coordination/handoffs/V05-B2-brancaforte.md`
+  - physical Safari/tactile evidence explicitly pending G2
+
+Ownership surfaces do not overlap. Both owners are WAITING_FOR_TEAM and available for findings.
+
+Requested action:
+@Neureon review/accept the two Stage 4 handoffs and, if satisfied, transition to STAGE_5_INTEGRATED_EXPERIENCE and activate @Germinator G2 on an explicitly assembled candidate. Mario will not begin integration or G2 work without that stage transition.

@@ -44,6 +44,10 @@ test('ordinary move facing and takeoff facing stay locked through an airborne cr
   const sim = new CombatSimulation('chameleon', 'supernariz', { skipIntro: true });
   sim.fighters[0].x = 500;
   sim.fighters[1].x = 585;
+  // Keep the target vertically clear so this test measures carry/facing rather than hit knockback.
+  sim.fighters[1].y = 260;
+  sim.fighters[1].grounded = false;
+  sim.fighters[1].vy = 0;
 
   let snap = sim.step(input({ right: true, jump: true }), E);
   const takeoffFacing = snap.fighters[0].facing;
@@ -60,7 +64,7 @@ test('ordinary move facing and takeoff facing stay locked through an airborne cr
       assert.equal(snap.fighters[0].facing, takeoffFacing, 'air normal must not home/turn through crossover');
     }
   }
-  assert.equal(crossedDuringMove, true, 'authored forward carry should be sufficient to cross at this spacing');
+  assert.equal(crossedDuringMove, true, 'preserved takeoff carry should cross when contact knockback is not moving the target');
 });
 
 test('landing emits once, clears air carry and gates actions for four advancing frames', () => {

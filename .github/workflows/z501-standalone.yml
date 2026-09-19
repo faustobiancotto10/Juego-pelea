@@ -1,0 +1,50 @@
+name: Z501 standalone artifact
+
+on:
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  standalone:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Install build tools
+        run: npm install --global typescript@latest esbuild@latest
+
+      - name: Compile
+        run: npm run build
+
+      - name: Bundle browser code
+        run: esbuild dist/main.js --bundle --format=iife --platform=browser --target=es2020 --outfile=standalone.js
+
+      - name: Build standalone play.html
+        run: |
+          node <<'NODE'
+          const fs = require('fs');
+          let html = fs.readFileSync('index.html', 'utf8');
+          const css = fs.readFileSync('src/styles.css', 'utf8');
+          const js = fs.readFileSync('standalone.js', 'utf8');
+          html = html
+            .replace('<title>First Playable Fight</title>', '<title>Juego Pelea V0.3</title>')
+            .replace('<link rel="stylesheet" href="./styles.css" />', '<style>\n' + css + '\n</style>')
+            .replace('<script type="module" src="./main.js"></script>', '<script>\n' + js + '\n</script>');
+          if (html.includes('src="./main.js"') || html.includes('href="./styles.css"')) {
+            throw new Error('Standalone generation left external runtime references');
+          }
+          fs.writeFileSync('play.generated.html', html);
+          NODE
+
+      - name: Upload standalone
+        uses: actions/upload-artifact@v4
+        with:
+          name: z501-play-html
+          path: play.generated.html

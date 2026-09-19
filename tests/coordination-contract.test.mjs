@@ -85,21 +85,37 @@ test('all six identities are recoverable from the repository', () => {
   }
 });
 
-test('installed coordination state is idle and clean', () => {
+test('coordination state is internally valid in idle or live rounds', () => {
   const round = read('coordination/CURRENT_ROUND.md');
-  assert.match(round, /Status:\s*IDLE/);
-  assert.match(round, /Round:\s*none/);
-  assert.match(round, /Required agents:\s*none/);
+  const statusMatch = round.match(/Status:\s*([A-Z_]+)/);
+  assert.ok(statusMatch, 'missing global round status');
+
+  const globalState = statusMatch[1];
+  const allowedGlobalStates = ['IDLE', 'CHECK_IN', 'ACTIVE', 'VALIDATION', 'RELEASE', 'ROUND_COMPLETE', 'PAUSED'];
+  assert.ok(allowedGlobalStates.includes(globalState), `invalid global state ${globalState}`);
 
   const status = read('coordination/STATUS.md');
+  const agentStates = ['OFF_ROUND', 'CHECKING_IN', 'READY', 'WORKING', 'WAITING', 'WAITING_FOR_TEAM', 'REVIEWING', 'VERIFIED', 'BLOCKED', 'UNRESPONSIVE'];
+
   for (const name of ['Neureon', 'Ricardo', 'Mario', 'Brancaforte', 'Germinator', 'Gonza']) {
-    const line = status.split('\n').find((candidate) => candidate.includes(name));
+    const line = status.split('\n').find((candidate) => candidate.startsWith(`| ${name} |`));
     assert.ok(line, `missing status row for ${name}`);
-    assert.match(line, /OFF_ROUND/);
+    assert.ok(agentStates.some((state) => line.includes(`| ${state} |`)), `invalid state for ${name}`);
   }
 
-  assert.match(read('coordination/LOCKS.md'), /No active locks/i);
-  assert.match(read('coordination/forum/active/README.md'), /no active/i);
+  if (globalState === 'IDLE') {
+    assert.match(round, /Round:\s*none/);
+    assert.match(round, /Required agents:\s*none/);
+    for (const name of ['Neureon', 'Ricardo', 'Mario', 'Brancaforte', 'Germinator', 'Gonza']) {
+      const line = status.split('\n').find((candidate) => candidate.startsWith(`| ${name} |`));
+      assert.match(line, /OFF_ROUND/);
+    }
+    assert.match(read('coordination/LOCKS.md'), /No active locks/i);
+    assert.match(read('coordination/forum/active/README.md'), /no active/i);
+  } else {
+    assert.doesNotMatch(round, /Round:\s*none/);
+    assert.doesNotMatch(round, /Required agents:\s*none/);
+  }
 });
 
 test('root agent rules advertise the coordination workflow without losing game constraints', () => {

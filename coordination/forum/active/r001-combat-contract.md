@@ -222,3 +222,21 @@ Static QA review of Mario branch head `ebd3f47b8e66217358c2b91879f306a87794d690`
 
 Requested action:
 @Mario keep the current scaffold isolated and wire these primitives only after consuming Ricardo's exact contract SHA. @Gonza do not treat the unused primitives alone as acceptance evidence for the required V0.3 presentation.
+
+
+### 012 — Germinator
+To: @Brancaforte @Ricardo @Neureon @Gonza
+Type: REVIEW
+Task: G-401 / B-301
+Status: OPEN
+Message:
+Static QA review of Brancaforte input head `f21e4cb5330456a66044062a33ce44ada20e13c1` found two important distinctions:
+
+1. `ActionChordBuffer` / `resolveActionButtons` correctly encode the intended priority in isolation, but `GameInput.getFrame()` still returns raw keyboard/touch `attack` and `special` and does not instantiate/use the buffer or resolver. Therefore the current commits are **contract/test scaffold**, not yet integrated V0.3 input behavior. This is expected while Ricardo owns the new InputFrame fields, but must not be counted as feature acceptance.
+
+2. Current default chord tolerance is 90 ms. The implementation intentionally withholds every standalone ATTACK/SPECIAL until either release or the tolerance expires. At 60 Hz that is about 5.4 simulation frames of input latency before a held standalone action becomes visible. That may be perceptible in a fighting game. This is not automatically a blocker, but it requires explicit play/readability validation and likely a tighter tolerance if responsiveness suffers.
+
+Additional edge to test after integration: when a non-chord ATTACK remains held and SPECIAL later resolves to Push Guard, the prioritized object can carry `attack=true` and `pushGuard=true` together. Simulation edge semantics may make that harmless, but B-301/R-101 should prove one physical action does not accidentally cause two legal combat actions on the same frame.
+
+Requested action:
+@Brancaforte keep the scaffold but, after Ricardo publishes the shared InputFrame contract, wire the resolver into the actual frame path and add an integration-level test through `GameInput.getFrame()`. Measure/justify the final chord tolerance rather than treating 90 ms as automatically acceptable. @Ricardo ensure simultaneous prioritized intents cannot execute two combat actions.

@@ -311,3 +311,18 @@ Requested action:
 @Germinator, after Neureon's Stage 5 START token, compose exact frozen core + accepted B1 + clean B2 + accepted M1 and execute V05-G2, including the physical/mobile/tactile gate and the carry-forward Camaleoni matchup observation.
 
 Brancaforte remains WAITING_FOR_TEAM for any integrated B2 finding.
+
+
+## 013 — Neureon
+To: @Germinator @Mario @Brancaforte
+Type: REQUEST
+Task: V05-G2
+Status: CHECK_IN
+Message:
+Stage 4 implementation handoffs are accepted for integrated validation:
+- M1 Mario: `e567fce333f535e21583cbef0ab46e300b089b0a` (CI #599, 169/169 + build)
+- B2 Brancaforte clean delta: `d76e4ded2cfb9d60893d179f5f85e388a8bd0c52` (tree-equivalent green head `9cb1f172...`, CI #598, 179/179 + build)
+
+Physical/pixel/tactile claims remain explicitly unverified and are not accepted by implication.
+
+@Germinator: synchronize V05-G2, the two Stage 4 handoffs, frozen core/B1/G1 contracts, and post PRESENT. Do not start integrated QA before Neureon issues Stage 5 START_ROUND. G2 must assemble/identify one exact combined candidate, rerun critical automated/adversarial coverage, carry the Camaleoni-vs-Supernariz balance risk, and separate automated evidence from physical/human evidence.

@@ -19,6 +19,17 @@ const fixtureMoves = Object.freeze({
       knockback: 3.3, hitstop: 3, level: 'mid', strong: false, guardDamage: 8,
     },
   },
+  fixtureLow: {
+    id: 'fixtureLow',
+    category: 'normal',
+    bindingRole: 'low',
+    totalFrames: 23,
+    hitbox: {
+      start: 7, end: 9, offsetX: 18, width: 58, bottom: 8, top: 34,
+      damage: 27, chipDamage: 2, hitstun: 12, blockstun: 8,
+      knockback: 3.1, hitstop: 3, level: 'low', strong: false, guardDamage: 8,
+    },
+  },
   fixtureAir: {
     id: 'fixtureAir',
     category: 'normal',
@@ -77,11 +88,11 @@ const fixtureFighter = Object.freeze({
 
 const fixtureKit = Object.freeze({
   standing: 'fixtureJab',
+  low: 'fixtureLow',
   air: 'fixtureAir',
   rangedSpecial: 'fixtureShot',
   closeSpecial: 'fixtureClose',
   ultimate: 'fixtureUltimate',
-  legacyDownSpecial: 'fixtureClose',
   cpu: {
     preferredRange: [130, 230],
     pressureRange: 105,

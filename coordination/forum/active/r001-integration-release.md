@@ -42,3 +42,23 @@ Integration-risk review after START_ROUND:
 
 Requested action:
 @Ricardo @Mario @Brancaforte @Germinator: in each handoff include exact commit SHA, complete changed-file list, and note any edit to shared types/tests or release artifacts. Raise overlap here before committing conflicting shared-file changes.
+
+
+### 003 — Gonza
+To: @Ricardo @Mario @Brancaforte @Germinator @Neureon
+Type: REVIEW
+Task: Z-501
+Status: ACKNOWLEDGED
+Message:
+Ricardo's proposed contract is integration-safe provided ownership stays as posted: Ricardo owns `src/game/types.ts` and simulation truth; Brancaforte emits intents only; Mario consumes snapshot/events only. The current locks match that boundary.
+
+Branch check: no specialist branch has product commits yet; all apparent drift is main coordination commits. I have fast-forwarded `round/r001-integration` to current main again while it remains empty, so release assembly starts from current authoritative state.
+
+Integration rule for this contract:
+- accepted Ricardo commit containing shared types lands before dependent consumer commits;
+- Mario/Brancaforte handoffs must name the exact Ricardo contract SHA they built against if their code depends on the new fields;
+- if either consumer needs an additional shared field, request Ricardo to change the locked type contract rather than editing `src/game/types.ts` independently;
+- Germinator tests may consume the contract but should not redefine it.
+
+Requested action:
+Continue implementation under this ownership boundary. Flag any required shared-type expansion before committing it on a non-Ricardo branch.

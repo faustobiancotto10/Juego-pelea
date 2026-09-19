@@ -310,9 +310,9 @@ export class AppController {
           <div class="controls-heading"><span>GUÍA RÁPIDA</span><strong>CONTROLES</strong><button data-controls-close type="button" aria-label="Cerrar controles">×</button></div>
           <div class="controls-grid">
             <section><h3>MOVIMIENTO</h3><p><b>D-pad</b><span>Moverse</span></p><p><b>Atrás</b><span>Retroceder / bloquear</span></p><p><b>Abajo + atrás</b><span>Bloqueo bajo</span></p><p><b>Doble adelante</b><span>Dash</span></p><p><b>Doble atrás</b><span>Backdash / esquiva</span></p></section>
-            <section><h3>ACCIONES</h3><p><b>JUMP</b><span>Saltar</span></p><p><b>ATTACK</b><span>Ataque</span></p><p><b>SPECIAL</b><span>Especial</span></p></section>
+            <section><h3>ACCIONES</h3><p><b>JUMP</b><span>Saltar</span></p><p><b>ATTACK</b><span>Ataque</span></p><p><b>SPECIAL</b><span>Especial contextual</span></p><p><b>SPECIAL bloqueando</b><span>Push Guard: pide separación usando GUARD</span></p><p><b>ATTACK + SPECIAL</b><span>Ultimate cuando SUPER está READY</span></p></section>
           </div>
-          <div class="controls-tips"><strong>COMBATE</strong><span>Bloquear consume GUARD · Saltar evita lows y algunos proyectiles · Fallar ataques deja recovery · Backdash esquiva strikes durante una ventana corta</span></div>
+          <div class="controls-tips"><strong>COMBATE</strong><span>Bloquear consume GUARD · Dash y Backdash comprometen movimiento · Saltar evita lows y algunos proyectiles · Push Guard solo se intenta mientras bloqueás · el Ultimate se activa con ATTACK + SPECIAL</span></div>
         </div>
       </aside>
     `;

@@ -133,3 +133,158 @@ export function drawUltimateImpact(
 
   ctx.restore();
 }
+
+
+export function drawCaptureStartup(
+  ctx: CanvasRenderingContext2D,
+  x: number,
+  y: number,
+  facing: -1 | 1,
+  intensity: number,
+  accent: string,
+): void {
+  const t = clamp01(intensity);
+  if (t <= 0) return;
+
+  ctx.save();
+  ctx.translate(x, y);
+  ctx.scale(facing, 1);
+  ctx.globalAlpha = 0.25 + 0.55 * t;
+
+  const radius = lerp(72, 34, t);
+  ctx.strokeStyle = accent;
+  ctx.lineWidth = lerp(2, 5, t);
+  ctx.beginPath();
+  ctx.arc(0, -104, radius, -Math.PI * 0.8, Math.PI * 0.8);
+  ctx.stroke();
+
+  ctx.globalAlpha *= 0.65;
+  for (let i = 0; i < 3; i += 1) {
+    const sx = -34 + i * 34;
+    ctx.beginPath();
+    ctx.moveTo(sx, -178);
+    ctx.lineTo(sx * 0.45, -144);
+    ctx.stroke();
+  }
+
+  ctx.restore();
+}
+
+export function drawDashAfterimage(
+  ctx: CanvasRenderingContext2D,
+  x: number,
+  y: number,
+  facing: -1 | 1,
+  intensity: number,
+  accent: string,
+): void {
+  const t = clamp01(intensity);
+  if (t <= 0) return;
+
+  ctx.save();
+  ctx.translate(x, y);
+  ctx.scale(facing, 1);
+
+  for (let i = 0; i < 4; i += 1) {
+    const lag = i + 1;
+    ctx.globalAlpha = Math.max(0, (0.24 - i * 0.045) * t);
+    ctx.strokeStyle = accent;
+    ctx.lineWidth = 4 - i * 0.55;
+    ctx.beginPath();
+    ctx.ellipse(-lag * 28, -103, 34 + i * 3, 76, -0.08, 0, Math.PI * 2);
+    ctx.stroke();
+  }
+
+  ctx.restore();
+}
+
+export function drawReappearanceFlash(
+  ctx: CanvasRenderingContext2D,
+  x: number,
+  y: number,
+  intensity: number,
+): void {
+  const t = clamp01(intensity);
+  if (t <= 0) return;
+
+  ctx.save();
+  ctx.translate(x, y);
+  ctx.globalAlpha = 0.9 * t;
+
+  ctx.fillStyle = '#efffe9';
+  const size = lerp(14, 70, t);
+  ctx.beginPath();
+  ctx.moveTo(0, -size);
+  ctx.lineTo(size * 0.22, -size * 0.22);
+  ctx.lineTo(size, 0);
+  ctx.lineTo(size * 0.22, size * 0.22);
+  ctx.lineTo(0, size);
+  ctx.lineTo(-size * 0.22, size * 0.22);
+  ctx.lineTo(-size, 0);
+  ctx.lineTo(-size * 0.22, -size * 0.22);
+  ctx.closePath();
+  ctx.fill();
+
+  ctx.restore();
+}
+
+export function drawNazazoArc(
+  ctx: CanvasRenderingContext2D,
+  x: number,
+  y: number,
+  facing: -1 | 1,
+  intensity: number,
+): void {
+  const t = clamp01(intensity);
+  if (t <= 0) return;
+
+  ctx.save();
+  ctx.translate(x, y);
+  ctx.scale(facing, 1);
+  ctx.globalAlpha = 0.25 + 0.65 * t;
+  ctx.strokeStyle = '#ffe8cb';
+  ctx.lineWidth = lerp(8, 3, t);
+  ctx.lineCap = 'round';
+
+  ctx.beginPath();
+  ctx.arc(16, -116, lerp(36, 92, t), -1.35, 0.45);
+  ctx.stroke();
+
+  ctx.strokeStyle = '#ffb47f';
+  ctx.lineWidth = 3;
+  ctx.beginPath();
+  ctx.arc(20, -114, lerp(30, 78, t), -1.25, 0.38);
+  ctx.stroke();
+
+  ctx.restore();
+}
+
+export function drawLaunchTrail(
+  ctx: CanvasRenderingContext2D,
+  x: number,
+  y: number,
+  facing: -1 | 1,
+  intensity: number,
+): void {
+  const t = clamp01(intensity);
+  if (t <= 0) return;
+
+  ctx.save();
+  ctx.translate(x, y);
+  ctx.scale(facing, 1);
+  ctx.globalAlpha = 0.2 + 0.55 * t;
+  ctx.lineCap = 'round';
+
+  for (let i = 0; i < 4; i += 1) {
+    const yy = -132 + i * 24;
+    const reach = lerp(38, 190 - i * 18, t);
+    ctx.strokeStyle = i < 2 ? '#fff3dd' : '#ffc38f';
+    ctx.lineWidth = 5 - i * 0.7;
+    ctx.beginPath();
+    ctx.moveTo(-10, yy);
+    ctx.lineTo(-reach, yy + i * 5);
+    ctx.stroke();
+  }
+
+  ctx.restore();
+}

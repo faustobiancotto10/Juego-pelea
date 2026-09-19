@@ -15,9 +15,9 @@ export interface InputFrame {
   special: boolean;
   dashLeft: boolean;
   dashRight: boolean;
-  /** V0.3 intent. Missing is treated as false for V0.2 input compatibility. */
+  /** Gameplay intent emitted by the input layer for the ATTACK+SPECIAL chord. */
   ultimate?: boolean;
-  /** V0.3 intent. Missing is treated as false for V0.2 input compatibility. */
+  /** Gameplay intent emitted by the input layer for SPECIAL during a blocking context. */
   pushGuard?: boolean;
 }
 
@@ -45,13 +45,13 @@ export interface FighterSnapshot {
   chilledFrames: number;
   projectileCooldown: number;
   projectileCooldownMax: number;
+  dashKind: DashKind;
+  dashFrame: number;
   superMeter: number;
   maxSuper: number;
   superReady: boolean;
   ultimatePhase: UltimatePhase;
   ultimateTarget: FighterIndex | null;
-  dashKind: DashKind;
-  dashFrame: number;
   roundWins: number;
 }
 

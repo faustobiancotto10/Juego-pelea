@@ -16,8 +16,8 @@ export interface FighterDefinition {
 export const FIGHTERS: Record<FighterId, FighterDefinition> = {
   chameleon: {
     id: 'chameleon',
-    displayName: 'Camaleón',
-    role: 'Control de distancia',
+    displayName: 'Camaleoni',
+    role: 'Control / espacio',
     maxHealth: 1000,
     walkSpeed: 4.25,
     jumpSpeed: 12.4,

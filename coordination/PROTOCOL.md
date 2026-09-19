@@ -183,6 +183,20 @@ Release locks after the corresponding commit/handoff unless an active follow-up 
 
 Germinator audits stale/conflicting locks. Neureon resolves ownership disputes.
 
+## 7A. Branch isolation during active rounds
+
+Unless CURRENT_ROUND explicitly says otherwise:
+
+- authoritative live coordination state under `coordination/` is read from and written to `main`;
+- implementation agents write product code only to the branch assigned by the current round/task;
+- implementation agents do not commit feature code directly to `main`;
+- coordination updates (forum, status, locks, tasks, handoffs) must be visible on `main` so other chats can synchronize;
+- before each product commit/handoff, agents re-read authoritative coordination state from `main`;
+- Gonza integrates explicit accepted commit SHAs rather than ambiguous moving branch heads;
+- integration must never overwrite newer `main` coordination state with stale copies from feature branches.
+
+If a task needs a different branch policy, Neureon must state it explicitly in CURRENT_ROUND and the task contract.
+
 ## 8. Tasks and scope
 
 Every real task has a contract under `coordination/tasks/` containing:

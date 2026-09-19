@@ -41,9 +41,7 @@ function validateFighter(source: CombatRegistrySource, id: RegisteredFighterId):
     kit.closeSpecial,
     kit.ultimate,
     kit.low,
-    kit.legacyDownSpecial,
-    kit.legacyUpSpecial,
-  ].filter((value): value is string => Boolean(value));
+  ];
 
   for (const moveId of requiredMoves) requireEntry(moveSet, moveId, `move ${id}:`);
 

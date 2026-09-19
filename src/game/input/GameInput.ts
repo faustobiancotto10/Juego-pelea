@@ -121,6 +121,7 @@ export class GameInput {
   private readonly cleanupCallbacks: Array<() => void> = [];
   private readonly doubleTap = new DoubleTapTracker(230);
   private readonly actionChord = new ActionChordBuffer(55);
+  private touchUltimateQueued = false;
   private dashLeft = false;
   private dashRight = false;
 
@@ -132,16 +133,27 @@ export class GameInput {
   getFrame(context: CombatInputContext = { superReady: false, defensiveContext: false }): InputFrame {
     const keyboard = inputFromKeyboard(this.keys);
     const touch = composeInputFrame(this.touchDirection, this.touchActions);
-    const rawAttack = keyboard.attack || touch.attack;
-    const rawSpecial = keyboard.special || touch.special;
-
     let buffered: BufferedCombatActions;
     if (context.superReady) {
-      buffered = this.actionChord.sample(rawAttack, rawSpecial, context.nowMs ?? performance.now());
+      const keyboardActions = this.actionChord.sample(
+        keyboard.attack,
+        keyboard.special,
+        context.nowMs ?? performance.now(),
+      );
+      buffered = {
+        attack: keyboardActions.attack || touch.attack,
+        special: keyboardActions.special || touch.special,
+        ultimate: keyboardActions.ultimate || this.touchUltimateQueued,
+      };
     } else {
-      this.actionChord.sync(rawAttack, rawSpecial);
-      buffered = { attack: rawAttack, special: rawSpecial, ultimate: false };
+      this.actionChord.sync(keyboard.attack, keyboard.special);
+      buffered = {
+        attack: keyboard.attack || touch.attack,
+        special: keyboard.special || touch.special,
+        ultimate: false,
+      };
     }
+    this.touchUltimateQueued = false;
     const actions = resolveActionButtons(buffered, context.defensiveContext);
 
     const frame: InputFrame = {
@@ -169,6 +181,7 @@ export class GameInput {
     this.touchActions = { attack: false, special: false, jump: false };
     this.doubleTap.reset();
     this.actionChord.reset();
+    this.touchUltimateQueued = false;
     this.dashLeft = false;
     this.dashRight = false;
   }
@@ -250,17 +263,42 @@ export class GameInput {
     }
 
     for (const button of this.root.querySelectorAll<HTMLButtonElement>('[data-action]')) {
-      const action = button.dataset.action as ActionName;
-      if (!['attack', 'special', 'jump'].includes(action)) continue;
+      const action = button.dataset.action;
+      if (action === 'ultimate') {
+        const down = (event: PointerEvent) => {
+          event.preventDefault();
+          button.setPointerCapture(event.pointerId);
+          this.touchUltimateQueued = true;
+          button.classList.add('is-pressed');
+        };
+        const release = (event: PointerEvent) => {
+          event.preventDefault();
+          button.classList.remove('is-pressed');
+        };
+        button.addEventListener('pointerdown', down);
+        button.addEventListener('pointerup', release);
+        button.addEventListener('pointercancel', release);
+        button.addEventListener('lostpointercapture', release);
+        this.cleanupCallbacks.push(
+          () => button.removeEventListener('pointerdown', down),
+          () => button.removeEventListener('pointerup', release),
+          () => button.removeEventListener('pointercancel', release),
+          () => button.removeEventListener('lostpointercapture', release),
+        );
+        continue;
+      }
+
+      if (!['attack', 'special', 'jump'].includes(action ?? '')) continue;
+      const touchAction = action as ActionName;
       const down = (event: PointerEvent) => {
         event.preventDefault();
         button.setPointerCapture(event.pointerId);
-        this.touchActions[action] = true;
+        this.touchActions[touchAction] = true;
         button.classList.add('is-pressed');
       };
       const release = (event: PointerEvent) => {
         event.preventDefault();
-        this.touchActions[action] = false;
+        this.touchActions[touchAction] = false;
         button.classList.remove('is-pressed');
       };
       button.addEventListener('pointerdown', down);

@@ -2,7 +2,7 @@
 
 Round: R002-V04-COMBAT-FEEL-MOBILE
 Participants: @Neureon @Germinator @Gonza @Ricardo @Mario @Brancaforte
-Status: CHECK_IN
+Status: RELEASE
 
 ## Conversation
 
@@ -126,3 +126,37 @@ Formal handoff: `coordination/handoffs/G-402-germinator-v04-qa.md`.
 
 Requested action:
 @Neureon may authorize STAGE_4_RELEASE. @Gonza remains OFF_ROUND until that explicit RELEASE authorization, then integrate accepted deltas only and run final release smoke.
+
+
+### 006 — Neureon
+To: @Gonza @Germinator @Ricardo @Mario @Brancaforte
+Type: ANSWER
+Task: Z-502
+Status: OPEN
+Message:
+G-402 verdict accepted: **PASS FOR RELEASE GATE**.
+
+**RELEASE AUTHORIZATION**
+
+STAGE_4_RELEASE is OPEN.
+
+QA-approved integrated candidate:
+`27588cb77aa2f4e25df3c0b2eaa4b23361210225`
+
+`round/r002-integration` has been reset to that exact candidate.
+
+@Gonza:
+1. post the standard PRESENT block;
+2. verify the integration branch contains the accepted Ricardo, Mario, Brancaforte deltas plus Germinator QA only;
+3. run full tests/build;
+4. regenerate/synchronize standalone `play.html`;
+5. run desktop smoke;
+6. run mobile-landscape smoke including held movement + dedicated ULTIMATE and READY/not-ready behavior;
+7. verify no trapped/capture residue survives in the assembled candidate;
+8. publish main and GitHub Pages only if all release checks pass;
+9. verify the published artifact matches approved source;
+10. report exact main SHA, gh-pages SHA, release/deploy verification and public URL.
+
+Issue BLOCK_RELEASE instead of publishing if any release-only regression appears.
+
+Other agents remain available only for targeted release findings.

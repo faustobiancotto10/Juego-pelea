@@ -43,7 +43,42 @@ test('double-tap tracker emits a dash only for two same-direction taps inside it
 });
 
 
-test('V0.3 input exposes an action-priority resolver before wiring chord behavior', async () => {
+test('V0.3 action chord buffer emits one ultimate intent without leaking attack or special', async () => {
+  const module = await import('../dist/game/input/GameInput.js');
+  assert.equal(typeof module.ActionChordBuffer, 'function');
+  const buffer = new module.ActionChordBuffer(90);
+
+  assert.deepEqual(buffer.sample(false, false, 1000), { attack: false, special: false, ultimate: false });
+  assert.deepEqual(buffer.sample(true, false, 1010), { attack: false, special: false, ultimate: false });
+  assert.deepEqual(buffer.sample(true, true, 1050), { attack: false, special: false, ultimate: true });
+  assert.deepEqual(buffer.sample(true, true, 1066), { attack: false, special: false, ultimate: false });
+  assert.deepEqual(buffer.sample(false, false, 1080), { attack: false, special: false, ultimate: false });
+});
+
+test('V0.3 chord buffer preserves standalone actions after the tolerance window', async () => {
+  const { ActionChordBuffer } = await import('../dist/game/input/GameInput.js');
+  assert.equal(typeof ActionChordBuffer, 'function');
+  const buffer = new ActionChordBuffer(90);
+
+  buffer.sample(false, false, 2000);
+  assert.deepEqual(buffer.sample(true, false, 2010), { attack: false, special: false, ultimate: false });
+  assert.deepEqual(buffer.sample(true, false, 2105), { attack: true, special: false, ultimate: false });
+});
+
+test('V0.3 action priority routes defensive SPECIAL to Push Guard and gives Ultimate top priority', async () => {
   const module = await import('../dist/game/input/GameInput.js');
   assert.equal(typeof module.resolveActionButtons, 'function');
+
+  assert.deepEqual(
+    module.resolveActionButtons({ attack: true, special: true, ultimate: true }, true),
+    { attack: false, special: false, ultimate: true, pushGuard: false },
+  );
+  assert.deepEqual(
+    module.resolveActionButtons({ attack: false, special: true, ultimate: false }, true),
+    { attack: false, special: false, ultimate: false, pushGuard: true },
+  );
+  assert.deepEqual(
+    module.resolveActionButtons({ attack: false, special: true, ultimate: false }, false),
+    { attack: false, special: true, ultimate: false, pushGuard: false },
+  );
 });

@@ -16,28 +16,22 @@ export interface CpuProfile {
 
 export interface FighterKit {
   standing: string;
-  /** R2 permits an absent grounded low; R3 makes this mandatory. */
-  low?: string;
+  low: string;
   air: string;
   rangedSpecial: string;
   closeSpecial: string;
   ultimate: string;
-  /** Temporary R2 adapter preserving V0.4 bindings until R3. */
-  legacyDownSpecial?: string;
-  /** Temporary R2 adapter preserving V0.4 bindings until R3. */
-  legacyUpSpecial?: string;
   cpu: CpuProfile;
 }
 
 export const FIGHTER_KITS: Readonly<Record<RegisteredFighterId, FighterKit>> = Object.freeze({
   chameleon: {
     standing: 'claw1',
+    low: 'clawLow',
     air: 'airClaw',
     rangedSpecial: 'tongueStraight',
     closeSpecial: 'coletazo',
     ultimate: 'ultimateCamaleoni',
-    legacyDownSpecial: 'tongueLow',
-    legacyUpSpecial: 'coletazo',
     cpu: {
       preferredRange: [165, 390],
       pressureRange: 92,
@@ -51,11 +45,11 @@ export const FIGHTER_KITS: Readonly<Record<RegisteredFighterId, FighterKit>> = O
   },
   supernariz: {
     standing: 'nose1',
+    low: 'noseLow',
     air: 'airNose',
     rangedSpecial: 'chorizoThrow',
     closeSpecial: 'tramontana',
     ultimate: 'ultimateSupernariz',
-    legacyDownSpecial: 'tramontana',
     cpu: {
       preferredRange: [135, 235],
       pressureRange: 118,

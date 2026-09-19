@@ -222,9 +222,10 @@ function runCloseSpecialWhiffPunish(attackerId) {
   const sim = new CombatSimulation(attackerId, defenderId, { skipIntro: true });
   const specialId = attackerId === 'chameleon' ? 'coletazo' : 'tramontana';
   const special = getMoveDefinition(attackerId, specialId);
-  const specialReach = special.hitbox.offsetX + special.hitbox.width;
+  const defenderDef = sim.registry.getFighter(defenderId);
+  const specialPracticalReach = special.hitbox.offsetX + special.hitbox.width + defenderDef.width * 0.5;
   sim.fighters[0].x = 500;
-  sim.fighters[1].x = 500 + specialReach + 8;
+  sim.fighters[1].x = 500 + specialPracticalReach + 8;
 
   let snap = sim.step(input({ left: true, down: true, special: true }), E);
   let dashStarted = false;
@@ -237,7 +238,8 @@ function runCloseSpecialWhiffPunish(attackerId) {
     const attacker = snap.fighters[0];
     const defender = snap.fighters[1];
     const defenderNormal = getMoveDefinition(defenderId, defenderId === 'chameleon' ? 'claw1' : 'nose1');
-    const normalReach = defenderNormal.hitbox.offsetX + defenderNormal.hitbox.width;
+    const attackerDef = sim.registry.getFighter(attackerId);
+    const normalPracticalReach = defenderNormal.hitbox.offsetX + defenderNormal.hitbox.width + attackerDef.width * 0.5;
     const distance = Math.abs(defender.x - attacker.x);
 
     let dInput = E;
@@ -249,10 +251,12 @@ function runCloseSpecialWhiffPunish(attackerId) {
       dashStarted
       && !defenderAttackStarted
       && defender.dashKind === null
-      && distance <= normalReach - 2
+      && distance <= normalPracticalReach - 2
     ) {
       dInput = input({ attack: true });
       defenderAttackStarted = true;
+    } else if (dashStarted && !defenderAttackStarted && defender.dashKind === null) {
+      dInput = toward(snap, 1);
     }
 
     const aInput = away(snap, 0);
@@ -368,13 +372,15 @@ test('G1 CPU mixed-matchup mirror corpus records long-horizon divergence without
 
 test('G1 CPU public policy is side-symmetric under mirrored observations', () => {
   function mirrorFrame(frame) {
-    return {
+    const mirrored = {
       ...frame,
       left: frame.right,
       right: frame.left,
       dashLeft: frame.dashRight,
       dashRight: frame.dashLeft,
-      commands: frame.commands?.map((command) => ({
+    };
+    if (frame.commands !== undefined) {
+      mirrored.commands = frame.commands.map((command) => ({
         ...command,
         direction: {
           left: command.direction.right,
@@ -382,8 +388,9 @@ test('G1 CPU public policy is side-symmetric under mirrored observations', () =>
           up: command.direction.up,
           down: command.direction.down,
         },
-      })),
-    };
+      }));
+    }
+    return mirrored;
   }
 
   for (const cpuId of ['chameleon', 'supernariz']) {

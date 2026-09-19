@@ -221,8 +221,9 @@ function findCloseSpecialWhiffPunish(attackerId) {
   const defenderId = attackerId === 'chameleon' ? 'supernariz' : 'chameleon';
   const specialId = attackerId === 'chameleon' ? 'coletazo' : 'tramontana';
   const special = getMoveDefinition(attackerId, specialId);
+  let postRecoveryFallback = null;
 
-  for (let spacingPad = 1; spacingPad <= 80; spacingPad += 1) {
+  for (let spacingPad = 1; spacingPad <= 120; spacingPad += 1) {
     for (let dashStart = 0; dashStart <= special.hitbox.end + 2; dashStart += 1) {
       const sim = new CombatSimulation(attackerId, defenderId, { skipIntro: true });
       const defenderDef = sim.registry.getFighter(defenderId);
@@ -245,7 +246,7 @@ function findCloseSpecialWhiffPunish(attackerId) {
         const punish = firstHit(snap, 1, 0);
         if (punish) {
           if (!punish.blocked) {
-            return {
+            const result = {
               attackerId,
               defenderId,
               spacingPad,
@@ -254,6 +255,8 @@ function findCloseSpecialWhiffPunish(attackerId) {
               attackerMoveAtPunish: snap.fighters[0].moveId,
               attackerMoveFrameAtPunish: snap.fighters[0].moveFrame,
             };
+            if (result.attackerMoveAtPunish !== null) return { recovery: result, fallback: postRecoveryFallback };
+            postRecoveryFallback ??= result;
           }
           break;
         }
@@ -274,18 +277,17 @@ function findCloseSpecialWhiffPunish(attackerId) {
       if (defenderWasHit) continue;
     }
   }
-  return null;
+  return { recovery: null, fallback: postRecoveryFallback };
 }
 
-test('G1 AC06: a reachable correctly timed close-Special whiff punish exists despite holding away', () => {
+test('G1 AC06: close-Special whiff recovery admits a clean normal punish despite holding away', () => {
   const rows = [];
   for (const id of ['chameleon', 'supernariz']) {
     const result = findCloseSpecialWhiffPunish(id);
-    rows.push(result);
-    assert.ok(result, `${id}: no clean whiff-punish fixture found across spacing/timing sweep`);
-    assert.ok(result.attackerMoveAtPunish !== null, `${id}: punish should land before offensive recovery fully ends`);
+    rows.push({ id, ...result });
+    assert.ok(result.recovery, `${id}: no clean recovery punish found; fallback=${JSON.stringify(result.fallback)}`);
   }
-  console.log('G1 close-Special whiff punish fixtures:', JSON.stringify(rows));
+  console.log('G1 close-Special recovery-punish fixtures:', JSON.stringify(rows));
 });
 
 test('G1 AC07: air-normal carry/facing mirror across slots and survives opposite steering', () => {

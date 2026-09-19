@@ -1,0 +1,13 @@
+{
+  "name": "first-playable-fight",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "clean": "rm -rf dist",
+    "typecheck": "tsc --noEmit",
+    "test": "rm -rf dist && tsc && node --test tests/*.test.mjs",
+    "build": "npm run clean && tsc && cp index.html dist/index.html && cp src/styles.css dist/styles.css",
+    "serve": "python3 -m http.server 4173 -d dist"
+  }
+}

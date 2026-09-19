@@ -1,5 +1,5 @@
 import { FIGHTER_KITS } from '../data/fighterKits.js';
-import type { RegisteredRegisteredFighterId } from '../types.js';
+import type { RegisteredFighterId } from '../types.js';
 
 export type AttackLevel = 'mid' | 'low' | 'overhead';
 export type MoveCategory = 'normal' | 'special' | 'projectile' | 'ultimate';

@@ -217,61 +217,120 @@ test('G1 AC05: standing guard loses to low in both slots while crouch guard bloc
   }
 });
 
-function findCloseSpecialWhiffPunish(attackerId) {
+function findCloseSpecialWhiffPunish(attackerId, attackerSlot) {
   const defenderId = attackerId === 'chameleon' ? 'supernariz' : 'chameleon';
+  const defenderSlot = attackerSlot === 0 ? 1 : 0;
   const specialId = attackerId === 'chameleon' ? 'coletazo' : 'tramontana';
   const special = getMoveDefinition(attackerId, specialId);
   let postRecoveryFallback = null;
 
   for (let spacingPad = 1; spacingPad <= 120; spacingPad += 1) {
     for (let dashStart = 0; dashStart <= special.hitbox.end + 2; dashStart += 1) {
-      const sim = new CombatSimulation(attackerId, defenderId, { skipIntro: true });
+      const sim = new CombatSimulation(
+        attackerSlot === 0 ? attackerId : defenderId,
+        attackerSlot === 1 ? attackerId : defenderId,
+        { skipIntro: true },
+      );
       const defenderDef = sim.registry.getFighter(defenderId);
+      const attackerDef = sim.registry.getFighter(attackerId);
       const practicalReach = special.hitbox.offsetX + special.hitbox.width + defenderDef.width * 0.5;
-      sim.fighters[0].x = 500;
-      sim.fighters[1].x = 500 + practicalReach + spacingPad;
 
-      let snap = sim.step(input({ left: true, down: true, special: true }), E);
+      if (attackerSlot === 0) {
+        sim.fighters[0].x = 500;
+        sim.fighters[1].x = 500 + practicalReach + spacingPad;
+      } else {
+        sim.fighters[0].x = 500;
+        sim.fighters[1].x = 500 + practicalReach + spacingPad;
+      }
+
+      const startInput = input({ down: true, special: true });
+      let snap = sim.step(
+        attackerSlot === 0 ? startInput : E,
+        attackerSlot === 1 ? startInput : E,
+      );
+      let preStep = null;
       let defenderWasHit = false;
       let dashIssued = false;
       let attackIssued = false;
 
-      for (let n = 0; n < 70; n += 1) {
-        const specialHit = firstHit(snap, 0, 1);
+      for (let n = 0; n < 80; n += 1) {
+        const specialHit = firstHit(snap, attackerSlot, defenderSlot);
         if (specialHit) {
           defenderWasHit = true;
           break;
         }
 
-        const punish = firstHit(snap, 1, 0);
+        const punish = firstHit(snap, defenderSlot, attackerSlot);
         if (punish) {
-          if (!punish.blocked) {
+          if (!punish.blocked && preStep) {
+            const preAttacker = preStep.fighters[attackerSlot];
+            const preDefender = preStep.fighters[defenderSlot];
+            const relative = Math.sign(preDefender.x - preAttacker.x);
+            const sameSide = relative !== 0
+              && preAttacker.facing === relative
+              && preDefender.facing === -relative;
+            const committedRecovery = preAttacker.moveId === specialId
+              && preAttacker.moveFrame > special.hitbox.end;
+            const awayHeld = preAttacker.facing === 1
+              ? Boolean(preStep.__qaAttackerInput?.left)
+              : Boolean(preStep.__qaAttackerInput?.right);
             const result = {
               attackerId,
               defenderId,
+              attackerSlot,
               spacingPad,
               dashStart,
               punishDamage: punish.damage,
-              attackerMoveAtPunish: snap.fighters[0].moveId,
-              attackerMoveFrameAtPunish: snap.fighters[0].moveFrame,
+              preImpactMoveId: preAttacker.moveId,
+              preImpactMoveFrame: preAttacker.moveFrame,
+              preImpactAttackerX: preAttacker.x,
+              preImpactDefenderX: preDefender.x,
+              preImpactAttackerFacing: preAttacker.facing,
+              preImpactDefenderFacing: preDefender.facing,
+              sameSide,
+              committedRecovery,
+              awayHeld,
             };
-            if (result.attackerMoveAtPunish !== null) return { recovery: result, fallback: postRecoveryFallback };
+            if (committedRecovery && sameSide && awayHeld) {
+              return { recovery: result, fallback: postRecoveryFallback };
+            }
             postRecoveryFallback ??= result;
           }
           break;
         }
 
+        const attackerSnap = snap.fighters[attackerSlot];
+        const defenderSnap = snap.fighters[defenderSlot];
+        const defenderNormal = getMoveDefinition(defenderId, defenderId === 'chameleon' ? 'claw1' : 'nose1');
+        const normalPracticalReach = defenderNormal.hitbox.offsetX + defenderNormal.hitbox.width + attackerDef.width * 0.5;
+        const distance = Math.abs(defenderSnap.x - attackerSnap.x);
+
         let defenderInput = E;
         if (!dashIssued && n === dashStart) {
-          defenderInput = input({ dashLeft: true });
+          defenderInput = input({
+            dashRight: defenderSnap.x < attackerSnap.x,
+            dashLeft: defenderSnap.x > attackerSnap.x,
+          });
           dashIssued = true;
-        } else if (dashIssued && !attackIssued && snap.fighters[1].dashKind === null) {
+        } else if (
+          dashIssued
+          && !attackIssued
+          && defenderSnap.dashKind === null
+          && distance <= normalPracticalReach - 2
+        ) {
           defenderInput = input({ attack: true });
           attackIssued = true;
+        } else if (dashIssued && !attackIssued && defenderSnap.dashKind === null) {
+          defenderInput = toward(snap, defenderSlot);
         }
 
-        const attackerInput = away(snap, 0);
-        snap = sim.step(attackerInput, defenderInput);
+        const attackerInput = away(snap, attackerSlot);
+        preStep = structuredClone(snap);
+        preStep.__qaAttackerInput = structuredClone(attackerInput);
+        snap = sim.step(
+          attackerSlot === 0 ? attackerInput : defenderInput,
+          attackerSlot === 1 ? attackerInput : defenderInput,
+        );
       }
 
       if (defenderWasHit) continue;
@@ -280,14 +339,19 @@ function findCloseSpecialWhiffPunish(attackerId) {
   return { recovery: null, fallback: postRecoveryFallback };
 }
 
-test('G1 AC06: close-Special whiff recovery admits a clean normal punish despite holding away', () => {
+test('G1 AC06: close-Special whiff recovery admits a clean same-side normal punish despite holding away', () => {
   const rows = [];
   for (const id of ['chameleon', 'supernariz']) {
-    const result = findCloseSpecialWhiffPunish(id);
-    rows.push({ id, ...result });
-    assert.ok(result.recovery, `${id}: no clean recovery punish found; fallback=${JSON.stringify(result.fallback)}`);
+    for (const attackerSlot of [0, 1]) {
+      const result = findCloseSpecialWhiffPunish(id, attackerSlot);
+      rows.push({ id, attackerSlot, ...result });
+      assert.ok(result.recovery, `${id} slot=${attackerSlot}: no clean pre-impact recovery punish found; fallback=${JSON.stringify(result.fallback)}`);
+      assert.equal(result.recovery.committedRecovery, true);
+      assert.equal(result.recovery.sameSide, true);
+      assert.equal(result.recovery.awayHeld, true);
+    }
   }
-  console.log('G1 close-Special recovery-punish fixtures:', JSON.stringify(rows));
+  console.log('G1 close-Special pre-impact recovery-punish fixtures:', JSON.stringify(rows));
 });
 
 test('G1 AC07: air-normal carry/facing mirror across slots and survives opposite steering', () => {

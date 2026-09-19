@@ -2,7 +2,7 @@
 
 Round: R001-V03-COMBAT-EXPANSION
 Owner: Germinator
-Status: READY
+Status: VERIFIED
 
 ## Goal
 

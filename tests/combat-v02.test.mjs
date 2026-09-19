@@ -28,18 +28,18 @@ test('holding away walks backward and still blocks a compatible incoming strike'
   assert.ok(after.fighters[1].health > 900, 'blocked tongue should only deal chip damage');
 });
 
-test('standing guard loses to low while down-back blocks low and loses to overhead', () => {
+test('standing guard loses to grounded low while down-back blocks low and loses to overhead', () => {
   const stand = new CombatSimulation('chameleon', 'supernariz', { skipIntro: true });
   closeFighters(stand, 58);
-  stand.step(input({ down: true, special: true }), input({ right: true }));
-  const standAfter = stepN(stand, 22, EMPTY_INPUT, input({ right: true }));
-  assert.ok(standAfter.fighters[1].health <= 924, 'standing guard must not block a low tongue');
+  stand.step(input({ down: true, attack: true }), input({ right: true }));
+  const standAfter = stepN(stand, 18, EMPTY_INPUT, input({ right: true }));
+  assert.ok(standAfter.fighters[1].health <= 964, 'standing guard must not block a grounded low normal');
 
   const crouch = new CombatSimulation('chameleon', 'supernariz', { skipIntro: true });
   closeFighters(crouch, 58);
-  crouch.step(input({ down: true, special: true }), input({ right: true, down: true }));
-  const crouchAfter = stepN(crouch, 22, EMPTY_INPUT, input({ right: true, down: true }));
-  assert.ok(crouchAfter.fighters[1].health > 980, 'down-back should block a low tongue');
+  crouch.step(input({ down: true, attack: true }), input({ right: true, down: true }));
+  const crouchAfter = stepN(crouch, 18, EMPTY_INPUT, input({ right: true, down: true }));
+  assert.ok(crouchAfter.fighters[1].health >= 998, 'down-back should block a grounded low normal');
 
   const overhead = new CombatSimulation('supernariz', 'chameleon', { skipIntro: true });
   closeFighters(overhead, 68);
@@ -105,7 +105,7 @@ test('forward dash closes distance and backdash has a brief strike-evasion windo
 test('jumping can clear a low strike, clear a chorizo projectile, and cross over the opponent', () => {
   const low = new CombatSimulation('supernariz', 'chameleon', { skipIntro: true });
   closeFighters(low, 60);
-  low.step(input({ jump: true }), input({ down: true, special: true }));
+  low.step(input({ jump: true }), input({ down: true, attack: true }));
   const lowSnap = stepN(low, 18, input({ right: true }), EMPTY_INPUT);
   assert.equal(lowSnap.fighters[0].health, 1000, 'an airborne fighter above the low hitbox should not be hit');
 

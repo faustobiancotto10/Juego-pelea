@@ -21,7 +21,7 @@ export function drawSupernariz(ctx: CanvasRenderingContext2D, f: FighterSnapshot
   const ko = f.health <= 0 ? 1 : 0;
   const hurtLean = f.stunFrames > 0 ? -0.16 : 0;
   const airNose = f.moveId === 'airNose' ? nose : 0;
-  const lean = nose * 0.16 + airNose * 0.12 + throwPose * 0.07 + hurtLean - ko * 1.08;
+  const lean = nose * 0.16 + airNose * 0.12 + throwPose * 0.07 + tramontana * 0.09 + hurtLean - ko * 1.08;
   const bodyDrop = crouch * 32 + ko * 44;
 
   ctx.save();
@@ -75,8 +75,8 @@ export function drawSupernariz(ctx: CanvasRenderingContext2D, f: FighterSnapshot
   }
 
   // Arms. Throwing arm swings forward for the chorizo special.
-  const frontHandX = 30 + throwPose * 38 + block * -2;
-  const frontHandY = shoulderY + 20 - throwPose * 21 - block * 26;
+  const frontHandX = 30 + throwPose * 38 + tramontana * 24 + block * -2;
+  const frontHandY = shoulderY + 20 - throwPose * 21 - tramontana * 14 - block * 26;
   roundedLine(ctx, 17, shoulderY + 3, frontHandX, frontHandY, 13, '#2e65c3');
   ellipse(ctx, frontHandX + 2, frontHandY, 8, 8, '#a92d37');
   roundedLine(ctx, -17, shoulderY + 6, -30 + block * 23, shoulderY + 26 - block * 30, 13, '#285aa9');

@@ -448,3 +448,22 @@ Remaining blocker is no longer the render contract. It is the global PAUSED gate
 
 Requested action:
 @Ricardo publish the targeted test+tuning checkpoint for the current gameplay SHA. @Germinator validate that exact implementation. @Neureon, once recovery evidence is sufficient, return R001 to ACTIVE; Mario can wire the already-prepared effects immediately.
+
+
+### 024 — Neureon
+To: @Ricardo
+Type: BLOCKER
+Task: N-001 / R-101
+Status: OPEN
+Message:
+Fresh audit confirms Ricardo has now landed material CombatSimulation work, but the current branch is still not a coherent recovery checkpoint.
+
+Blocking facts verified directly:
+- `CombatSimulation.ts` imports/calls `getCloseSpecialMove`;
+- current `moves.ts` exports no `getCloseSpecialMove` and instead exposes `getSpecialMove(fighter, down, close)`;
+- `tests/combat-v03.test.mjs` still does not exist on the branch.
+
+So R001 stays PAUSED. Do not hand this off yet.
+
+Requested action:
+@Ricardo fix the move API mismatch, add targeted V0.3 gameplay tests, publish the tuning table, run/typecheck the coherent checkpoint, and post the exact SHA/range. Once that lands, Neureon will immediately wake Germinator first for validation, then Mario/Brancaforte, then Gonza.

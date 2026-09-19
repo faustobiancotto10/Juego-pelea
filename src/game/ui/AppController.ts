@@ -1,3 +1,4 @@
+import { DEFAULT_COMBAT_REGISTRY } from '../data/combatRegistry.js';
 import { FIGHTERS } from '../data/fighters.js';
 import { GameInput } from '../input/GameInput.js';
 import { FightRenderer } from '../render/FightRenderer.js';
@@ -7,19 +8,19 @@ import { EMPTY_INPUT, type FighterId, type FighterIndex, type MatchSnapshot } fr
 import { backToSelect, chooseFighter, finishFight, initialFlowState, rematch, startFight, type GameFlowState } from './flow.js';
 
 const FIXED_MS = 1000 / 60;
-const FIGHTER_ORDER: readonly FighterId[] = ['chameleon', 'supernariz'];
+const FIGHTER_ORDER: readonly FighterId[] = DEFAULT_COMBAT_REGISTRY.playableIds;
 
 const fighterCopy: Record<FighterId, { kicker: string; role: string; moves: string; mark: string }> = {
   chameleon: {
     kicker: 'CONTROL DE DISTANCIA',
     role: 'Zoner',
-    moves: 'Lengua recta · Lengua baja · Garras',
+    moves: 'Garras · Low de garra · Lengua / Coletazo',
     mark: 'C',
   },
   supernariz: {
     kicker: 'PRESIÓN Y COMBOS',
     role: 'Rushdown',
-    moves: 'Combo de nariz · Chorizo · Tramontana',
+    moves: 'Combo de nariz · Low de nariz · Chorizo / Tramontana',
     mark: 'N',
   },
 };
@@ -62,7 +63,7 @@ export class AppController {
       <main class="select-screen">
         <div class="select-backdrop"></div>
         <header class="select-header">
-          <span class="game-badge">FIRST PLAYABLE · V0.4</span>
+          <span class="game-badge">FIRST PLAYABLE · V0.5</span>
           <h1>${title}</h1>
           <p>${subtitle}</p>
         </header>
@@ -149,7 +150,7 @@ export class AppController {
         </div>
         <button class="fight-controls-button" data-controls-button type="button" aria-label="Ver controles">?</button>
         ${this.hasShownCombatHint ? '' : '<div class="combat-hint" data-combat-hint><strong>Atrás = retroceder / bloquear</strong><span>Doble atrás = BACKDASH · Bloquear consume GUARD</span></div>'}
-        <div class="super-hint is-hidden" data-super-hint><strong>SUPER READY</strong><span>TOCÁ ULTIMATE · teclado J+K</span></div>
+        <div class="super-hint is-hidden" data-super-hint><strong>SUPER READY</strong><span>TOCÁ ULTIMATE · teclado L</span></div>
         <div class="touch-layer" data-touch-controls>
           <div class="dpad" data-dpad aria-label="D-pad de 8 direcciones">
             <span class="dpad-cross dpad-cross--h"></span><span class="dpad-cross dpad-cross--v"></span><span class="dpad-center"></span>
@@ -161,7 +162,7 @@ export class AppController {
             <button class="action-button action-button--attack" data-action="attack" type="button"><span>ATTACK</span></button>
           </div>
         </div>
-        <div class="desktop-hint">A/D mover · S agachar · W/Space salto · J ataque · K especial · J+K ultimate con SUPER READY</div>
+        <div class="desktop-hint">A/D mover · S agachar · W/Space salto · J ataque · K especial · L ultimate</div>
       </main>
       ${this.controlsPanel()}
       ${this.orientationPrompt()}
@@ -182,7 +183,9 @@ export class AppController {
     const renderer = new FightRenderer(canvas);
     const cpu = new CpuController(1);
     const playerCpu = this.autoplayPlayer ? new CpuController(0) : null;
-    this.input = new GameInput(touchRoot);
+    this.input = new GameInput(touchRoot, {
+      onReset: () => simulation.resetInputState(),
+    });
 
     let previous = performance.now();
     let accumulator = 0;
@@ -364,9 +367,9 @@ export class AppController {
           <div class="controls-heading"><span>GUÍA RÁPIDA</span><strong>CONTROLES</strong><button data-controls-close type="button" aria-label="Cerrar controles">×</button></div>
           <div class="controls-grid">
             <section><h3>MOVIMIENTO</h3><p><b>D-pad</b><span>Moverse</span></p><p><b>Atrás</b><span>Retroceder / bloquear</span></p><p><b>Abajo + atrás</b><span>Bloqueo bajo</span></p><p><b>Doble adelante</b><span>Dash</span></p><p><b>Doble atrás</b><span>Backdash / esquiva</span></p></section>
-            <section><h3>ACCIONES</h3><p><b>JUMP</b><span>Saltar</span></p><p><b>ATTACK</b><span>Ataque</span></p><p><b>SPECIAL</b><span>Especial contextual</span></p><p><b>SPECIAL bloqueando</b><span>Push Guard: pide separación usando GUARD</span></p><p><b>ULTIMATE (Touch)</b><span>Ultimate cuando SUPER está READY</span></p><p><b>J + K (teclado)</b><span>Fallback de Ultimate en desktop cuando SUPER está READY</span></p></section>
+            <section><h3>ACCIONES</h3><p><b>JUMP</b><span>Saltar / ataque aéreo con ATTACK</span></p><p><b>ATTACK</b><span>Ataque normal / cadena corta</span></p><p><b>Abajo + ATTACK</b><span>Low normal en el suelo</span></p><p><b>SPECIAL sin dirección</b><span>Especial a distancia: Lengua / Chorizo</span></p><p><b>Abajo + SPECIAL</b><span>Especial cercano: Coletazo / Tramontana</span></p><p><b>SPECIAL bloqueando</b><span>Push Guard: pide separación usando GUARD</span></p><p><b>ULTIMATE (Touch)</b><span>Intento de Ultimate; requiere SUPER READY</span></p><p><b>L (teclado)</b><span>Ultimate dedicado en desktop</span></p></section>
           </div>
-          <div class="controls-tips"><strong>COMBATE</strong><span>Bloquear consume GUARD · Dash y Backdash comprometen movimiento · Saltar evita lows y algunos proyectiles · Push Guard solo se intenta mientras bloqueás · Touch: ULTIMATE · Teclado: J+K</span></div>
+          <div class="controls-tips"><strong>COMBATE</strong><span>Bloquear consume GUARD · El low vence guardia alta · Saltar evita lows · SPECIAL neutro controla distancia · Abajo + SPECIAL es la opción cercana · Push Guard solo se solicita mientras bloqueás · Touch: ULTIMATE · Teclado: L</span></div>
         </div>
       </aside>
     `;

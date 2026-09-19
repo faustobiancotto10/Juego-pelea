@@ -1,4 +1,15 @@
 import type { CombatEvent, MatchSnapshot } from '../types.js';
+import {
+  drawCamaleoniVeil,
+  drawCaptureStartup,
+  drawDashAfterimage,
+  drawLaunchTrail,
+  drawNazazoArc,
+  drawPushGuardBurst,
+  drawReappearanceFlash,
+  drawSuctionField,
+  drawUltimateImpact,
+} from './CombatEffects.js';
 import { drawFighter } from './FighterRenderer.js';
 import { drawStage } from './StageRenderer.js';
 import { GROUND_Y, WORLD_HEIGHT, WORLD_WIDTH, ellipse } from './drawUtils.js';
@@ -11,12 +22,30 @@ interface Particle {
   life: number;
   maxLife: number;
   radius: number;
-  tone: 'warm' | 'cold' | 'block';
+  tone: 'warm' | 'cold' | 'block' | 'break' | 'ultimate';
+}
+
+interface PushGuardFlash {
+  x: number;
+  y: number;
+  facing: -1 | 1;
+  life: number;
+  maxLife: number;
+}
+
+interface UltimateFlash {
+  x: number;
+  y: number;
+  life: number;
+  maxLife: number;
+  accent: string;
 }
 
 export class FightRenderer {
   private readonly ctx: CanvasRenderingContext2D;
   private particles: Particle[] = [];
+  private pushGuardFlashes: PushGuardFlash[] = [];
+  private ultimateFlashes: UltimateFlash[] = [];
   private shakeFrames = 0;
   private shakeStrength = 0;
   private lastSnapshot: MatchSnapshot | null = null;
@@ -33,12 +62,74 @@ export class FightRenderer {
   }
 
   private consumeEvent(event: CombatEvent, snapshot: MatchSnapshot): void {
+    if (event.type === 'push-guard') {
+      const defender = snapshot.fighters[event.defender];
+      this.pushGuardFlashes.push({
+        x: defender.x,
+        y: GROUND_Y - defender.y,
+        facing: defender.facing,
+        life: 14,
+        maxLife: 14,
+      });
+      if (this.pushGuardFlashes.length > 6) this.pushGuardFlashes.splice(0, this.pushGuardFlashes.length - 6);
+      this.shakeFrames = Math.max(this.shakeFrames, 2);
+      this.shakeStrength = Math.max(this.shakeStrength, 1.6);
+      return;
+    }
+
+    if (event.type === 'ultimate-capture') {
+      const attacker = snapshot.fighters[event.attacker];
+      const defender = snapshot.fighters[event.defender];
+      this.ultimateFlashes.push({
+        x: defender.x,
+        y: GROUND_Y - defender.y - 96,
+        life: 16,
+        maxLife: 16,
+        accent: attacker.id === 'chameleon' ? '#9df5a4' : '#ffc28e',
+      });
+      if (this.ultimateFlashes.length > 6) this.ultimateFlashes.splice(0, this.ultimateFlashes.length - 6);
+      this.shakeFrames = Math.max(this.shakeFrames, 4);
+      this.shakeStrength = Math.max(this.shakeStrength, 3.4);
+      return;
+    }
+
+    if (event.type === 'guard-break') {
+      const defender = snapshot.fighters[event.defender];
+      const centerX = defender.x;
+      const centerY = GROUND_Y - defender.y - (defender.crouching ? 72 : 112);
+      const count = 24;
+      for (let i = 0; i < count; i += 1) {
+        const angle = (Math.PI * 2 * i) / count + (snapshot.frame % 5) * 0.08;
+        const speed = 4.2 + ((i * 29) % 9) * 0.28;
+        this.particles.push({
+          x: centerX,
+          y: centerY,
+          vx: Math.cos(angle) * speed,
+          vy: Math.sin(angle) * speed - 0.8,
+          life: 24,
+          maxLife: 24,
+          radius: 4.6,
+          tone: 'break',
+        });
+      }
+      this.shakeFrames = Math.max(this.shakeFrames, 6);
+      this.shakeStrength = Math.max(this.shakeStrength, 4.2);
+      this.trimParticles();
+      return;
+    }
     if (event.type !== 'hit') return;
     const defender = snapshot.fighters[event.defender];
     const attacker = snapshot.fighters[event.attacker];
     const centerX = defender.x - defender.facing * 22;
     const centerY = GROUND_Y - defender.y - (defender.crouching ? 64 : 100);
-    const tone: Particle['tone'] = event.blocked ? 'block' : attacker.moveId === 'tramontana' ? 'cold' : 'warm';
+    const ultimateHit = attacker.ultimatePhase === 'sequence';
+    const tone: Particle['tone'] = event.blocked
+      ? 'block'
+      : ultimateHit
+        ? 'ultimate'
+        : attacker.moveId === 'tramontana'
+          ? 'cold'
+          : 'warm';
     const count = event.strong ? 18 : 10;
     for (let i = 0; i < count; i += 1) {
       const angle = (Math.PI * 2 * i) / count + (snapshot.frame % 7) * 0.1;
@@ -54,12 +145,31 @@ export class FightRenderer {
         tone,
       });
     }
-    if (event.strong && !event.blocked) {
+    if (ultimateHit && !event.blocked) {
+      this.ultimateFlashes.push({
+        x: centerX,
+        y: centerY,
+        life: 18,
+        maxLife: 18,
+        accent: attacker.id === 'chameleon' ? '#a8ff9f' : '#ffb879',
+      });
+      if (this.ultimateFlashes.length > 6) this.ultimateFlashes.splice(0, this.ultimateFlashes.length - 6);
+      this.shakeFrames = Math.max(this.shakeFrames, 8);
+      this.shakeStrength = Math.max(this.shakeStrength, 6.2);
+    } else if (event.strong && !event.blocked) {
       this.shakeFrames = 7;
       this.shakeStrength = 5.5;
     } else if (!event.blocked) {
       this.shakeFrames = Math.max(this.shakeFrames, 3);
       this.shakeStrength = Math.max(this.shakeStrength, 2.5);
+    }
+    this.trimParticles();
+  }
+
+  private trimParticles(): void {
+    const maxParticles = 120;
+    if (this.particles.length > maxParticles) {
+      this.particles.splice(0, this.particles.length - maxParticles);
     }
   }
 
@@ -95,12 +205,81 @@ export class FightRenderer {
 
     for (const projectile of snapshot.projectiles) this.drawChorizo(projectile.x, GROUND_Y - projectile.y, projectile.vx);
 
+    this.drawUltimateFields(snapshot, timeSeconds);
+
     // Draw farther/airborne fighter first for a stable fighting-game layer order.
     const ordered = [...snapshot.fighters].sort((a, b) => (b.y - a.y) || (a.x - b.x));
     for (const fighter of ordered) drawFighter(ctx, fighter, timeSeconds);
 
+    this.updateAndDrawTransientCombatEffects();
     this.updateAndDrawParticles();
     this.drawPhaseText(snapshot);
+  }
+
+  private drawUltimateFields(snapshot: MatchSnapshot, timeSeconds: number): void {
+    const ctx = this.ctx;
+    for (const fighter of snapshot.fighters) {
+      if (fighter.ultimatePhase === 'idle') continue;
+      const feetY = GROUND_Y - fighter.y;
+      const accent = fighter.id === 'chameleon' ? '#9df5a4' : '#ffd0a1';
+
+      if (fighter.ultimatePhase === 'startup') {
+        drawCaptureStartup(ctx, fighter.x, feetY, fighter.facing, 0.78, accent);
+        continue;
+      }
+
+      if (fighter.ultimatePhase === 'capture') {
+        if (fighter.id === 'chameleon') {
+          drawCamaleoniVeil(ctx, fighter.x, feetY, fighter.facing, 1, timeSeconds);
+          drawDashAfterimage(ctx, fighter.x, feetY, fighter.facing, 1, '#a5f7ad');
+        } else {
+          drawSuctionField(ctx, fighter.x, feetY, fighter.facing, 1, timeSeconds);
+        }
+        continue;
+      }
+
+      if (fighter.ultimatePhase === 'sequence') {
+        const target = fighter.ultimateTarget === null ? null : snapshot.fighters[fighter.ultimateTarget];
+        if (fighter.id === 'chameleon') {
+          drawCamaleoniVeil(ctx, fighter.x, feetY, fighter.facing, 0.42, timeSeconds);
+          drawDashAfterimage(ctx, fighter.x, feetY, fighter.facing, 0.45, '#b8ffb2');
+        } else {
+          drawSuctionField(ctx, fighter.x, feetY, fighter.facing, 0.42, timeSeconds);
+          drawNazazoArc(ctx, fighter.x, feetY, fighter.facing, 0.92);
+          if (target) drawLaunchTrail(ctx, target.x, GROUND_Y - target.y, fighter.facing, 0.68);
+        }
+        continue;
+      }
+
+      if (fighter.ultimatePhase === 'recovery' && fighter.id === 'chameleon') {
+        const pulse = 0.58 + Math.sin(timeSeconds * 18) * 0.16;
+        drawReappearanceFlash(ctx, fighter.x, feetY - 98, pulse);
+      }
+    }
+  }
+
+  private updateAndDrawTransientCombatEffects(): void {
+    const ctx = this.ctx;
+
+    const pushGuardKept: PushGuardFlash[] = [];
+    for (const flash of this.pushGuardFlashes) {
+      flash.life -= 1;
+      if (flash.life <= 0) continue;
+      pushGuardKept.push(flash);
+      const progress = 1 - flash.life / flash.maxLife;
+      drawPushGuardBurst(ctx, flash.x, flash.y, flash.facing, progress);
+    }
+    this.pushGuardFlashes = pushGuardKept;
+
+    const ultimateKept: UltimateFlash[] = [];
+    for (const flash of this.ultimateFlashes) {
+      flash.life -= 1;
+      if (flash.life <= 0) continue;
+      ultimateKept.push(flash);
+      const progress = 1 - flash.life / flash.maxLife;
+      drawUltimateImpact(ctx, flash.x, flash.y, progress, flash.accent);
+    }
+    this.ultimateFlashes = ultimateKept;
   }
 
   private drawChorizo(x: number, y: number, vx: number): void {
@@ -145,7 +324,16 @@ export class FightRenderer {
       const alpha = p.life / p.maxLife;
       ctx.save();
       ctx.globalAlpha = alpha;
-      const color = p.tone === 'cold' ? '#b8edff' : p.tone === 'block' ? '#f1f4ff' : '#ffcf7e';
+      const color =
+        p.tone === 'cold'
+          ? '#b8edff'
+          : p.tone === 'block'
+            ? '#f1f4ff'
+            : p.tone === 'break'
+              ? '#ff6b65'
+              : p.tone === 'ultimate'
+                ? '#fff0a8'
+                : '#ffcf7e';
       ellipse(ctx, p.x, p.y, p.radius * alpha + 1, p.radius * 0.65 * alpha + 0.8, color);
       ctx.restore();
     }

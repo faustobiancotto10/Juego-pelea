@@ -51,7 +51,7 @@ button { font: inherit; color: inherit; }
 .fight-shell { background:#06080c; }
 .fight-canvas { display:block; width:100%; height:100%; }
 .hud { position:absolute; z-index:10; top:max(8px,env(safe-area-inset-top)); left:max(14px,env(safe-area-inset-left)); right:max(14px,env(safe-area-inset-right)); height:64px; display:grid; grid-template-columns:minmax(0,1fr) 82px minmax(0,1fr); gap:10px; pointer-events:none; filter:drop-shadow(0 3px 6px rgba(0,0,0,.8)); }
-.hud-fighter { min-width:0; }
+.hud-fighter { position:relative; min-width:0; }
 .hud-fighter--right { text-align:right; }
 .hud-meta { display:flex; justify-content:space-between; align-items:end; margin-bottom:4px; text-transform:uppercase; }
 .hud-fighter--right .hud-meta { flex-direction:row-reverse; }
@@ -175,4 +175,41 @@ button { font: inherit; color: inherit; }
 
 @media (prefers-reduced-motion:reduce) {
   .combat-hint, .guard-track.is-broken { animation:none; }
+}
+
+
+/* V0.3 HUD surfaces — presentation only; values come from simulation snapshots. */
+.super-row { display:flex; align-items:center; gap:6px; margin-top:3px; min-width:0; }
+.hud-fighter--right .super-row { flex-direction:row-reverse; }
+.super-label { flex:0 0 auto; color:#d9b866; font:900 7px system-ui,sans-serif; letter-spacing:.15em; }
+.super-track { position:relative; flex:1; height:7px; border:1px solid rgba(235,196,103,.62); background:rgba(10,12,17,.84); overflow:hidden; transform:skewX(-8deg); }
+.super-fill { display:block; width:100%; height:100%; background:linear-gradient(90deg,#8f6831,#e7bb57,#fff0a4); transform-origin:left; transition:transform 90ms linear, filter 140ms ease; }
+.hud-fighter--right .super-fill { transform-origin:right; }
+.super-track.is-ready { overflow:visible; border-color:#ffe08a; box-shadow:0 0 10px rgba(255,213,105,.58); }
+.super-track.is-ready .super-fill { filter:brightness(1.28); }
+.super-track.is-ready::after { content:'READY'; position:absolute; top:50%; left:50%; transform:translate(-50%,-50%) skewX(8deg); color:#171108; font:900 6px system-ui,sans-serif; letter-spacing:.12em; text-shadow:0 1px 0 rgba(255,255,255,.28); }
+
+.special-cooldown { position:absolute; right:0; top:100%; margin-top:3px; display:flex; align-items:center; gap:4px; color:rgba(224,231,241,.68); font:800 6px system-ui,sans-serif; letter-spacing:.11em; }
+.hud-fighter--right .special-cooldown { right:auto; left:0; flex-direction:row-reverse; }
+.special-cooldown-track { width:42px; height:3px; background:rgba(255,255,255,.12); overflow:hidden; }
+.special-cooldown-fill { display:block; width:100%; height:100%; background:rgba(115,181,229,.78); transform-origin:left; transition:transform 90ms linear, filter 120ms ease; }
+.special-cooldown.is-ready { color:rgba(205,235,255,.9); }
+.special-cooldown.is-ready .special-cooldown-fill { filter:brightness(1.35); }
+.hud-fighter--right .special-cooldown-fill { transform-origin:right; }
+
+.super-hint { position:absolute; z-index:25; left:50%; top:max(76px,calc(env(safe-area-inset-top) + 70px)); transform:translateX(-50%); display:grid; gap:2px; padding:7px 12px; border:1px solid rgba(255,218,124,.45); border-radius:3px; background:rgba(13,12,10,.76); color:#f4d98f; font:900 9px system-ui,sans-serif; letter-spacing:.08em; text-align:center; pointer-events:none; backdrop-filter:blur(4px); animation:super-hint-in .22s ease-out both; transition:opacity .35s ease, transform .35s ease; }
+.super-hint strong { font:900 9px system-ui,sans-serif; }
+.super-hint span { font:800 7px system-ui,sans-serif; letter-spacing:.12em; }
+.super-hint.is-hidden { opacity:0; transform:translate(-50%,-7px); }
+@keyframes super-hint-in { from { opacity:0; transform:translate(-50%,-7px); } }
+
+@media (max-height:520px) {
+  .super-row { margin-top:2px; }
+  .super-track { height:5px; }
+  .super-hint { top:56px; padding:5px 9px; font-size:8px; }
+  .special-cooldown { margin-top:2px; }
+}
+
+@media (prefers-reduced-motion:reduce) {
+  .super-hint { animation:none; }
 }

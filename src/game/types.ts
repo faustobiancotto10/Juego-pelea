@@ -3,6 +3,7 @@ export type FighterIndex = 0 | 1;
 export type Facing = -1 | 1;
 export type MatchPhase = 'intro' | 'fight' | 'round-over' | 'match-over';
 export type DashKind = 'forward' | 'back' | null;
+export type UltimatePhase = 'idle' | 'startup' | 'capture' | 'sequence' | 'recovery';
 
 export interface InputFrame {
   left: boolean;
@@ -14,6 +15,10 @@ export interface InputFrame {
   special: boolean;
   dashLeft: boolean;
   dashRight: boolean;
+  /** Gameplay intent emitted by the input layer for the ATTACK+SPECIAL chord. */
+  ultimate?: boolean;
+  /** Gameplay intent emitted by the input layer for SPECIAL during a blocking context. */
+  pushGuard?: boolean;
 }
 
 export interface FighterSnapshot {
@@ -39,8 +44,14 @@ export interface FighterSnapshot {
   comboCount: number;
   chilledFrames: number;
   projectileCooldown: number;
+  projectileCooldownMax: number;
   dashKind: DashKind;
   dashFrame: number;
+  superMeter: number;
+  maxSuper: number;
+  superReady: boolean;
+  ultimatePhase: UltimatePhase;
+  ultimateTarget: FighterIndex | null;
   roundWins: number;
 }
 
@@ -71,6 +82,11 @@ export type CombatEvent =
   | { type: 'hit'; attacker: FighterIndex; defender: FighterIndex; blocked: boolean; damage: number; strong: boolean }
   | { type: 'guard-break'; defender: FighterIndex }
   | { type: 'projectile'; owner: FighterIndex; projectileId: number }
+  | { type: 'super-ready'; fighter: FighterIndex }
+  | { type: 'ultimate-start'; attacker: FighterIndex }
+  | { type: 'ultimate-capture'; attacker: FighterIndex; defender: FighterIndex }
+  | { type: 'ultimate-whiff'; attacker: FighterIndex }
+  | { type: 'push-guard'; defender: FighterIndex; attacker: FighterIndex }
   | { type: 'round-start'; round: number }
   | { type: 'round-end'; winner: FighterIndex | null }
   | { type: 'match-end'; winner: FighterIndex };
@@ -85,4 +101,6 @@ export const EMPTY_INPUT: InputFrame = {
   special: false,
   dashLeft: false,
   dashRight: false,
+  ultimate: false,
+  pushGuard: false,
 };

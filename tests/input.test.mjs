@@ -41,3 +41,150 @@ test('double-tap tracker emits a dash only for two same-direction taps inside it
   assert.equal(tracker.tap('right', 1500), false);
   assert.equal(tracker.tap('right', 1800), false);
 });
+
+
+test('V0.3 action chord buffer emits one ultimate intent without leaking attack or special', async () => {
+  const module = await import('../dist/game/input/GameInput.js');
+  assert.equal(typeof module.ActionChordBuffer, 'function');
+  const buffer = new module.ActionChordBuffer(90);
+
+  assert.deepEqual(buffer.sample(false, false, 1000), { attack: false, special: false, ultimate: false });
+  assert.deepEqual(buffer.sample(true, false, 1010), { attack: false, special: false, ultimate: false });
+  assert.deepEqual(buffer.sample(true, true, 1050), { attack: false, special: false, ultimate: true });
+  assert.deepEqual(buffer.sample(true, true, 1066), { attack: false, special: false, ultimate: false });
+  assert.deepEqual(buffer.sample(false, false, 1080), { attack: false, special: false, ultimate: false });
+});
+
+test('V0.3 chord buffer preserves standalone actions after the tolerance window', async () => {
+  const { ActionChordBuffer } = await import('../dist/game/input/GameInput.js');
+  assert.equal(typeof ActionChordBuffer, 'function');
+  const buffer = new ActionChordBuffer(90);
+
+  buffer.sample(false, false, 2000);
+  assert.deepEqual(buffer.sample(true, false, 2010), { attack: false, special: false, ultimate: false });
+  assert.deepEqual(buffer.sample(true, false, 2105), { attack: true, special: false, ultimate: false });
+});
+
+test('V0.3 action priority routes defensive SPECIAL to Push Guard and gives Ultimate top priority', async () => {
+  const module = await import('../dist/game/input/GameInput.js');
+  assert.equal(typeof module.resolveActionButtons, 'function');
+
+  assert.deepEqual(
+    module.resolveActionButtons({ attack: true, special: true, ultimate: true }, true),
+    { attack: false, special: false, ultimate: true, pushGuard: false },
+  );
+  assert.deepEqual(
+    module.resolveActionButtons({ attack: false, special: true, ultimate: false }, true),
+    { attack: false, special: false, ultimate: false, pushGuard: true },
+  );
+  assert.deepEqual(
+    module.resolveActionButtons({ attack: true, special: true, ultimate: false }, true),
+    { attack: false, special: false, ultimate: false, pushGuard: true },
+  );
+  assert.deepEqual(
+    module.resolveActionButtons({ attack: false, special: true, ultimate: false }, false),
+    { attack: false, special: true, ultimate: false, pushGuard: false },
+  );
+});
+
+
+test('V0.3 chord buffer does not swallow quick standalone taps shorter than the chord window', async () => {
+  const { ActionChordBuffer } = await import('../dist/game/input/GameInput.js');
+  const attackBuffer = new ActionChordBuffer(90);
+
+  attackBuffer.sample(false, false, 3000);
+  assert.deepEqual(attackBuffer.sample(true, false, 3010), { attack: false, special: false, ultimate: false });
+  assert.deepEqual(attackBuffer.sample(false, false, 3050), { attack: true, special: false, ultimate: false });
+  assert.deepEqual(attackBuffer.sample(false, false, 3066), { attack: false, special: false, ultimate: false });
+
+  const specialBuffer = new ActionChordBuffer(90);
+  specialBuffer.sample(false, false, 4000);
+  assert.deepEqual(specialBuffer.sample(false, true, 4010), { attack: false, special: false, ultimate: false });
+  assert.deepEqual(specialBuffer.sample(false, false, 4050), { attack: false, special: true, ultimate: false });
+});
+
+
+function createGameInputHarness(GameInput) {
+  const listeners = new Map();
+  const previousWindow = globalThis.window;
+  globalThis.window = {
+    addEventListener(type, handler) {
+      const handlers = listeners.get(type) ?? new Set();
+      handlers.add(handler);
+      listeners.set(type, handlers);
+    },
+    removeEventListener(type, handler) {
+      listeners.get(type)?.delete(handler);
+    },
+  };
+
+  const root = {
+    querySelector() { return null; },
+    querySelectorAll() { return []; },
+  };
+  const input = new GameInput(root);
+  const dispatchKey = (type, code) => {
+    for (const handler of listeners.get(type) ?? []) {
+      handler({ code, repeat: false, preventDefault() {} });
+    }
+  };
+  const cleanup = () => {
+    input.destroy();
+    if (previousWindow === undefined) delete globalThis.window;
+    else globalThis.window = previousWindow;
+  };
+  return { input, dispatchKey, cleanup };
+}
+
+test('GameInput keeps ATTACK/SPECIAL immediate while SUPER is not READY', async () => {
+  const { GameInput } = await import('../dist/game/input/GameInput.js');
+  const harness = createGameInputHarness(GameInput);
+  try {
+    harness.dispatchKey('keydown', 'KeyJ');
+    const attack = harness.input.getFrame({ superReady: false, defensiveContext: false, nowMs: 1000 });
+    assert.equal(attack.attack, true);
+    assert.equal(attack.special, false);
+    assert.equal(attack.ultimate, false);
+
+    harness.dispatchKey('keyup', 'KeyJ');
+    harness.dispatchKey('keydown', 'KeyK');
+    const special = harness.input.getFrame({ superReady: false, defensiveContext: false, nowMs: 1016 });
+    assert.equal(special.attack, false);
+    assert.equal(special.special, true);
+    assert.equal(special.pushGuard, false);
+  } finally {
+    harness.cleanup();
+  }
+});
+
+test('GameInput READY chord emits one Ultimate and defensive SPECIAL emits exclusive Push Guard', async () => {
+  const { GameInput } = await import('../dist/game/input/GameInput.js');
+  const harness = createGameInputHarness(GameInput);
+  try {
+    harness.dispatchKey('keydown', 'KeyJ');
+    const first = harness.input.getFrame({ superReady: true, defensiveContext: false, nowMs: 2000 });
+    assert.equal(first.attack, false);
+    assert.equal(first.special, false);
+    assert.equal(first.ultimate, false);
+
+    harness.dispatchKey('keydown', 'KeyK');
+    const chord = harness.input.getFrame({ superReady: true, defensiveContext: false, nowMs: 2030 });
+    assert.deepEqual(
+      { attack: chord.attack, special: chord.special, ultimate: chord.ultimate, pushGuard: chord.pushGuard },
+      { attack: false, special: false, ultimate: true, pushGuard: false },
+    );
+
+    harness.dispatchKey('keyup', 'KeyJ');
+    harness.dispatchKey('keyup', 'KeyK');
+    harness.input.getFrame({ superReady: true, defensiveContext: false, nowMs: 2046 });
+
+    harness.dispatchKey('keydown', 'KeyK');
+    const pushGuard = harness.input.getFrame({ superReady: false, defensiveContext: true, nowMs: 2062 });
+    assert.deepEqual(
+      { attack: pushGuard.attack, special: pushGuard.special, ultimate: pushGuard.ultimate, pushGuard: pushGuard.pushGuard },
+      { attack: false, special: false, ultimate: false, pushGuard: true },
+    );
+  } finally {
+    harness.cleanup();
+  }
+});

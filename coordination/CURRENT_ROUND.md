@@ -7,7 +7,7 @@ Staged activation: enabled
 Planned agents: Neureon, Ricardo, Brancaforte, Germinator, Mario, Gonza
 Current activation gate: STAGE_5_INTEGRATED_EXPERIENCE
 Required at current gate: Neureon, Germinator
-Start token: pending Germinator G2 PRESENT
+Start token: START_ROUND — STAGE_5_INTEGRATED_EXPERIENCE
 Completion token: not issued
 
 ## Product authority

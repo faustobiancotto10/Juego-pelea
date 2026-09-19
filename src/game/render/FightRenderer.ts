@@ -127,14 +127,6 @@ export class FightRenderer {
       if (this.ultimateReleaseTrails.length > 6) {
         this.ultimateReleaseTrails.splice(0, this.ultimateReleaseTrails.length - 6);
       }
-      this.ultimateFlashes.push({
-        x: defender.x,
-        y: GROUND_Y - defender.y - 92,
-        life: 20,
-        maxLife: 20,
-        accent,
-      });
-      if (this.ultimateFlashes.length > 6) this.ultimateFlashes.splice(0, this.ultimateFlashes.length - 6);
       this.shakeFrames = Math.max(this.shakeFrames, 10);
       this.shakeStrength = Math.max(this.shakeStrength, 7.2);
       return;
@@ -258,6 +250,8 @@ export class FightRenderer {
     ctx.setTransform(scale, 0, 0, scale, offsetX + shakeX * scale, offsetY + shakeY * scale);
     drawStage(ctx, simulationTimeSeconds);
 
+    this.syncAuthoritativeUltimateEffects(snapshot);
+
 
     for (const projectile of snapshot.projectiles) this.drawChorizo(projectile.x, GROUND_Y - projectile.y, projectile.vx);
 
@@ -293,6 +287,17 @@ export class FightRenderer {
     this.updateAndDrawTransientCombatEffects(simulationDelta);
     this.updateAndDrawParticles(simulationDelta);
     this.drawPhaseText(snapshot);
+  }
+
+  private syncAuthoritativeUltimateEffects(snapshot: MatchSnapshot): void {
+    const hasAuthoritativeUltimateState = snapshot.fighters.some(
+      (fighter) => fighter.ultimatePhase !== 'idle' || fighter.capturedBy !== null,
+    );
+    if (!hasAuthoritativeUltimateState) {
+      // Capture/sequence flashes end with authoritative state. Release trails are
+      // separate and may finish their bounded impact after ultimate-release.
+      this.ultimateFlashes = [];
+    }
   }
 
   private consumeSimulationFrameDelta(frame: number): number {

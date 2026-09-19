@@ -9,3 +9,5 @@ Reservations for later stages do not authorize work before Neureon opens the gat
 | src/styles.css | Brancaforte | V05-B2 | responsive/safe-area touch UX only |
 | tests/input-v05-commands.test.mjs | Brancaforte | V05-B2 | final command queue/input-path regressions |
 | tests/ui-v05.test.mjs | Brancaforte | V05-B2 | final controls/help/layout contract coverage |
+| tests/input.test.mjs | Brancaforte | V05-B2 | retire legacy J+K chord expectations and preserve keyboard regressions |
+| tests/ui-v04.test.mjs | Brancaforte | V05-B2 | update desktop Ultimate/help expectations to KeyL |

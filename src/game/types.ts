@@ -95,6 +95,8 @@ export interface ProjectileSnapshot {
 
 export interface MatchSnapshot {
   frame: number;
+  /** Advancing fight-step clock: frozen by hitstop and outside active fighting. */
+  combatTick: number;
   combatTick: number;
   phase: MatchPhase;
   round: number;

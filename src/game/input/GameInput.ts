@@ -7,6 +7,75 @@ const NEUTRAL: DirectionState = { left: false, right: false, up: false, down: fa
 
 type ActionName = 'attack' | 'special' | 'jump';
 
+export interface BufferedCombatActions {
+  attack: boolean;
+  special: boolean;
+  ultimate: boolean;
+}
+
+export interface PrioritizedCombatActions extends BufferedCombatActions {
+  pushGuard: boolean;
+}
+
+export class ActionChordBuffer {
+  private previousAttack = false;
+  private previousSpecial = false;
+  private attackStartedAt: number | null = null;
+  private specialStartedAt: number | null = null;
+  private chordConsumed = false;
+
+  constructor(private readonly toleranceMs = 90) {}
+
+  sample(attackHeld: boolean, specialHeld: boolean, nowMs: number): BufferedCombatActions {
+    if (attackHeld && !this.previousAttack) this.attackStartedAt = nowMs;
+    if (specialHeld && !this.previousSpecial) this.specialStartedAt = nowMs;
+
+    if (!attackHeld) this.attackStartedAt = null;
+    if (!specialHeld) this.specialStartedAt = null;
+    if (!attackHeld && !specialHeld) this.chordConsumed = false;
+
+    const withinChordWindow =
+      attackHeld &&
+      specialHeld &&
+      this.attackStartedAt !== null &&
+      this.specialStartedAt !== null &&
+      Math.abs(this.attackStartedAt - this.specialStartedAt) <= this.toleranceMs;
+
+    const ultimate = withinChordWindow && !this.chordConsumed;
+    if (ultimate) this.chordConsumed = true;
+
+    const suppressSingles = this.chordConsumed || ultimate;
+    const attack =
+      !suppressSingles &&
+      attackHeld &&
+      this.attackStartedAt !== null &&
+      nowMs - this.attackStartedAt >= this.toleranceMs;
+    const special =
+      !suppressSingles &&
+      specialHeld &&
+      this.specialStartedAt !== null &&
+      nowMs - this.specialStartedAt >= this.toleranceMs;
+
+    this.previousAttack = attackHeld;
+    this.previousSpecial = specialHeld;
+
+    return { attack, special, ultimate };
+  }
+}
+
+export function resolveActionButtons(
+  buffered: BufferedCombatActions,
+  defensiveContext: boolean,
+): PrioritizedCombatActions {
+  if (buffered.ultimate) {
+    return { attack: false, special: false, ultimate: true, pushGuard: false };
+  }
+  if (buffered.special && defensiveContext) {
+    return { attack: buffered.attack, special: false, ultimate: false, pushGuard: true };
+  }
+  return { ...buffered, pushGuard: false };
+}
+
 export class GameInput {
   private readonly keys = new Set<string>();
   private touchDirection: DirectionState = { ...NEUTRAL };

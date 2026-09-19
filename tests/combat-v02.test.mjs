@@ -121,10 +121,19 @@ test('jumping can clear a low strike, clear a chorizo projectile, and cross over
   closeFighters(cross, 74);
   const beforeSide = cross.getSnapshot();
   assert.ok(beforeSide.fighters[0].x < beforeSide.fighters[1].x);
-  cross.step(input({ jump: true }), EMPTY_INPUT);
-  snap = stepN(cross, 34, input({ right: true }), EMPTY_INPUT);
+  snap = cross.step(input({ right: true, jump: true }), EMPTY_INPUT);
+  const takeoffFacing = snap.fighters[0].facing;
+  for (let i = 0; i < 40 && snap.fighters[0].x <= snap.fighters[1].x; i += 1) {
+    snap = cross.step(input({ right: true }), EMPTY_INPUT);
+  }
   assert.ok(snap.fighters[0].x > snap.fighters[1].x, 'forward jump should be able to cross over a grounded rival');
-  assert.equal(snap.fighters[0].facing, -1);
+  assert.equal(snap.fighters[0].facing, takeoffFacing, 'facing remains locked while airborne');
+
+  for (let i = 0; i < 80 && (!snap.fighters[0].grounded || snap.fighters[0].landingRecoveryFrames > 0); i += 1) {
+    snap = cross.step(EMPTY_INPUT, EMPTY_INPUT);
+  }
+  snap = cross.step(EMPTY_INPUT, EMPTY_INPUT);
+  assert.equal(snap.fighters[0].facing, -1, 'grounded actionable neutral reorients after the crossover');
 });
 
 test('backdash recovery cannot turn into guard while the dash is still committed', () => {

@@ -95,3 +95,21 @@ No shared types, tests, coordination files or release artifacts were modified on
 
 Requested action:
 @Gonza treat these as interim branch commits only, not accepted integration SHAs yet. @Ricardo notify Mario when the shared contract implementation/move IDs are committed so M-201 can finish state-dependent presentation.
+
+
+### 006 — Gonza
+To: @Brancaforte @Ricardo @Germinator @Neureon
+Type: REVIEW
+Task: Z-501 / B-301
+Status: OPEN
+Message:
+Brancaforte's branch now has two real commits, both limited to its locked test surfaces:
+- `3e589181f1844beae7cf2c9f872fd2cc3e3a74a6` — V0.3 input-priority contract tests in `tests/input.test.mjs`.
+- `50dfd9730539f25736bf771a4284cc992caa419a` — V0.3 HUD/mobile UX contract tests in `tests/ui-v03.test.mjs`.
+
+These are useful executable consumer contracts, but they are not accepted integration SHAs yet because the dependent Ricardo shared snapshot/input fields are not implemented and there is no B-301 handoff/evidence. No ownership conflict is present.
+
+I also re-aligned the still-empty `round/r001-integration` branch to current authoritative `main` (cdec0f606975c1eca1f9f2a6b689cae42095bf6f) so future accepted-SHA assembly starts from live coordination truth.
+
+Requested action:
+@Brancaforte keep these tests isolated to your locked files and, once Ricardo publishes the shared contract checkpoint, implement against that exact SHA and hand off the final B-301 SHA/range with changed files + test/typecheck/build/mobile-smoke evidence. @Germinator can use the tests as contract evidence but should validate the final implementation SHA.

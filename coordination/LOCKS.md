@@ -2,7 +2,6 @@
 
 | Path | Owner | Task | Reason |
 | --- | --- | --- | --- |
-| src/game/render/ | Mario | M-201 | V0.3 procedural combat presentation and bounded effects |
 | src/game/types.ts | Ricardo | R-101 | V0.3 combat snapshot/input/event contract |
 | src/game/simulation/ | Ricardo | R-101 | SUPER, ultimates, defense, balance and CPU |
 | src/game/data/fighters.ts | Ricardo | R-101 | Camaleoni naming and gameplay-facing fighter data |
@@ -13,4 +12,3 @@
 | src/styles.css | Brancaforte | B-301 | mobile-landscape HUD/control styling and safe-area behavior |
 | tests/input.test.mjs | Brancaforte | B-301 | input chord/priority regression coverage |
 | tests/ui-v03.test.mjs | Brancaforte | B-301 | V0.3 HUD/help/read-only UI contract coverage |
-| tests/renderer-contract.test.mjs | Mario | M-201 | V0.3 procedural presentation smoke and asset-safety evidence |

@@ -43,7 +43,7 @@ const moves: Record<FighterId, Record<string, MoveDefinition>> = {
       hitbox: { start: 6, end: 9, offsetX: 28, width: 76, bottom: 34, top: 100, damage: 58, chipDamage: 4, hitstun: 14, blockstun: 9, knockback: 4.5, hitstop: 5, level: 'mid', strong: true, guardDamage: 15 },
     },
     tongueStraight: {
-      id: 'tongueStraight', totalFrames: 36,
+      id: 'tongueStraight', totalFrames: 30,
       hitbox: { start: 9, end: 12, offsetX: 34, width: 340, bottom: 50, top: 95, damage: 92, chipDamage: 8, hitstun: 18, blockstun: 12, knockback: 7.4, hitstop: 6, level: 'mid', strong: true, guardDamage: 24 },
     },
     tongueLow: {

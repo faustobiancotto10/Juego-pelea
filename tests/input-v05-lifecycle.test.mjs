@@ -257,3 +257,42 @@ test('V0.5 help suspension explicitly resets physical input before pausing and o
   assert.match(app, /if \(pausesFight\)[\s\S]{0,120}this\.input\?\.reset\(\)[\s\S]{0,120}this\.paused = true/);
   assert.match(app, /this\.input\?\.reset\(\)[\s\S]{0,120}this\.paused = false/);
 });
+
+
+test('V0.5 D-pad keeps ownership through child-originated drag beyond bounds and ignores foreign moves', async () => {
+  const h = await createFixture();
+  try {
+    const child = { parentElement: h.dpad };
+    h.dpad.fire('pointerdown', { ...pointer(71, 145, 80), target: child });
+    assert.equal(h.gameInput.getFrame().right, true);
+
+    h.dpad.fire('pointermove', { ...pointer(999, 10, 80), target: child });
+    assert.equal(h.gameInput.getFrame().right, true, 'foreign pointer move cannot steal D-pad ownership');
+
+    h.dpad.fire('pointermove', { ...pointer(71, 260, 80), target: child });
+    assert.equal(h.gameInput.getFrame().right, true, 'owned pointer may drag beyond the visual pad without sticking');
+
+    h.dpad.fire('pointerup', { ...pointer(71, 260, 80), target: child });
+    assert.equal(h.gameInput.getFrame().right, false);
+  } finally {
+    h.cleanup();
+  }
+});
+
+test('V0.5 lostpointercapture releases only the owning action pointer', async () => {
+  const h = await createFixture();
+  try {
+    h.special.fire('pointerdown', pointer(81));
+    h.special.fire('pointerdown', pointer(82));
+    assert.equal(h.gameInput.getFrame().special, true);
+
+    h.special.fire('lostpointercapture', pointer(81));
+    assert.equal(h.gameInput.getFrame().special, true, 'remaining owner keeps SPECIAL held');
+
+    h.special.fire('lostpointercapture', pointer(82));
+    assert.equal(h.gameInput.getFrame().special, false);
+    assert.equal(h.special.classList.contains('is-pressed'), false);
+  } finally {
+    h.cleanup();
+  }
+});

@@ -159,7 +159,6 @@ const FIGHTERS = {
     },
 };
 const FIGHTER_IDS = Object.keys(FIGHTERS);
-fighters.js.map
 
 // --- game/types.js ---
 const EMPTY_INPUT = {
@@ -171,7 +170,6 @@ const EMPTY_INPUT = {
     attack: false,
     special: false,
 };
-types.js.map
 
 // --- game/input/dpad.js ---
 const NEUTRAL_DIRECTION = { left: false, right: false, up: false, down: false };
@@ -203,7 +201,6 @@ function composeInputFrame(direction = {}, actions = {}) {
         ...actions,
     };
 }
-dpad.js.map
 
 // --- game/input/keyboard.js ---
 function inputFromKeyboard(keys) {
@@ -217,7 +214,6 @@ function inputFromKeyboard(keys) {
         special: keys.has('KeyK'),
     });
 }
-keyboard.js.map
 
 // --- game/input/GameInput.js ---
 const NEUTRAL = { left: false, right: false, up: false, down: false };
@@ -338,7 +334,6 @@ class GameInput {
         ].join('');
     }
 }
-GameInput.js.map
 
 // --- game/render/drawUtils.js ---
 const WORLD_WIDTH = 1280;
@@ -403,7 +398,6 @@ function polygon(ctx, points, fill, stroke) {
     }
     ctx.restore();
 }
-drawUtils.js.map
 
 // --- game/render/ChameleonRig.js ---
 function tongueFactor(f) {
@@ -562,7 +556,6 @@ function drawChameleon(ctx, f, time) {
     }
     ctx.restore();
 }
-ChameleonRig.js.map
 
 // --- game/render/SupernarizRig.js ---
 function noseFactor(f) {
@@ -711,7 +704,6 @@ function drawSupernariz(ctx, f, time) {
     }
     ctx.restore();
 }
-SupernarizRig.js.map
 
 // --- game/render/FighterRenderer.js ---
 function drawFighter(ctx, fighter, timeSeconds) {
@@ -720,7 +712,6 @@ function drawFighter(ctx, fighter, timeSeconds) {
     else
         drawSupernariz(ctx, fighter, timeSeconds);
 }
-FighterRenderer.js.map
 
 // --- game/render/StageRenderer.js ---
 function drawStage(ctx, time) {
@@ -830,7 +821,6 @@ function drawStage(ctx, time) {
     ctx.fillStyle = '#21262e';
     ctx.fillRect(0, GROUND_Y - 16, WORLD_WIDTH, 10);
 }
-StageRenderer.js.map
 
 // --- game/render/FightRenderer.js ---
 class FightRenderer {
@@ -1000,7 +990,6 @@ class FightRenderer {
         }
     }
 }
-FightRenderer.js.map
 
 // --- game/simulation/moves.js ---
 const moves = {
@@ -1069,7 +1058,6 @@ function getSpecialMove(fighter, down) {
 function getAirAttack(fighter) {
     return getMoveDefinition(fighter, fighter === 'chameleon' ? 'airClaw' : 'airNose');
 }
-moves.js.map
 
 // --- game/simulation/CombatSimulation.js ---
 const ARENA_MIN_X = 90;
@@ -1542,7 +1530,6 @@ class CombatSimulation {
         this.fighters[1].prevInput = copyInput(inputs[1]);
     }
 }
-CombatSimulation.js.map
 
 // --- game/simulation/CpuController.js ---
 const THREAT_MOVES = new Set([
@@ -1631,7 +1618,6 @@ class CpuController {
         return out;
     }
 }
-CpuController.js.map
 
 // --- game/ui/flow.js ---
 function initialFlowState() {
@@ -1662,7 +1648,6 @@ function rematch(state) {
 function backToSelect(_state) {
     return initialFlowState();
 }
-flow.js.map
 
 // --- game/ui/AppController.js ---
 const FIXED_MS = 1000 / 60;
@@ -1918,14 +1903,12 @@ class AppController {
         return '<aside class="orientation-prompt"><div class="phone-icon">↻</div><strong>GIRÁ EL TELÉFONO</strong><span>Este prototipo se juega en horizontal.</span></aside>';
     }
 }
-AppController.js.map
 
 // --- main.js ---
 const app = document.querySelector('#app');
 if (!app)
     throw new Error('Missing #app');
 new AppController(app).start();
-main.js.map
 
 </script>
   </body>

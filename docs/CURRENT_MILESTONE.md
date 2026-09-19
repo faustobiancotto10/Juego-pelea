@@ -11,3 +11,11 @@ The existing Character Select → VS → Fight → Result loop, procedural vecto
 ## Coordination infrastructure
 
 The repository now also carries a persistent multi-agent coordination layer under `coordination/`. It is deliberately separate from the game runtime and starts in `IDLE`. Gameplay milestone V0.2 remains unchanged; the coordination layer exists to organize future implementation rounds.
+
+## Active development round
+
+**R001 — V0.3 Combat Expansion** is now in `CHECK_IN`.
+
+Approved scope: common fighter-kit contract; Camaleoni Cagoni rename; balanced melee/long-range tradeoffs; Lengua/Coletazo and Chorizo/Tramontana kits; SUPER meter; two unblockable positional-capture ultimates; corner pushback transfer; Push Guard; CPU, HUD/input, procedural presentation, adversarial balance QA and full release integration.
+
+No V0.3 product implementation begins until all six required agents are PRESENT and Neureon issues `START_ROUND`.

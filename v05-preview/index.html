@@ -1,0 +1,4405 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no" />
+    <meta name="theme-color" content="#0c1018" />
+    <title>Juego Pelea V0.5 Preview</title>
+    <style>
+:root {
+  font-family: "Arial Narrow", "Roboto Condensed", Impact, system-ui, sans-serif;
+  color: #f7f0df;
+  background: #07090e;
+  font-synthesis: none;
+  --ink: #080a10;
+  --cream: #f7f0df;
+  --gold: #d8a84d;
+  --red: #c94537;
+  --green: #67a54d;
+  --blue: #286ab6;
+}
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+html, body, #app { width: 100%; height: 100%; margin: 0; overflow: hidden; }
+body { overscroll-behavior: none; background: var(--ink); }
+button { font: inherit; color: inherit; }
+
+.select-screen, .vs-screen, .result-screen, .fight-shell { position: relative; width: 100%; height: 100%; overflow: hidden; }
+.select-screen { display: grid; grid-template-rows: auto 1fr auto; padding: max(18px, env(safe-area-inset-top)) max(30px, env(safe-area-inset-right)) max(16px, env(safe-area-inset-bottom)) max(30px, env(safe-area-inset-left)); background: radial-gradient(circle at 50% 25%, #273046 0, #121620 42%, #080a0e 100%); }
+.select-backdrop { position:absolute; inset:0; opacity:.22; background: repeating-linear-gradient(115deg, transparent 0 45px, rgba(255,255,255,.025) 45px 47px), linear-gradient(90deg, rgba(66,127,70,.25), transparent 42%, transparent 58%, rgba(48,94,157,.25)); pointer-events:none; }
+.select-header { position:relative; z-index:1; text-align:center; }
+.game-badge, .fighter-kicker, .result-kicker, .vs-label { font-size: clamp(9px, 1.2vw, 13px); letter-spacing:.22em; font-weight:900; color:#d6ae65; }
+.select-header h1 { margin:5px 0 2px; font-family: Impact, Haettenschweiler, sans-serif; font-size:clamp(30px, 6vw, 68px); letter-spacing:.04em; line-height:.95; text-shadow:0 4px 18px #000; }
+.select-header p { margin:6px 0; color:#b9bdc7; font:600 clamp(11px,1.4vw,15px) system-ui,sans-serif; }
+.fighter-grid { position:relative; z-index:1; width:min(930px,92vw); margin:auto; display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:clamp(14px,3vw,38px); align-items:center; }
+.fighter-card { min-width:0; position:relative; display:grid; grid-template-rows:auto 1fr auto auto auto auto; min-height:min(57vh,430px); padding:16px 18px 14px; border:1px solid rgba(255,255,255,.18); border-radius:8px; background:linear-gradient(160deg, rgba(255,255,255,.08), rgba(0,0,0,.34)); box-shadow:0 18px 55px rgba(0,0,0,.45), inset 0 0 0 1px rgba(255,255,255,.03); text-align:left; cursor:pointer; overflow:hidden; transition:transform .16s ease, border-color .16s ease, filter .16s ease; }
+.fighter-card::after { content:""; position:absolute; inset:auto 0 0; height:4px; background:var(--accent); }
+.fighter-card--chameleon { --accent:#75b958; --accent-dark:#1d5427; }
+.fighter-card--supernariz { --accent:#3b85dc; --accent-dark:#153c78; }
+.fighter-card:hover, .fighter-card:focus-visible { transform:translateY(-4px); border-color:color-mix(in srgb, var(--accent) 70%, white); outline:none; filter:brightness(1.08); }
+.fighter-card.is-player { box-shadow:0 0 0 2px var(--accent),0 18px 55px rgba(0,0,0,.45); }
+.fighter-portrait { position:relative; align-self:stretch; min-height:145px; margin:8px -4px 4px; display:grid; place-items:center; overflow:hidden; isolation:isolate; }
+.fighter-portrait::before { content:""; position:absolute; width:62%; aspect-ratio:1; border-radius:50%; background:radial-gradient(circle at 35% 30%, color-mix(in srgb,var(--accent) 72%,white), var(--accent-dark) 68%, transparent 70%); filter:drop-shadow(0 14px 15px rgba(0,0,0,.5)); transform:skewX(-7deg); }
+.fighter-portrait--chameleon::after { content:""; position:absolute; width:42%; height:42%; border:9px solid #67994c; border-left-color:transparent; border-radius:50%; right:5%; bottom:12%; transform:rotate(20deg); opacity:.9; }
+.fighter-portrait--supernariz::after { content:""; position:absolute; width:40%; height:14%; border-radius:60% 90% 90% 60%; background:#d4a184; left:49%; top:44%; transform:rotate(-8deg); box-shadow:0 4px 7px rgba(0,0,0,.4); }
+.portrait-mark { z-index:2; font:900 clamp(55px,10vw,118px)/1 Impact,sans-serif; color:rgba(5,9,8,.72); text-shadow:0 2px 0 rgba(255,255,255,.1); }
+.fighter-name { font:900 clamp(23px,3.7vw,44px)/.95 Impact,sans-serif; letter-spacing:.035em; text-transform:uppercase; }
+.fighter-role { margin-top:4px; color:var(--accent); font:900 clamp(11px,1.4vw,15px) system-ui,sans-serif; text-transform:uppercase; letter-spacing:.12em; }
+.fighter-moves { margin:7px 0 10px; color:#bfc3cb; font:600 clamp(9px,1.2vw,13px)/1.25 system-ui,sans-serif; }
+.fighter-pick { justify-self:end; padding:6px 10px; border:1px solid rgba(255,255,255,.17); border-radius:3px; font-size:10px; letter-spacing:.13em; font-weight:900; }
+.select-footer { position:relative; z-index:1; display:flex; justify-content:space-between; align-items:center; min-height:24px; color:#7f8590; font:600 10px system-ui,sans-serif; letter-spacing:.08em; text-transform:uppercase; }
+.text-button { border:0; background:transparent; color:#c9cbd0; cursor:pointer; padding:6px 0; }
+
+.vs-screen { display:grid; grid-template-columns:1fr auto 1fr; align-items:center; background:linear-gradient(100deg,#162316,#0b0c11 46% 54%,#111c31); }
+.vs-side { height:100%; display:flex; flex-direction:column; justify-content:center; gap:7px; padding:8vw; background:radial-gradient(circle at center,var(--accent-dark),transparent 60%); }
+.vs-side--right { text-align:right; align-items:flex-end; }
+.vs-side strong { font:900 clamp(38px,8vw,100px)/.88 Impact,sans-serif; text-transform:uppercase; text-shadow:0 8px 25px #000; }
+.vs-side span:not(.vs-label) { color:#b5b7bf; font:800 14px system-ui,sans-serif; text-transform:uppercase; letter-spacing:.18em; }
+.vs-mark { z-index:2; font:900 clamp(48px,8vw,100px) Impact,sans-serif; font-style:italic; color:#efe1bc; text-shadow:0 0 35px rgba(230,172,73,.4); transform:rotate(-5deg); }
+
+.fight-shell { background:#06080c; }
+.fight-canvas { display:block; width:100%; height:100%; }
+.hud { position:absolute; z-index:10; top:max(8px,env(safe-area-inset-top)); left:max(14px,env(safe-area-inset-left)); right:max(14px,env(safe-area-inset-right)); height:64px; display:grid; grid-template-columns:minmax(0,1fr) 82px minmax(0,1fr); gap:10px; pointer-events:none; filter:drop-shadow(0 3px 6px rgba(0,0,0,.8)); }
+.hud-fighter { position:relative; min-width:0; }
+.hud-fighter--right { text-align:right; }
+.hud-meta { display:flex; justify-content:space-between; align-items:end; margin-bottom:4px; text-transform:uppercase; }
+.hud-fighter--right .hud-meta { flex-direction:row-reverse; }
+.hud-meta strong { font:900 clamp(12px,2vw,22px)/1 Impact,sans-serif; letter-spacing:.05em; }
+.hud-meta span { color:#d7b86f; font:800 9px system-ui,sans-serif; letter-spacing:.13em; }
+.health-track { height:16px; padding:2px; border:2px solid rgba(242,232,202,.82); background:#151319; transform:skewX(-8deg); overflow:hidden; }
+.health-fill { display:block; width:100%; height:100%; background:linear-gradient(90deg,#d65937,#edc253 65%,#ece29f); transform-origin:left; transition:transform 80ms linear; }
+.hud-fighter--right .health-fill { transform-origin:right; }
+.round-pips { display:flex; gap:4px; margin-top:4px; }
+.hud-fighter--right .round-pips { justify-content:flex-end; }
+.round-pips i { width:9px; height:9px; border:1px solid #af8d55; border-radius:50%; background:#27252a; }
+.round-pips i.is-won { background:#e5b44e; box-shadow:0 0 8px #e5b44e; }
+.hud-center { display:flex; flex-direction:column; align-items:center; }
+.round-label { color:#b6a075; font:800 9px system-ui,sans-serif; letter-spacing:.18em; }
+.timer { font:900 clamp(29px,4vw,45px)/.9 Impact,sans-serif; }
+
+.touch-layer { position:absolute; z-index:20; inset:0; pointer-events:none; touch-action:none; user-select:none; -webkit-user-select:none; -webkit-touch-callout:none; }
+.touch-layer * { -webkit-user-drag:none; }
+.dpad { position:absolute; pointer-events:auto; left:max(18px,env(safe-area-inset-left)); bottom:max(15px,env(safe-area-inset-bottom)); width:clamp(116px,18vw,172px); aspect-ratio:1; border-radius:50%; background:radial-gradient(circle,rgba(255,255,255,.11),rgba(0,0,0,.28) 70%); border:1px solid rgba(255,255,255,.13); opacity:.78; touch-action:none; }
+.dpad-cross { position:absolute; inset:50% auto auto 50%; border-radius:9px; background:rgba(18,20,27,.62); border:1px solid rgba(255,255,255,.16); transform:translate(-50%,-50%); }
+.dpad-cross--h { width:86%; height:32%; }
+.dpad-cross--v { width:32%; height:86%; }
+.dpad-center { position:absolute; width:25%; aspect-ratio:1; left:50%; top:50%; transform:translate(-50%,-50%); border-radius:50%; background:#343742; box-shadow:inset 0 0 0 2px rgba(255,255,255,.09); }
+.dpad[data-direction]:not([data-direction=""]) { filter:brightness(1.3); }
+.action-cluster { position:absolute; pointer-events:none; right:max(16px,env(safe-area-inset-right)); bottom:max(15px,env(safe-area-inset-bottom)); width:clamp(230px,33vw,330px); height:clamp(134px,21vw,200px); }
+.action-button { position:absolute; pointer-events:auto; border-radius:50%; border:2px solid rgba(255,255,255,.42); background:linear-gradient(145deg,rgba(255,255,255,.22),rgba(8,9,13,.72)); box-shadow:0 5px 12px rgba(0,0,0,.38),inset 0 0 16px rgba(255,255,255,.06); display:grid; place-items:center; font:900 clamp(9px,1.2vw,13px) system-ui,sans-serif; letter-spacing:.04em; text-shadow:0 2px 4px #000; touch-action:none; }
+.action-button span { pointer-events:none; }
+.action-button--attack { width:clamp(70px,10vw,96px); aspect-ratio:1; right:0; bottom:0; border-color:rgba(226,153,70,.7); }
+.action-button--special { width:clamp(64px,9vw,88px); aspect-ratio:1; right:34%; bottom:34%; border-color:rgba(97,164,218,.72); }
+.action-button--jump { width:clamp(58px,8vw,78px); aspect-ratio:1; right:3%; top:0; border-color:rgba(212,212,220,.65); }
+.action-button--ultimate { width:clamp(62px,8.8vw,86px); aspect-ratio:1; left:0; bottom:0; border-color:rgba(228,190,82,.48); color:rgba(241,225,181,.72); font-size:clamp(7px,1vw,10px); letter-spacing:.02em; }
+.action-button--ultimate:disabled { opacity:.34; filter:saturate(.55); box-shadow:0 4px 10px rgba(0,0,0,.28),inset 0 0 12px rgba(255,255,255,.035); }
+.action-button--ultimate.is-ready { opacity:1; border-color:rgba(255,220,112,.95); color:#fff0b4; background:radial-gradient(circle at 38% 32%,rgba(255,229,141,.34),rgba(122,80,20,.74) 62%,rgba(8,9,13,.78)); box-shadow:0 0 18px rgba(255,204,84,.55),0 5px 12px rgba(0,0,0,.38),inset 0 0 18px rgba(255,244,181,.14); animation:ultimate-ready-pulse 1.15s ease-in-out infinite; }
+@keyframes ultimate-ready-pulse { 50% { filter:brightness(1.18); box-shadow:0 0 24px rgba(255,211,104,.72),0 5px 12px rgba(0,0,0,.38),inset 0 0 18px rgba(255,244,181,.18); } }
+.action-button.is-pressed { transform:scale(.92); filter:brightness(1.45); }
+.desktop-hint { position:absolute; left:50%; bottom:max(8px,env(safe-area-inset-bottom)); transform:translateX(-50%); z-index:12; color:rgba(255,255,255,.38); font:600 9px system-ui,sans-serif; pointer-events:none; }
+
+.result-screen { display:grid; place-content:center; text-align:center; gap:8px; background:radial-gradient(circle at 50% 35%,var(--accent-dark),#090a0e 58%); }
+.result-screen h1 { margin:0; font:900 clamp(64px,14vw,150px)/.85 Impact,sans-serif; letter-spacing:.03em; text-shadow:0 8px 28px #000; }
+.result-screen p { margin:4px 0 18px; color:#bfc1c7; font:600 16px system-ui,sans-serif; }
+.result-actions { display:flex; justify-content:center; gap:10px; }
+.primary-button,.secondary-button { min-width:150px; padding:13px 20px; border-radius:3px; border:1px solid rgba(255,255,255,.24); font:900 13px system-ui,sans-serif; letter-spacing:.12em; cursor:pointer; }
+.primary-button { background:#d0a34e; color:#17120a; }
+.secondary-button { background:rgba(255,255,255,.07); }
+
+.orientation-prompt { display:none; position:fixed; z-index:999; inset:0; background:#090b10; place-content:center; justify-items:center; text-align:center; gap:10px; padding:30px; }
+.phone-icon { font-size:50px; }
+.orientation-prompt strong { font:900 27px Impact,sans-serif; letter-spacing:.08em; }
+.orientation-prompt span { color:#a7aab2; font:600 14px system-ui,sans-serif; }
+
+@media (orientation: portrait) and (max-width: 900px) { .orientation-prompt { display:grid; } }
+@media (hover:hover) and (pointer:fine) { .touch-layer { opacity:.28; } }
+@media (max-height: 520px) {
+  .select-screen { padding-top:10px; padding-bottom:8px; }
+  .select-header p { display:none; }
+  .fighter-card { min-height:70vh; padding:10px 14px 9px; }
+  .fighter-portrait { min-height:105px; margin:2px; }
+  .fighter-moves { margin:3px 0 6px; }
+  .select-footer { min-height:16px; }
+  .hud { height:50px; top:5px; }
+  .health-track { height:13px; }
+  .desktop-hint { display:none; }
+}
+@media (max-width: 720px) and (orientation: landscape) {
+  .fighter-grid { width:95vw; gap:12px; }
+  .fighter-card { padding:9px 11px 8px; }
+  .fighter-portrait { min-height:92px; }
+  .fighter-pick { display:none; }
+  .fighter-moves { font-size:8px; }
+}
+
+/* V0.2 combat fundamentals */
+.guard-row { display:flex; align-items:center; gap:6px; margin-top:4px; }
+.hud-fighter--right .guard-row { flex-direction:row-reverse; }
+.guard-label { flex:0 0 auto; color:#a9abb2; font:800 7px system-ui,sans-serif; letter-spacing:.16em; }
+.guard-track { position:relative; flex:1; height:6px; border:1px solid rgba(219,225,235,.48); background:rgba(10,12,17,.82); overflow:hidden; transform:skewX(-8deg); }
+.guard-fill { display:block; width:100%; height:100%; background:linear-gradient(90deg,#7b9fd3,#d0e5ff); transform-origin:left; transition:transform 90ms linear, filter 120ms ease; }
+.hud-fighter--right .guard-fill { transform-origin:right; }
+.guard-track.is-broken { overflow:visible; border-color:#e76e55; box-shadow:0 0 12px rgba(231,110,85,.8); animation:guard-break-pulse .22s steps(2,end) infinite; }
+.guard-track.is-broken .guard-fill { filter:brightness(.55); }
+.guard-track.is-broken::after { content:'GUARD BREAK'; position:absolute; top:8px; left:50%; transform:translateX(-50%) skewX(8deg); white-space:nowrap; color:#ffb09d; font:900 8px system-ui,sans-serif; letter-spacing:.1em; text-shadow:0 2px 5px #000; }
+@keyframes guard-break-pulse { 50% { opacity:.62; } }
+
+.controls-link { border-bottom:1px solid rgba(216,168,77,.35); color:#d6ae65; }
+.fight-controls-button { position:absolute; z-index:31; top:max(78px,calc(env(safe-area-inset-top) + 72px)); right:max(14px,env(safe-area-inset-right)); width:30px; height:30px; border-radius:50%; border:1px solid rgba(255,255,255,.32); background:rgba(9,11,16,.62); color:#e7d8b6; font:900 15px system-ui,sans-serif; cursor:pointer; backdrop-filter:blur(4px); }
+.fight-controls-button:active { transform:scale(.94); }
+
+.controls-panel { display:none; position:fixed; z-index:1000; inset:0; place-items:center; padding:max(18px,env(safe-area-inset-top)) max(18px,env(safe-area-inset-right)) max(18px,env(safe-area-inset-bottom)) max(18px,env(safe-area-inset-left)); background:rgba(4,5,8,.82); backdrop-filter:blur(8px); }
+.controls-panel.is-open { display:grid; }
+.controls-card { width:min(720px,92vw); max-height:88vh; overflow:auto; padding:20px; border:1px solid rgba(255,255,255,.18); border-radius:8px; background:linear-gradient(155deg,#181d29,#0b0e14 68%); box-shadow:0 28px 80px rgba(0,0,0,.65); }
+.controls-heading { display:grid; grid-template-columns:1fr auto; align-items:center; border-bottom:1px solid rgba(255,255,255,.11); padding-bottom:12px; margin-bottom:15px; }
+.controls-heading span { grid-column:1; color:#b89a61; font:800 9px system-ui,sans-serif; letter-spacing:.18em; }
+.controls-heading strong { grid-column:1; font:900 clamp(28px,5vw,46px)/.9 Impact,sans-serif; letter-spacing:.05em; }
+.controls-heading button { grid-column:2; grid-row:1 / span 2; width:36px; height:36px; border-radius:50%; border:1px solid rgba(255,255,255,.22); background:rgba(255,255,255,.06); cursor:pointer; font-size:24px; }
+.controls-grid { display:grid; grid-template-columns:1.35fr 1fr; gap:20px; }
+.controls-grid h3 { margin:0 0 9px; color:#d8a84d; font:900 10px system-ui,sans-serif; letter-spacing:.16em; }
+.controls-grid p { display:grid; grid-template-columns:minmax(110px,.85fr) 1.3fr; gap:10px; margin:0; padding:7px 0; border-bottom:1px solid rgba(255,255,255,.07); font:700 11px system-ui,sans-serif; }
+.controls-grid p b { color:#f2e7cc; }
+.controls-grid p span { color:#aeb3be; font-weight:600; }
+.controls-tips { margin-top:16px; padding:11px 12px; border-left:3px solid #d8a84d; background:rgba(216,168,77,.08); display:grid; gap:4px; font:600 10px/1.45 system-ui,sans-serif; color:#bfc3cb; }
+.controls-tips strong { color:#e3bd72; letter-spacing:.14em; }
+
+.combat-hint { position:absolute; z-index:24; left:50%; bottom:26px; transform:translateX(-50%); display:grid; gap:2px; min-width:min(440px,66vw); padding:9px 16px; border:1px solid rgba(255,255,255,.15); border-radius:4px; background:rgba(8,10,15,.72); backdrop-filter:blur(5px); text-align:center; pointer-events:none; animation:hint-in .28s ease-out both; transition:opacity .45s ease, transform .45s ease; }
+.combat-hint strong { color:#f0e5cc; font:900 11px system-ui,sans-serif; letter-spacing:.07em; }
+.combat-hint span { color:#aeb3be; font:700 9px system-ui,sans-serif; letter-spacing:.04em; }
+.combat-hint.is-hidden { opacity:0; transform:translate(-50%,10px); }
+@keyframes hint-in { from { opacity:0; transform:translate(-50%,10px); } }
+
+@media (max-height:520px) {
+  .guard-row { margin-top:2px; }
+  .guard-track { height:5px; }
+  .fight-controls-button { top:58px; width:27px; height:27px; }
+  .combat-hint { bottom:8px; padding:6px 10px; min-width:min(390px,58vw); }
+  .controls-card { max-height:94vh; padding:14px; }
+  .controls-grid { gap:14px; }
+  .controls-grid p { padding:4px 0; font-size:9px; }
+  .controls-tips { margin-top:10px; padding:7px 9px; }
+}
+
+@media (max-width:720px) and (orientation:landscape) {
+  .controls-card { width:94vw; }
+  .controls-grid { grid-template-columns:1fr 1fr; }
+  .controls-heading strong { font-size:28px; }
+  .combat-hint { max-width:58vw; }
+}
+
+@media (prefers-reduced-motion:reduce) {
+  .combat-hint, .guard-track.is-broken { animation:none; }
+}
+
+
+/* V0.3 HUD surfaces — presentation only; values come from simulation snapshots. */
+.super-row { display:flex; align-items:center; gap:6px; margin-top:3px; min-width:0; }
+.hud-fighter--right .super-row { flex-direction:row-reverse; }
+.super-label { flex:0 0 auto; color:#d9b866; font:900 7px system-ui,sans-serif; letter-spacing:.15em; }
+.super-track { position:relative; flex:1; height:7px; border:1px solid rgba(235,196,103,.62); background:rgba(10,12,17,.84); overflow:hidden; transform:skewX(-8deg); }
+.super-fill { display:block; width:100%; height:100%; background:linear-gradient(90deg,#8f6831,#e7bb57,#fff0a4); transform-origin:left; transition:transform 90ms linear, filter 140ms ease; }
+.hud-fighter--right .super-fill { transform-origin:right; }
+.super-track.is-ready { overflow:visible; border-color:#ffe08a; box-shadow:0 0 10px rgba(255,213,105,.58); }
+.super-track.is-ready .super-fill { filter:brightness(1.28); }
+.super-track.is-ready::after { content:'READY'; position:absolute; top:50%; left:50%; transform:translate(-50%,-50%) skewX(8deg); color:#171108; font:900 6px system-ui,sans-serif; letter-spacing:.12em; text-shadow:0 1px 0 rgba(255,255,255,.28); }
+
+.special-cooldown { position:absolute; right:0; top:100%; margin-top:3px; display:flex; align-items:center; gap:4px; color:rgba(224,231,241,.68); font:800 6px system-ui,sans-serif; letter-spacing:.11em; }
+.hud-fighter--right .special-cooldown { right:auto; left:0; flex-direction:row-reverse; }
+.special-cooldown-track { width:42px; height:3px; background:rgba(255,255,255,.12); overflow:hidden; }
+.special-cooldown-fill { display:block; width:100%; height:100%; background:rgba(115,181,229,.78); transform-origin:left; transition:transform 90ms linear, filter 120ms ease; }
+.special-cooldown.is-ready { color:rgba(205,235,255,.9); }
+.special-cooldown.is-ready .special-cooldown-fill { filter:brightness(1.35); }
+.hud-fighter--right .special-cooldown-fill { transform-origin:right; }
+
+.super-hint { position:absolute; z-index:25; left:50%; top:max(76px,calc(env(safe-area-inset-top) + 70px)); transform:translateX(-50%); display:grid; gap:2px; padding:7px 12px; border:1px solid rgba(255,218,124,.45); border-radius:3px; background:rgba(13,12,10,.76); color:#f4d98f; font:900 9px system-ui,sans-serif; letter-spacing:.08em; text-align:center; pointer-events:none; backdrop-filter:blur(4px); animation:super-hint-in .22s ease-out both; transition:opacity .35s ease, transform .35s ease; }
+.super-hint strong { font:900 9px system-ui,sans-serif; }
+.super-hint span { font:800 7px system-ui,sans-serif; letter-spacing:.12em; }
+.super-hint.is-hidden { opacity:0; transform:translate(-50%,-7px); }
+@keyframes super-hint-in { from { opacity:0; transform:translate(-50%,-7px); } }
+
+@media (max-height:520px) {
+  .super-row { margin-top:2px; }
+  .super-track { height:5px; }
+  .super-hint { top:56px; padding:5px 9px; font-size:8px; }
+  .special-cooldown { margin-top:2px; }
+  .action-cluster { width:clamp(218px,35vw,292px); height:clamp(120px,20vw,168px); }
+  .action-button--ultimate { width:clamp(58px,8.4vw,76px); }
+}
+
+@media (prefers-reduced-motion:reduce) {
+  .super-hint, .action-button--ultimate.is-ready { animation:none; }
+}
+
+</style>
+  </head>
+  <body>
+    <div id="app"></div>
+    <script>
+"use strict";
+(() => {
+  var __defProp = Object.defineProperty;
+  var __defNormalProp = (obj, key, value) => key in obj ? __defProp(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
+  var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "symbol" ? key + "" : key, value);
+
+  // dist/game/data/fighters.js
+  var FIGHTERS = {
+    chameleon: {
+      id: "chameleon",
+      displayName: "Camaleoni",
+      fullName: "Camaleoni Cagoni",
+      role: "Control de distancia",
+      maxHealth: 1e3,
+      walkSpeed: 4.25,
+      jumpSpeed: 12.4,
+      gravity: 0.72,
+      width: 54,
+      height: 118,
+      accent: "#7abf43"
+    },
+    supernariz: {
+      id: "supernariz",
+      displayName: "Supernariz",
+      fullName: "Supernariz",
+      role: "Rushdown / combos",
+      maxHealth: 1e3,
+      walkSpeed: 4.8,
+      jumpSpeed: 12.1,
+      gravity: 0.74,
+      width: 56,
+      height: 122,
+      accent: "#2f6bd7"
+    }
+  };
+  var FIGHTER_IDS = ["chameleon", "supernariz"];
+
+  // dist/game/data/fighterKits.js
+  var FIGHTER_KITS = Object.freeze({
+    chameleon: {
+      standing: "claw1",
+      low: "clawLow",
+      air: "airClaw",
+      rangedSpecial: "tongueStraight",
+      closeSpecial: "coletazo",
+      ultimate: "ultimateCamaleoni",
+      cpu: {
+        preferredRange: [240, 330],
+        pressureRange: 105,
+        reactionTicks: 12,
+        decisionTicks: 8,
+        commitmentTicks: [12, 18],
+        missChance: 0.25,
+        confirmChance: 0.85,
+        archetype: "control"
+      }
+    },
+    supernariz: {
+      standing: "nose1",
+      low: "noseLow",
+      air: "airNose",
+      rangedSpecial: "chorizoThrow",
+      closeSpecial: "tramontana",
+      ultimate: "ultimateSupernariz",
+      cpu: {
+        preferredRange: [135, 235],
+        pressureRange: 118,
+        reactionTicks: 12,
+        decisionTicks: 8,
+        commitmentTicks: [12, 20],
+        missChance: 0.25,
+        confirmChance: 0.75,
+        archetype: "pressure"
+      }
+    }
+  });
+
+  // dist/game/data/projectiles.js
+  var PROJECTILES = Object.freeze({
+    chorizo: {
+      key: "chorizo",
+      spawnOffsetX: 68,
+      spawnOffsetY: 68,
+      speed: 9.2,
+      ttl: 150,
+      collisionHalfWidth: 22,
+      collisionHalfHeight: 0,
+      damage: 58,
+      chipDamage: 5,
+      guardDamage: 14,
+      hitstun: 14,
+      blockstun: 10,
+      knockback: 5,
+      blockKnockback: 2.1,
+      cornerTransferKnockback: 6,
+      hitstop: 4,
+      cooldown: 120,
+      strong: false
+    }
+  });
+
+  // dist/game/data/ultimates.js
+  var ULTIMATES = Object.freeze({
+    camaleoniUltimate: {
+      key: "camaleoniUltimate",
+      kind: "dashCapture",
+      startupFrames: 22,
+      captureFrames: 8,
+      recoveryFrames: 24,
+      successRecoveryFrames: 16,
+      captureReach: 138,
+      captureVertical: 82,
+      dashSpeed: 18,
+      sequenceFrames: 24,
+      sequenceOffsetX: 62,
+      sequenceHits: [
+        { frame: 6, damage: 70, knockback: 6.5 },
+        { frame: 16, damage: 120, knockback: 13.5 }
+      ],
+      releaseKnockback: 13.5,
+      releaseSeparation: 200,
+      releaseVx: 14,
+      releaseVy: 5,
+      releaseHitstun: 30,
+      finalHitstop: 10,
+      visualKey: "camaleoni"
+    },
+    supernarizUltimate: {
+      key: "supernarizUltimate",
+      kind: "suctionCapture",
+      startupFrames: 24,
+      captureFrames: 18,
+      recoveryFrames: 28,
+      successRecoveryFrames: 16,
+      captureReach: 90,
+      captureVertical: 96,
+      suctionRange: 330,
+      suctionSpeed: 12,
+      captureDistance: 90,
+      sequenceFrames: 22,
+      sequenceOffsetX: 74,
+      sequenceHits: [
+        { frame: 14, damage: 190, knockback: 15.5 }
+      ],
+      releaseKnockback: 15.5,
+      releaseSeparation: 200,
+      releaseVx: 14,
+      releaseVy: 5,
+      releaseHitstun: 30,
+      finalHitstop: 10,
+      visualKey: "supernariz"
+    }
+  });
+
+  // dist/game/simulation/moves.js
+  var MOVE_SETS = {
+    chameleon: {
+      claw1: {
+        id: "claw1",
+        category: "normal",
+        bindingRole: "standing",
+        totalFrames: 19,
+        cpuThreatRange: 190,
+        cpuReactionFrame: 8,
+        cancelStart: 9,
+        cancelEnd: 12,
+        nextAttack: "claw2",
+        hitbox: { start: 5, end: 7, offsetX: 24, width: 70, bottom: 28, top: 92, damage: 46, chipDamage: 3, hitstun: 16, blockstun: 8, knockback: 3.2, hitstop: 4, level: "mid", strong: false, guardDamage: 9 }
+      },
+      clawLow: {
+        id: "clawLow",
+        category: "normal",
+        bindingRole: "low",
+        totalFrames: 25,
+        cpuThreatRange: 150,
+        cpuReactionFrame: 8,
+        hitbox: { start: 7, end: 9, offsetX: 22, width: 65, bottom: 8, top: 35, damage: 36, chipDamage: 2, hitstun: 13, blockstun: 8, knockback: 3.5, hitstop: 4, level: "low", strong: false, guardDamage: 10 }
+      },
+      claw2: {
+        id: "claw2",
+        category: "normal",
+        bindingRole: "chain",
+        totalFrames: 22,
+        cpuThreatRange: 190,
+        cpuReactionFrame: 8,
+        hitbox: { start: 5, end: 8, offsetX: 28, width: 82, bottom: 34, top: 100, damage: 60, chipDamage: 4, hitstun: 15, blockstun: 9, knockback: 5, hitstop: 5, level: "mid", strong: true, guardDamage: 15 }
+      },
+      tongueStraight: {
+        id: "tongueStraight",
+        category: "special",
+        bindingRole: "rangedSpecial",
+        totalFrames: 38,
+        cpuThreatRange: 405,
+        cpuReactionFrame: 7,
+        hitbox: { start: 12, end: 14, offsetX: 34, width: 340, bottom: 50, top: 95, damage: 80, chipDamage: 4, hitstun: 18, blockstun: 12, knockback: 7.4, hitstop: 6, level: "mid", strong: true, guardDamage: 14 }
+      },
+      coletazo: {
+        id: "coletazo",
+        category: "special",
+        bindingRole: "closeSpecial",
+        totalFrames: 31,
+        cpuThreatRange: 190,
+        cpuReactionFrame: 8,
+        hitbox: { start: 6, end: 10, offsetX: 18, width: 146, bottom: 24, top: 104, damage: 52, chipDamage: 4, hitstun: 14, blockstun: 9, knockback: 13.5, hitstop: 5, level: "mid", strong: true, guardDamage: 15 }
+      },
+      ultimateCamaleoni: {
+        id: "ultimateCamaleoni",
+        category: "ultimate",
+        bindingRole: "ultimate",
+        totalFrames: 72,
+        ultimate: true,
+        ultimateKey: "camaleoniUltimate"
+      },
+      airClaw: {
+        id: "airClaw",
+        category: "normal",
+        bindingRole: "air",
+        totalFrames: 22,
+        hitbox: { start: 4, end: 9, offsetX: 20, width: 72, bottom: -38, top: 42, damage: 62, chipDamage: 4, hitstun: 14, blockstun: 9, knockback: 5.2, hitstop: 5, level: "overhead", strong: true, guardDamage: 16 }
+      }
+    },
+    supernariz: {
+      nose1: {
+        id: "nose1",
+        category: "normal",
+        bindingRole: "standing",
+        totalFrames: 18,
+        cpuThreatRange: 190,
+        cpuReactionFrame: 8,
+        cancelStart: 8,
+        cancelEnd: 11,
+        nextAttack: "nose2",
+        hitbox: { start: 4, end: 6, offsetX: 28, width: 60, bottom: 34, top: 106, damage: 42, chipDamage: 3, hitstun: 14, blockstun: 7, knockback: 2.5, hitstop: 3, level: "mid", strong: false, guardDamage: 9 }
+      },
+      noseLow: {
+        id: "noseLow",
+        category: "normal",
+        bindingRole: "low",
+        totalFrames: 25,
+        cpuThreatRange: 150,
+        cpuReactionFrame: 8,
+        hitbox: { start: 7, end: 9, offsetX: 22, width: 65, bottom: 8, top: 35, damage: 36, chipDamage: 2, hitstun: 13, blockstun: 8, knockback: 3.5, hitstop: 4, level: "low", strong: false, guardDamage: 10 }
+      },
+      nose2: {
+        id: "nose2",
+        category: "normal",
+        bindingRole: "chain",
+        totalFrames: 19,
+        cpuThreatRange: 190,
+        cpuReactionFrame: 8,
+        cancelStart: 8,
+        cancelEnd: 11,
+        nextAttack: "nose3",
+        hitbox: { start: 4, end: 7, offsetX: 32, width: 76, bottom: 28, top: 112, damage: 49, chipDamage: 3, hitstun: 16, blockstun: 8, knockback: 3.1, hitstop: 4, level: "mid", strong: false, guardDamage: 9 }
+      },
+      nose3: {
+        id: "nose3",
+        category: "normal",
+        bindingRole: "chain",
+        totalFrames: 26,
+        cpuThreatRange: 190,
+        cpuReactionFrame: 8,
+        hitbox: { start: 6, end: 9, offsetX: 36, width: 98, bottom: 38, top: 118, damage: 74, chipDamage: 5, hitstun: 16, blockstun: 11, knockback: 7.2, hitstop: 6, level: "mid", strong: true, guardDamage: 18 }
+      },
+      chorizoThrow: {
+        id: "chorizoThrow",
+        category: "projectile",
+        bindingRole: "rangedSpecial",
+        totalFrames: 36,
+        spawnProjectileFrame: 12,
+        projectileKey: "chorizo"
+      },
+      tramontana: {
+        id: "tramontana",
+        category: "special",
+        bindingRole: "closeSpecial",
+        totalFrames: 30,
+        chillFrames: 60,
+        cpuThreatRange: 190,
+        cpuReactionFrame: 8,
+        hitbox: { start: 8, end: 11, offsetX: 36, width: 150, bottom: 24, top: 112, damage: 38, chipDamage: 4, hitstun: 22, blockstun: 10, knockback: 4, hitstop: 4, level: "mid", strong: true, guardDamage: 16 }
+      },
+      ultimateSupernariz: {
+        id: "ultimateSupernariz",
+        category: "ultimate",
+        bindingRole: "ultimate",
+        totalFrames: 82,
+        ultimate: true,
+        ultimateKey: "supernarizUltimate"
+      },
+      airNose: {
+        id: "airNose",
+        category: "normal",
+        bindingRole: "air",
+        totalFrames: 24,
+        hitbox: { start: 5, end: 10, offsetX: 30, width: 96, bottom: -44, top: 48, damage: 70, chipDamage: 5, hitstun: 15, blockstun: 10, knockback: 6.4, hitstop: 5, level: "overhead", strong: true, guardDamage: 16 }
+      }
+    }
+  };
+  function getMoveDefinition(fighter, moveId) {
+    const moveSet = MOVE_SETS[fighter];
+    if (!moveSet)
+      throw new Error(`Unknown move set ${fighter}`);
+    const move = moveSet[moveId];
+    if (!move)
+      throw new Error(`Unknown move ${fighter}:${moveId}`);
+    return move;
+  }
+
+  // dist/game/data/combatRegistry.js
+  function requireEntry(map, key, label) {
+    const value = map[key];
+    if (!value)
+      throw new Error(`Unknown ${label} ${key}`);
+    return value;
+  }
+  function validateFighter(source, id) {
+    requireEntry(source.fighters, id, "fighter");
+    const kit = requireEntry(source.kits, id, "fighter kit");
+    const moveSet = requireEntry(source.moves, id, "move set");
+    const requiredMoves = [
+      kit.standing,
+      kit.air,
+      kit.rangedSpecial,
+      kit.closeSpecial,
+      kit.ultimate,
+      kit.low
+    ];
+    for (const moveId of requiredMoves)
+      requireEntry(moveSet, moveId, `move ${id}:`);
+    for (const move of Object.values(moveSet)) {
+      if (move.projectileKey)
+        requireEntry(source.projectiles, move.projectileKey, "projectile");
+      if (move.ultimateKey)
+        requireEntry(source.ultimates, move.ultimateKey, "ultimate");
+      if (move.nextAttack)
+        requireEntry(moveSet, move.nextAttack, `move ${id}:`);
+    }
+  }
+  function createCombatRegistry(source) {
+    const fighterIds = Object.keys(source.fighters);
+    for (const id of fighterIds)
+      validateFighter(source, id);
+    for (const id of Object.keys(source.kits)) {
+      if (!source.fighters[id])
+        throw new Error(`Unknown fighter for kit ${id}`);
+    }
+    for (const id of Object.keys(source.moves)) {
+      if (!source.fighters[id])
+        throw new Error(`Unknown fighter for move set ${id}`);
+    }
+    for (const id of source.playableIds)
+      requireEntry(source.fighters, id, "playable fighter");
+    const playableIds = Object.freeze([...source.playableIds]);
+    return Object.freeze({
+      playableIds,
+      getFighter(id) {
+        return requireEntry(source.fighters, id, "fighter");
+      },
+      getKit(id) {
+        return requireEntry(source.kits, id, "fighter kit");
+      },
+      getMove(id, moveId) {
+        const moveSet = requireEntry(source.moves, id, "move set");
+        return requireEntry(moveSet, moveId, `move ${id}:`);
+      },
+      getProjectile(key) {
+        return requireEntry(source.projectiles, key, "projectile");
+      },
+      getUltimate(key) {
+        return requireEntry(source.ultimates, key, "ultimate");
+      }
+    });
+  }
+  var DEFAULT_COMBAT_REGISTRY = createCombatRegistry({
+    fighters: FIGHTERS,
+    kits: FIGHTER_KITS,
+    moves: MOVE_SETS,
+    projectiles: PROJECTILES,
+    ultimates: ULTIMATES,
+    playableIds: FIGHTER_IDS
+  });
+
+  // dist/game/types.js
+  var EMPTY_INPUT = {
+    left: false,
+    right: false,
+    down: false,
+    up: false,
+    jump: false,
+    attack: false,
+    special: false,
+    dashLeft: false,
+    dashRight: false,
+    ultimate: false,
+    pushGuard: false
+  };
+
+  // dist/game/input/dpad.js
+  var NEUTRAL_DIRECTION = { left: false, right: false, up: false, down: false };
+  function directionFromPoint(dx, dy, radius, deadZone) {
+    const distance = Math.hypot(dx, dy);
+    if (distance < deadZone || radius <= 0)
+      return { ...NEUTRAL_DIRECTION };
+    const angle = Math.atan2(dy, dx);
+    const eighth = Math.PI / 8;
+    const right = angle >= -eighth && angle < eighth;
+    const downRight = angle >= eighth && angle < 3 * eighth;
+    const down = angle >= 3 * eighth && angle < 5 * eighth;
+    const downLeft = angle >= 5 * eighth && angle < 7 * eighth;
+    const left = angle >= 7 * eighth || angle < -7 * eighth;
+    const upLeft = angle >= -7 * eighth && angle < -5 * eighth;
+    const up = angle >= -5 * eighth && angle < -3 * eighth;
+    const upRight = angle >= -3 * eighth && angle < -eighth;
+    return {
+      left: left || downLeft || upLeft,
+      right: right || downRight || upRight,
+      up: up || upLeft || upRight,
+      down: down || downLeft || downRight
+    };
+  }
+  function composeInputFrame(direction = {}, actions = {}) {
+    return {
+      ...EMPTY_INPUT,
+      ...direction,
+      ...actions
+    };
+  }
+
+  // dist/game/input/doubleTap.js
+  var DoubleTapTracker = class {
+    constructor(windowMs = 230) {
+      __publicField(this, "windowMs");
+      __publicField(this, "lastDirection", null);
+      __publicField(this, "lastTime", Number.NEGATIVE_INFINITY);
+      this.windowMs = windowMs;
+    }
+    tap(direction, nowMs) {
+      const isDouble = direction === this.lastDirection && nowMs - this.lastTime <= this.windowMs;
+      this.lastDirection = direction;
+      this.lastTime = nowMs;
+      if (isDouble) {
+        this.lastDirection = null;
+        this.lastTime = Number.NEGATIVE_INFINITY;
+      }
+      return isDouble;
+    }
+    reset() {
+      this.lastDirection = null;
+      this.lastTime = Number.NEGATIVE_INFINITY;
+    }
+  };
+
+  // dist/game/input/keyboard.js
+  function inputFromKeyboard(keys) {
+    const left = keys.has("KeyA") || keys.has("ArrowLeft");
+    const right = keys.has("KeyD") || keys.has("ArrowRight");
+    const down = keys.has("KeyS") || keys.has("ArrowDown");
+    const up = keys.has("KeyW") || keys.has("ArrowUp");
+    return composeInputFrame({ left, right, down, up }, {
+      jump: up || keys.has("Space"),
+      attack: keys.has("KeyJ"),
+      special: keys.has("KeyK")
+    });
+  }
+
+  // dist/game/input/GameInput.js
+  var NEUTRAL = { left: false, right: false, up: false, down: false };
+  var MAX_COMMAND_QUEUE = 8;
+  var MAX_COMMANDS_PER_SAMPLE = 4;
+  var DOWN_GRACE_SAMPLES = 4;
+  function cloneDirection(direction) {
+    return { ...direction };
+  }
+  var GameInput = class {
+    constructor(root, options = {}) {
+      __publicField(this, "root");
+      __publicField(this, "options");
+      __publicField(this, "keys", /* @__PURE__ */ new Set());
+      __publicField(this, "touchDirection", { ...NEUTRAL });
+      __publicField(this, "touchActions", { attack: false, special: false, jump: false });
+      __publicField(this, "actionPointers", {
+        attack: /* @__PURE__ */ new Set(),
+        special: /* @__PURE__ */ new Set(),
+        jump: /* @__PURE__ */ new Set()
+      });
+      __publicField(this, "ultimatePointers", /* @__PURE__ */ new Set());
+      __publicField(this, "dpadPointer", null);
+      __publicField(this, "dpadElement", null);
+      __publicField(this, "actionButtons", /* @__PURE__ */ new Set());
+      __publicField(this, "cleanupCallbacks", []);
+      __publicField(this, "doubleTap", new DoubleTapTracker(230));
+      __publicField(this, "queuedCommands", []);
+      __publicField(this, "latestContext", { superReady: false, defensiveContext: false });
+      __publicField(this, "downGraceSamples", 0);
+      __publicField(this, "dashLeft", false);
+      __publicField(this, "dashRight", false);
+      this.root = root;
+      this.options = options;
+      this.bindKeyboard();
+      this.bindTouchControls();
+      this.bindLifecycle();
+    }
+    getFrame(context = { superReady: false, defensiveContext: false }) {
+      this.latestContext = { ...context };
+      const keyboard = inputFromKeyboard(this.keys);
+      const touch = composeInputFrame(this.touchDirection, this.touchActions);
+      const direction = {
+        left: keyboard.left || touch.left,
+        right: keyboard.right || touch.right,
+        down: keyboard.down || touch.down,
+        up: keyboard.up || touch.up
+      };
+      const commands = this.queuedCommands.splice(0, MAX_COMMANDS_PER_SAMPLE).map((command) => ({
+        action: command.action,
+        direction: cloneDirection(command.direction)
+      }));
+      const frame = {
+        ...direction,
+        jump: keyboard.jump || touch.jump,
+        attack: keyboard.attack || touch.attack,
+        special: keyboard.special || touch.special,
+        dashLeft: this.dashLeft,
+        dashRight: this.dashRight,
+        ultimate: false,
+        pushGuard: false,
+        commands
+      };
+      this.updateDownGrace(direction);
+      this.dashLeft = false;
+      this.dashRight = false;
+      return frame;
+    }
+    reset() {
+      this.keys.clear();
+      this.touchDirection = { ...NEUTRAL };
+      this.touchActions = { attack: false, special: false, jump: false };
+      for (const pointers of Object.values(this.actionPointers))
+        pointers.clear();
+      this.ultimatePointers.clear();
+      this.dpadPointer = null;
+      this.doubleTap.reset();
+      this.queuedCommands.length = 0;
+      this.latestContext = { superReady: false, defensiveContext: false };
+      this.downGraceSamples = 0;
+      this.dashLeft = false;
+      this.dashRight = false;
+      if (this.dpadElement)
+        this.paintDpad(this.dpadElement);
+      for (const button of this.actionButtons)
+        button.classList.remove("is-pressed");
+      this.options.onReset?.();
+    }
+    destroy() {
+      this.reset();
+      for (const cleanup of this.cleanupCallbacks.splice(0))
+        cleanup();
+      this.dpadElement = null;
+      this.actionButtons.clear();
+    }
+    currentDirection() {
+      const keyboard = inputFromKeyboard(this.keys);
+      return {
+        left: keyboard.left || this.touchDirection.left,
+        right: keyboard.right || this.touchDirection.right,
+        up: keyboard.up || this.touchDirection.up,
+        down: keyboard.down || this.touchDirection.down
+      };
+    }
+    captureDirection() {
+      const direction = this.currentDirection();
+      if (direction.up)
+        return { ...direction, down: false };
+      if (direction.down)
+        return direction;
+      if (this.downGraceSamples > 0)
+        return { ...direction, down: true };
+      return direction;
+    }
+    updateDownGrace(direction) {
+      if (direction.up) {
+        this.downGraceSamples = 0;
+        return;
+      }
+      if (direction.down) {
+        this.downGraceSamples = DOWN_GRACE_SAMPLES;
+        return;
+      }
+      if (this.downGraceSamples > 0)
+        this.downGraceSamples -= 1;
+    }
+    queueAction(action) {
+      const classified = action === "special" && this.latestContext.defensiveContext ? "pushGuard" : action;
+      const command = {
+        action: classified,
+        direction: this.captureDirection()
+      };
+      if (this.queuedCommands.length >= MAX_COMMAND_QUEUE)
+        this.queuedCommands.shift();
+      this.queuedCommands.push(command);
+    }
+    registerTap(direction, nowMs) {
+      if (!this.doubleTap.tap(direction, nowMs))
+        return;
+      if (direction === "left")
+        this.dashLeft = true;
+      else
+        this.dashRight = true;
+    }
+    bindKeyboard() {
+      const relevant = /* @__PURE__ */ new Set([
+        "KeyA",
+        "KeyD",
+        "KeyS",
+        "KeyW",
+        "ArrowLeft",
+        "ArrowRight",
+        "ArrowDown",
+        "ArrowUp",
+        "Space",
+        "KeyJ",
+        "KeyK",
+        "KeyL"
+      ]);
+      const actionForCode = (code) => {
+        if (code === "KeyJ")
+          return "attack";
+        if (code === "KeyK")
+          return "special";
+        if (code === "KeyL")
+          return "ultimate";
+        if (code === "Space" || code === "KeyW" || code === "ArrowUp")
+          return "jump";
+        return null;
+      };
+      const onDown = (event) => {
+        if (!relevant.has(event.code))
+          return;
+        event.preventDefault();
+        const wasHeld = this.keys.has(event.code);
+        this.keys.add(event.code);
+        if (wasHeld || event.repeat)
+          return;
+        if (event.code === "KeyA" || event.code === "ArrowLeft")
+          this.registerTap("left", performance.now());
+        if (event.code === "KeyD" || event.code === "ArrowRight")
+          this.registerTap("right", performance.now());
+        const action = actionForCode(event.code);
+        if (action)
+          this.queueAction(action);
+      };
+      const onUp = (event) => {
+        if (!relevant.has(event.code))
+          return;
+        event.preventDefault();
+        this.keys.delete(event.code);
+      };
+      const onBlur = () => this.reset();
+      window.addEventListener("keydown", onDown, { passive: false });
+      window.addEventListener("keyup", onUp, { passive: false });
+      window.addEventListener("blur", onBlur);
+      this.cleanupCallbacks.push(() => window.removeEventListener("keydown", onDown), () => window.removeEventListener("keyup", onUp), () => window.removeEventListener("blur", onBlur));
+    }
+    bindLifecycle() {
+      const onPageHide = () => this.reset();
+      const onOrientationChange = () => this.reset();
+      window.addEventListener("pagehide", onPageHide);
+      window.addEventListener("orientationchange", onOrientationChange);
+      this.cleanupCallbacks.push(() => window.removeEventListener("pagehide", onPageHide), () => window.removeEventListener("orientationchange", onOrientationChange));
+      if (typeof document !== "undefined") {
+        const onVisibilityChange = () => {
+          if (document.hidden)
+            this.reset();
+        };
+        document.addEventListener("visibilitychange", onVisibilityChange);
+        this.cleanupCallbacks.push(() => document.removeEventListener("visibilitychange", onVisibilityChange));
+      }
+    }
+    tryCapture(element, pointerId) {
+      try {
+        element.setPointerCapture(pointerId);
+        return true;
+      } catch {
+        return false;
+      }
+    }
+    bindTouchControls() {
+      const dpad = this.root.querySelector("[data-dpad]");
+      if (dpad) {
+        this.dpadElement = dpad;
+        const update = (event) => {
+          event.preventDefault();
+          const rect = dpad.getBoundingClientRect();
+          const cx = rect.left + rect.width / 2;
+          const cy = rect.top + rect.height / 2;
+          this.touchDirection = directionFromPoint(event.clientX - cx, event.clientY - cy, rect.width / 2, rect.width * 0.16);
+          if (this.touchDirection.up)
+            this.downGraceSamples = 0;
+          else if (this.touchDirection.down)
+            this.downGraceSamples = DOWN_GRACE_SAMPLES;
+          this.paintDpad(dpad);
+        };
+        const down = (event) => {
+          event.preventDefault();
+          if (this.dpadPointer !== null)
+            return;
+          if (!this.tryCapture(dpad, event.pointerId)) {
+            this.touchDirection = { ...NEUTRAL };
+            this.paintDpad(dpad);
+            return;
+          }
+          this.dpadPointer = event.pointerId;
+          update(event);
+          if (this.touchDirection.left !== this.touchDirection.right) {
+            this.registerTap(this.touchDirection.left ? "left" : "right", performance.now());
+          }
+        };
+        const move = (event) => {
+          if (this.dpadPointer === event.pointerId)
+            update(event);
+        };
+        const release = (event) => {
+          event.preventDefault();
+          if (this.dpadPointer !== event.pointerId)
+            return;
+          this.dpadPointer = null;
+          this.touchDirection = { ...NEUTRAL };
+          this.paintDpad(dpad);
+        };
+        dpad.addEventListener("pointerdown", down, { passive: false });
+        dpad.addEventListener("pointermove", move, { passive: false });
+        dpad.addEventListener("pointerup", release, { passive: false });
+        dpad.addEventListener("pointercancel", release, { passive: false });
+        dpad.addEventListener("lostpointercapture", release, { passive: false });
+        this.cleanupCallbacks.push(() => dpad.removeEventListener("pointerdown", down), () => dpad.removeEventListener("pointermove", move), () => dpad.removeEventListener("pointerup", release), () => dpad.removeEventListener("pointercancel", release), () => dpad.removeEventListener("lostpointercapture", release));
+      }
+      for (const button of this.root.querySelectorAll("[data-action]")) {
+        this.actionButtons.add(button);
+        const action = button.dataset.action;
+        if (action === "ultimate") {
+          const down2 = (event) => {
+            event.preventDefault();
+            if (!this.tryCapture(button, event.pointerId))
+              return;
+            this.ultimatePointers.add(event.pointerId);
+            this.queueAction("ultimate");
+            button.classList.add("is-pressed");
+          };
+          const release2 = (event) => {
+            event.preventDefault();
+            if (!this.ultimatePointers.delete(event.pointerId))
+              return;
+            if (this.ultimatePointers.size === 0)
+              button.classList.remove("is-pressed");
+          };
+          button.addEventListener("pointerdown", down2, { passive: false });
+          button.addEventListener("pointerup", release2, { passive: false });
+          button.addEventListener("pointercancel", release2, { passive: false });
+          button.addEventListener("lostpointercapture", release2, { passive: false });
+          this.cleanupCallbacks.push(() => button.removeEventListener("pointerdown", down2), () => button.removeEventListener("pointerup", release2), () => button.removeEventListener("pointercancel", release2), () => button.removeEventListener("lostpointercapture", release2));
+          continue;
+        }
+        if (!["attack", "special", "jump"].includes(action ?? ""))
+          continue;
+        const touchAction = action;
+        const pointers = this.actionPointers[touchAction];
+        const down = (event) => {
+          event.preventDefault();
+          if (!this.tryCapture(button, event.pointerId))
+            return;
+          pointers.add(event.pointerId);
+          this.touchActions[touchAction] = true;
+          this.queueAction(touchAction);
+          button.classList.add("is-pressed");
+        };
+        const release = (event) => {
+          event.preventDefault();
+          if (!pointers.delete(event.pointerId))
+            return;
+          this.touchActions[touchAction] = pointers.size > 0;
+          if (pointers.size === 0)
+            button.classList.remove("is-pressed");
+        };
+        button.addEventListener("pointerdown", down, { passive: false });
+        button.addEventListener("pointerup", release, { passive: false });
+        button.addEventListener("pointercancel", release, { passive: false });
+        button.addEventListener("lostpointercapture", release, { passive: false });
+        this.cleanupCallbacks.push(() => button.removeEventListener("pointerdown", down), () => button.removeEventListener("pointerup", release), () => button.removeEventListener("pointercancel", release), () => button.removeEventListener("lostpointercapture", release));
+      }
+    }
+    paintDpad(dpad) {
+      dpad.dataset.direction = [
+        this.touchDirection.up ? "u" : "",
+        this.touchDirection.down ? "d" : "",
+        this.touchDirection.left ? "l" : "",
+        this.touchDirection.right ? "r" : ""
+      ].join("");
+    }
+  };
+
+  // dist/game/render/drawUtils.js
+  var WORLD_WIDTH = 1280;
+  var WORLD_HEIGHT = 720;
+  var GROUND_Y = 565;
+  function clamp01(value) {
+    return Math.max(0, Math.min(1, value));
+  }
+  function lerp(a, b, t) {
+    return a + (b - a) * t;
+  }
+  function pulse(frame, start, peak, end) {
+    if (frame <= start || frame >= end)
+      return 0;
+    if (frame <= peak)
+      return clamp01((frame - start) / Math.max(1, peak - start));
+    return clamp01(1 - (frame - peak) / Math.max(1, end - peak));
+  }
+  function roundedLine(ctx, x1, y1, x2, y2, width, color) {
+    ctx.save();
+    ctx.strokeStyle = color;
+    ctx.lineWidth = width;
+    ctx.lineCap = "round";
+    ctx.beginPath();
+    ctx.moveTo(x1, y1);
+    ctx.lineTo(x2, y2);
+    ctx.stroke();
+    ctx.restore();
+  }
+  function ellipse(ctx, x, y, rx, ry, fill, rotation = 0, stroke, lineWidth = 1) {
+    ctx.save();
+    ctx.beginPath();
+    ctx.ellipse(x, y, rx, ry, rotation, 0, Math.PI * 2);
+    ctx.fillStyle = fill;
+    ctx.fill();
+    if (stroke) {
+      ctx.strokeStyle = stroke;
+      ctx.lineWidth = lineWidth;
+      ctx.stroke();
+    }
+    ctx.restore();
+  }
+  function polygon(ctx, points, fill, stroke) {
+    if (points.length === 0)
+      return;
+    ctx.save();
+    ctx.beginPath();
+    ctx.moveTo(points[0][0], points[0][1]);
+    for (let i = 1; i < points.length; i += 1)
+      ctx.lineTo(points[i][0], points[i][1]);
+    ctx.closePath();
+    ctx.fillStyle = fill;
+    ctx.fill();
+    if (stroke) {
+      ctx.strokeStyle = stroke;
+      ctx.lineWidth = 2;
+      ctx.stroke();
+    }
+    ctx.restore();
+  }
+
+  // dist/game/render/CombatEffects.js
+  function drawPushGuardBurst(ctx, x, y, facing, intensity) {
+    const t = clamp01(intensity);
+    if (t <= 0)
+      return;
+    ctx.save();
+    ctx.translate(x, y);
+    ctx.scale(facing, 1);
+    ctx.globalAlpha = 0.85 * t;
+    const radius = lerp(26, 94, t);
+    ctx.strokeStyle = "#d8f2ff";
+    ctx.lineWidth = lerp(5, 2, t);
+    ctx.beginPath();
+    ctx.arc(12, -88, radius, -1.18, 1.18);
+    ctx.stroke();
+    ctx.strokeStyle = "#8fdcff";
+    ctx.lineWidth = 3;
+    for (let i = 0; i < 5; i += 1) {
+      const yy = -132 + i * 22;
+      const reach = lerp(32, 116 + i * 8, t);
+      ctx.beginPath();
+      ctx.moveTo(20, yy);
+      ctx.quadraticCurveTo(reach * 0.55, yy - 10 + i * 3, reach, yy + 2);
+      ctx.stroke();
+    }
+    ctx.restore();
+  }
+  function drawCamaleoniVeil(ctx, x, y, facing, intensity, timeSeconds) {
+    const t = clamp01(intensity);
+    if (t <= 0)
+      return;
+    ctx.save();
+    ctx.translate(x, y);
+    ctx.scale(facing, 1);
+    ctx.globalAlpha = 0.18 + 0.28 * t;
+    for (let i = 0; i < 3; i += 1) {
+      const phase = timeSeconds * 8 + i * 1.7;
+      const offset = 18 + i * 14 + Math.sin(phase) * 5;
+      ctx.strokeStyle = i === 0 ? "#c8ffc2" : "#8fe89b";
+      ctx.lineWidth = 3 - i * 0.5;
+      ctx.beginPath();
+      ctx.ellipse(-offset, -102 + Math.cos(phase) * 8, 34 + i * 9, 72 + i * 7, -0.08, 0, Math.PI * 2);
+      ctx.stroke();
+    }
+    const shimmer = 0.14 + 0.12 * Math.sin(timeSeconds * 14);
+    ctx.globalAlpha = shimmer * t;
+    ellipse(ctx, 0, -104, 48, 96, "#d9ffd3");
+    ctx.restore();
+  }
+  function drawSuctionField(ctx, x, y, facing, intensity, timeSeconds) {
+    const t = clamp01(intensity);
+    if (t <= 0)
+      return;
+    ctx.save();
+    ctx.translate(x, y);
+    ctx.scale(facing, 1);
+    ctx.globalAlpha = 0.2 + t * 0.45;
+    ctx.lineCap = "round";
+    for (let i = 0; i < 4; i += 1) {
+      const lane = i - 1.5;
+      const phase = timeSeconds * 9 + i * 0.8;
+      const reach = lerp(56, 250 - i * 18, t);
+      ctx.strokeStyle = i % 2 === 0 ? "#bde9ff" : "#f1fbff";
+      ctx.lineWidth = i % 2 === 0 ? 5 : 3;
+      ctx.beginPath();
+      ctx.moveTo(34, -112 + lane * 20);
+      ctx.bezierCurveTo(88, -142 + lane * 18 + Math.sin(phase) * 10, reach * 0.72, -76 + lane * 24 + Math.cos(phase) * 9, reach, -108 + lane * 16);
+      ctx.stroke();
+    }
+    ctx.restore();
+  }
+  function drawUltimateImpact(ctx, x, y, intensity, accent) {
+    const t = clamp01(intensity);
+    if (t <= 0)
+      return;
+    ctx.save();
+    ctx.translate(x, y);
+    ctx.globalAlpha = 0.9 * t;
+    for (let i = 0; i < 3; i += 1) {
+      const radius = lerp(18 + i * 10, 72 + i * 24, t);
+      ctx.strokeStyle = i === 0 ? "#fff7db" : accent;
+      ctx.lineWidth = Math.max(1.5, 6 - i * 1.5 - t * 2);
+      ctx.beginPath();
+      ctx.arc(0, 0, radius, 0, Math.PI * 2);
+      ctx.stroke();
+    }
+    ctx.restore();
+  }
+  function drawCaptureStartup(ctx, x, y, facing, intensity, accent) {
+    const t = clamp01(intensity);
+    if (t <= 0)
+      return;
+    ctx.save();
+    ctx.translate(x, y);
+    ctx.scale(facing, 1);
+    ctx.globalAlpha = 0.25 + 0.55 * t;
+    const radius = lerp(72, 34, t);
+    ctx.strokeStyle = accent;
+    ctx.lineWidth = lerp(2, 5, t);
+    ctx.beginPath();
+    ctx.arc(0, -104, radius, -Math.PI * 0.8, Math.PI * 0.8);
+    ctx.stroke();
+    ctx.globalAlpha *= 0.65;
+    for (let i = 0; i < 3; i += 1) {
+      const sx = -34 + i * 34;
+      ctx.beginPath();
+      ctx.moveTo(sx, -178);
+      ctx.lineTo(sx * 0.45, -144);
+      ctx.stroke();
+    }
+    ctx.restore();
+  }
+  function drawDashAfterimage(ctx, x, y, facing, intensity, accent) {
+    const t = clamp01(intensity);
+    if (t <= 0)
+      return;
+    ctx.save();
+    ctx.translate(x, y);
+    ctx.scale(facing, 1);
+    for (let i = 0; i < 4; i += 1) {
+      const lag = i + 1;
+      ctx.globalAlpha = Math.max(0, (0.24 - i * 0.045) * t);
+      ctx.strokeStyle = accent;
+      ctx.lineWidth = 4 - i * 0.55;
+      ctx.beginPath();
+      ctx.ellipse(-lag * 28, -103, 34 + i * 3, 76, -0.08, 0, Math.PI * 2);
+      ctx.stroke();
+    }
+    ctx.restore();
+  }
+  function drawReappearanceFlash(ctx, x, y, intensity) {
+    const t = clamp01(intensity);
+    if (t <= 0)
+      return;
+    ctx.save();
+    ctx.translate(x, y);
+    ctx.globalAlpha = 0.9 * t;
+    ctx.fillStyle = "#efffe9";
+    const size = lerp(14, 70, t);
+    ctx.beginPath();
+    ctx.moveTo(0, -size);
+    ctx.lineTo(size * 0.22, -size * 0.22);
+    ctx.lineTo(size, 0);
+    ctx.lineTo(size * 0.22, size * 0.22);
+    ctx.lineTo(0, size);
+    ctx.lineTo(-size * 0.22, size * 0.22);
+    ctx.lineTo(-size, 0);
+    ctx.lineTo(-size * 0.22, -size * 0.22);
+    ctx.closePath();
+    ctx.fill();
+    ctx.restore();
+  }
+  function drawNazazoArc(ctx, x, y, facing, intensity) {
+    const t = clamp01(intensity);
+    if (t <= 0)
+      return;
+    ctx.save();
+    ctx.translate(x, y);
+    ctx.scale(facing, 1);
+    ctx.globalAlpha = 0.25 + 0.65 * t;
+    ctx.strokeStyle = "#ffe8cb";
+    ctx.lineWidth = lerp(8, 3, t);
+    ctx.lineCap = "round";
+    ctx.beginPath();
+    ctx.arc(16, -116, lerp(36, 92, t), -1.35, 0.45);
+    ctx.stroke();
+    ctx.strokeStyle = "#ffb47f";
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    ctx.arc(20, -114, lerp(30, 78, t), -1.25, 0.38);
+    ctx.stroke();
+    ctx.restore();
+  }
+  function drawLaunchTrail(ctx, x, y, facing, intensity) {
+    const t = clamp01(intensity);
+    if (t <= 0)
+      return;
+    ctx.save();
+    ctx.translate(x, y);
+    ctx.scale(facing, 1);
+    ctx.globalAlpha = 0.2 + 0.55 * t;
+    ctx.lineCap = "round";
+    for (let i = 0; i < 4; i += 1) {
+      const yy = -132 + i * 24;
+      const reach = lerp(38, 190 - i * 18, t);
+      ctx.strokeStyle = i < 2 ? "#fff3dd" : "#ffc38f";
+      ctx.lineWidth = 5 - i * 0.7;
+      ctx.beginPath();
+      ctx.moveTo(-10, yy);
+      ctx.lineTo(-reach, yy + i * 5);
+      ctx.stroke();
+    }
+    ctx.restore();
+  }
+  function getColetazoPresentation(moveFrame) {
+    const frame = Math.max(0, moveFrame);
+    if (frame <= 5) {
+      const windup = clamp01(frame / 5);
+      return { windup, strike: 0, followThrough: 0, recovery: 0, sweep: lerp(0, -0.58, windup), trail: 0 };
+    }
+    if (frame <= 10) {
+      const strike = clamp01((frame - 5) / 5);
+      return { windup: 1 - strike, strike, followThrough: 0, recovery: 0, sweep: lerp(-0.58, 1, strike), trail: strike };
+    }
+    if (frame <= 17) {
+      const followThrough = clamp01((frame - 10) / 7);
+      return { windup: 0, strike: 1 - followThrough, followThrough, recovery: 0, sweep: lerp(1, 0.72, followThrough), trail: 1 - followThrough * 0.55 };
+    }
+    const recovery = clamp01((frame - 17) / 13);
+    return { windup: 0, strike: 0, followThrough: 1 - recovery, recovery, sweep: lerp(0.72, 0, recovery), trail: Math.max(0, 0.35 - recovery * 0.35) };
+  }
+  function drawColetazoTrail(ctx, x, y, facing, presentation) {
+    const t = clamp01(presentation.trail);
+    if (t <= 0.01)
+      return;
+    ctx.save();
+    ctx.translate(x, y);
+    ctx.scale(facing, 1);
+    ctx.lineCap = "round";
+    const sweep = presentation.sweep;
+    const startAngle = -2.65 + sweep * 0.62;
+    const endAngle = -1.65 + sweep * 1.18;
+    for (let i = 0; i < 3; i += 1) {
+      ctx.globalAlpha = t * (0.34 - i * 0.075);
+      ctx.strokeStyle = i === 0 ? "#d9f58f" : "#79c95d";
+      ctx.lineWidth = 11 - i * 2.5;
+      ctx.beginPath();
+      ctx.arc(-4, -82, 92 + i * 16, startAngle - i * 0.06, endAngle + i * 0.09);
+      ctx.stroke();
+    }
+    if (presentation.strike > 0.62) {
+      ctx.globalAlpha = 0.18 + presentation.strike * 0.22;
+      ctx.fillStyle = "#edffb8";
+      ctx.beginPath();
+      ctx.moveTo(72, -154);
+      ctx.lineTo(124, -116);
+      ctx.lineTo(82, -91);
+      ctx.lineTo(142, -72);
+      ctx.lineTo(69, -62);
+      ctx.closePath();
+      ctx.fill();
+    }
+    ctx.restore();
+  }
+  function drawCapturedLock(ctx, x, y, accent, timeSeconds) {
+    ctx.save();
+    ctx.translate(x, y);
+    const breathe = 0.5 + 0.5 * Math.sin(timeSeconds * 14);
+    ctx.globalAlpha = 0.2 + breathe * 0.12;
+    ctx.strokeStyle = accent;
+    ctx.lineWidth = 3;
+    ctx.setLineDash([9, 9]);
+    ctx.beginPath();
+    ctx.ellipse(0, -96, 45 + breathe * 5, 82 + breathe * 4, 0, 0, Math.PI * 2);
+    ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.globalAlpha = 0.12 + breathe * 0.08;
+    ctx.beginPath();
+    ctx.arc(0, -96, 60 + breathe * 7, -0.95, 0.95);
+    ctx.stroke();
+    ctx.restore();
+  }
+  function drawCamaleoniSequenceCuts(ctx, x, y, facing, intensity, timeSeconds) {
+    const t = clamp01(intensity);
+    if (t <= 0)
+      return;
+    ctx.save();
+    ctx.translate(x, y);
+    ctx.scale(facing, 1);
+    ctx.lineCap = "round";
+    for (let i = 0; i < 3; i += 1) {
+      const wave = Math.sin(timeSeconds * 22 + i * 1.8);
+      ctx.globalAlpha = 0.18 + 0.24 * t;
+      ctx.strokeStyle = i === 1 ? "#f0ffe8" : "#9ef5a5";
+      ctx.lineWidth = 5 - i;
+      ctx.beginPath();
+      ctx.moveTo(-8 + i * 11, -150 + i * 36);
+      ctx.quadraticCurveTo(60 + wave * 10, -125 + i * 16, 112 + i * 8, -92 + i * 10);
+      ctx.stroke();
+    }
+    ctx.restore();
+  }
+  function drawSupernarizInhalePulse(ctx, x, y, facing, intensity, timeSeconds) {
+    const t = clamp01(intensity);
+    if (t <= 0)
+      return;
+    ctx.save();
+    ctx.translate(x, y);
+    ctx.scale(facing, 1);
+    const pulse2 = 0.5 + 0.5 * Math.sin(timeSeconds * 12);
+    ctx.globalAlpha = 0.18 + t * 0.34;
+    ctx.strokeStyle = "#fff2df";
+    ctx.lineWidth = 3.5;
+    for (let i = 0; i < 3; i += 1) {
+      const radius = 26 + i * 18 + pulse2 * 7;
+      ctx.beginPath();
+      ctx.arc(38, -145, radius, -0.72, 0.72);
+      ctx.stroke();
+    }
+    ctx.restore();
+  }
+
+  // dist/game/render/PresentationPose.js
+  function getMovePresentationPhase(fighter) {
+    if (!fighter.moveId || fighter.ultimatePhase !== "idle") {
+      return { startup: 0, active: 0, recovery: 0, contact: fighter.moveContact === "none" ? 0 : 1 };
+    }
+    const move = getMoveDefinition(fighter.id, fighter.moveId);
+    const frame = Math.max(0, fighter.moveFrame);
+    const hitbox = move.hitbox;
+    if (!hitbox) {
+      const progress = clamp01(frame / Math.max(1, move.totalFrames));
+      return {
+        startup: progress < 0.45 ? 1 - progress / 0.45 : 0,
+        active: 0,
+        recovery: progress >= 0.45 ? (progress - 0.45) / 0.55 : 0,
+        contact: fighter.moveContact === "none" ? 0 : 1
+      };
+    }
+    const startup = frame < hitbox.start ? 1 - clamp01(frame / Math.max(1, hitbox.start)) : 0;
+    const active = frame >= hitbox.start && frame <= hitbox.end ? 1 : frame < hitbox.start ? clamp01(frame / Math.max(1, hitbox.start)) : 0;
+    const recovery = frame > hitbox.end ? clamp01((frame - hitbox.end) / Math.max(1, move.totalFrames - hitbox.end)) : 0;
+    return {
+      startup,
+      active,
+      recovery,
+      contact: fighter.moveContact === "none" ? 0 : 1
+    };
+  }
+  function getAirPresentationPose(fighter) {
+    if (fighter.grounded) {
+      const landingFrame = Math.max(0, Math.min(4, fighter.landingRecoveryFrames));
+      return {
+        airborne: 0,
+        ascent: 0,
+        apex: 0,
+        descent: 0,
+        landing: landingFrame / 4,
+        landingFrame
+      };
+    }
+    const speed = Math.abs(fighter.vy);
+    const apex = clamp01(1 - speed / 4.5);
+    return {
+      airborne: 1,
+      ascent: fighter.vy > 0 ? clamp01(fighter.vy / 13) : 0,
+      apex,
+      descent: fighter.vy < 0 ? clamp01(-fighter.vy / 13) : 0,
+      landing: 0,
+      landingFrame: 0
+    };
+  }
+
+  // dist/game/render/ChameleonRig.js
+  function tongueFactor(f) {
+    if (f.moveId !== "tongueStraight" && f.moveId !== "tongueLow")
+      return 0;
+    const frame = f.moveFrame;
+    if (frame < 6)
+      return 0;
+    if (frame <= 10)
+      return clamp01((frame - 6) / 4);
+    if (frame <= 13)
+      return 1;
+    if (frame <= 22)
+      return clamp01(1 - (frame - 13) / 9);
+    return 0;
+  }
+  function clawFactor(f) {
+    if (f.moveId === "airClaw")
+      return pulse(f.moveFrame, 1, 6, 15) * 1.15;
+    if (f.moveId !== "claw1" && f.moveId !== "claw2")
+      return 0;
+    return pulse(f.moveFrame, 1, 6, 14);
+  }
+  function drawChameleon(ctx, f, time) {
+    const feetY = GROUND_Y - f.y;
+    const idle = Math.sin(time * 5.2 + f.x * 0.01) * 1.4;
+    const ko = f.health <= 0 ? 1 : 0;
+    const hurtLean = f.stunFrames > 0 ? -0.13 : 0;
+    const crouch = f.crouching ? 1 : 0;
+    const block = f.blocking ? 1 : 0;
+    const guardBreak = f.guardBreakFrames > 0 ? 1 : 0;
+    const movePhase = getMovePresentationPhase(f);
+    const motion = getAirPresentationPose(f);
+    const claw = clawFactor(f);
+    const lowClaw = f.moveId === "clawLow" ? Math.max(movePhase.active, (1 - movePhase.startup) * (1 - movePhase.recovery) * 0.72) : 0;
+    const coletazo = f.moveId === "coletazo" ? getColetazoPresentation(f.moveFrame) : { windup: 0, strike: 0, followThrough: 0, recovery: 0, sweep: 0, trail: 0 };
+    const ultimateStartup = f.ultimatePhase === "startup" ? 1 : 0;
+    const ultimateCapture = f.ultimatePhase === "capture" ? 1 : 0;
+    const ultimateSequence = f.ultimatePhase === "sequence" ? 1 : 0;
+    const tongue = tongueFactor(f);
+    const vanishCoil = ultimateStartup * 0.8;
+    const dashDrive = ultimateCapture;
+    const comboBeat = ultimateSequence;
+    const airClaw = f.moveId === "airClaw" ? Math.max(claw, movePhase.active) : 0;
+    const airTilt = -motion.ascent * 0.07 + motion.descent * 0.09;
+    const landingCompression = motion.landing * 18;
+    const forwardLean = tongue * 0.12 + claw * 0.07 + airClaw * 0.11 + lowClaw * 0.04 + airTilt - coletazo.windup * 0.17 + coletazo.strike * 0.15 + coletazo.followThrough * 0.1 - vanishCoil * 0.12 + dashDrive * 0.24 + comboBeat * 0.16 + hurtLean - ko * 1.16;
+    const bodyDrop = crouch * 30 + lowClaw * 24 + landingCompression + coletazo.windup * 7 - coletazo.strike * 3 + vanishCoil * 11 - dashDrive * 4 + ko * 42;
+    ctx.save();
+    ctx.translate(f.x, feetY);
+    ctx.scale(f.facing, 1);
+    ctx.rotate(forwardLean);
+    ctx.save();
+    ctx.rotate(-forwardLean);
+    ctx.globalAlpha = 0.2 * (1 - Math.min(0.65, f.y / 260));
+    ellipse(ctx, 0, f.y, 48, 10, "#05070a");
+    ctx.restore();
+    const ultimateTailBeat = comboBeat * Math.sin(time * 21) * 30 - vanishCoil * 20 + dashDrive * 18;
+    const tailCounter = -tongue * 28 - claw * 12 + ultimateTailBeat + Math.sin(time * 2.8) * 5;
+    const sweep = coletazo.sweep;
+    const tailMidX = sweep < 0 ? lerp(-67, -104, -sweep / 0.58) : lerp(-67, 84, sweep);
+    const tailMidY = sweep < 0 ? lerp(-10 + tailCounter * 0.18, -48, -sweep / 0.58) : lerp(-10 + tailCounter * 0.18, -91, sweep);
+    const tailTipX = sweep < 0 ? lerp(-49, -136, -sweep / 0.58) : lerp(-49, 136, sweep);
+    const tailTipY = sweep < 0 ? lerp(-40 + tailCounter * 0.35, -86, -sweep / 0.58) : lerp(-40 + tailCounter * 0.35, -60, sweep);
+    ctx.save();
+    ctx.strokeStyle = "#315f2d";
+    ctx.lineWidth = 22;
+    ctx.lineCap = "round";
+    ctx.beginPath();
+    ctx.moveTo(-20, -73 + bodyDrop * 0.35);
+    ctx.bezierCurveTo(sweep < 0 ? lerp(-78, -112, -sweep / 0.58) : lerp(-78, -56, sweep), sweep < 0 ? lerp(-70, -74, -sweep / 0.58) : lerp(-70, -52, sweep), sweep < 0 ? lerp(-94, -142, -sweep / 0.58) : lerp(-94, 32, sweep), sweep < 0 ? lerp(-24 + tailCounter * 0.15, -74, -sweep / 0.58) : lerp(-24 + tailCounter * 0.15, -98, sweep), tailMidX, tailMidY);
+    ctx.bezierCurveTo(sweep < 0 ? lerp(-39, -118, -sweep / 0.58) : lerp(-39, 106, sweep), sweep < 0 ? lerp(10 + tailCounter * 0.12, -104, -sweep / 0.58) : lerp(10 + tailCounter * 0.12, -106, sweep), sweep < 0 ? lerp(-23, -148, -sweep / 0.58) : lerp(-23, 142, sweep), sweep < 0 ? lerp(-30 + tailCounter * 0.32, -92, -sweep / 0.58) : lerp(-30 + tailCounter * 0.32, -80, sweep), tailTipX, tailTipY);
+    ctx.stroke();
+    ctx.strokeStyle = "#6cae42";
+    ctx.lineWidth = 11;
+    ctx.beginPath();
+    ctx.moveTo(-20, -73 + bodyDrop * 0.35);
+    ctx.bezierCurveTo(sweep < 0 ? lerp(-78, -112, -sweep / 0.58) : lerp(-78, -56, sweep), sweep < 0 ? lerp(-70, -74, -sweep / 0.58) : lerp(-70, -52, sweep), sweep < 0 ? lerp(-94, -142, -sweep / 0.58) : lerp(-94, 32, sweep), sweep < 0 ? lerp(-24 + tailCounter * 0.15, -74, -sweep / 0.58) : lerp(-24 + tailCounter * 0.15, -98, sweep), tailMidX, tailMidY);
+    ctx.bezierCurveTo(sweep < 0 ? lerp(-39, -118, -sweep / 0.58) : lerp(-39, 106, sweep), sweep < 0 ? lerp(10 + tailCounter * 0.12, -104, -sweep / 0.58) : lerp(10 + tailCounter * 0.12, -106, sweep), sweep < 0 ? lerp(-23, -148, -sweep / 0.58) : lerp(-23, 142, sweep), sweep < 0 ? lerp(-30 + tailCounter * 0.32, -92, -sweep / 0.58) : lerp(-30 + tailCounter * 0.32, -80, sweep), tailTipX, tailTipY);
+    ctx.stroke();
+    ctx.restore();
+    const hipY = -54 + bodyDrop;
+    const shoulderY = -112 + bodyDrop * 0.45 + idle;
+    const hipCounter = coletazo.windup * -13 + coletazo.strike * 11 + coletazo.followThrough * 7;
+    const step = f.grounded ? Math.sin(time * 10 + f.x * 0.03) * Math.min(8, Math.abs(f.vx) * 1.8) : 0;
+    const kneeBend = crouch * 18 + lowClaw * 20 + motion.airborne * (10 + motion.apex * 13) + motion.landing * 24;
+    roundedLine(ctx, -13 + hipCounter * 0.18, hipY, -18 - step - hipCounter * 0.12, -24 + kneeBend, 20, "#5d9d3c");
+    roundedLine(ctx, -18 - step, -24 + kneeBend, -28 - step * 0.35, -3, 16, "#76b54d");
+    roundedLine(ctx, 12 + hipCounter * 0.2, hipY, 19 + step + hipCounter * 0.16, -26 + kneeBend, 20, "#5d9d3c");
+    roundedLine(ctx, 19 + step, -26 + kneeBend, 30 + step * 0.35, -3, 16, "#76b54d");
+    roundedLine(ctx, -31 - step * 0.35, -2, -14 - step * 0.35, -2, 6, "#adc96b");
+    roundedLine(ctx, 17 + step * 0.35, -2, 34 + step * 0.35, -2, 6, "#adc96b");
+    ellipse(ctx, 0, -84 + bodyDrop * 0.65, 31, 49 - crouch * 9, "#4f8f38", -0.05, "#274f2c", 3);
+    ellipse(ctx, 8, -82 + bodyDrop * 0.65, 16, 35 - crouch * 7, "#79b654", -0.06);
+    const frontReach = 18 + claw * (f.moveId === "claw2" ? 42 : f.moveId === "airClaw" ? 52 : 31) + lowClaw * 31 - vanishCoil * 9 + dashDrive * 24 + comboBeat * 34;
+    const frontY = shoulderY + block * 16 - claw * 8 + airClaw * (18 + motion.descent * 16) + lowClaw * 44 + vanishCoil * 13 - dashDrive * 9 - comboBeat * 10;
+    roundedLine(ctx, 12, shoulderY, frontReach, frontY, 11, "#62a444");
+    ellipse(ctx, frontReach + 3, frontY, 7, 6, "#86bd5e");
+    roundedLine(ctx, -12, shoulderY + 4, -24 + block * 13, shoulderY + 18 - block * 25, 10, "#568f3a");
+    ellipse(ctx, -25 + block * 13, shoulderY + 18 - block * 25, 7, 6, "#80b75a");
+    const headX = 4 + tongue * 14 - vanishCoil * 8 + dashDrive * 14 + comboBeat * 9 + block * -3;
+    const headY = -155 + bodyDrop * 0.43 + idle - motion.ascent * 5 + motion.apex * 3 + motion.descent * 7;
+    ellipse(ctx, headX, headY, 42, 39, "#c98f68", -0.04, "#633f31", 2.5);
+    ellipse(ctx, headX - 37, headY + 2, 7, 11, "#b97c58");
+    ellipse(ctx, headX + 10, headY + 10, 28, 21, "#d19a72", -0.08);
+    ctx.fillStyle = "#161918";
+    const curlPoints = [
+      [-31, -30, 12],
+      [-18, -38, 13],
+      [-3, -42, 14],
+      [13, -39, 13],
+      [27, -30, 12],
+      [34, -16, 10],
+      [-35, -16, 11],
+      [-25, -48, 9],
+      [-8, -52, 10],
+      [10, -50, 10],
+      [25, -43, 9],
+      [-39, -2, 8]
+    ];
+    for (const [dx, dy, r] of curlPoints) {
+      ctx.beginPath();
+      ctx.arc(headX + dx, headY + dy, r, 0, Math.PI * 2);
+      ctx.fill();
+    }
+    roundedLine(ctx, headX + 4, headY - 7, headX + 18, headY - 8, 3, "#35251f");
+    ellipse(ctx, headX + 15, headY - 2, 2.7, 2.3, "#101316");
+    ctx.save();
+    ctx.strokeStyle = "#5e4035";
+    ctx.lineWidth = 2.2;
+    ctx.beginPath();
+    ctx.moveTo(headX + 16, headY + 7);
+    ctx.quadraticCurveTo(headX + 25, headY + 12, headX + 23, headY + 19);
+    ctx.stroke();
+    ctx.restore();
+    const mouthX = headX + 29;
+    const mouthY = headY + 18;
+    roundedLine(ctx, mouthX - 8, mouthY, mouthX + 4, mouthY + 1, 2.5, "#4b2020");
+    if (tongue > 0.01) {
+      const length = lerp(10, 310, tongue);
+      const targetY = mouthY + 2;
+      ctx.save();
+      ctx.strokeStyle = "#d65573";
+      ctx.lineWidth = 9;
+      ctx.lineCap = "round";
+      ctx.beginPath();
+      ctx.moveTo(mouthX + 3, mouthY + 1);
+      ctx.quadraticCurveTo(mouthX + length * 0.45, lerp(mouthY, targetY, 0.55) - 3, mouthX + length, targetY);
+      ctx.stroke();
+      ctx.strokeStyle = "#f08ba0";
+      ctx.lineWidth = 3;
+      ctx.beginPath();
+      ctx.moveTo(mouthX + 5, mouthY - 1);
+      ctx.quadraticCurveTo(mouthX + length * 0.45, lerp(mouthY, targetY, 0.55) - 5, mouthX + length - 2, targetY - 2);
+      ctx.stroke();
+      ellipse(ctx, mouthX + length, targetY, 9, 6, "#e56d86");
+      ctx.restore();
+    }
+    if (block) {
+      ctx.save();
+      ctx.globalAlpha = 0.3;
+      ctx.strokeStyle = "#b8e6a1";
+      ctx.lineWidth = 3;
+      ctx.beginPath();
+      ctx.arc(20, -110 + bodyDrop * 0.5, 44, -1.1, 1.05);
+      ctx.stroke();
+      ctx.restore();
+    }
+    if (guardBreak) {
+      ctx.save();
+      const flash = 0.42 + 0.18 * Math.sin(time * 18);
+      ctx.globalAlpha = flash;
+      ctx.strokeStyle = "#ff776f";
+      ctx.lineWidth = 4;
+      ctx.setLineDash([10, 8]);
+      ctx.beginPath();
+      ctx.arc(8, -110 + bodyDrop * 0.5, 57, -1.42, -0.28);
+      ctx.arc(8, -110 + bodyDrop * 0.5, 57, 0.08, 0.92);
+      ctx.arc(8, -110 + bodyDrop * 0.5, 57, 1.18, 2.05);
+      ctx.stroke();
+      ctx.setLineDash([]);
+      ctx.globalAlpha = 0.12;
+      ellipse(ctx, 8, -110 + bodyDrop * 0.5, 61, 98, "#ff8a78");
+      ctx.restore();
+    }
+    if (f.chilledFrames > 0) {
+      ctx.save();
+      ctx.globalAlpha = 0.15 + 0.08 * Math.sin(time * 11);
+      ellipse(ctx, 0, -100 + bodyDrop * 0.5, 50, 94, "#a9e7ff");
+      ctx.restore();
+    }
+    ctx.restore();
+  }
+
+  // dist/game/render/SupernarizRig.js
+  function noseFactor(f) {
+    if (f.moveId === "airNose")
+      return pulse(f.moveFrame, 1, 7, 16) * 0.92;
+    if (!f.moveId?.startsWith("nose"))
+      return 0;
+    if (f.moveId === "nose1")
+      return pulse(f.moveFrame, 1, 5, 12) * 0.45;
+    if (f.moveId === "nose2")
+      return pulse(f.moveFrame, 1, 5, 13) * 0.7;
+    return pulse(f.moveFrame, 2, 7, 17);
+  }
+  function drawSupernariz(ctx, f, time) {
+    const feetY = GROUND_Y - f.y;
+    const idle = Math.sin(time * 5.8 + f.x * 0.01) * 1.2;
+    const crouch = f.crouching ? 1 : 0;
+    const block = f.blocking ? 1 : 0;
+    const guardBreak = f.guardBreakFrames > 0 ? 1 : 0;
+    const movePhase = getMovePresentationPhase(f);
+    const motion = getAirPresentationPose(f);
+    const lowNose = f.moveId === "noseLow" ? Math.max(movePhase.active, (1 - movePhase.startup) * (1 - movePhase.recovery) * 0.74) : 0;
+    const ultimateStartup = f.ultimatePhase === "startup" ? 1 : 0;
+    const ultimateCapture = f.ultimatePhase === "capture" ? 1 : 0;
+    const ultimateSequence = f.ultimatePhase === "sequence" ? 1 : 0;
+    const nose = Math.max(noseFactor(f), ultimateSequence * 0.96);
+    const tramontana = f.moveId === "tramontana" ? pulse(f.moveFrame, 3, 10, 24) : 0;
+    const throwPose = f.moveId === "chorizoThrow" ? pulse(f.moveFrame, 1, 8, 21) : 0;
+    const ko = f.health <= 0 ? 1 : 0;
+    const hurtLean = f.stunFrames > 0 ? -0.16 : 0;
+    const airNose = f.moveId === "airNose" ? Math.max(nose, movePhase.active) : 0;
+    const inhaleBrace = ultimateStartup * 0.72 + ultimateCapture;
+    const airTilt = -motion.ascent * 0.06 + motion.descent * 0.1;
+    const landingCompression = motion.landing * 18;
+    const nazazoDrive = ultimateSequence;
+    const lean = nose * 0.16 + airNose * 0.12 + throwPose * 0.07 + tramontana * 0.09 + lowNose * 0.05 + airTilt - ultimateStartup * 0.09 - ultimateCapture * 0.16 + ultimateSequence * 0.15 + hurtLean - ko * 1.08;
+    const bodyDrop = crouch * 32 + lowNose * 25 + landingCompression + ultimateStartup * 5 + ko * 44;
+    ctx.save();
+    ctx.translate(f.x, feetY);
+    ctx.scale(f.facing, 1);
+    ctx.rotate(lean);
+    ctx.save();
+    ctx.rotate(-lean);
+    ctx.globalAlpha = 0.22 * (1 - Math.min(0.65, f.y / 260));
+    ellipse(ctx, 0, f.y, 46, 10, "#05070a");
+    ctx.restore();
+    const hipY = -60 + bodyDrop;
+    const shoulderY = -126 + bodyDrop * 0.45 + idle;
+    const step = f.grounded ? Math.sin(time * 10.5 + f.x * 0.025) * Math.min(9, Math.abs(f.vx) * 1.6) : 0;
+    const knee = crouch * 20 + lowNose * 21 + motion.airborne * (10 + motion.apex * 13) + motion.landing * 24;
+    ctx.save();
+    ctx.fillStyle = "#9e202c";
+    ctx.strokeStyle = "#56131a";
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(-18, shoulderY + 5);
+    ctx.bezierCurveTo(-52 - Math.abs(f.vx) * 2 - inhaleBrace * 24, shoulderY + 18 - inhaleBrace * 10, -65 - Math.sin(time * 3) * 10 - inhaleBrace * 34 + nazazoDrive * 16, -62 + bodyDrop * 0.4 - inhaleBrace * 12, -35 - inhaleBrace * 18 + nazazoDrive * 12, -34 + bodyDrop * 0.5);
+    ctx.lineTo(-8, -72 + bodyDrop * 0.45);
+    ctx.closePath();
+    ctx.fill();
+    ctx.stroke();
+    ctx.restore();
+    roundedLine(ctx, -12, hipY, -14 - step, -30 + knee, 19, "#2f5fb2");
+    roundedLine(ctx, -14 - step, -30 + knee, -25 - step * 0.45, -5, 15, "#376dc8");
+    roundedLine(ctx, 12, hipY, 17 + step, -29 + knee, 19, "#2f5fb2");
+    roundedLine(ctx, 17 + step, -29 + knee, 28 + step * 0.45, -5, 15, "#376dc8");
+    roundedLine(ctx, -31 - step * 0.45, -4, -13 - step * 0.45, -4, 10, "#a62b34");
+    roundedLine(ctx, 15 + step * 0.45, -4, 34 + step * 0.45, -4, 10, "#a62b34");
+    ellipse(ctx, 0, -94 + bodyDrop * 0.62, 29, 51 - crouch * 8, "#2d61bd", -0.03, "#16376f", 3);
+    ellipse(ctx, 7, -106 + bodyDrop * 0.58, 16, 8, "#d9a17e", 0.05, "#784b3b", 1.5);
+    roundedLine(ctx, -25, -70 + bodyDrop * 0.65, 25, -70 + bodyDrop * 0.65, 8, "#8c2530");
+    for (const bx of [-18, 0, 18]) {
+      ellipse(ctx, bx, -65 + bodyDrop * 0.65, 7, 4, "#c46d42", 0.15);
+      roundedLine(ctx, bx - 5, -65 + bodyDrop * 0.65, bx + 5, -65 + bodyDrop * 0.65, 2, "#f0b17f");
+    }
+    const frontHandX = 30 + throwPose * 38 + tramontana * 24 + lowNose * 22 - inhaleBrace * 20 + nazazoDrive * 46 + block * -2;
+    const frontHandY = shoulderY + 20 - throwPose * 21 - tramontana * 14 + lowNose * 42 - inhaleBrace * 24 - nazazoDrive * 12 - block * 26;
+    roundedLine(ctx, 17, shoulderY + 3, frontHandX, frontHandY, 13, "#2e65c3");
+    ellipse(ctx, frontHandX + 2, frontHandY, 8, 8, "#a92d37");
+    roundedLine(ctx, -17, shoulderY + 6, -30 + block * 23, shoulderY + 26 - block * 30, 13, "#285aa9");
+    ellipse(ctx, -31 + block * 23, shoulderY + 26 - block * 30, 8, 8, "#a52b35");
+    const headX = 4 + nose * 8 - inhaleBrace * 8 + nazazoDrive * 8;
+    const headY = -170 + bodyDrop * 0.42 + idle - motion.ascent * 5 + motion.apex * 3 + motion.descent * 7;
+    ellipse(ctx, headX, headY, 36, 39, "#d4a07f", -0.03, "#694435", 2.4);
+    ctx.save();
+    ctx.fillStyle = "#191a1b";
+    ctx.beginPath();
+    ctx.moveTo(headX - 33, headY - 18);
+    ctx.bezierCurveTo(headX - 26, headY - 52, headX + 18, headY - 53, headX + 31, headY - 23);
+    ctx.bezierCurveTo(headX + 13, headY - 35, headX - 8, headY - 30, headX - 33, headY - 18);
+    ctx.fill();
+    ctx.restore();
+    roundedLine(ctx, headX + 4, headY - 7, headX + 17, headY - 8, 3, "#4a3127");
+    ellipse(ctx, headX + 14, headY - 1, 2.5, 2.2, "#101317");
+    roundedLine(ctx, headX + 8, headY + 23, headX + 22, headY + 23, 2.3, "#6b302e");
+    const noseLength = lerp(39, f.moveId === "nose3" ? 142 : f.moveId === "airNose" ? 128 : f.moveId === "noseLow" ? 108 : 118, Math.max(nose, lowNose)) + nazazoDrive * 24 - inhaleBrace * 8;
+    const noseLift = (f.moveId === "nose2" ? -12 * nose : f.moveId === "nose3" ? 7 * nose : f.moveId === "airNose" ? 20 * nose + motion.descent * 9 : f.moveId === "noseLow" ? 38 * lowNose : 0) - inhaleBrace * 8 + nazazoDrive * 9;
+    ctx.save();
+    ctx.fillStyle = "#c98668";
+    ctx.strokeStyle = "#754635";
+    ctx.lineWidth = 2.2;
+    ctx.beginPath();
+    ctx.moveTo(headX + 18, headY + 3);
+    ctx.quadraticCurveTo(headX + noseLength * 0.45, headY - 10 + noseLift, headX + noseLength, headY + 5 + noseLift);
+    ctx.quadraticCurveTo(headX + noseLength * 0.55, headY + 19 + noseLift, headX + 18, headY + 16);
+    ctx.closePath();
+    ctx.fill();
+    ctx.stroke();
+    ellipse(ctx, headX + noseLength - 4, headY + 8 + noseLift, 8, 7, "#bc745a");
+    ellipse(ctx, headX + noseLength - 1, headY + 7 + noseLift, 2.1, 1.7, "#5f3a31");
+    ctx.restore();
+    if (tramontana > 0.01) {
+      ctx.save();
+      ctx.globalAlpha = 0.35 + tramontana * 0.3;
+      ctx.strokeStyle = "#bfeaff";
+      ctx.lineWidth = 9;
+      ctx.lineCap = "round";
+      for (let i = 0; i < 3; i += 1) {
+        const yy = -132 + i * 28;
+        ctx.beginPath();
+        ctx.moveTo(38, yy);
+        ctx.bezierCurveTo(95, yy - 24 + i * 5, 145, yy + 20, 220 * tramontana + 40, yy - 6);
+        ctx.stroke();
+      }
+      ctx.strokeStyle = "#f1fbff";
+      ctx.lineWidth = 3;
+      ctx.beginPath();
+      ctx.moveTo(52, -118);
+      ctx.quadraticCurveTo(125, -160, 225 * tramontana + 30, -121);
+      ctx.stroke();
+      ctx.restore();
+    }
+    if (block) {
+      ctx.save();
+      ctx.globalAlpha = 0.28;
+      ctx.strokeStyle = "#83b5ff";
+      ctx.lineWidth = 3;
+      ctx.beginPath();
+      ctx.arc(28, -123 + bodyDrop * 0.45, 46, -1.2, 1.1);
+      ctx.stroke();
+      ctx.restore();
+    }
+    if (guardBreak) {
+      ctx.save();
+      const flash = 0.42 + 0.18 * Math.sin(time * 18);
+      ctx.globalAlpha = flash;
+      ctx.strokeStyle = "#ff8078";
+      ctx.lineWidth = 4;
+      ctx.setLineDash([10, 8]);
+      ctx.beginPath();
+      ctx.arc(8, -110 + bodyDrop * 0.5, 57, -1.42, -0.28);
+      ctx.arc(8, -110 + bodyDrop * 0.5, 57, 0.08, 0.92);
+      ctx.arc(8, -110 + bodyDrop * 0.5, 57, 1.18, 2.05);
+      ctx.stroke();
+      ctx.setLineDash([]);
+      ctx.globalAlpha = 0.12;
+      ellipse(ctx, 8, -110 + bodyDrop * 0.5, 61, 98, "#ff9a86");
+      ctx.restore();
+    }
+    if (f.chilledFrames > 0) {
+      ctx.save();
+      ctx.globalAlpha = 0.13 + 0.07 * Math.sin(time * 12);
+      polygon(ctx, [[-42, -194], [38, -204], [51, -44], [-40, -40]], "#bfefff");
+      ctx.restore();
+    }
+    ctx.restore();
+  }
+
+  // dist/game/render/FighterRenderer.js
+  var RIGS = Object.freeze({
+    chameleon: drawChameleon,
+    supernariz: drawSupernariz
+  });
+  var missingRigWarnings = /* @__PURE__ */ new Set();
+  function drawMissingRig(ctx, fighter) {
+    ctx.save();
+    ctx.translate(fighter.x, 650 - fighter.y);
+    ctx.strokeStyle = "#ff365f";
+    ctx.fillStyle = "rgba(255,54,95,.14)";
+    ctx.lineWidth = 5;
+    ctx.strokeRect(-42, -178, 84, 178);
+    ctx.fillRect(-42, -178, 84, 178);
+    ctx.beginPath();
+    ctx.moveTo(-34, -168);
+    ctx.lineTo(34, -12);
+    ctx.moveTo(34, -168);
+    ctx.lineTo(-34, -12);
+    ctx.stroke();
+    ctx.fillStyle = "#fff";
+    ctx.font = "700 16px system-ui, sans-serif";
+    ctx.textAlign = "center";
+    ctx.fillText("MISSING RIG", 0, -92);
+    ctx.restore();
+    if (!missingRigWarnings.has(fighter.id)) {
+      missingRigWarnings.add(fighter.id);
+      console.error(`No procedural rig registered for fighter visual key "${fighter.id}"`);
+    }
+  }
+  function camaleoniUltimateAlpha(fighter) {
+    if (fighter.id !== "chameleon")
+      return 1;
+    const definition = ULTIMATES.camaleoniUltimate;
+    if (fighter.ultimatePhase === "startup") {
+      const phaseProgress = clamp01(fighter.ultimatePhaseFrame / definition.startupFrames);
+      const earlyDisappear = clamp01(fighter.moveFrame / 9);
+      const progress = Math.max(phaseProgress, earlyDisappear);
+      return lerp(1, 0.12, clamp01(progress * 1.35));
+    }
+    if (fighter.ultimatePhase === "capture")
+      return 0.08;
+    if (fighter.ultimatePhase === "sequence") {
+      const frame = fighter.ultimatePhaseFrame;
+      if (frame < 8)
+        return 0.18;
+      if (frame < 16)
+        return lerp(0.18, 0.94, (frame - 8) / 8);
+      return 1;
+    }
+    return 1;
+  }
+  function drawFighter(ctx, fighter, timeSeconds) {
+    const rig = RIGS[fighter.id];
+    if (!rig) {
+      drawMissingRig(ctx, fighter);
+      return;
+    }
+    ctx.save();
+    ctx.globalAlpha *= camaleoniUltimateAlpha(fighter);
+    rig(ctx, fighter, timeSeconds);
+    ctx.restore();
+  }
+
+  // dist/game/render/StageRenderer.js
+  function drawStage(ctx, time) {
+    const sky = ctx.createLinearGradient(0, 0, 0, WORLD_HEIGHT);
+    sky.addColorStop(0, "#111b36");
+    sky.addColorStop(0.45, "#334b67");
+    sky.addColorStop(0.72, "#c77b5e");
+    sky.addColorStop(1, "#e9b66e");
+    ctx.fillStyle = sky;
+    ctx.fillRect(0, 0, WORLD_WIDTH, WORLD_HEIGHT);
+    const glow = ctx.createRadialGradient(1020, 112, 10, 1020, 112, 145);
+    glow.addColorStop(0, "rgba(255,231,174,.92)");
+    glow.addColorStop(0.25, "rgba(255,201,137,.52)");
+    glow.addColorStop(1, "rgba(255,170,110,0)");
+    ctx.fillStyle = glow;
+    ctx.fillRect(850, 0, 360, 280);
+    ctx.fillStyle = "#ffd9a2";
+    ctx.beginPath();
+    ctx.arc(1020, 112, 43, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillStyle = "#27384b";
+    ctx.beginPath();
+    ctx.moveTo(0, 385);
+    ctx.lineTo(110, 300);
+    ctx.lineTo(195, 354);
+    ctx.lineTo(315, 228);
+    ctx.lineTo(430, 362);
+    ctx.lineTo(540, 280);
+    ctx.lineTo(680, 386);
+    ctx.lineTo(790, 264);
+    ctx.lineTo(930, 368);
+    ctx.lineTo(1080, 248);
+    ctx.lineTo(1280, 380);
+    ctx.lineTo(1280, GROUND_Y);
+    ctx.lineTo(0, GROUND_Y);
+    ctx.closePath();
+    ctx.fill();
+    ctx.fillStyle = "#3d4d58";
+    ctx.beginPath();
+    ctx.moveTo(0, 430);
+    ctx.lineTo(150, 362);
+    ctx.lineTo(260, 414);
+    ctx.lineTo(400, 326);
+    ctx.lineTo(540, 426);
+    ctx.lineTo(720, 355);
+    ctx.lineTo(900, 438);
+    ctx.lineTo(1090, 344);
+    ctx.lineTo(1280, 424);
+    ctx.lineTo(1280, GROUND_Y);
+    ctx.lineTo(0, GROUND_Y);
+    ctx.closePath();
+    ctx.fill();
+    ctx.save();
+    ctx.globalAlpha = 0.12;
+    ctx.strokeStyle = "#d5ecff";
+    ctx.lineWidth = 4;
+    for (let i = 0; i < 4; i += 1) {
+      const yy = 180 + i * 62;
+      const offset = (time * 18 + i * 90) % 180;
+      ctx.beginPath();
+      ctx.moveTo(-180 + offset, yy);
+      ctx.bezierCurveTo(230 + offset, yy - 35, 510 + offset, yy + 22, 840 + offset, yy - 7);
+      ctx.stroke();
+    }
+    ctx.restore();
+    const ground = ctx.createLinearGradient(0, GROUND_Y, 0, WORLD_HEIGHT);
+    ground.addColorStop(0, "#524438");
+    ground.addColorStop(0.24, "#302b2b");
+    ground.addColorStop(1, "#151619");
+    ctx.fillStyle = ground;
+    ctx.fillRect(0, GROUND_Y, WORLD_WIDTH, WORLD_HEIGHT - GROUND_Y);
+    ctx.fillStyle = "#927357";
+    ctx.fillRect(0, GROUND_Y - 9, WORLD_WIDTH, 11);
+    ctx.fillStyle = "#c19a70";
+    ctx.fillRect(0, GROUND_Y - 9, WORLD_WIDTH, 2);
+    ctx.save();
+    ctx.globalAlpha = 0.26;
+    ctx.strokeStyle = "#b99c7e";
+    ctx.lineWidth = 1;
+    for (let x = 80; x < WORLD_WIDTH; x += 100) {
+      ctx.beginPath();
+      ctx.moveTo(x, GROUND_Y + 4);
+      ctx.lineTo(WORLD_WIDTH / 2 + (x - WORLD_WIDTH / 2) * 1.5, WORLD_HEIGHT);
+      ctx.stroke();
+    }
+    for (let y = GROUND_Y + 34; y < WORLD_HEIGHT; y += 42) {
+      ctx.beginPath();
+      ctx.moveTo(0, y);
+      ctx.lineTo(WORLD_WIDTH, y);
+      ctx.stroke();
+    }
+    ctx.restore();
+    ctx.fillStyle = "#171c25";
+    for (let x = 28; x < WORLD_WIDTH; x += 34) {
+      const bob = Math.sin(time * 1.8 + x * 0.09) * 2;
+      ctx.beginPath();
+      ctx.arc(x, GROUND_Y - 36 + bob, 9, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.fillRect(x - 7, GROUND_Y - 28 + bob, 14, 22);
+    }
+    ctx.fillStyle = "#21262e";
+    ctx.fillRect(0, GROUND_Y - 16, WORLD_WIDTH, 10);
+  }
+
+  // dist/game/render/FightRenderer.js
+  var FightRenderer = class {
+    constructor(canvas) {
+      __publicField(this, "canvas");
+      __publicField(this, "ctx");
+      __publicField(this, "particles", []);
+      __publicField(this, "pushGuardFlashes", []);
+      __publicField(this, "ultimateFlashes", []);
+      __publicField(this, "ultimateReleaseTrails", []);
+      __publicField(this, "shakeFrames", 0);
+      __publicField(this, "shakeStrength", 0);
+      __publicField(this, "lastSnapshot", null);
+      __publicField(this, "lastConsumedEventFrame", null);
+      __publicField(this, "lastRenderedSimulationFrame", null);
+      this.canvas = canvas;
+      const ctx = canvas.getContext("2d");
+      if (!ctx)
+        throw new Error("Canvas2D unavailable");
+      this.ctx = ctx;
+    }
+    consumeEvents(snapshot) {
+      this.lastSnapshot = snapshot;
+      if (this.lastConsumedEventFrame === snapshot.frame)
+        return;
+      this.lastConsumedEventFrame = snapshot.frame;
+      for (const event of snapshot.events)
+        this.consumeEvent(event, snapshot);
+    }
+    consumeEvent(event, snapshot) {
+      if (event.type === "push-guard") {
+        const defender2 = snapshot.fighters[event.defender];
+        this.pushGuardFlashes.push({
+          x: defender2.x,
+          y: GROUND_Y - defender2.y,
+          facing: defender2.facing,
+          life: 14,
+          maxLife: 14
+        });
+        if (this.pushGuardFlashes.length > 6)
+          this.pushGuardFlashes.splice(0, this.pushGuardFlashes.length - 6);
+        this.shakeFrames = Math.max(this.shakeFrames, 2);
+        this.shakeStrength = Math.max(this.shakeStrength, 1.6);
+        return;
+      }
+      if (event.type === "ultimate-capture") {
+        const attacker2 = snapshot.fighters[event.attacker];
+        const defender2 = snapshot.fighters[event.defender];
+        this.ultimateFlashes.push({
+          x: defender2.x,
+          y: GROUND_Y - defender2.y - 96,
+          life: 16,
+          maxLife: 16,
+          accent: attacker2.id === "chameleon" ? "#9df5a4" : "#ffc28e"
+        });
+        if (this.ultimateFlashes.length > 6)
+          this.ultimateFlashes.splice(0, this.ultimateFlashes.length - 6);
+        this.shakeFrames = Math.max(this.shakeFrames, 4);
+        this.shakeStrength = Math.max(this.shakeStrength, 3.4);
+        return;
+      }
+      if (event.type === "ultimate-release") {
+        const attacker2 = snapshot.fighters[event.attacker];
+        const defender2 = snapshot.fighters[event.defender];
+        const accent = attacker2.id === "chameleon" ? "#b8ffae" : "#ffbf87";
+        this.ultimateReleaseTrails.push({
+          x: defender2.x,
+          y: GROUND_Y - defender2.y,
+          facing: attacker2.facing,
+          life: 22,
+          maxLife: 22,
+          accent
+        });
+        if (this.ultimateReleaseTrails.length > 6) {
+          this.ultimateReleaseTrails.splice(0, this.ultimateReleaseTrails.length - 6);
+        }
+        this.shakeFrames = Math.max(this.shakeFrames, 10);
+        this.shakeStrength = Math.max(this.shakeStrength, 7.2);
+        return;
+      }
+      if (event.type === "guard-break") {
+        const defender2 = snapshot.fighters[event.defender];
+        const centerX2 = defender2.x;
+        const centerY2 = GROUND_Y - defender2.y - (defender2.crouching ? 72 : 112);
+        const count2 = 24;
+        for (let i = 0; i < count2; i += 1) {
+          const angle = Math.PI * 2 * i / count2 + snapshot.frame % 5 * 0.08;
+          const speed = 4.2 + i * 29 % 9 * 0.28;
+          this.particles.push({
+            x: centerX2,
+            y: centerY2,
+            vx: Math.cos(angle) * speed,
+            vy: Math.sin(angle) * speed - 0.8,
+            life: 24,
+            maxLife: 24,
+            radius: 4.6,
+            tone: "break"
+          });
+        }
+        this.shakeFrames = Math.max(this.shakeFrames, 6);
+        this.shakeStrength = Math.max(this.shakeStrength, 4.2);
+        this.trimParticles();
+        return;
+      }
+      if (event.type !== "hit")
+        return;
+      const defender = snapshot.fighters[event.defender];
+      const attacker = snapshot.fighters[event.attacker];
+      const centerX = defender.x - defender.facing * 22;
+      const centerY = GROUND_Y - defender.y - (defender.crouching ? 64 : 100);
+      const ultimateHit = event.source === "ultimate";
+      const ultimateFinisher = ultimateHit && event.finisher;
+      const tone = event.blocked ? "block" : ultimateHit ? "ultimate" : attacker.moveId === "tramontana" ? "cold" : attacker.moveId === "coletazo" ? "tail" : "warm";
+      const count = ultimateFinisher ? 26 : event.strong ? 18 : 10;
+      for (let i = 0; i < count; i += 1) {
+        const angle = Math.PI * 2 * i / count + snapshot.frame % 7 * 0.1;
+        const speed = (event.strong ? 5.5 : 3.6) * (0.65 + i * 37 % 10 / 20);
+        this.particles.push({
+          x: centerX,
+          y: centerY,
+          vx: Math.cos(angle) * speed,
+          vy: Math.sin(angle) * speed - 1.2,
+          life: ultimateFinisher ? 28 : event.strong ? 22 : 15,
+          maxLife: ultimateFinisher ? 28 : event.strong ? 22 : 15,
+          radius: ultimateFinisher ? 5.2 : event.strong ? 4.2 : 3.1,
+          tone
+        });
+      }
+      if (ultimateHit && !event.blocked) {
+        this.ultimateFlashes.push({
+          x: centerX,
+          y: centerY,
+          life: 18,
+          maxLife: 18,
+          accent: attacker.id === "chameleon" ? "#a8ff9f" : "#ffb879"
+        });
+        if (this.ultimateFlashes.length > 6)
+          this.ultimateFlashes.splice(0, this.ultimateFlashes.length - 6);
+        this.shakeFrames = Math.max(this.shakeFrames, ultimateFinisher ? 10 : 7);
+        this.shakeStrength = Math.max(this.shakeStrength, ultimateFinisher ? 7.6 : 5.8);
+      } else if (event.strong && !event.blocked) {
+        this.shakeFrames = 7;
+        this.shakeStrength = 5.5;
+      } else if (!event.blocked) {
+        this.shakeFrames = Math.max(this.shakeFrames, 3);
+        this.shakeStrength = Math.max(this.shakeStrength, 2.5);
+      }
+      this.trimParticles();
+    }
+    trimParticles() {
+      const maxParticles = 120;
+      if (this.particles.length > maxParticles) {
+        this.particles.splice(0, this.particles.length - maxParticles);
+      }
+    }
+    render(snapshot, timeSeconds) {
+      void timeSeconds;
+      this.lastSnapshot = snapshot;
+      const simulationDelta = this.consumeSimulationFrameDelta(snapshot.frame);
+      const simulationTimeSeconds = snapshot.frame / 60;
+      this.resize();
+      const ctx = this.ctx;
+      const dpr = Math.min(2, window.devicePixelRatio || 1);
+      const cssW = this.canvas.clientWidth || window.innerWidth;
+      const cssH = this.canvas.clientHeight || window.innerHeight;
+      const pxW = cssW * dpr;
+      const pxH = cssH * dpr;
+      const scale = Math.min(pxW / WORLD_WIDTH, pxH / WORLD_HEIGHT);
+      const offsetX = (pxW - WORLD_WIDTH * scale) * 0.5;
+      const offsetY = (pxH - WORLD_HEIGHT * scale) * 0.5;
+      ctx.setTransform(1, 0, 0, 1, 0, 0);
+      ctx.fillStyle = "#07090e";
+      ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+      let shakeX = 0;
+      let shakeY = 0;
+      if (this.shakeFrames > 0) {
+        const seed = snapshot.frame * 12.9898;
+        shakeX = Math.sin(seed) * this.shakeStrength;
+        shakeY = Math.cos(seed * 1.37) * this.shakeStrength * 0.6;
+        if (simulationDelta > 0) {
+          this.shakeFrames = Math.max(0, this.shakeFrames - simulationDelta);
+          this.shakeStrength *= Math.pow(0.82, simulationDelta);
+        }
+      }
+      ctx.setTransform(scale, 0, 0, scale, offsetX + shakeX * scale, offsetY + shakeY * scale);
+      drawStage(ctx, simulationTimeSeconds);
+      this.syncAuthoritativeUltimateEffects(snapshot);
+      for (const projectile of snapshot.projectiles)
+        this.drawChorizo(projectile.x, GROUND_Y - projectile.y, projectile.vx);
+      for (const fighter of snapshot.fighters) {
+        if (fighter.moveId !== "coletazo")
+          continue;
+        drawColetazoTrail(ctx, fighter.x, GROUND_Y - fighter.y, fighter.facing, getColetazoPresentation(fighter.moveFrame));
+      }
+      this.drawUltimateFields(snapshot, simulationTimeSeconds);
+      const ordered = [...snapshot.fighters].sort((a, b) => b.y - a.y || a.x - b.x);
+      for (const fighter of ordered) {
+        if (fighter.capturedBy !== null) {
+          const captor = snapshot.fighters[fighter.capturedBy];
+          drawCapturedLock(ctx, fighter.x, GROUND_Y - fighter.y, captor.id === "chameleon" ? "#9ef5a5" : "#ffd0a1", simulationTimeSeconds);
+        }
+        drawFighter(ctx, fighter, simulationTimeSeconds);
+      }
+      this.updateAndDrawTransientCombatEffects(simulationDelta);
+      this.updateAndDrawParticles(simulationDelta);
+      this.drawPhaseText(snapshot);
+    }
+    syncAuthoritativeUltimateEffects(snapshot) {
+      const hasAuthoritativeUltimateState = snapshot.fighters.some((fighter) => fighter.ultimatePhase !== "idle" || fighter.capturedBy !== null);
+      if (!hasAuthoritativeUltimateState) {
+        this.ultimateFlashes = [];
+      }
+    }
+    consumeSimulationFrameDelta(frame) {
+      if (this.lastRenderedSimulationFrame === null || frame < this.lastRenderedSimulationFrame) {
+        this.lastRenderedSimulationFrame = frame;
+        return 0;
+      }
+      const delta = frame - this.lastRenderedSimulationFrame;
+      this.lastRenderedSimulationFrame = frame;
+      return Math.max(0, delta);
+    }
+    drawUltimateFields(snapshot, timeSeconds) {
+      const ctx = this.ctx;
+      for (const attackerIndex of [0, 1]) {
+        const fighter = snapshot.fighters[attackerIndex];
+        if (fighter.ultimatePhase === "idle")
+          continue;
+        if (fighter.id !== "chameleon" && fighter.id !== "supernariz")
+          continue;
+        const feetY = GROUND_Y - fighter.y;
+        const accent = fighter.id === "chameleon" ? "#9df5a4" : "#ffd0a1";
+        const target = fighter.ultimateTarget === null ? null : snapshot.fighters[fighter.ultimateTarget];
+        const targetIsAuthoritativelyCaptured = target !== null && target.capturedBy === attackerIndex;
+        if (fighter.ultimatePhase === "startup") {
+          const startupProgress = fighter.id === "chameleon" ? Math.min(1, fighter.ultimatePhaseFrame / 22) : Math.min(1, fighter.ultimatePhaseFrame / 24);
+          drawCaptureStartup(ctx, fighter.x, feetY, fighter.facing, 0.5 + startupProgress * 0.5, accent);
+          if (fighter.id === "chameleon") {
+            drawCamaleoniVeil(ctx, fighter.x, feetY, fighter.facing, 0.22 + startupProgress * 0.32, timeSeconds);
+          } else {
+            drawSupernarizInhalePulse(ctx, fighter.x, feetY, fighter.facing, 0.48 + startupProgress * 0.5, timeSeconds);
+          }
+          continue;
+        }
+        if (fighter.ultimatePhase === "capture") {
+          if (fighter.id === "chameleon") {
+            drawCamaleoniVeil(ctx, fighter.x, feetY, fighter.facing, 1, timeSeconds);
+            drawDashAfterimage(ctx, fighter.x, feetY, fighter.facing, 1, "#a5f7ad");
+          } else {
+            drawSupernarizInhalePulse(ctx, fighter.x, feetY, fighter.facing, 1, timeSeconds);
+            drawSuctionField(ctx, fighter.x, feetY, fighter.facing, 1, timeSeconds);
+          }
+          continue;
+        }
+        if (fighter.ultimatePhase === "sequence") {
+          if (!targetIsAuthoritativelyCaptured || !fighter.ultimateConnected)
+            continue;
+          if (fighter.id === "chameleon") {
+            const finisherApproach = Math.min(1, Math.max(0, (fighter.ultimatePhaseFrame - 8) / 8));
+            drawCamaleoniVeil(ctx, fighter.x, feetY, fighter.facing, 0.2 + (1 - finisherApproach) * 0.24, timeSeconds);
+            drawDashAfterimage(ctx, fighter.x, feetY, fighter.facing, 0.35 + (1 - finisherApproach) * 0.28, "#c2ffb8");
+            drawCamaleoniSequenceCuts(ctx, fighter.x, feetY, fighter.facing, 0.7 + finisherApproach * 0.3, timeSeconds);
+          } else {
+            const nazazoBeat = Math.max(0, 1 - Math.abs(fighter.ultimatePhaseFrame - 14) / 9);
+            drawSupernarizInhalePulse(ctx, fighter.x, feetY, fighter.facing, 0.46, timeSeconds);
+            drawSuctionField(ctx, fighter.x, feetY, fighter.facing, 0.38, timeSeconds);
+            drawNazazoArc(ctx, fighter.x, feetY, fighter.facing, nazazoBeat);
+          }
+          continue;
+        }
+        if (fighter.ultimatePhase === "recovery") {
+          const recoveryPulse = Math.max(0.2, 1 - fighter.ultimatePhaseFrame / 16);
+          drawReappearanceFlash(ctx, fighter.x + (fighter.id === "supernariz" ? fighter.facing * 24 : 0), feetY - (fighter.id === "supernariz" ? 118 : 98), fighter.id === "chameleon" ? recoveryPulse : recoveryPulse * 0.44);
+        }
+      }
+    }
+    updateAndDrawTransientCombatEffects(simulationDelta) {
+      const ctx = this.ctx;
+      const pushGuardKept = [];
+      for (const flash of this.pushGuardFlashes) {
+        flash.life -= simulationDelta;
+        if (flash.life <= 0)
+          continue;
+        pushGuardKept.push(flash);
+        const progress = 1 - flash.life / flash.maxLife;
+        drawPushGuardBurst(ctx, flash.x, flash.y, flash.facing, progress);
+      }
+      this.pushGuardFlashes = pushGuardKept;
+      const ultimateKept = [];
+      for (const flash of this.ultimateFlashes) {
+        flash.life -= simulationDelta;
+        if (flash.life <= 0)
+          continue;
+        ultimateKept.push(flash);
+        const progress = 1 - flash.life / flash.maxLife;
+        drawUltimateImpact(ctx, flash.x, flash.y, progress, flash.accent);
+      }
+      this.ultimateFlashes = ultimateKept;
+      const releaseKept = [];
+      for (const trail of this.ultimateReleaseTrails) {
+        trail.life -= simulationDelta;
+        if (trail.life <= 0)
+          continue;
+        releaseKept.push(trail);
+        const intensity = trail.life / trail.maxLife;
+        drawLaunchTrail(ctx, trail.x, trail.y, trail.facing, intensity);
+        if (intensity > 0.62) {
+          drawUltimateImpact(ctx, trail.x, trail.y - 88, intensity * 0.55, trail.accent);
+        }
+      }
+      this.ultimateReleaseTrails = releaseKept;
+    }
+    drawChorizo(x, y, vx) {
+      const ctx = this.ctx;
+      ctx.save();
+      ctx.translate(x, y);
+      ctx.rotate(vx >= 0 ? -0.08 : Math.PI + 0.08);
+      ctx.fillStyle = "#a84f31";
+      ctx.strokeStyle = "#5a2b22";
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.roundRect(-25, -7, 50, 14, 7);
+      ctx.fill();
+      ctx.stroke();
+      ctx.strokeStyle = "#ef9d68";
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo(-18, -3);
+      ctx.lineTo(16, -3);
+      ctx.stroke();
+      ctx.strokeStyle = "#e2c598";
+      ctx.beginPath();
+      ctx.moveTo(-25, 0);
+      ctx.lineTo(-31, -4);
+      ctx.moveTo(25, 0);
+      ctx.lineTo(31, 4);
+      ctx.stroke();
+      ctx.restore();
+    }
+    updateAndDrawParticles(simulationDelta) {
+      const ctx = this.ctx;
+      const kept = [];
+      for (const p of this.particles) {
+        if (simulationDelta > 0) {
+          const decay = Math.pow(0.94, simulationDelta);
+          const distanceScale = (1 - decay) / (1 - 0.94);
+          p.x += p.vx * distanceScale;
+          p.y += p.vy * simulationDelta + 0.18 * simulationDelta * (simulationDelta - 1) * 0.5;
+          p.vx *= decay;
+          p.vy += 0.18 * simulationDelta;
+          p.life -= simulationDelta;
+        }
+        if (p.life <= 0)
+          continue;
+        kept.push(p);
+        const alpha = p.life / p.maxLife;
+        ctx.save();
+        ctx.globalAlpha = alpha;
+        const color = p.tone === "cold" ? "#b8edff" : p.tone === "block" ? "#f1f4ff" : p.tone === "break" ? "#ff6b65" : p.tone === "ultimate" ? "#fff0a8" : p.tone === "tail" ? "#d9f58f" : "#ffcf7e";
+        ellipse(ctx, p.x, p.y, p.radius * alpha + 1, p.radius * 0.65 * alpha + 0.8, color);
+        ctx.restore();
+      }
+      this.particles = kept;
+    }
+    drawPhaseText(snapshot) {
+      const ctx = this.ctx;
+      if (snapshot.phase !== "intro" && snapshot.phase !== "round-over")
+        return;
+      ctx.save();
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      ctx.shadowColor = "rgba(0,0,0,.55)";
+      ctx.shadowBlur = 16;
+      ctx.fillStyle = "#f6e8c9";
+      ctx.font = "900 64px system-ui, sans-serif";
+      if (snapshot.phase === "intro") {
+        ctx.fillText(`ROUND ${snapshot.round}`, WORLD_WIDTH / 2, 285);
+        ctx.font = "800 28px system-ui, sans-serif";
+        ctx.fillStyle = "#d8b676";
+        ctx.fillText("PREPARADOS", WORLD_WIDTH / 2, 338);
+      } else {
+        const label = snapshot.roundWinner === null ? "DRAW" : snapshot.roundTimerFrames <= 0 ? "TIME" : "K.O.";
+        ctx.fillText(label, WORLD_WIDTH / 2, 302);
+      }
+      ctx.restore();
+    }
+    resize() {
+      const dpr = Math.min(2, window.devicePixelRatio || 1);
+      const width = Math.max(1, Math.round((this.canvas.clientWidth || window.innerWidth) * dpr));
+      const height = Math.max(1, Math.round((this.canvas.clientHeight || window.innerHeight) * dpr));
+      if (this.canvas.width !== width || this.canvas.height !== height) {
+        this.canvas.width = width;
+        this.canvas.height = height;
+      }
+    }
+  };
+
+  // dist/game/simulation/CombatSimulation.js
+  var ARENA_MIN_X = 90;
+  var ARENA_MAX_X = 1190;
+  var START_X = [330, 950];
+  var ROUND_TIME_FRAMES = 60 * 60;
+  var ROUND_OVER_FRAMES = 90;
+  var INTRO_FRAMES = 55;
+  var PUSH_DISTANCE = 62;
+  var MAX_GUARD = 100;
+  var GUARD_REGEN_DELAY_FRAMES = 45;
+  var GUARD_REGEN_PER_FRAME = 0.9;
+  var GUARD_BREAK_FRAMES = 42;
+  var GUARD_AFTER_BREAK = 55;
+  var PUSH_GUARD_COST = 34;
+  var PUSH_GUARD_SEPARATION = 122;
+  var COMMAND_BUFFER_FRAMES = 6;
+  var DOWN_GRACE_SAMPLES2 = 4;
+  var MAX_SUPER = 100;
+  var SUPER_GAIN_NORMAL_DEALT = 0.15;
+  var SUPER_GAIN_SPECIAL_DEALT = 0.1;
+  var SUPER_GAIN_RECEIVED = 0.055;
+  var PUSH_GUARD_RECOVERY_FRAMES = 6;
+  var BACKWARD_WALK_SCALE = 0.78;
+  var FORWARD_DASH_FRAMES = 12;
+  var BACK_DASH_FRAMES = 16;
+  var FORWARD_DASH_SPEED = 9.4;
+  var BACK_DASH_SPEED = 7.2;
+  var BACK_DASH_INVULN_START = 2;
+  var BACK_DASH_INVULN_END = 7;
+  function copyInput(input) {
+    if (input.commands === void 0)
+      return { ...input };
+    return {
+      ...input,
+      commands: input.commands.map((command) => ({
+        action: command.action,
+        direction: { ...command.direction }
+      }))
+    };
+  }
+  function directionFromInput(input) {
+    return { left: input.left, right: input.right, up: input.up, down: input.down };
+  }
+  function commandPriority(action) {
+    if (action === "ultimate")
+      return 5;
+    if (action === "pushGuard")
+      return 4;
+    if (action === "special")
+      return 3;
+    if (action === "attack")
+      return 2;
+    return 1;
+  }
+  function initialSuperFor(options, index) {
+    const configured = options.initialSuper;
+    if (typeof configured === "number")
+      return Math.max(0, Math.min(MAX_SUPER, configured));
+    if (configured)
+      return Math.max(0, Math.min(MAX_SUPER, configured[index] ?? 0));
+    return 0;
+  }
+  function projectileCooldownMaxFor(registry, id) {
+    const kit = registry.getKit(id);
+    const ranged = registry.getMove(id, kit.rangedSpecial);
+    return ranged.projectileKey ? registry.getProjectile(ranged.projectileKey).cooldown : 0;
+  }
+  function makeFighter(registry, id, index, superMeter = 0) {
+    const def = registry.getFighter(id);
+    return {
+      id,
+      x: START_X[index],
+      y: 0,
+      vx: 0,
+      vy: 0,
+      facing: index === 0 ? 1 : -1,
+      health: def.maxHealth,
+      maxHealth: def.maxHealth,
+      guard: MAX_GUARD,
+      maxGuard: MAX_GUARD,
+      guardRegenDelay: 0,
+      guardBreakFrames: 0,
+      grounded: true,
+      crouching: false,
+      blocking: false,
+      stunFrames: 0,
+      blockstunFrames: 0,
+      moveId: null,
+      moveFrame: 0,
+      comboCount: 0,
+      moveContact: "none",
+      chilledFrames: 0,
+      projectileCooldown: 0,
+      projectileCooldownMax: projectileCooldownMaxFor(registry, id),
+      superMeter,
+      maxSuper: MAX_SUPER,
+      superReady: superMeter >= MAX_SUPER,
+      ultimatePhase: "idle",
+      ultimatePhaseFrame: 0,
+      ultimateConnected: false,
+      ultimateTarget: null,
+      dashKind: null,
+      dashFrame: 0,
+      landingRecoveryFrames: 0,
+      pushGuardRecoveryFrames: 0,
+      roundWins: 0,
+      prevInput: copyInput(EMPTY_INPUT),
+      currentMove: null,
+      moveHasHit: false,
+      moveEffectTriggered: false,
+      ultimateFacing: index === 0 ? 1 : -1,
+      capturedBy: null,
+      pendingCommand: null,
+      downGraceSamples: 0,
+      ultimateReleaseSource: null
+    };
+  }
+  function cloneFighter(f) {
+    return {
+      id: f.id,
+      x: f.x,
+      y: f.y,
+      vx: f.vx,
+      vy: f.vy,
+      facing: f.facing,
+      health: f.health,
+      maxHealth: f.maxHealth,
+      guard: f.guard,
+      maxGuard: f.maxGuard,
+      guardRegenDelay: f.guardRegenDelay,
+      guardBreakFrames: f.guardBreakFrames,
+      grounded: f.grounded,
+      crouching: f.crouching,
+      blocking: f.blocking,
+      stunFrames: f.stunFrames,
+      blockstunFrames: f.blockstunFrames,
+      moveId: f.moveId,
+      moveFrame: f.moveFrame,
+      comboCount: f.comboCount,
+      moveContact: f.moveContact,
+      chilledFrames: f.chilledFrames,
+      projectileCooldown: f.projectileCooldown,
+      projectileCooldownMax: f.projectileCooldownMax,
+      superMeter: f.superMeter,
+      maxSuper: f.maxSuper,
+      superReady: f.superReady,
+      ultimatePhase: f.ultimatePhase,
+      ultimatePhaseFrame: f.ultimatePhaseFrame,
+      ultimateConnected: f.ultimateConnected,
+      ultimateTarget: f.ultimateTarget,
+      capturedBy: f.capturedBy,
+      dashKind: f.dashKind,
+      dashFrame: f.dashFrame,
+      landingRecoveryFrames: f.landingRecoveryFrames,
+      pushGuardRecoveryFrames: f.pushGuardRecoveryFrames,
+      roundWins: f.roundWins
+    };
+  }
+  function isAwayHeld(input, facing) {
+    return facing === 1 ? input.left : input.right;
+  }
+  function intervalsOverlap(aMin, aMax, bMin, bMax) {
+    return aMin <= bMax && bMin <= aMax;
+  }
+  var CombatSimulation = class {
+    constructor(p1, p2, options = {}) {
+      __publicField(this, "registry");
+      __publicField(this, "fighters");
+      __publicField(this, "frame", 0);
+      __publicField(this, "combatTick", 0);
+      __publicField(this, "phase");
+      __publicField(this, "introFrames");
+      __publicField(this, "round", 1);
+      __publicField(this, "roundTimerFrames", ROUND_TIME_FRAMES);
+      __publicField(this, "roundOverFrames", 0);
+      __publicField(this, "hitstopFrames", 0);
+      __publicField(this, "winner", null);
+      __publicField(this, "roundWinner", null);
+      __publicField(this, "events", []);
+      __publicField(this, "projectiles", []);
+      __publicField(this, "nextProjectileId", 1);
+      __publicField(this, "pendingUltimateReleases", []);
+      this.registry = options.registry ?? DEFAULT_COMBAT_REGISTRY;
+      this.fighters = [
+        makeFighter(this.registry, p1, 0, initialSuperFor(options, 0)),
+        makeFighter(this.registry, p2, 1, initialSuperFor(options, 1))
+      ];
+      this.phase = options.skipIntro ? "fight" : "intro";
+      this.introFrames = options.skipIntro ? 0 : INTRO_FRAMES;
+    }
+    getSnapshot() {
+      return {
+        frame: this.frame,
+        combatTick: this.combatTick,
+        phase: this.phase,
+        round: this.round,
+        roundTimerFrames: this.roundTimerFrames,
+        hitstopFrames: this.hitstopFrames,
+        winner: this.winner,
+        roundWinner: this.roundWinner,
+        fighters: [cloneFighter(this.fighters[0]), cloneFighter(this.fighters[1])],
+        projectiles: this.projectiles.filter((p) => p.active).map(({ ttl: _ttl, ...p }) => ({ ...p })),
+        events: this.events.map((event) => ({ ...event }))
+      };
+    }
+    resetInputState() {
+      for (const fighter of this.fighters) {
+        fighter.prevInput = copyInput(EMPTY_INPUT);
+        fighter.pendingCommand = null;
+        fighter.downGraceSamples = 0;
+      }
+    }
+    step(p1Input, p2Input) {
+      this.events = [];
+      this.pendingUltimateReleases = [];
+      this.frame += 1;
+      const inputs = [p1Input, p2Input];
+      if (this.phase === "intro") {
+        this.introFrames -= 1;
+        this.updateFacing();
+        this.saveInputs(inputs);
+        if (this.introFrames <= 0) {
+          this.phase = "fight";
+          this.events.push({ type: "round-start", round: this.round });
+        }
+        return this.getSnapshot();
+      }
+      if (this.phase === "round-over") {
+        this.roundOverFrames -= 1;
+        this.saveInputs(inputs);
+        if (this.roundOverFrames <= 0)
+          this.advanceAfterRound();
+        return this.getSnapshot();
+      }
+      if (this.phase === "match-over") {
+        this.saveInputs(inputs);
+        return this.getSnapshot();
+      }
+      this.captureCommands(inputs);
+      if (this.hitstopFrames > 0) {
+        this.hitstopFrames -= 1;
+        this.saveInputs(inputs);
+        return this.getSnapshot();
+      }
+      this.combatTick += 1;
+      this.updateFacing();
+      for (const index of [0, 1]) {
+        this.updateFighter(index, inputs[index]);
+      }
+      this.applyPendingUltimateReleases();
+      this.resolvePushboxes();
+      this.updateFacing();
+      this.resolveMoveHits(0, 1, inputs[1]);
+      this.resolveMoveHits(1, 0, inputs[0]);
+      this.updateProjectiles(inputs);
+      this.cancelInterruptedMoves();
+      if (this.phase === "fight") {
+        this.roundTimerFrames = Math.max(0, this.roundTimerFrames - 1);
+        const roundShouldEnd = this.fighters[0].health <= 0 || this.fighters[1].health <= 0 || this.roundTimerFrames <= 0;
+        if (roundShouldEnd && !this.hasActiveUltimateSequence())
+          this.finishRound();
+      }
+      this.agePendingCommands();
+      this.saveInputs(inputs);
+      return this.getSnapshot();
+    }
+    tryExecutePendingNeutral(index) {
+      const fighter = this.fighters[index];
+      const pending = fighter.pendingCommand;
+      if (!pending)
+        return false;
+      const command = pending.intent;
+      const kit = this.registry.getKit(fighter.id);
+      const def = this.registry.getFighter(fighter.id);
+      if (command.action === "pushGuard") {
+        fighter.pendingCommand = null;
+        return false;
+      }
+      if (command.action === "ultimate") {
+        if (!fighter.superReady) {
+          fighter.pendingCommand = null;
+          return false;
+        }
+        if (!fighter.grounded)
+          return false;
+        fighter.pendingCommand = null;
+        this.startUltimate(index);
+        return true;
+      }
+      if (command.action === "special") {
+        if (!fighter.grounded)
+          return false;
+        const moveId = command.direction.down ? kit.closeSpecial : kit.rangedSpecial;
+        const move = this.registry.getMove(fighter.id, moveId);
+        if (move.projectileKey && fighter.projectileCooldown > 0) {
+          fighter.pendingCommand = null;
+          return false;
+        }
+        fighter.pendingCommand = null;
+        this.startMove(fighter, move);
+        return true;
+      }
+      if (command.action === "attack") {
+        if (!fighter.grounded) {
+          fighter.pendingCommand = null;
+          this.startMove(fighter, this.registry.getMove(fighter.id, kit.air), 1);
+          fighter.x += fighter.vx;
+          this.integrateVertical(fighter, def.gravity);
+          this.clampFighter(fighter);
+          return true;
+        }
+        fighter.pendingCommand = null;
+        const moveId = command.direction.down && kit.low ? kit.low : kit.standing;
+        this.startMove(fighter, this.registry.getMove(fighter.id, moveId), 1);
+        return true;
+      }
+      if (command.action === "jump") {
+        if (!fighter.grounded)
+          return false;
+        fighter.pendingCommand = null;
+        fighter.vy = def.jumpSpeed;
+        fighter.grounded = false;
+        fighter.crouching = false;
+        fighter.blocking = false;
+        return false;
+      }
+      return false;
+    }
+    updateFighter(index, input) {
+      const fighter = this.fighters[index];
+      const def = this.registry.getFighter(fighter.id);
+      if (fighter.projectileCooldown > 0)
+        fighter.projectileCooldown -= 1;
+      if (fighter.chilledFrames > 0)
+        fighter.chilledFrames -= 1;
+      this.updateGuard(fighter);
+      if (fighter.capturedBy !== null) {
+        fighter.blocking = false;
+        fighter.crouching = false;
+        fighter.vx = 0;
+        fighter.vy = 0;
+        return;
+      }
+      if (fighter.health <= 0 && fighter.ultimatePhase !== "sequence") {
+        fighter.blocking = false;
+        fighter.vx = 0;
+        return;
+      }
+      if (fighter.ultimatePhase === "sequence") {
+        this.updateUltimate(index);
+        return;
+      }
+      if (fighter.guardBreakFrames > 0) {
+        fighter.guardBreakFrames -= 1;
+        fighter.blocking = false;
+        fighter.crouching = false;
+        fighter.dashKind = null;
+        fighter.dashFrame = 0;
+        fighter.x += fighter.vx;
+        fighter.vx *= 0.82;
+        this.integrateVertical(fighter, def.gravity);
+        this.clampFighter(fighter);
+        if (fighter.guardBreakFrames === 0)
+          fighter.guard = Math.max(fighter.guard, GUARD_AFTER_BREAK);
+        return;
+      }
+      if (fighter.stunFrames > 0) {
+        fighter.stunFrames -= 1;
+        fighter.blocking = false;
+        fighter.crouching = false;
+        fighter.dashKind = null;
+        fighter.dashFrame = 0;
+        const desiredX = fighter.x + fighter.vx;
+        fighter.x = desiredX;
+        this.clampFighter(fighter);
+        const wallOverflow = desiredX - fighter.x;
+        if (fighter.ultimateReleaseSource !== null && wallOverflow !== 0) {
+          const source = this.fighters[fighter.ultimateReleaseSource];
+          source.x -= wallOverflow;
+          this.clampFighter(source);
+        }
+        fighter.vx *= 0.86;
+        this.integrateVertical(fighter, def.gravity);
+        if (fighter.stunFrames === 0)
+          fighter.ultimateReleaseSource = null;
+        return;
+      }
+      if (fighter.blockstunFrames > 0) {
+        if (fighter.pendingCommand?.intent.action === "pushGuard") {
+          fighter.pendingCommand = null;
+          if (this.tryPushGuard(index))
+            return;
+        }
+        fighter.blockstunFrames -= 1;
+        fighter.blocking = true;
+        fighter.crouching = input.down;
+        fighter.dashKind = null;
+        fighter.dashFrame = 0;
+        fighter.x += fighter.vx;
+        fighter.vx *= 0.78;
+        this.integrateVertical(fighter, def.gravity);
+        this.clampFighter(fighter);
+        if (fighter.blockstunFrames === 0)
+          fighter.blocking = false;
+        return;
+      }
+      if (fighter.pushGuardRecoveryFrames > 0) {
+        fighter.pushGuardRecoveryFrames -= 1;
+        fighter.blocking = false;
+        fighter.crouching = false;
+        fighter.dashKind = null;
+        fighter.dashFrame = 0;
+        fighter.vx *= 0.82;
+        this.integrateVertical(fighter, def.gravity);
+        this.clampFighter(fighter);
+        return;
+      }
+      if (fighter.landingRecoveryFrames > 0 && fighter.grounded) {
+        fighter.landingRecoveryFrames -= 1;
+        if (fighter.currentMove === null) {
+          fighter.blocking = false;
+          fighter.crouching = input.down;
+          fighter.vx = 0;
+          return;
+        }
+      }
+      if (fighter.ultimatePhase !== "idle") {
+        this.updateUltimate(index);
+        return;
+      }
+      if (fighter.pendingCommand?.intent.action === "ultimate" && !fighter.superReady) {
+        fighter.pendingCommand = null;
+      }
+      if (fighter.dashKind) {
+        this.updateDash(fighter);
+        this.integrateVertical(fighter, def.gravity);
+        this.clampFighter(fighter);
+        return;
+      }
+      if (fighter.currentMove) {
+        fighter.blocking = false;
+        fighter.crouching = false;
+        const current = fighter.currentMove;
+        const pendingAttack = fighter.pendingCommand?.intent.action === "attack" ? fighter.pendingCommand.intent : null;
+        const canChain = fighter.moveContact === "hit" && pendingAttack !== null && !pendingAttack.direction.down && current.nextAttack && current.cancelStart !== void 0 && current.cancelEnd !== void 0 && fighter.moveFrame >= current.cancelStart && fighter.moveFrame <= current.cancelEnd;
+        if (canChain && current.nextAttack) {
+          fighter.pendingCommand = null;
+          this.startMove(fighter, this.registry.getMove(fighter.id, current.nextAttack), fighter.comboCount + 1);
+          this.integrateVertical(fighter, def.gravity);
+          return;
+        }
+        fighter.moveFrame += 1;
+        this.triggerMoveEffect(index, fighter);
+        if (fighter.moveFrame >= current.totalFrames) {
+          this.clearMove(fighter);
+          if (fighter.landingRecoveryFrames === 0 && this.tryExecutePendingNeutral(index))
+            return;
+        }
+        if (!fighter.grounded)
+          fighter.x += fighter.vx;
+        this.integrateVertical(fighter, def.gravity);
+        this.clampFighter(fighter);
+        return;
+      }
+      if (fighter.grounded && (input.dashLeft || input.dashRight)) {
+        const direction2 = input.dashLeft === input.dashRight ? 0 : input.dashLeft ? -1 : 1;
+        if (direction2 !== 0) {
+          this.startDash(fighter, direction2);
+          this.updateDash(fighter);
+          this.clampFighter(fighter);
+          return;
+        }
+      }
+      if (this.tryExecutePendingNeutral(index))
+        return;
+      fighter.crouching = fighter.grounded && input.down;
+      fighter.blocking = false;
+      let direction = 0;
+      if (input.left !== input.right)
+        direction = input.left ? -1 : 1;
+      if (!fighter.crouching) {
+        const chillScale = fighter.chilledFrames > 0 ? 0.7 : 1;
+        const walkingBackward = fighter.grounded && direction === -fighter.facing;
+        const walkScale = walkingBackward ? BACKWARD_WALK_SCALE : 1;
+        fighter.vx = direction * def.walkSpeed * chillScale * walkScale;
+        fighter.x += fighter.vx;
+      } else {
+        fighter.vx = 0;
+      }
+      this.integrateVertical(fighter, def.gravity);
+      this.clampFighter(fighter);
+    }
+    captureCommands(inputs) {
+      for (const index of [0, 1]) {
+        const fighter = this.fighters[index];
+        const input = inputs[index];
+        if (input.up)
+          fighter.downGraceSamples = 0;
+        else if (input.down)
+          fighter.downGraceSamples = DOWN_GRACE_SAMPLES2;
+        else if (fighter.downGraceSamples > 0)
+          fighter.downGraceSamples -= 1;
+        const candidates = input.commands !== void 0 ? input.commands.slice(0, 4).map((command) => ({
+          action: command.action,
+          direction: { ...command.direction }
+        })) : this.legacyCommands(input, fighter.prevInput);
+        if (candidates.length === 0)
+          continue;
+        let selected = candidates[0];
+        for (const candidate of candidates.slice(1)) {
+          if (commandPriority(candidate.action) >= commandPriority(selected.action))
+            selected = candidate;
+        }
+        const direction = { ...selected.direction };
+        if (selected.action === "special" && !direction.down && !direction.up && fighter.downGraceSamples > 0) {
+          direction.down = true;
+        }
+        fighter.pendingCommand = {
+          intent: { action: selected.action, direction },
+          remainingFrames: COMMAND_BUFFER_FRAMES
+        };
+      }
+    }
+    legacyCommands(input, previous) {
+      const direction = directionFromInput(input);
+      const commands = [];
+      if (Boolean(input.jump) && !Boolean(previous.jump))
+        commands.push({ action: "jump", direction: { ...direction } });
+      if (Boolean(input.attack) && !Boolean(previous.attack))
+        commands.push({ action: "attack", direction: { ...direction } });
+      if (Boolean(input.special) && !Boolean(previous.special))
+        commands.push({ action: "special", direction: { ...direction } });
+      if (Boolean(input.pushGuard) && !Boolean(previous.pushGuard))
+        commands.push({ action: "pushGuard", direction: { ...direction } });
+      if (Boolean(input.ultimate) && !Boolean(previous.ultimate))
+        commands.push({ action: "ultimate", direction: { ...direction } });
+      return commands;
+    }
+    agePendingCommands() {
+      for (const fighter of this.fighters) {
+        if (!fighter.pendingCommand)
+          continue;
+        fighter.pendingCommand.remainingFrames -= 1;
+        if (fighter.pendingCommand.remainingFrames <= 0)
+          fighter.pendingCommand = null;
+      }
+    }
+    tryPushGuard(defenderIndex) {
+      const defender = this.fighters[defenderIndex];
+      if (defender.guardBreakFrames > 0 || defender.guard < PUSH_GUARD_COST)
+        return false;
+      if (!(defender.blocking || defender.blockstunFrames > 0))
+        return false;
+      if (defender.capturedBy !== null || defender.ultimatePhase === "sequence")
+        return false;
+      const attackerIndex = defenderIndex === 0 ? 1 : 0;
+      const attacker = this.fighters[attackerIndex];
+      defender.guard = Math.max(0, defender.guard - PUSH_GUARD_COST);
+      defender.guardRegenDelay = GUARD_REGEN_DELAY_FRAMES;
+      defender.blockstunFrames = 0;
+      defender.blocking = false;
+      defender.vx = 0;
+      const direction = attacker.x < defender.x ? -1 : 1;
+      const attackerBefore = attacker.x;
+      attacker.x += direction * PUSH_GUARD_SEPARATION;
+      this.clampFighter(attacker);
+      const attackerTravel = Math.abs(attacker.x - attackerBefore);
+      const overflow = Math.max(0, PUSH_GUARD_SEPARATION - attackerTravel);
+      if (overflow > 0) {
+        defender.x -= direction * overflow;
+        this.clampFighter(defender);
+      }
+      attacker.vx = direction * 4.5;
+      defender.pushGuardRecoveryFrames = PUSH_GUARD_RECOVERY_FRAMES;
+      this.events.push({ type: "push-guard", defender: defenderIndex, attacker: attackerIndex });
+      return true;
+    }
+    updateGuard(fighter) {
+      if (fighter.guardBreakFrames > 0)
+        return;
+      if (fighter.guardRegenDelay > 0) {
+        fighter.guardRegenDelay -= 1;
+        return;
+      }
+      if (fighter.guard < fighter.maxGuard)
+        fighter.guard = Math.min(fighter.maxGuard, fighter.guard + GUARD_REGEN_PER_FRAME);
+    }
+    addSuper(index, amount) {
+      if (amount <= 0)
+        return;
+      const fighter = this.fighters[index];
+      const before = fighter.superMeter;
+      fighter.superMeter = Math.min(fighter.maxSuper, fighter.superMeter + amount);
+      fighter.superReady = fighter.superMeter >= fighter.maxSuper;
+      if (before < fighter.maxSuper && fighter.superReady) {
+        this.events.push({ type: "super-ready", fighter: index });
+      }
+    }
+    applyDamage(attackerIndex, defenderIndex, requestedDamage, source, blocked = false) {
+      const defender = this.fighters[defenderIndex];
+      const actualDamage = Math.max(0, Math.min(defender.health, requestedDamage));
+      defender.health = Math.max(0, defender.health - requestedDamage);
+      if (actualDamage > 0 && !blocked && source !== "ultimate") {
+        const dealtRate = source === "normal" ? SUPER_GAIN_NORMAL_DEALT : SUPER_GAIN_SPECIAL_DEALT;
+        this.addSuper(attackerIndex, actualDamage * dealtRate);
+        this.addSuper(defenderIndex, actualDamage * SUPER_GAIN_RECEIVED);
+      }
+      return actualDamage;
+    }
+    startDash(fighter, direction) {
+      const forward = direction === fighter.facing;
+      fighter.dashKind = forward ? "forward" : "back";
+      fighter.dashFrame = 0;
+      fighter.blocking = false;
+      fighter.crouching = false;
+      fighter.vx = direction * (forward ? FORWARD_DASH_SPEED : BACK_DASH_SPEED);
+    }
+    updateDash(fighter) {
+      if (!fighter.dashKind)
+        return;
+      fighter.dashFrame += 1;
+      const duration = fighter.dashKind === "forward" ? FORWARD_DASH_FRAMES : BACK_DASH_FRAMES;
+      fighter.x += fighter.vx;
+      if (fighter.dashFrame >= duration) {
+        fighter.dashKind = null;
+        fighter.dashFrame = 0;
+        fighter.vx = 0;
+      }
+    }
+    integrateVertical(fighter, gravity) {
+      if (fighter.grounded && fighter.y === 0 && fighter.vy === 0)
+        return;
+      const wasGrounded = fighter.grounded;
+      fighter.y += fighter.vy;
+      fighter.vy -= gravity;
+      if (fighter.y <= 0) {
+        fighter.y = 0;
+        fighter.vy = 0;
+        fighter.grounded = true;
+        if (!wasGrounded) {
+          fighter.vx = 0;
+          fighter.landingRecoveryFrames = 4;
+          const index = this.fighters.indexOf(fighter);
+          this.events.push({ type: "land", fighter: index });
+        }
+      } else {
+        fighter.grounded = false;
+      }
+    }
+    resolveMoveHits(attackerIndex, defenderIndex, defenderInput) {
+      const attacker = this.fighters[attackerIndex];
+      const defender = this.fighters[defenderIndex];
+      if (attacker.ultimatePhase !== "idle" || defender.capturedBy !== null)
+        return;
+      const move = attacker.currentMove;
+      if (!move || attacker.moveHasHit)
+        return;
+      const hitbox = move.hitbox;
+      if (!hitbox)
+        return;
+      if (attacker.moveFrame < hitbox.start || attacker.moveFrame > hitbox.end)
+        return;
+      const attackMinX = attacker.facing === 1 ? attacker.x + hitbox.offsetX : attacker.x - hitbox.offsetX - hitbox.width;
+      const attackMaxX = attackMinX + hitbox.width;
+      const defenderDef = this.registry.getFighter(defender.id);
+      const hurtHalfWidth = defenderDef.width * 0.5;
+      const hurtMinX = defender.x - hurtHalfWidth;
+      const hurtMaxX = defender.x + hurtHalfWidth;
+      const hurtTop = defender.crouching ? defenderDef.height * 0.66 : defenderDef.height;
+      const hurtBottom = defender.y;
+      const attackBottom = attacker.y + hitbox.bottom;
+      const attackTop = attacker.y + hitbox.top;
+      if (!intervalsOverlap(attackMinX, attackMaxX, hurtMinX, hurtMaxX))
+        return;
+      if (!intervalsOverlap(attackBottom, attackTop, hurtBottom, defender.y + hurtTop))
+        return;
+      if (this.isBackdashStrikeInvulnerable(defender))
+        return;
+      const blocked = this.canBlock(defender, defenderInput, hitbox.level);
+      const source = move.category === "normal" ? "normal" : move.category === "ultimate" ? "ultimate" : "special";
+      attacker.moveHasHit = true;
+      attacker.moveContact = blocked ? "block" : "hit";
+      let actualDamage = 0;
+      if (blocked) {
+        actualDamage = this.applyDamage(attackerIndex, defenderIndex, hitbox.chipDamage, source, true);
+        defender.blockstunFrames = hitbox.blockstun;
+        defender.blocking = true;
+        defender.vx = attacker.facing * hitbox.knockback * 0.35;
+        this.applyCornerBlockTransfer(attackerIndex, defenderIndex, hitbox.knockback);
+        this.damageGuard(defenderIndex, hitbox.guardDamage);
+      } else {
+        actualDamage = this.applyDamage(attackerIndex, defenderIndex, hitbox.damage, source, false);
+        defender.stunFrames = hitbox.hitstun;
+        defender.blocking = false;
+        defender.vx = attacker.facing * hitbox.knockback;
+      }
+      if (move.chillFrames && !blocked)
+        defender.chilledFrames = Math.max(defender.chilledFrames, move.chillFrames);
+      this.hitstopFrames = Math.max(this.hitstopFrames, hitbox.hitstop);
+      this.events.push({
+        type: "hit",
+        attacker: attackerIndex,
+        defender: defenderIndex,
+        blocked,
+        damage: actualDamage,
+        strong: hitbox.strong,
+        source,
+        finisher: defender.health <= 0
+      });
+    }
+    canBlock(defender, input, level = "mid") {
+      const levelAllowsBlock = level === "mid" || level === "low" && input.down || level === "overhead" && !input.down;
+      return defender.grounded && isAwayHeld(input, defender.facing) && levelAllowsBlock && defender.currentMove === null && defender.ultimatePhase === "idle" && defender.dashKind === null && defender.stunFrames === 0 && defender.guardBreakFrames === 0 && defender.pushGuardRecoveryFrames === 0 && defender.capturedBy === null && defender.guard > 0;
+    }
+    applyCornerBlockTransfer(attackerIndex, defenderIndex, knockback) {
+      const attacker = this.fighters[attackerIndex];
+      const defender = this.fighters[defenderIndex];
+      const pinnedLeft = attacker.facing === -1 && defender.x <= ARENA_MIN_X + 1;
+      const pinnedRight = attacker.facing === 1 && defender.x >= ARENA_MAX_X - 1;
+      if (!pinnedLeft && !pinnedRight)
+        return;
+      const transfer = Math.max(9, knockback * 1.8);
+      attacker.x -= attacker.facing * transfer;
+      this.clampFighter(attacker);
+    }
+    isBackdashStrikeInvulnerable(fighter) {
+      return fighter.dashKind === "back" && fighter.dashFrame >= BACK_DASH_INVULN_START && fighter.dashFrame <= BACK_DASH_INVULN_END;
+    }
+    damageGuard(defenderIndex, amount) {
+      const defender = this.fighters[defenderIndex];
+      defender.guard = Math.max(0, defender.guard - amount);
+      defender.guardRegenDelay = GUARD_REGEN_DELAY_FRAMES;
+      if (defender.guard > 0)
+        return;
+      defender.blockstunFrames = 0;
+      defender.blocking = false;
+      if (defender.pendingCommand?.intent.action === "pushGuard")
+        defender.pendingCommand = null;
+      defender.guardBreakFrames = GUARD_BREAK_FRAMES;
+      defender.vx *= 0.5;
+      this.events.push({ type: "guard-break", defender: defenderIndex });
+    }
+    startMove(fighter, move, comboCount = 0) {
+      fighter.currentMove = move;
+      fighter.moveId = move.id;
+      fighter.moveFrame = 0;
+      fighter.moveHasHit = false;
+      fighter.moveContact = "none";
+      fighter.moveEffectTriggered = false;
+      fighter.comboCount = comboCount;
+      if (fighter.grounded)
+        fighter.vx = 0;
+    }
+    clearMove(fighter) {
+      fighter.currentMove = null;
+      fighter.moveId = null;
+      fighter.moveFrame = 0;
+      fighter.moveHasHit = false;
+      fighter.moveContact = "none";
+      fighter.moveEffectTriggered = false;
+      fighter.comboCount = 0;
+    }
+    clearTransientCombatState(fighter) {
+      fighter.vx = 0;
+      fighter.vy = 0;
+      fighter.crouching = false;
+      fighter.blocking = false;
+      fighter.stunFrames = 0;
+      fighter.blockstunFrames = 0;
+      fighter.guardBreakFrames = 0;
+      fighter.dashKind = null;
+      fighter.dashFrame = 0;
+      fighter.landingRecoveryFrames = 0;
+      fighter.pushGuardRecoveryFrames = 0;
+      fighter.pendingCommand = null;
+      fighter.downGraceSamples = 0;
+      fighter.ultimateReleaseSource = null;
+      fighter.ultimatePhase = "idle";
+      fighter.ultimatePhaseFrame = 0;
+      fighter.ultimateConnected = false;
+      fighter.ultimateTarget = null;
+      fighter.capturedBy = null;
+      this.clearMove(fighter);
+    }
+    triggerMoveEffect(index, fighter) {
+      const move = fighter.currentMove;
+      if (!move || fighter.moveEffectTriggered || move.spawnProjectileFrame === void 0 || !move.projectileKey)
+        return;
+      if (fighter.moveFrame < move.spawnProjectileFrame)
+        return;
+      const definition = this.registry.getProjectile(move.projectileKey);
+      if (this.projectiles.some((projectile2) => projectile2.active && projectile2.owner === index && projectile2.kind === definition.key)) {
+        fighter.moveEffectTriggered = true;
+        fighter.projectileCooldown = Math.max(fighter.projectileCooldown, definition.cooldown);
+        return;
+      }
+      const projectile = {
+        id: this.nextProjectileId++,
+        owner: index,
+        kind: definition.key,
+        x: fighter.x + fighter.facing * definition.spawnOffsetX,
+        y: fighter.y + definition.spawnOffsetY,
+        vx: fighter.facing * definition.speed,
+        active: true,
+        ttl: definition.ttl
+      };
+      this.projectiles.push(projectile);
+      fighter.projectileCooldown = definition.cooldown;
+      fighter.moveEffectTriggered = true;
+      this.events.push({ type: "projectile", owner: index, projectileId: projectile.id });
+    }
+    updateProjectiles(inputs) {
+      for (const projectile of this.projectiles) {
+        if (!projectile.active)
+          continue;
+        const definition = this.registry.getProjectile(projectile.kind);
+        projectile.x += projectile.vx;
+        projectile.ttl -= 1;
+        if (projectile.ttl <= 0 || projectile.x < ARENA_MIN_X - 80 || projectile.x > ARENA_MAX_X + 80) {
+          projectile.active = false;
+          continue;
+        }
+        const defenderIndex = projectile.owner === 0 ? 1 : 0;
+        const defender = this.fighters[defenderIndex];
+        if (defender.capturedBy !== null)
+          continue;
+        const defenderDef = this.registry.getFighter(defender.id);
+        const half = defenderDef.width * 0.5;
+        const projectileMinX = projectile.x - definition.collisionHalfWidth;
+        const projectileMaxX = projectile.x + definition.collisionHalfWidth;
+        const projectileMinY = projectile.y - definition.collisionHalfHeight;
+        const projectileMaxY = projectile.y + definition.collisionHalfHeight;
+        const hurtTop = defender.y + (defender.crouching ? defenderDef.height * 0.66 : defenderDef.height);
+        if (!intervalsOverlap(projectileMinX, projectileMaxX, defender.x - half, defender.x + half))
+          continue;
+        if (!intervalsOverlap(projectileMinY, projectileMaxY, defender.y + 18, hurtTop + 10))
+          continue;
+        const defenderInput = inputs[defenderIndex];
+        const blocked = this.canBlock(defender, defenderInput);
+        const requestedDamage = blocked ? definition.chipDamage : definition.damage;
+        const actualDamage = this.applyDamage(projectile.owner, defenderIndex, requestedDamage, "projectile", blocked);
+        if (blocked) {
+          defender.blockstunFrames = definition.blockstun;
+          defender.blocking = true;
+          defender.vx = Math.sign(projectile.vx) * definition.blockKnockback;
+          this.applyCornerBlockTransfer(projectile.owner, defenderIndex, definition.cornerTransferKnockback);
+          this.damageGuard(defenderIndex, definition.guardDamage);
+        } else {
+          defender.stunFrames = definition.hitstun;
+          defender.blocking = false;
+          defender.vx = Math.sign(projectile.vx) * definition.knockback;
+        }
+        projectile.active = false;
+        this.hitstopFrames = Math.max(this.hitstopFrames, definition.hitstop);
+        this.events.push({
+          type: "hit",
+          attacker: projectile.owner,
+          defender: defenderIndex,
+          blocked,
+          damage: actualDamage,
+          strong: definition.strong,
+          source: "projectile",
+          finisher: defender.health <= 0
+        });
+      }
+      this.projectiles = this.projectiles.filter((p) => p.active);
+    }
+    startUltimate(index) {
+      const fighter = this.fighters[index];
+      const kit = this.registry.getKit(fighter.id);
+      fighter.currentMove = this.registry.getMove(fighter.id, kit.ultimate);
+      fighter.moveId = fighter.currentMove.id;
+      fighter.moveFrame = 0;
+      fighter.moveHasHit = false;
+      fighter.moveContact = "none";
+      fighter.moveEffectTriggered = false;
+      fighter.comboCount = 0;
+      fighter.ultimatePhase = "startup";
+      fighter.ultimatePhaseFrame = 0;
+      fighter.ultimateConnected = false;
+      fighter.ultimateTarget = null;
+      fighter.ultimateFacing = fighter.facing;
+      fighter.vx = 0;
+      fighter.blocking = false;
+      fighter.crouching = false;
+      this.events.push({ type: "ultimate-start", attacker: index });
+    }
+    activeUltimateDefinition(fighter) {
+      const move = fighter.currentMove;
+      if (!move?.ultimateKey)
+        throw new Error(`Missing ultimate definition for ${fighter.id}:${fighter.moveId ?? "none"}`);
+      return this.registry.getUltimate(move.ultimateKey);
+    }
+    updateUltimate(index) {
+      const fighter = this.fighters[index];
+      const definition = this.activeUltimateDefinition(fighter);
+      fighter.blocking = false;
+      fighter.crouching = false;
+      fighter.dashKind = null;
+      fighter.dashFrame = 0;
+      fighter.facing = fighter.ultimateFacing;
+      fighter.moveFrame += 1;
+      fighter.ultimatePhaseFrame += 1;
+      if (fighter.ultimatePhase === "startup") {
+        if (fighter.ultimatePhaseFrame >= definition.startupFrames) {
+          fighter.superMeter = 0;
+          fighter.superReady = false;
+          fighter.ultimatePhase = "capture";
+          fighter.ultimatePhaseFrame = 0;
+        }
+        return;
+      }
+      if (fighter.ultimatePhase === "capture") {
+        if (definition.kind === "dashCapture")
+          this.updateDashCapture(index, definition);
+        else
+          this.updateSuctionCapture(index, definition);
+        return;
+      }
+      if (fighter.ultimatePhase === "sequence") {
+        this.updateUltimateSequence(index, definition);
+        return;
+      }
+      if (fighter.ultimatePhase === "recovery") {
+        const recoveryFrames = fighter.ultimateConnected ? definition.successRecoveryFrames ?? definition.recoveryFrames : definition.recoveryFrames;
+        if (fighter.ultimatePhaseFrame >= recoveryFrames)
+          this.finishUltimate(fighter);
+      }
+    }
+    updateDashCapture(index, definition) {
+      const attacker = this.fighters[index];
+      const defenderIndex = index === 0 ? 1 : 0;
+      const defender = this.fighters[defenderIndex];
+      const dashSpeed = definition.dashSpeed ?? 0;
+      attacker.x += attacker.ultimateFacing * dashSpeed;
+      this.clampFighter(attacker);
+      const signedDistance = (defender.x - attacker.x) * attacker.ultimateFacing;
+      const verticalDistance = Math.abs(defender.y - attacker.y);
+      const inRegion = signedDistance >= 0 && signedDistance <= definition.captureReach && verticalDistance <= definition.captureVertical;
+      if (inRegion) {
+        this.beginUltimateSequence(index, defenderIndex);
+        return;
+      }
+      if (attacker.ultimatePhaseFrame >= definition.captureFrames) {
+        this.enterUltimateWhiffRecovery(index);
+      }
+    }
+    updateSuctionCapture(index, definition) {
+      const attacker = this.fighters[index];
+      const defenderIndex = index === 0 ? 1 : 0;
+      const defender = this.fighters[defenderIndex];
+      const suctionRange = definition.suctionRange ?? 0;
+      const suctionSpeed = definition.suctionSpeed ?? 0;
+      const captureDistance = definition.captureDistance ?? definition.captureReach;
+      const signedDistance = (defender.x - attacker.x) * attacker.ultimateFacing;
+      const verticalDistance = Math.abs(defender.y - attacker.y);
+      const inField = signedDistance > 0 && signedDistance <= suctionRange && verticalDistance <= definition.captureVertical;
+      if (inField) {
+        const pullDirection = Math.sign(attacker.x - defender.x);
+        defender.x += pullDirection * suctionSpeed;
+        this.clampFighter(defender);
+        const remaining = Math.abs(defender.x - attacker.x);
+        if (remaining <= captureDistance) {
+          this.beginUltimateSequence(index, defenderIndex);
+          return;
+        }
+      }
+      if (attacker.ultimatePhaseFrame >= definition.captureFrames) {
+        this.enterUltimateWhiffRecovery(index);
+      }
+    }
+    beginUltimateSequence(attackerIndex, defenderIndex) {
+      const attacker = this.fighters[attackerIndex];
+      const defender = this.fighters[defenderIndex];
+      attacker.ultimatePhase = "sequence";
+      attacker.ultimatePhaseFrame = 0;
+      attacker.ultimateConnected = true;
+      attacker.ultimateTarget = defenderIndex;
+      this.cancelDefenderForCapture(defender);
+      defender.capturedBy = attackerIndex;
+      defender.vx = 0;
+      defender.vy = 0;
+      defender.blocking = false;
+      defender.crouching = false;
+      this.events.push({ type: "ultimate-capture", attacker: attackerIndex, defender: defenderIndex });
+    }
+    cancelDefenderForCapture(defender) {
+      defender.currentMove = null;
+      defender.moveId = null;
+      defender.moveFrame = 0;
+      defender.moveHasHit = false;
+      defender.moveContact = "none";
+      defender.moveEffectTriggered = false;
+      defender.comboCount = 0;
+      defender.dashKind = null;
+      defender.dashFrame = 0;
+      defender.landingRecoveryFrames = 0;
+      defender.pushGuardRecoveryFrames = 0;
+      defender.stunFrames = 0;
+      defender.blockstunFrames = 0;
+      defender.pendingCommand = null;
+      defender.downGraceSamples = 0;
+      defender.ultimateReleaseSource = null;
+      defender.ultimatePhase = "idle";
+      defender.ultimatePhaseFrame = 0;
+      defender.ultimateConnected = false;
+      defender.ultimateTarget = null;
+    }
+    updateUltimateSequence(attackerIndex, definition) {
+      const attacker = this.fighters[attackerIndex];
+      const defenderIndex = attacker.ultimateTarget;
+      if (defenderIndex === null) {
+        this.enterUltimateWhiffRecovery(attackerIndex);
+        return;
+      }
+      const defender = this.fighters[defenderIndex];
+      attacker.stunFrames = 0;
+      attacker.blockstunFrames = 0;
+      attacker.guardBreakFrames = 0;
+      defender.capturedBy = attackerIndex;
+      defender.vx = 0;
+      defender.vy = 0;
+      defender.x = attacker.x + attacker.ultimateFacing * definition.sequenceOffsetX;
+      this.clampFighter(defender);
+      const hit = definition.sequenceHits.find((beat) => beat.frame === attacker.ultimatePhaseFrame);
+      if (hit) {
+        const finalBeat = definition.sequenceHits[definition.sequenceHits.length - 1] === hit;
+        this.applyUltimateHit(attackerIndex, defenderIndex, hit.damage, hit.knockback, finalBeat ? definition.finalHitstop ?? 7 : 7);
+      }
+      if (attacker.ultimatePhaseFrame >= definition.sequenceFrames) {
+        this.pendingUltimateReleases.push({
+          attacker: attackerIndex,
+          defender: defenderIndex,
+          definition
+        });
+        attacker.ultimateTarget = null;
+        attacker.ultimatePhase = "recovery";
+        attacker.ultimatePhaseFrame = 0;
+      }
+    }
+    applyPendingUltimateReleases() {
+      if (this.pendingUltimateReleases.length === 0)
+        return;
+      for (const release of this.pendingUltimateReleases) {
+        const attacker = this.fighters[release.attacker];
+        const defender = this.fighters[release.defender];
+        const definition = release.definition;
+        const facing = attacker.ultimateFacing;
+        defender.capturedBy = null;
+        defender.pendingCommand = null;
+        defender.blocking = false;
+        defender.crouching = false;
+        defender.blockstunFrames = 0;
+        defender.guardBreakFrames = 0;
+        defender.landingRecoveryFrames = 0;
+        defender.pushGuardRecoveryFrames = 0;
+        const releaseHitstun = definition.releaseHitstun ?? 30;
+        const releaseVx = definition.releaseVx ?? definition.releaseKnockback;
+        const releaseVy = definition.releaseVy ?? 0;
+        const releaseSeparation = definition.releaseSeparation ?? Math.abs(definition.sequenceOffsetX);
+        defender.stunFrames = Math.max(defender.stunFrames, releaseHitstun);
+        defender.grounded = false;
+        defender.vx = facing * releaseVx;
+        defender.vy = releaseVy;
+        defender.ultimateReleaseSource = release.attacker;
+        const targetX = attacker.x + facing * releaseSeparation;
+        defender.x = targetX;
+        this.clampFighter(defender);
+        const achieved = (defender.x - attacker.x) * facing;
+        const missing = Math.max(0, releaseSeparation - achieved);
+        if (missing > 0) {
+          attacker.x -= facing * missing;
+          this.clampFighter(attacker);
+        }
+        this.events.push({
+          type: "ultimate-release",
+          attacker: release.attacker,
+          defender: release.defender
+        });
+      }
+      this.pendingUltimateReleases = [];
+    }
+    applyUltimateHit(attackerIndex, defenderIndex, damage, knockback, hitstop = 7) {
+      const actualDamage = this.applyDamage(attackerIndex, defenderIndex, damage, "ultimate", false);
+      const attacker = this.fighters[attackerIndex];
+      const defender = this.fighters[defenderIndex];
+      defender.vx = attacker.ultimateFacing * knockback;
+      this.hitstopFrames = Math.max(this.hitstopFrames, hitstop);
+      this.events.push({ type: "hit", attacker: attackerIndex, defender: defenderIndex, blocked: false, damage: actualDamage, strong: true, source: "ultimate", finisher: defender.health <= 0 });
+    }
+    enterUltimateWhiffRecovery(index) {
+      const fighter = this.fighters[index];
+      if (fighter.ultimatePhase === "recovery")
+        return;
+      fighter.ultimatePhase = "recovery";
+      fighter.ultimatePhaseFrame = 0;
+      fighter.ultimateConnected = false;
+      fighter.ultimateTarget = null;
+      this.events.push({ type: "ultimate-whiff", attacker: index });
+    }
+    cancelUltimateBeforeCommit(fighter) {
+      fighter.ultimatePhase = "idle";
+      fighter.ultimatePhaseFrame = 0;
+      fighter.ultimateConnected = false;
+      fighter.ultimateTarget = null;
+      this.clearMove(fighter);
+    }
+    finishUltimate(fighter) {
+      fighter.ultimatePhase = "idle";
+      fighter.ultimatePhaseFrame = 0;
+      fighter.ultimateConnected = false;
+      fighter.ultimateTarget = null;
+      this.clearMove(fighter);
+    }
+    hasActiveUltimateSequence() {
+      return this.fighters.some((fighter) => fighter.ultimatePhase === "sequence");
+    }
+    cancelInterruptedMoves() {
+      for (const index of [0, 1]) {
+        const fighter = this.fighters[index];
+        if (fighter.stunFrames <= 0 || !fighter.currentMove)
+          continue;
+        if (fighter.ultimatePhase === "startup") {
+          this.cancelUltimateBeforeCommit(fighter);
+          continue;
+        }
+        if (fighter.ultimatePhase === "capture") {
+          this.enterUltimateWhiffRecovery(index);
+          continue;
+        }
+        if (fighter.ultimatePhase === "sequence")
+          continue;
+        if (fighter.ultimatePhase === "recovery") {
+          this.finishUltimate(fighter);
+          continue;
+        }
+        this.clearMove(fighter);
+      }
+    }
+    updateFacing() {
+      const canReorient = (fighter) => fighter.grounded && fighter.currentMove === null && fighter.ultimatePhase === "idle" && fighter.stunFrames === 0 && fighter.blockstunFrames === 0 && fighter.guardBreakFrames === 0 && fighter.landingRecoveryFrames === 0 && fighter.pushGuardRecoveryFrames === 0 && fighter.capturedBy === null;
+      if (this.fighters[0].x < this.fighters[1].x) {
+        if (canReorient(this.fighters[0]))
+          this.fighters[0].facing = 1;
+        if (canReorient(this.fighters[1]))
+          this.fighters[1].facing = -1;
+      } else if (this.fighters[0].x > this.fighters[1].x) {
+        if (canReorient(this.fighters[0]))
+          this.fighters[0].facing = -1;
+        if (canReorient(this.fighters[1]))
+          this.fighters[1].facing = 1;
+      }
+    }
+    resolvePushboxes() {
+      if (this.fighters.some((fighter) => fighter.capturedBy !== null || fighter.ultimatePhase === "sequence"))
+        return;
+      const left = this.fighters[0].x <= this.fighters[1].x ? this.fighters[0] : this.fighters[1];
+      const right = left === this.fighters[0] ? this.fighters[1] : this.fighters[0];
+      const overlap = PUSH_DISTANCE - (right.x - left.x);
+      if (overlap <= 0 || left.y > 45 || right.y > 45)
+        return;
+      left.x -= overlap * 0.5;
+      right.x += overlap * 0.5;
+      this.clampFighter(left);
+      this.clampFighter(right);
+    }
+    clampFighter(fighter) {
+      fighter.x = Math.max(ARENA_MIN_X, Math.min(ARENA_MAX_X, fighter.x));
+    }
+    finishRound() {
+      if (this.phase !== "fight")
+        return;
+      let roundWinner = null;
+      if (this.fighters[0].health !== this.fighters[1].health) {
+        roundWinner = this.fighters[0].health > this.fighters[1].health ? 0 : 1;
+      }
+      this.roundWinner = roundWinner;
+      if (roundWinner !== null)
+        this.fighters[roundWinner].roundWins += 1;
+      this.pendingUltimateReleases = [];
+      this.clearTransientCombatState(this.fighters[0]);
+      this.clearTransientCombatState(this.fighters[1]);
+      this.phase = "round-over";
+      this.roundOverFrames = ROUND_OVER_FRAMES;
+      this.events.push({ type: "round-end", winner: roundWinner });
+    }
+    advanceAfterRound() {
+      const matchWinner = this.fighters[0].roundWins >= 2 ? 0 : this.fighters[1].roundWins >= 2 ? 1 : null;
+      if (matchWinner !== null) {
+        this.phase = "match-over";
+        this.winner = matchWinner;
+        this.events.push({ type: "match-end", winner: matchWinner });
+        return;
+      }
+      this.round += 1;
+      this.roundWinner = null;
+      this.projectiles = [];
+      this.pendingUltimateReleases = [];
+      this.roundTimerFrames = ROUND_TIME_FRAMES;
+      for (const index of [0, 1]) {
+        const fighter = this.fighters[index];
+        fighter.x = START_X[index];
+        fighter.y = 0;
+        fighter.vx = 0;
+        fighter.vy = 0;
+        fighter.health = fighter.maxHealth;
+        fighter.guard = fighter.maxGuard;
+        fighter.guardRegenDelay = 0;
+        fighter.guardBreakFrames = 0;
+        fighter.grounded = true;
+        fighter.crouching = false;
+        fighter.blocking = false;
+        fighter.chilledFrames = 0;
+        fighter.projectileCooldown = 0;
+        fighter.prevInput = copyInput(EMPTY_INPUT);
+        fighter.superReady = fighter.superMeter >= fighter.maxSuper;
+        this.clearTransientCombatState(fighter);
+      }
+      this.updateFacing();
+      this.phase = "fight";
+      this.events.push({ type: "round-start", round: this.round });
+    }
+    saveInputs(inputs) {
+      this.fighters[0].prevInput = copyInput(inputs[0]);
+      this.fighters[1].prevInput = copyInput(inputs[1]);
+    }
+  };
+
+  // dist/game/simulation/CpuController.js
+  function toward(selfX, otherX) {
+    return selfX > otherX ? { left: true, right: false } : { left: false, right: true };
+  }
+  function away(selfX, otherX) {
+    return selfX > otherX ? { left: false, right: true } : { left: true, right: false };
+  }
+  function dashAway(selfX, otherX) {
+    return selfX > otherX ? { dashLeft: false, dashRight: true } : { dashLeft: true, dashRight: false };
+  }
+  function awayFromFacing(facing) {
+    return facing === 1 ? { left: true, right: false } : { left: false, right: true };
+  }
+  function cloneInput(input) {
+    return { ...input };
+  }
+  var CpuController = class {
+    constructor(cpuIndex, options = {}) {
+      __publicField(this, "cpuIndex");
+      __publicField(this, "registry");
+      __publicField(this, "initialSeed");
+      __publicField(this, "rngState");
+      __publicField(this, "intent", "neutral");
+      __publicField(this, "intentUntilTick", -1);
+      __publicField(this, "nextDecisionTick", -1);
+      __publicField(this, "pendingThreat", null);
+      __publicField(this, "observationHistory", []);
+      __publicField(this, "processedObservationTick", -1);
+      __publicField(this, "handledCueKeys", /* @__PURE__ */ new Set());
+      __publicField(this, "seenProjectileIds", /* @__PURE__ */ new Set());
+      __publicField(this, "cueSerial", 0);
+      __publicField(this, "lastFoeMoveId", null);
+      __publicField(this, "lastFoeMoveFrame", -1);
+      __publicField(this, "lastFoeUltimatePhase", "idle");
+      __publicField(this, "lastSelfMoveId", null);
+      __publicField(this, "lastSelfMoveFrame", -1);
+      __publicField(this, "selfMoveSerial", 0);
+      __publicField(this, "confirmSerial", -1);
+      __publicField(this, "confirmChosen", false);
+      __publicField(this, "confirmEmitted", false);
+      __publicField(this, "lastCombatTick", null);
+      __publicField(this, "cachedOutput", { ...EMPTY_INPUT });
+      __publicField(this, "lastRound", null);
+      this.cpuIndex = cpuIndex;
+      this.registry = options.registry ?? DEFAULT_COMBAT_REGISTRY;
+      this.initialSeed = (options.seed ?? 1374772829 ^ (cpuIndex + 1) * 2654435769) >>> 0;
+      this.rngState = this.initialSeed;
+    }
+    reset(seed = this.initialSeed) {
+      this.rngState = seed >>> 0;
+      this.intent = "neutral";
+      this.intentUntilTick = -1;
+      this.nextDecisionTick = -1;
+      this.pendingThreat = null;
+      this.observationHistory = [];
+      this.processedObservationTick = -1;
+      this.handledCueKeys.clear();
+      this.seenProjectileIds.clear();
+      this.cueSerial = 0;
+      this.lastFoeMoveId = null;
+      this.lastFoeMoveFrame = -1;
+      this.lastFoeUltimatePhase = "idle";
+      this.lastSelfMoveId = null;
+      this.lastSelfMoveFrame = -1;
+      this.selfMoveSerial = 0;
+      this.confirmSerial = -1;
+      this.confirmChosen = false;
+      this.confirmEmitted = false;
+      this.lastCombatTick = null;
+      this.cachedOutput = { ...EMPTY_INPUT };
+      this.lastRound = null;
+    }
+    nextInput(snapshot) {
+      if (snapshot.phase !== "fight") {
+        if (this.lastCombatTick !== snapshot.combatTick || this.lastRound !== snapshot.round) {
+          this.clearRoundState(snapshot.round);
+          this.lastCombatTick = snapshot.combatTick;
+        }
+        this.cachedOutput = { ...EMPTY_INPUT };
+        return cloneInput(this.cachedOutput);
+      }
+      if (this.lastRound !== snapshot.round)
+        this.clearRoundState(snapshot.round);
+      if (this.lastCombatTick === snapshot.combatTick)
+        return cloneInput(this.cachedOutput);
+      this.lastCombatTick = snapshot.combatTick;
+      const self = snapshot.fighters[this.cpuIndex];
+      const otherIndex = this.cpuIndex === 0 ? 1 : 0;
+      const profile = this.registry.getKit(self.id).cpu;
+      const observation = this.projectObservation(snapshot, otherIndex);
+      this.observationHistory.push(observation);
+      if (this.observationHistory.length > 96)
+        this.observationHistory.shift();
+      this.processDelayedObservations(snapshot.combatTick, profile);
+      const delayed = this.latestDelayedObservation(snapshot.combatTick, profile.reactionTicks);
+      const out = { ...EMPTY_INPUT };
+      if (self.health <= 0 || self.stunFrames > 0 || self.guardBreakFrames > 0 || self.capturedBy !== null) {
+        return this.rememberOutput(out);
+      }
+      if (self.blockstunFrames > 0) {
+        if (delayed)
+          Object.assign(out, away(self.x, delayed.foeX));
+        else
+          Object.assign(out, awayFromFacing(self.facing));
+        if (self.guard >= 34 && this.isDecisionTick(snapshot.combatTick, profile) && this.nextRandom() < 0.22) {
+          out.pushGuard = true;
+        }
+        return this.rememberOutput(out);
+      }
+      if (self.moveId !== null) {
+        this.updateSelfMoveSerial(self.moveId, self.moveFrame);
+        const move = this.registry.getMove(self.id, self.moveId);
+        if (self.moveContact === "hit" && move.nextAttack && move.cancelStart !== void 0 && move.cancelEnd !== void 0) {
+          if (this.confirmSerial !== this.selfMoveSerial) {
+            this.confirmSerial = this.selfMoveSerial;
+            this.confirmChosen = this.nextRandom() < profile.confirmChance;
+            this.confirmEmitted = false;
+          }
+          if (this.confirmChosen && !this.confirmEmitted && self.moveFrame >= move.cancelStart && self.moveFrame <= move.cancelEnd) {
+            out.attack = true;
+            this.confirmEmitted = true;
+          }
+        }
+        return this.rememberOutput(out);
+      }
+      this.updateSelfMoveSerial(null, 0);
+      if (self.dashKind !== null || self.ultimatePhase !== "idle" || self.pushGuardRecoveryFrames > 0 || self.landingRecoveryFrames > 0) {
+        return this.rememberOutput(out);
+      }
+      if (!self.grounded) {
+        if (this.isDecisionTick(snapshot.combatTick, profile) && delayed) {
+          const distance = Math.abs(delayed.foeX - self.x);
+          if (distance < 125 && this.nextRandom() < 0.45)
+            out.attack = true;
+        }
+        return this.rememberOutput(out);
+      }
+      if (snapshot.combatTick < this.intentUntilTick) {
+        this.applyIntent(out, self.x, delayed?.foeX ?? self.x - self.facing * 100);
+        return this.rememberOutput(out);
+      }
+      this.intent = "neutral";
+      if (!this.isDecisionTick(snapshot.combatTick, profile))
+        return this.rememberOutput(out);
+      if (this.pendingThreat && this.pendingThreat.expiresTick >= snapshot.combatTick) {
+        const threat = this.pendingThreat;
+        this.pendingThreat = null;
+        this.respondToThreat(out, self.x, threat.cue, snapshot.combatTick, profile);
+        return this.rememberOutput(out);
+      }
+      if (this.pendingThreat && this.pendingThreat.expiresTick < snapshot.combatTick)
+        this.pendingThreat = null;
+      if (!delayed)
+        return this.rememberOutput(out);
+      this.chooseNeutralPlan(out, self, delayed, snapshot.combatTick, profile);
+      return this.rememberOutput(out);
+    }
+    clearRoundState(round) {
+      this.intent = "neutral";
+      this.intentUntilTick = -1;
+      this.nextDecisionTick = -1;
+      this.pendingThreat = null;
+      this.observationHistory = [];
+      this.processedObservationTick = -1;
+      this.handledCueKeys.clear();
+      this.seenProjectileIds.clear();
+      this.cueSerial = 0;
+      this.lastFoeMoveId = null;
+      this.lastFoeMoveFrame = -1;
+      this.lastFoeUltimatePhase = "idle";
+      this.lastSelfMoveId = null;
+      this.lastSelfMoveFrame = -1;
+      this.selfMoveSerial = 0;
+      this.confirmSerial = -1;
+      this.confirmChosen = false;
+      this.confirmEmitted = false;
+      this.lastCombatTick = null;
+      this.cachedOutput = { ...EMPTY_INPUT };
+      this.lastRound = round;
+      this.rngState = (this.initialSeed ^ Math.imul(round, 2246822507)) >>> 0;
+    }
+    rememberOutput(out) {
+      this.cachedOutput = cloneInput(out);
+      return cloneInput(out);
+    }
+    nextRandom() {
+      this.rngState = this.rngState + 1831565813 >>> 0;
+      let t = this.rngState;
+      t = Math.imul(t ^ t >>> 15, t | 1);
+      t ^= t + Math.imul(t ^ t >>> 7, t | 61);
+      return ((t ^ t >>> 14) >>> 0) / 4294967296;
+    }
+    projectObservation(snapshot, foeIndex) {
+      const foe = snapshot.fighters[foeIndex];
+      const cues = [];
+      const moveRestarted = foe.moveId !== null && (foe.moveId !== this.lastFoeMoveId || foe.moveId === this.lastFoeMoveId && this.lastFoeMoveFrame >= 0 && foe.moveFrame < this.lastFoeMoveFrame);
+      if (moveRestarted && foe.moveId !== null) {
+        const move = this.registry.getMove(foe.id, foe.moveId);
+        if (move.category !== "ultimate") {
+          this.cueSerial += 1;
+          const airborne = !foe.grounded || move.bindingRole === "air";
+          cues.push({
+            key: `move:${this.cueSerial}`,
+            kind: airborne ? "air" : "strike",
+            level: move.hitbox?.level ?? (airborne ? "overhead" : "mid"),
+            foeX: foe.x,
+            threatRange: move.cpuThreatRange ?? (airborne ? 260 : 220)
+          });
+        }
+      }
+      if (foe.ultimatePhase === "startup" && this.lastFoeUltimatePhase !== "startup") {
+        this.cueSerial += 1;
+        cues.push({
+          key: `ultimate:${this.cueSerial}`,
+          kind: "ultimate",
+          level: null,
+          foeX: foe.x,
+          threatRange: 360
+        });
+      }
+      for (const projectile of snapshot.projectiles) {
+        if (!projectile.active || projectile.owner !== foeIndex || this.seenProjectileIds.has(projectile.id))
+          continue;
+        this.seenProjectileIds.add(projectile.id);
+        this.cueSerial += 1;
+        cues.push({
+          key: `projectile:${projectile.id}:${this.cueSerial}`,
+          kind: "projectile",
+          level: "mid",
+          foeX: projectile.x,
+          threatRange: 520
+        });
+      }
+      this.lastFoeMoveId = foe.moveId;
+      this.lastFoeMoveFrame = foe.moveFrame;
+      this.lastFoeUltimatePhase = foe.ultimatePhase;
+      return {
+        tick: snapshot.combatTick,
+        foeX: foe.x,
+        foeY: foe.y,
+        foeGrounded: foe.grounded,
+        foeCrouching: foe.crouching,
+        foeSuperReady: foe.superReady,
+        cues
+      };
+    }
+    processDelayedObservations(currentTick, profile) {
+      const targetTick = currentTick - profile.reactionTicks;
+      if (targetTick < 0)
+        return;
+      for (const observation of this.observationHistory) {
+        if (observation.tick <= this.processedObservationTick || observation.tick > targetTick)
+          continue;
+        this.processedObservationTick = observation.tick;
+        for (const cue of observation.cues) {
+          if (this.handledCueKeys.has(cue.key))
+            continue;
+          this.handledCueKeys.add(cue.key);
+          const recognized = this.nextRandom() >= profile.missChance;
+          if (!recognized)
+            continue;
+          this.pendingThreat = {
+            cue,
+            observedTick: currentTick,
+            expiresTick: currentTick + 24
+          };
+        }
+      }
+    }
+    latestDelayedObservation(currentTick, reactionTicks) {
+      const targetTick = currentTick - reactionTicks;
+      for (let i = this.observationHistory.length - 1; i >= 0; i -= 1) {
+        const observation = this.observationHistory[i];
+        if (observation && observation.tick <= targetTick)
+          return observation;
+      }
+      return null;
+    }
+    isDecisionTick(tick, profile) {
+      if (this.nextDecisionTick < 0)
+        this.nextDecisionTick = tick;
+      if (tick < this.nextDecisionTick)
+        return false;
+      this.nextDecisionTick = tick + profile.decisionTicks;
+      return true;
+    }
+    updateSelfMoveSerial(moveId, moveFrame) {
+      if (moveId !== null && (moveId !== this.lastSelfMoveId || moveId === this.lastSelfMoveId && this.lastSelfMoveFrame >= 0 && moveFrame < this.lastSelfMoveFrame)) {
+        this.selfMoveSerial += 1;
+        this.confirmSerial = -1;
+        this.confirmChosen = false;
+        this.confirmEmitted = false;
+      }
+      this.lastSelfMoveId = moveId;
+      this.lastSelfMoveFrame = moveFrame;
+    }
+    respondToThreat(out, selfX, cue, tick, profile) {
+      const distance = Math.abs(cue.foeX - selfX);
+      if (distance > cue.threatRange)
+        return;
+      if (cue.kind === "ultimate") {
+        if (this.nextRandom() < 0.52) {
+          out.jump = true;
+        } else {
+          Object.assign(out, dashAway(selfX, cue.foeX));
+        }
+        return;
+      }
+      if (cue.kind === "air") {
+        Object.assign(out, away(selfX, cue.foeX));
+        this.commitIntent("guard", tick, profile);
+        return;
+      }
+      if (cue.kind === "projectile") {
+        Object.assign(out, away(selfX, cue.foeX));
+        this.commitIntent("guard", tick, profile);
+        return;
+      }
+      const intent = cue.level === "low" ? "guard-low" : "guard";
+      this.intent = intent;
+      this.intentUntilTick = tick + Math.min(12, profile.commitmentTicks[0]);
+      this.applyIntent(out, selfX, cue.foeX);
+    }
+    chooseNeutralPlan(out, self, observed, tick, profile) {
+      const distance = Math.abs(observed.foeX - self.x);
+      const kit = this.registry.getKit(self.id);
+      if (self.superReady && distance >= 105 && distance <= 300 && this.nextRandom() < 0.28) {
+        out.ultimate = true;
+        return;
+      }
+      if (profile.archetype === "pressure") {
+        if (distance < profile.pressureRange) {
+          const choice = this.nextRandom();
+          if (choice < 0.62)
+            out.attack = true;
+          else if (choice < 0.82) {
+            out.down = true;
+            out.attack = true;
+          } else {
+            out.down = true;
+            out.special = true;
+          }
+          return;
+        }
+        if (distance > 360 && self.projectileCooldown <= 0 && this.nextRandom() < 0.48) {
+          const ranged = this.registry.getMove(self.id, kit.rangedSpecial);
+          if (!ranged.projectileKey || self.projectileCooldown <= 0)
+            out.special = true;
+          if (out.special)
+            return;
+        }
+        this.commitIntent("approach", tick, profile);
+        this.applyIntent(out, self.x, observed.foeX);
+        return;
+      }
+      if (distance < 145) {
+        const choice = this.nextRandom();
+        if (choice < 0.42) {
+          this.commitIntent("retreat", tick, profile);
+          this.applyIntent(out, self.x, observed.foeX);
+        } else if (choice < 0.67) {
+          out.attack = true;
+        } else if (choice < 0.84) {
+          out.down = true;
+          out.attack = true;
+        } else {
+          out.jump = true;
+        }
+        return;
+      }
+      if (distance >= profile.preferredRange[0] && distance <= profile.preferredRange[1]) {
+        const choice = this.nextRandom();
+        if (choice < 0.55)
+          out.special = true;
+        else if (choice < 0.72) {
+          this.commitIntent("retreat", tick, profile);
+          this.applyIntent(out, self.x, observed.foeX);
+        }
+        return;
+      }
+      if (distance > profile.preferredRange[1]) {
+        this.commitIntent("approach", tick, profile);
+        this.applyIntent(out, self.x, observed.foeX);
+        return;
+      }
+      if (this.nextRandom() < 0.45) {
+        this.commitIntent("retreat", tick, profile);
+        this.applyIntent(out, self.x, observed.foeX);
+      } else {
+        out.attack = true;
+      }
+    }
+    commitIntent(intent, tick, profile) {
+      const [minTicks, maxTicks] = profile.commitmentTicks;
+      const span = Math.max(0, maxTicks - minTicks);
+      const duration = minTicks + Math.floor(this.nextRandom() * (span + 1));
+      this.intent = intent;
+      this.intentUntilTick = tick + duration;
+    }
+    applyIntent(out, selfX, foeX) {
+      if (this.intent === "approach")
+        Object.assign(out, toward(selfX, foeX));
+      else if (this.intent === "retreat" || this.intent === "guard" || this.intent === "guard-low") {
+        Object.assign(out, away(selfX, foeX));
+        if (this.intent === "guard-low")
+          out.down = true;
+      }
+    }
+  };
+
+  // dist/game/ui/flow.js
+  function initialFlowState() {
+    return { phase: "select-player", player: null, cpu: null, winner: null };
+  }
+  function chooseFighter(state, fighter) {
+    if (state.phase === "select-player")
+      return { phase: "select-cpu", player: fighter, cpu: null, winner: null };
+    if (state.phase === "select-cpu" && state.player)
+      return { phase: "vs", player: state.player, cpu: fighter, winner: null };
+    return state;
+  }
+  function startFight(state) {
+    if (state.phase !== "vs" || !state.player || !state.cpu)
+      return state;
+    return { ...state, phase: "fight", winner: null };
+  }
+  function finishFight(state, winner) {
+    if (state.phase !== "fight")
+      return state;
+    return { ...state, phase: "result", winner };
+  }
+  function rematch(state) {
+    if (state.phase !== "result" || !state.player || !state.cpu)
+      return state;
+    return { ...state, phase: "vs", winner: null };
+  }
+  function backToSelect(_state) {
+    return initialFlowState();
+  }
+
+  // dist/game/ui/AppController.js
+  var FIXED_MS = 1e3 / 60;
+  var FIGHTER_ORDER = DEFAULT_COMBAT_REGISTRY.playableIds;
+  var fighterCopy = {
+    chameleon: {
+      kicker: "CONTROL DE DISTANCIA",
+      role: "Zoner",
+      moves: "Garras \xB7 Low de garra \xB7 Lengua / Coletazo",
+      mark: "C"
+    },
+    supernariz: {
+      kicker: "PRESI\xD3N Y COMBOS",
+      role: "Rushdown",
+      moves: "Combo de nariz \xB7 Low de nariz \xB7 Chorizo / Tramontana",
+      mark: "N"
+    }
+  };
+  var AppController = class {
+    constructor(root) {
+      __publicField(this, "root");
+      __publicField(this, "flow", initialFlowState());
+      __publicField(this, "raf", 0);
+      __publicField(this, "vsTimer", 0);
+      __publicField(this, "input", null);
+      __publicField(this, "matchFinished", false);
+      __publicField(this, "autoplayPlayer", false);
+      __publicField(this, "paused", false);
+      __publicField(this, "hasShownCombatHint", false);
+      __publicField(this, "hintTimer", 0);
+      __publicField(this, "hasShownSuperReadyHint", false);
+      __publicField(this, "superHintTimer", 0);
+      this.root = root;
+    }
+    start() {
+      const params = new URLSearchParams(location.search);
+      if (params.get("demo") === "1") {
+        this.flow = { phase: "vs", player: "chameleon", cpu: "supernariz", winner: null };
+        this.autoplayPlayer = true;
+        this.showVs(250);
+        return;
+      }
+      this.showCharacterSelect();
+    }
+    showCharacterSelect() {
+      this.cleanupFight();
+      const selectingCpu = this.flow.phase === "select-cpu";
+      const title = selectingCpu ? "ELEG\xCD AL RIVAL" : "ELEG\xCD TU LUCHADOR";
+      const subtitle = selectingCpu ? `Vas con ${this.flow.player ? FIGHTERS[this.flow.player].displayName : ""}. Ahora eleg\xED la CPU.` : "Dos estilos opuestos. El mismo lenguaje de controles.";
+      this.root.innerHTML = `
+      <main class="select-screen">
+        <div class="select-backdrop"></div>
+        <header class="select-header">
+          <span class="game-badge">FIRST PLAYABLE \xB7 V0.5</span>
+          <h1>${title}</h1>
+          <p>${subtitle}</p>
+        </header>
+        <section class="fighter-grid" aria-label="Selecci\xF3n de luchador">
+          ${FIGHTER_ORDER.map((id) => this.fighterCard(id, selectingCpu)).join("")}
+        </section>
+        <footer class="select-footer">
+          ${selectingCpu ? '<button class="text-button" data-back>\u2190 Cambiar mi luchador</button>' : "<span>Touch: D-pad + Ataque + Especial + Salto + ULTIMATE</span>"}
+          <button class="text-button controls-link" data-controls-button type="button">? CONTROLES</button>
+          <span>Atr\xE1s: retroceder / bloquear</span>
+        </footer>
+      </main>
+      ${this.controlsPanel()}
+      ${this.orientationPrompt()}
+    `;
+      for (const button of this.root.querySelectorAll("[data-fighter]")) {
+        button.addEventListener("click", () => {
+          const id = button.dataset.fighter;
+          this.flow = chooseFighter(this.flow, id);
+          if (this.flow.phase === "select-cpu")
+            this.showCharacterSelect();
+          else if (this.flow.phase === "vs")
+            this.showVs();
+        });
+      }
+      this.root.querySelector("[data-back]")?.addEventListener("click", () => {
+        this.flow = backToSelect(this.flow);
+        this.showCharacterSelect();
+      });
+      this.bindControlsPanel(false);
+    }
+    fighterCard(id, cpuSelection) {
+      const info = fighterCopy[id];
+      const selected = this.flow.player === id;
+      return `
+      <button class="fighter-card fighter-card--${id}${selected ? " is-player" : ""}" data-fighter="${id}" type="button">
+        <span class="fighter-kicker">${info.kicker}</span>
+        <span class="fighter-portrait fighter-portrait--${id}" aria-hidden="true">
+          <span class="portrait-mark">${info.mark}</span>
+          <span class="portrait-detail"></span>
+        </span>
+        <span class="fighter-name">${FIGHTERS[id].displayName}</span>
+        <span class="fighter-role">${info.role}</span>
+        <span class="fighter-moves">${info.moves}</span>
+        <span class="fighter-pick">${cpuSelection ? "ELEGIR COMO RIVAL" : "ELEGIR"}</span>
+      </button>
+    `;
+    }
+    showVs(delay = 900) {
+      if (!this.flow.player || !this.flow.cpu)
+        return;
+      const p1 = this.flow.player;
+      const p2 = this.flow.cpu;
+      this.root.innerHTML = `
+      <main class="vs-screen">
+        <div class="vs-side vs-side--left fighter-card--${p1}">
+          <span class="vs-label">JUGADOR</span><strong>${FIGHTERS[p1].displayName}</strong><span>${fighterCopy[p1].role}</span>
+        </div>
+        <div class="vs-mark">VS</div>
+        <div class="vs-side vs-side--right fighter-card--${p2}">
+          <span class="vs-label">CPU</span><strong>${FIGHTERS[p2].displayName}</strong><span>${fighterCopy[p2].role}</span>
+        </div>
+      </main>
+      ${this.orientationPrompt()}
+    `;
+      clearTimeout(this.vsTimer);
+      this.vsTimer = window.setTimeout(() => {
+        this.flow = startFight(this.flow);
+        this.mountFight();
+      }, delay);
+    }
+    mountFight() {
+      if (this.flow.phase !== "fight" || !this.flow.player || !this.flow.cpu)
+        return;
+      this.matchFinished = false;
+      this.hasShownSuperReadyHint = false;
+      this.root.innerHTML = `
+      <main class="fight-shell" data-game-phase="fight">
+        <canvas class="fight-canvas" data-fight-canvas aria-label="Arena de combate"></canvas>
+        <div class="hud" aria-live="polite">
+          ${this.hudFighter(0, this.flow.player)}
+          <div class="hud-center"><span class="round-label" data-round>R1</span><strong class="timer" data-timer>60</strong></div>
+          ${this.hudFighter(1, this.flow.cpu)}
+        </div>
+        <button class="fight-controls-button" data-controls-button type="button" aria-label="Ver controles">?</button>
+        ${this.hasShownCombatHint ? "" : '<div class="combat-hint" data-combat-hint><strong>Atr\xE1s = retroceder / bloquear</strong><span>Doble atr\xE1s = BACKDASH \xB7 Bloquear consume GUARD</span></div>'}
+        <div class="super-hint is-hidden" data-super-hint><strong>SUPER READY</strong><span>TOC\xC1 ULTIMATE \xB7 teclado L</span></div>
+        <div class="touch-layer" data-touch-controls>
+          <div class="dpad" data-dpad aria-label="D-pad de 8 direcciones">
+            <span class="dpad-cross dpad-cross--h"></span><span class="dpad-cross dpad-cross--v"></span><span class="dpad-center"></span>
+          </div>
+          <div class="action-cluster">
+            <button class="action-button action-button--ultimate" data-action="ultimate" data-ultimate-button type="button" aria-label="Ultimate: requiere SUPER READY" disabled><span>ULTIMATE</span></button>
+            <button class="action-button action-button--jump" data-action="jump" type="button"><span>JUMP</span></button>
+            <button class="action-button action-button--special" data-action="special" type="button"><span>SPECIAL</span></button>
+            <button class="action-button action-button--attack" data-action="attack" type="button"><span>ATTACK</span></button>
+          </div>
+        </div>
+        <div class="desktop-hint">A/D mover \xB7 S agachar \xB7 W/Space salto \xB7 J ataque \xB7 K especial \xB7 L ultimate</div>
+      </main>
+      ${this.controlsPanel()}
+      ${this.orientationPrompt()}
+    `;
+      this.bindControlsPanel(true);
+      if (!this.hasShownCombatHint) {
+        this.hasShownCombatHint = true;
+        clearTimeout(this.hintTimer);
+        this.hintTimer = window.setTimeout(() => this.root.querySelector("[data-combat-hint]")?.classList.add("is-hidden"), 4200);
+      }
+      const canvas = this.root.querySelector("[data-fight-canvas]");
+      const touchRoot = this.root.querySelector("[data-touch-controls]");
+      if (!canvas || !touchRoot)
+        throw new Error("Fight UI failed to mount");
+      const simulation = new CombatSimulation(this.flow.player, this.flow.cpu);
+      const renderer = new FightRenderer(canvas);
+      const cpu = new CpuController(1);
+      const playerCpu = this.autoplayPlayer ? new CpuController(0) : null;
+      this.input = new GameInput(touchRoot, {
+        onReset: () => simulation.resetInputState()
+      });
+      let previous = performance.now();
+      let accumulator = 0;
+      let snapshot = simulation.getSnapshot();
+      renderer.consumeEvents(snapshot);
+      const frame = (now) => {
+        const elapsed = Math.min(100, now - previous);
+        previous = now;
+        if (!this.paused) {
+          accumulator += elapsed;
+          while (accumulator >= FIXED_MS) {
+            const playerState = snapshot.fighters[0];
+            const humanInput = playerCpu ? playerCpu.nextInput(snapshot) : this.input?.getFrame({
+              superReady: playerState.superReady,
+              defensiveContext: playerState.blocking || playerState.blockstunFrames > 0,
+              nowMs: now
+            }) ?? EMPTY_INPUT;
+            const cpuInput = cpu.nextInput(snapshot);
+            snapshot = simulation.step(humanInput, cpuInput);
+            renderer.consumeEvents(snapshot);
+            accumulator -= FIXED_MS;
+            this.updateHud(snapshot);
+          }
+        } else {
+          accumulator = 0;
+        }
+        renderer.render(snapshot, now / 1e3);
+        if (snapshot.phase === "match-over" && snapshot.winner !== null) {
+          if (!this.matchFinished) {
+            this.matchFinished = true;
+            const winner = snapshot.winner;
+            window.setTimeout(() => this.showResult(winner), 650);
+          }
+          return;
+        }
+        this.raf = requestAnimationFrame(frame);
+      };
+      this.raf = requestAnimationFrame(frame);
+    }
+    hudFighter(index, id) {
+      return `
+      <section class="hud-fighter hud-fighter--${index === 0 ? "left" : "right"}">
+        <div class="hud-meta"><strong>${FIGHTERS[id].displayName}</strong><span>${index === 0 ? "P1" : "CPU"}</span></div>
+        <div class="health-track"><span class="health-fill" data-health="${index}"></span></div>
+        <div class="guard-row"><span class="guard-label">GUARD</span><div class="guard-track" data-guard-track="${index}"><span class="guard-fill" data-guard="${index}"></span></div></div>
+        <div class="super-row"><span class="super-label">SUPER</span><div class="super-track" data-super-track="${index}"><span class="super-fill" data-super="${index}"></span></div></div>
+        ${id === "supernariz" ? `<div class="special-cooldown" data-special-cooldown="${index}"><span>CHORIZO</span><span class="special-cooldown-track"><i class="special-cooldown-fill" data-special-cooldown-fill="${index}"></i></span></div>` : ""}
+        <div class="round-pips"><i data-win="${index}-0"></i><i data-win="${index}-1"></i></div>
+      </section>
+    `;
+    }
+    updateHud(snapshot) {
+      for (const index of [0, 1]) {
+        const fighter = snapshot.fighters[index];
+        const health = this.root.querySelector(`[data-health="${index}"]`);
+        if (health)
+          health.style.transform = `scaleX(${Math.max(0, fighter.health / fighter.maxHealth)})`;
+        const guard = this.root.querySelector(`[data-guard="${index}"]`);
+        if (guard)
+          guard.style.transform = `scaleX(${Math.max(0, fighter.guard / fighter.maxGuard)})`;
+        this.root.querySelector(`[data-guard-track="${index}"]`)?.classList.toggle("is-broken", fighter.guardBreakFrames > 0);
+        const superFill = this.root.querySelector(`[data-super="${index}"]`);
+        if (superFill)
+          superFill.style.transform = `scaleX(${Math.max(0, Math.min(1, fighter.superMeter / Math.max(1, fighter.maxSuper)))})`;
+        this.root.querySelector(`[data-super-track="${index}"]`)?.classList.toggle("is-ready", fighter.superReady);
+        const cooldownFill = this.root.querySelector(`[data-special-cooldown-fill="${index}"]`);
+        if (cooldownFill) {
+          const cooldownReady = fighter.projectileCooldownMax <= 0 ? 1 : Math.max(0, Math.min(1, 1 - fighter.projectileCooldown / fighter.projectileCooldownMax));
+          cooldownFill.style.transform = `scaleX(${cooldownReady})`;
+        }
+        this.root.querySelector(`[data-special-cooldown="${index}"]`)?.classList.toggle("is-ready", fighter.projectileCooldown <= 0);
+        for (let pip = 0; pip < 2; pip += 1) {
+          this.root.querySelector(`[data-win="${index}-${pip}"]`)?.classList.toggle("is-won", pip < fighter.roundWins);
+        }
+      }
+      const ultimateButton = this.root.querySelector("[data-ultimate-button]");
+      if (ultimateButton) {
+        ultimateButton.disabled = !snapshot.fighters[0].superReady;
+        ultimateButton.classList.toggle("is-ready", snapshot.fighters[0].superReady);
+        ultimateButton.setAttribute("aria-label", snapshot.fighters[0].superReady ? "Ultimate READY" : "Ultimate: requiere SUPER READY");
+      }
+      if (!this.hasShownSuperReadyHint && snapshot.fighters[0].superReady) {
+        this.hasShownSuperReadyHint = true;
+        const hint = this.root.querySelector("[data-super-hint]");
+        hint?.classList.remove("is-hidden");
+        clearTimeout(this.superHintTimer);
+        this.superHintTimer = window.setTimeout(() => hint?.classList.add("is-hidden"), 2600);
+      }
+      const timer = this.root.querySelector("[data-timer]");
+      if (timer)
+        timer.textContent = String(Math.ceil(snapshot.roundTimerFrames / 60));
+      const round = this.root.querySelector("[data-round]");
+      if (round)
+        round.textContent = `R${snapshot.round}`;
+      const shell = this.root.querySelector("[data-game-phase]");
+      if (shell)
+        shell.dataset.gamePhase = snapshot.phase;
+    }
+    showResult(winner) {
+      if (this.flow.phase !== "fight" || !this.flow.player || !this.flow.cpu)
+        return;
+      const playerId = this.flow.player;
+      const cpuId = this.flow.cpu;
+      this.cleanupFight();
+      this.flow = finishFight(this.flow, winner);
+      const playerWon = winner === 0;
+      const winnerId = playerWon ? playerId : cpuId;
+      this.root.innerHTML = `
+      <main class="result-screen fighter-card--${winnerId}">
+        <span class="result-kicker">RESULTADO</span>
+        <h1>${playerWon ? "VICTORIA" : "DERROTA"}</h1>
+        <p><strong>${FIGHTERS[winnerId].displayName}</strong> gana el duelo.</p>
+        <div class="result-actions">
+          <button class="primary-button" data-rematch>REVANCHA</button>
+          <button class="secondary-button" data-select>SELECCI\xD3N</button>
+        </div>
+      </main>
+      ${this.orientationPrompt()}
+    `;
+      this.root.querySelector("[data-rematch]")?.addEventListener("click", () => {
+        this.flow = rematch(this.flow);
+        this.showVs(500);
+      });
+      this.root.querySelector("[data-select]")?.addEventListener("click", () => {
+        this.flow = backToSelect(this.flow);
+        this.autoplayPlayer = false;
+        this.showCharacterSelect();
+      });
+    }
+    cleanupFight() {
+      if (this.raf)
+        cancelAnimationFrame(this.raf);
+      this.raf = 0;
+      clearTimeout(this.vsTimer);
+      this.input?.destroy();
+      this.input = null;
+      this.paused = false;
+      clearTimeout(this.hintTimer);
+      this.hintTimer = 0;
+      clearTimeout(this.superHintTimer);
+      this.superHintTimer = 0;
+    }
+    bindControlsPanel(pausesFight) {
+      const panel = this.root.querySelector("[data-controls-panel]");
+      const open = () => {
+        panel?.classList.add("is-open");
+        panel?.setAttribute("aria-hidden", "false");
+        if (pausesFight) {
+          this.input?.reset();
+          this.paused = true;
+        }
+      };
+      const close = () => {
+        panel?.classList.remove("is-open");
+        panel?.setAttribute("aria-hidden", "true");
+        if (pausesFight) {
+          this.input?.reset();
+          this.paused = false;
+        }
+      };
+      for (const button of this.root.querySelectorAll("[data-controls-button]"))
+        button.addEventListener("click", open);
+      this.root.querySelector("[data-controls-close]")?.addEventListener("click", close);
+    }
+    controlsPanel() {
+      return `
+      <aside class="controls-panel" data-controls-panel aria-hidden="true">
+        <div class="controls-card">
+          <div class="controls-heading"><span>GU\xCDA R\xC1PIDA</span><strong>CONTROLES</strong><button data-controls-close type="button" aria-label="Cerrar controles">\xD7</button></div>
+          <div class="controls-grid">
+            <section><h3>MOVIMIENTO</h3><p><b>D-pad</b><span>Moverse</span></p><p><b>Atr\xE1s</b><span>Retroceder / bloquear</span></p><p><b>Abajo + atr\xE1s</b><span>Bloqueo bajo</span></p><p><b>Doble adelante</b><span>Dash</span></p><p><b>Doble atr\xE1s</b><span>Backdash / esquiva</span></p></section>
+            <section><h3>ACCIONES</h3><p><b>JUMP</b><span>Saltar / ataque a\xE9reo con ATTACK</span></p><p><b>ATTACK</b><span>Ataque normal / cadena corta</span></p><p><b>Abajo + ATTACK</b><span>Low normal en el suelo</span></p><p><b>SPECIAL sin direcci\xF3n</b><span>Especial a distancia: Lengua / Chorizo</span></p><p><b>Abajo + SPECIAL</b><span>Especial cercano: Coletazo / Tramontana</span></p><p><b>SPECIAL bloqueando</b><span>Push Guard: pide separaci\xF3n usando GUARD</span></p><p><b>ULTIMATE (Touch)</b><span>Intento de Ultimate; requiere SUPER READY</span></p><p><b>L (teclado)</b><span>Ultimate dedicado en desktop</span></p></section>
+          </div>
+          <div class="controls-tips"><strong>COMBATE</strong><span>Bloquear consume GUARD \xB7 El low vence guardia alta \xB7 Saltar evita lows \xB7 SPECIAL neutro controla distancia \xB7 Abajo + SPECIAL es la opci\xF3n cercana \xB7 Push Guard solo se solicita mientras bloque\xE1s \xB7 Touch: ULTIMATE \xB7 Teclado: L</span></div>
+        </div>
+      </aside>
+    `;
+    }
+    orientationPrompt() {
+      return '<aside class="orientation-prompt"><div class="phone-icon">\u21BB</div><strong>GIR\xC1 EL TEL\xC9FONO</strong><span>Este prototipo se juega en horizontal.</span></aside>';
+    }
+  };
+
+  // dist/main.js
+  var app = document.querySelector("#app");
+  if (!app)
+    throw new Error("Missing #app");
+  new AppController(app).start();
+})();
+
+</script>
+  </body>
+</html>

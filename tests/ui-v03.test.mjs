@@ -14,7 +14,7 @@ test('V0.3 HUD exposes SUPER for both fighters and a distinct ready state', () =
   assert.match(styles, /\.is-ready/);
 });
 
-test('permanent mobile controls stay D-pad plus ATTACK, SPECIAL and JUMP', () => {
+test('core mobile controls retain D-pad plus ATTACK, SPECIAL and JUMP', () => {
   assert.match(appSource, /data-dpad/);
   assert.match(appSource, /data-action="attack"/);
   assert.match(appSource, /data-action="special"/);

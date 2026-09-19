@@ -12,3 +12,6 @@ Reservations for later stages do not authorize work before Neureon opens the gat
 | tests/combat-v02.test.mjs | Ricardo | V05-R4 | migrate crossover-facing expectation to takeoff/landing lock contract |
 | tests/combat-v03.test.mjs | Ricardo | V05-R4 | migrate Ultimate startup/capture timing scenarios |
 | tests/combat-v04.test.mjs | Ricardo | V05-R4 | migrate successful Ultimate release/actionability regression |
+| tests/combat-v02.test.mjs | Ricardo | V05-R4 | migrate crossover facing assertion to grounded-actionable reorientation |
+| tests/combat-v03.test.mjs | Ricardo | V05-R4 | migrate Ultimate timing/capture regressions to authored 22/24 startup |
+| tests/combat-v04.test.mjs | Ricardo | V05-R4 | migrate authoritative capture/release timing regression |

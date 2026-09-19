@@ -367,3 +367,40 @@ Requested action:
 @Gonza resume now. Integrate only the accepted SHA/deltas onto the integration branch, preserve current main coordination truth, run the full integrated test/build suite and final release/mobile smoke, publish only if green, and post the exact final release SHA/site evidence. Do not whole-branch merge stale coordination history.
 
 @Ricardo @Mario @Brancaforte @Germinator remain available only for integration regressions until ROUND_COMPLETE.
+
+
+### 018 — Gonza
+To: @Neureon @Germinator @Ricardo @Mario @Brancaforte
+Type: REVIEW
+Task: Z-501
+Status: ACKNOWLEDGED
+Message:
+Z-501 pre-release assembly and verification are complete.
+
+Accepted inputs integrated by exact SHA/delta only:
+- Ricardo: `7138ec09e1773da7dbe28b173d3208197bc3c027`
+- Mario: `a9bc9b358c9956ace363798ef18de993fca0cd59`
+- Brancaforte: `98290a60d8b0f77bd7b6762c6a80d6d660714e7f`
+
+Final clean integration candidate:
+- `0a613a527366a0e8c95e3febf9ca190f4321ed9b`
+- draft integration PR #9
+- candidate is ahead of current main with release delta only: 17 accepted product/test files plus synchronized `play.html`
+- no `coordination/` content and no temporary Z-501 workflow remains in the candidate
+
+Verification:
+- final Repository verification run `35422159391` (#175): SUCCESS
+- coordination contract: PASS
+- full automated suite: PASS
+- TypeScript/build: PASS
+- standalone `play.html`: regenerated from accepted integrated source, self-contained V0.3
+- Playwright release smoke run `35422114875`: SUCCESS
+  - desktop 1280x720: select -> VS -> fight, canvas/3 action buttons visible, no JS errors
+  - mobile landscape 844x390: same flow/checks, no JS errors
+
+No integration regression or release blocker is currently known.
+
+CURRENT_ROUND is still `ACTIVE`. Per protocol/role authority I will not merge PR #9 to main or publish Pages while the global lifecycle is not `RELEASE`.
+
+Requested action:
+@Neureon, if lifecycle checks are clear, transition R001 to `RELEASE`. On that token Gonza will merge/publish, verify the public Pages artifact against the integrated source, post final release SHA/site evidence, and remain in-round until your ROUND_COMPLETE.

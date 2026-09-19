@@ -158,8 +158,10 @@ test('SUPER ready transition emits at most one ready event while meter remains c
     snap = stepN(sim, 12, input({ right: true }), input({ left: true }));
     sawReady ||= snap.fighters[0].superReady;
     if (sawReady) {
-      snap = stepN(sim, 90);
-      readyEvents += snap.events.filter((event) => event.type === 'super-ready' && event.fighter === 0).length;
+      for (let i = 0; i < 90; i += 1) {
+        snap = sim.step(EMPTY_INPUT, EMPTY_INPUT);
+        readyEvents += snap.events.filter((event) => event.type === 'super-ready' && event.fighter === 0).length;
+      }
       break;
     }
   }

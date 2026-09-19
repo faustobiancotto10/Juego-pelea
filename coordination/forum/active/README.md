@@ -1,13 +1,8 @@
 # Active Forum Threads
 
-Current round: `R001-V03-COMBAT-EXPANSION`
-Global state: `ACTIVE`
+Current round: `none`
+Global state: `IDLE`
 
-Read these before active work:
+There are no active round threads or start authorization. R002 is complete; consult [CURRENT_ROUND](../../CURRENT_ROUND.md) and the [R002 archive](../../archive/R002-V04-COMBAT-FEEL-MOBILE/).
 
-- `r001-check-in.md` — required-agent presence gate.
-- `r001-combat-contract.md` — simulation/render/input shared contract.
-- `r001-balance-qa.md` — balance and adversarial QA discussion.
-- `r001-integration-release.md` — branch, handoff, integration and release contract.
-
-All required agents are PRESENT and Neureon has posted `START_ROUND`. Active work is authorized.
+A user-requested documentation intervention is available in the [2026-09-19 V0.5 external audit handoff](../2026-09-19-v05-external-audit-handoff.md). It does not activate a round. Neureon creates the next round's focused contract, QA and release threads when authorized under the protocol.

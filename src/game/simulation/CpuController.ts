@@ -1,9 +1,5 @@
+import { DEFAULT_COMBAT_REGISTRY, type CombatRegistry } from '../data/combatRegistry.js';
 import { EMPTY_INPUT, type FighterIndex, type InputFrame, type MatchSnapshot } from '../types.js';
-
-const THREAT_MOVES = new Set([
-  'claw1', 'claw2', 'tongueStraight', 'tongueLow', 'coletazo',
-  'nose1', 'nose2', 'nose3', 'tramontana',
-]);
 
 type CpuIntent = 'neutral' | 'approach' | 'retreat' | 'guard';
 
@@ -19,13 +15,20 @@ function dashAway(selfX: number, otherX: number): Pick<InputFrame, 'dashLeft' | 
   return selfX > otherX ? { dashLeft: false, dashRight: true } : { dashLeft: true, dashRight: false };
 }
 
+export interface CpuControllerOptions {
+  registry?: CombatRegistry;
+}
+
 export class CpuController {
   private intent: CpuIntent = 'neutral';
   private intentUntil = -1;
   private lastMoveId: string | null = null;
   private postCommitUntil = -1;
+  private readonly registry: CombatRegistry;
 
-  constructor(private readonly cpuIndex: FighterIndex) {}
+  constructor(private readonly cpuIndex: FighterIndex, options: CpuControllerOptions = {}) {
+    this.registry = options.registry ?? DEFAULT_COMBAT_REGISTRY;
+  }
 
   nextInput(snapshot: MatchSnapshot): InputFrame {
     const out: InputFrame = { ...EMPTY_INPUT };
@@ -41,10 +44,12 @@ export class CpuController {
     const otherIndex: FighterIndex = this.cpuIndex === 0 ? 1 : 0;
     const foe = snapshot.fighters[otherIndex];
     const distance = Math.abs(foe.x - self.x);
+    const selfKit = this.registry.getKit(self.id);
+    const selfProfile = selfKit.cpu;
 
     const moveJustEnded = this.lastMoveId !== null && self.moveId === null;
     if (moveJustEnded) {
-      const baseGap = self.id === 'supernariz' ? 11 : 7;
+      const baseGap = selfProfile.decisionTicks;
       const deterministicVariation = (snapshot.frame + this.cpuIndex * 5) % 4;
       this.postCommitUntil = snapshot.frame + baseGap + deterministicVariation;
       this.intent = 'neutral';
@@ -78,10 +83,10 @@ export class CpuController {
       return out;
     }
 
-    const threatRange = foe.id === 'chameleon' && foe.moveId?.startsWith('tongue') ? 405 : 190;
-    const reactionFrame = foe.moveId?.startsWith('tongue') ? 7 : 8;
-    const foeThreatening = foe.moveId !== null
-      && THREAT_MOVES.has(foe.moveId)
+    const foeMove = foe.moveId === null ? null : this.registry.getMove(foe.id, foe.moveId);
+    const threatRange = foeMove?.cpuThreatRange ?? 0;
+    const reactionFrame = foeMove?.cpuReactionFrame ?? 8;
+    const foeThreatening = foeMove?.cpuThreatRange !== undefined
       && foe.moveFrame >= reactionFrame
       && foe.moveFrame <= 15
       && distance < threatRange;
@@ -91,21 +96,25 @@ export class CpuController {
       this.intent = 'guard';
       this.intentUntil = snapshot.frame + 12;
       Object.assign(out, away(self.x, foe.x));
-      if (foe.moveId === 'tongueLow') out.down = true;
+      if (foeMove?.hitbox?.level === 'low') out.down = true;
       return out;
     }
 
     if (self.moveId !== null) {
-      if (self.id === 'supernariz' && self.moveFrame === 11) {
-        if (self.moveId === 'nose1') {
-          // Keep the pressure identity but intentionally miss some legal confirms.
+      const standing = selfKit.standing;
+      const firstMove = this.registry.getMove(self.id, standing);
+      const secondMove = firstMove.nextAttack ?? null;
+
+      if (selfProfile.archetype === 'pressure' && self.moveFrame === 11) {
+        if (self.moveId === standing) {
+          // Preserve the V0.4 deterministic imperfect first confirm until R5.
           out.attack = (snapshot.frame + this.cpuIndex * 3) % 4 !== 0;
-        } else if (self.moveId === 'nose2') {
-          // Deeper conversion is less reliable than the first confirm.
+        } else if (secondMove !== null && self.moveId === secondMove) {
+          // Preserve the V0.4 deeper conversion pattern until R5.
           out.attack = (snapshot.frame + this.cpuIndex * 5) % 3 !== 1;
         }
       }
-      if (self.id === 'chameleon' && self.moveId === 'claw1' && self.moveFrame === 11) out.attack = true;
+      if (selfProfile.archetype === 'control' && self.moveId === standing && self.moveFrame === 11) out.attack = true;
       return out;
     }
 
@@ -115,9 +124,10 @@ export class CpuController {
     }
 
     if (self.superReady) {
-      const cadence = self.id === 'chameleon' ? 210 : 180;
-      const offset = self.id === 'chameleon' ? 90 : 60;
-      const goodRange = self.id === 'chameleon'
+      const control = selfProfile.archetype === 'control';
+      const cadence = control ? 210 : 180;
+      const offset = control ? 90 : 60;
+      const goodRange = control
         ? distance >= 125 && distance <= 285
         : distance >= 95 && distance <= 300;
       if (goodRange && snapshot.frame % cadence === offset) {
@@ -142,7 +152,7 @@ export class CpuController {
       return out;
     }
 
-    if (self.id === 'supernariz') {
+    if (selfProfile.archetype === 'pressure') {
       if (distance > 360 && self.projectileCooldown <= 0 && snapshot.frame > 0 && snapshot.frame % 120 === 0 && Math.floor(snapshot.frame / 120) % 3 !== 2) {
         out.special = true;
         this.intentUntil = snapshot.frame + 24;

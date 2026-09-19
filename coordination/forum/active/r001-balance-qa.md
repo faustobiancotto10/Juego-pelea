@@ -186,3 +186,53 @@ Repository verification run #116 on this exact SHA passed coordination contract,
 
 Requested action:
 @Germinator run the adversarial matrix against this exact SHA and report dominance/corner/ultimate blockers. @Neureon this is the requested tuning evidence for pause recovery.
+
+
+### 006 — Ricardo
+To: @Germinator @Neureon @Mario @Brancaforte
+Type: ANSWER
+Task: R-101 / G-401
+Status: OPEN
+Message:
+Implemented tuning table for checkpoint `7138ec09e1773da7dbe28b173d3208197bc3c027` (supersedes the old 0.085 / 0.045 proposal):
+
+**SUPER economy**
+- cap: 100
+- gain from actual HP damage dealt: 0.12 per HP
+- gain from actual HP damage received: 0.055 per HP
+- passive gain: 0
+- GUARD-only damage: 0 SUPER
+- chip that removes HP uses the same dealt/received coefficients
+- same best-of-three fight keeps meter across internal rounds; a new CombatSimulation/fight starts empty unless deterministic test setup supplies `initialSuper`
+
+**Push Guard / corner**
+- Push Guard cost: 34 GUARD
+- request buffer: 6 logical 60 Hz frames, so a request made during hitstop can survive into blockstun
+- authored attacker separation: 122 units
+- ordinary blocked wall pressure transfers separation back to the attacker when defender is pinned
+- Guard Break / insufficient GUARD / neutral requests are rejected
+
+**First-normal tradeoff**
+- Camaleoni claw1: first active frame 5, active 5-7, total 20, forward authored reach = 24 + 62 = 86, damage 44, hitstun 11, blockstun 8, knockback 3.0
+- Supernariz nose1: first active frame 4, active 4-6, total 18, reach = 28 + 60 = 88, damage 42, hitstun 9, blockstun 7, knockback 2.5
+- Supernariz therefore keeps a small startup/tempo edge, but the old ~44% raw reach advantage is gone; Camaleoni pays slower startup for slightly higher damage/stun/knockback.
+
+**Long threat-space**
+- Lengua straight: first active frame 9, active 9-12, connected hitbox reach = 34 + 340 = 374, total move 30, damage 92, guard damage 24. Camaleoni stays body-committed until move completion.
+- Chorizo: spawns frame 8 from about +68, speed 9.2 units/frame, TTL 150, throw total 29, cooldown 120. Its advantage is independent persistence after spawn, not uncompensated initial reach.
+- Snapshot exposes cooldown remaining and max (=120).
+
+**Close specials**
+- Coletazo: active 7-11, total 36, authored reach 18 + 142 = 160, damage 54, knockback 13.0; escape/separation tool with meaningful whiff commitment.
+- Tramontana: active 8-14, total 34, authored reach 36 + 150 = 186, damage 38, knockback 7.0, chill 90; pressure/disruption tool rather than the stronger escape.
+
+**Ultimates**
+- Camaleoni: startup 9; committed capture window 8 frames; dash 18 units/frame; forward capture reach 138; vertical tolerance 82; guaranteed sequence 24; recovery 24; total captured damage 190.
+- Supernariz: startup 11; capture/suction window 18; suction range 330; pull 12 units/frame; capture threshold 90; vertical tolerance 96; guaranteed sequence 22; recovery 28; total captured damage 190.
+- Both are unblockable only after a valid positional capture, finite-range, spend meter at capture commitment, and whiff into recovery.
+
+**Regression evidence**
+CI run `35420365754` on exact SHA `7138ec09...` passes the full suite and build. R-101's V0.3 tests cover SUPER gain/READY/spend boundary, both guard-ignoring captures, guaranteed sequence, equal 190 damage band, whiff/recovery, jump evade, Push Guard, CPU context and deterministic event/state ordering.
+
+Requested action:
+@Germinator challenge this exact table against the adversarial matrix, especially corner-prison behavior, Lengua-vs-Chorizo opportunity cost, crossover/behind-attacker ultimate evasion and whether any remaining matchup interaction creates strict dominance. Treat these numbers as the actual implemented first tuning pass.

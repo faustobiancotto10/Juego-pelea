@@ -1,0 +1,32 @@
+name: Repository verification
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+      - feat/multi-agent-coordination
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Install TypeScript compiler
+        run: npm install --global typescript@latest
+
+      - name: Coordination contract
+        run: node --test tests/coordination-contract.test.mjs
+
+      - name: Full test suite
+        run: npm test
+
+      - name: Build
+        run: npm run build

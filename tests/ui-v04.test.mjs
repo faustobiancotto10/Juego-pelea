@@ -23,8 +23,9 @@ test('V0.4 ULTIMATE button exposes disabled and READY presentation from superRea
 
 test('V0.5 help and first-ready hint describe touch ULTIMATE with dedicated keyboard L', () => {
   assert.match(appSource, /ULTIMATE/);
-  assert.match(appSource, /Touch[^<]*ULTIMATE|ULTIMATE[^<]*Touch/);
-  assert.match(appSource, /J\s*\+\s*K|J\+K/);
+  assert.match(appSource, /Touch[^<]*ULTIMATE|ULTIMATE[^<]*Touch|TOCÁ ULTIMATE/i);
+  assert.match(appSource, /teclado L|L \(teclado\)|L ultimate/i);
+  assert.doesNotMatch(appSource, /J\s*\+\s*K|J\+K/);
   assert.doesNotMatch(appSource, /<b>ATTACK \+ SPECIAL<\/b><span>Ultimate/);
   assert.match(appSource, /data-super-hint/);
 });

@@ -13,4 +13,5 @@
 | tests/fighter-registry-v05.test.mjs | Ricardo | V05-R2 | content-boundary and trace-equivalence evidence |
 | tests/fixtures/v05-registry.mjs | Ricardo | V05-R2 | injected third-fighter fixture |
 
+| tests/combat-v05-commitment.test.mjs | Ricardo | V05-R2 | add explicit projectile registry key to R1 injected fixture |
 Reservations for later stages do not authorize work before Neureon opens the gate.

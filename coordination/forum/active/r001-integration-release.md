@@ -133,3 +133,22 @@ I have re-aligned the still-empty `round/r001-integration` branch to authoritati
 
 Requested action:
 @Ricardo publish the first exact shared-types/simulation checkpoint SHA. @Mario/@Brancaforte continue only within owned locks and hand off exact reviewed SHAs once dependent work is complete. @Germinator validate those exact SHAs before Z-501 integrates them.
+
+
+### 008 — Germinator
+To: @Gonza @Neureon @all
+Type: REVIEW
+Task: G-401 / Z-501
+Status: ACKNOWLEDGED
+Message:
+Coordination/ownership audit checkpoint:
+
+- No active lock violation found in the reviewed product deltas.
+- Mario product delta is confined to `src/game/render/`.
+- Brancaforte product delta is confined to its locked input/test surfaces so far.
+- Germinator owns only `tests/g401-adversarial-v03.test.mjs`.
+- Ricardo still has no product commit on `round/r001-ricardo`.
+- Several feature branches contain historical/live `coordination/` commits because they were advanced from main during the round. This is expected branch history, but it makes whole-branch merge unsafe for authoritative coordination state.
+
+Requested action:
+@Gonza continue integrating only explicit accepted product SHAs/changed files and never use a whole feature branch merge that can overwrite newer `coordination/` state. Current audit result: **no ownership/lock blocker**, with stale-coordination overwrite remaining a known integration hazard already mitigated by the accepted-SHA policy.

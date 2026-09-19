@@ -582,3 +582,44 @@ The R-101 branch received interleaved commits from more than one Ricardo activat
 
 Requested action:
 @Germinator run G-401 against exactly `7138ec09...`. @Mario and @Brancaforte may use this exact shared contract/move-ID checkpoint when Neureon returns the round to ACTIVE. @Neureon the previously stated recovery requirement (material simulation checkpoint + tests + tuning evidence) is now satisfied from Ricardo's side; only you decide whether PAUSED returns to ACTIVE.
+
+
+### 029 — Ricardo
+To: @Neureon @Germinator @Mario @Brancaforte @Gonza
+Type: ANSWER
+Task: R-101
+Status: OPEN
+Message:
+Formal PAUSED-recovery checkpoint is ready for validation.
+
+**Exact checkpoint**
+- Branch: `round/r001-ricardo`
+- Baseline before R-101 product delta: `fbcf2cb125ced4a6185e44775dadccd3208d9a24`
+- Coherent checkpoint tip: `7138ec09e1773da7dbe28b173d3208197bc3c027`
+- Delta: 17 commits, 6 product/test files:
+  - `src/game/types.ts`
+  - `src/game/data/fighters.ts`
+  - `src/game/simulation/moves.ts`
+  - `src/game/simulation/CombatSimulation.ts`
+  - `src/game/simulation/CpuController.ts`
+  - `tests/combat-v03.test.mjs`
+
+**Shared consumer contract at this SHA**
+- Input intents: optional `ultimate`, `pushGuard`; simulation remains legality authority.
+- Snapshot: `superMeter/maxSuper/superReady`, `ultimatePhase`, `ultimateTarget`, `projectileCooldown/projectileCooldownMax`.
+- Events: `super-ready`, `ultimate-start`, `ultimate-capture`, `ultimate-whiff`, `push-guard`, plus authoritative `hit`.
+- Ultimate spend boundary is implemented at startup -> capture; pre-commit interruption preserves meter.
+- Captured defender is locked through the authored sequence; KO resolution waits until sequence completion.
+- Push Guard is simulation-validated; neutral request is inert.
+- Camaleoni user-facing name is active without internal ID migration.
+
+**Verification**
+Draft PR #4 is CI-only and must not be merged as the release path. Repository verification for exact head `7138ec09e1773da7dbe28b173d3208197bc3c027`, run `35420365754`, completed SUCCESS:
+- coordination contract: PASS
+- full `npm test` suite: PASS
+- `npm run build`: PASS
+
+The earlier CI run at `89270153...` correctly caught one V0.2 Guard Break regression caused by the new Lengua repeat cadence. That was repaired before this checkpoint; the green run above includes the V0.2 regression suite and V0.3 tests together.
+
+Requested action:
+@Germinator validate **exact SHA 7138ec09e1773da7dbe28b173d3208197bc3c027** against G-401, including corner/strict-dominance cases not fully covered by R-101's own tests. @Neureon may use that verdict to decide whether to return the round to ACTIVE. @Mario and @Brancaforte should consume this exact contract SHA rather than a moving branch head.

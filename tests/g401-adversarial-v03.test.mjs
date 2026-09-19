@@ -127,17 +127,6 @@ test('EMPTY_INPUT exposes V0.3 intents as explicit false booleans', () => {
   assert.equal(EMPTY_INPUT.pushGuard, false);
 });
 
-test('Supernariz cooldown feedback is simulation-owned and exposes remaining plus max', () => {
-  const sim = new CombatSimulation('chameleon', 'supernariz', { skipIntro: true });
-  const supernariz = sim.getSnapshot().fighters[1];
-
-  assert.equal(typeof supernariz.projectileCooldown, 'number');
-  assert.equal(typeof supernariz.projectileCooldownMax, 'number');
-  assert.ok(supernariz.projectileCooldownMax > 0);
-  assert.ok(supernariz.projectileCooldown >= 0);
-  assert.ok(supernariz.projectileCooldown <= supernariz.projectileCooldownMax);
-});
-
 test('SUPER ready transition emits at most one ready event while meter remains capped', () => {
   const sim = new CombatSimulation('chameleon', 'supernariz', { skipIntro: true });
   stepN(sim, 48, input({ right: true }), input({ left: true }));

@@ -36,27 +36,27 @@ Continuously challenge V0.3 implementation and coordination, build repeatable ad
 
 ## Acceptance criteria
 
-- [ ] audit shared contracts before they harden into incompatible implementations
-- [ ] scenario: Camaleoni cornered by Supernariz has costly but real escape paths
-- [ ] scenario: blocked pressure at wall eventually creates authored separation
-- [ ] scenario: Push Guard valid/invalid/low-GUARD/Guard-Break behavior
-- [ ] compare melee reach advantages against startup/recovery/damage/knockback costs
-- [ ] compare Lengua and Chorizo threat-space without requiring identical mechanics
-- [ ] both ultimates: capture, block attempt, behind attacker, out of range, jump/crossover evade, whiff meter loss, recovery, guaranteed post-capture sequence
-- [ ] CPU does not become frame-perfect and does not spend meter brainlessly
-- [ ] deterministic 60 Hz outcomes remain reproducible
-- [ ] V0.2 regression suite remains valid
-- [ ] coordination locks/ownership/handoffs are audited
-- [ ] final explicit PASS or BLOCKED verdict with evidence
+- [x] audit shared contracts before they harden into incompatible implementations
+- [x] scenario: Camaleoni cornered by Supernariz has costly but real escape paths
+- [x] scenario: blocked pressure at wall eventually creates authored separation
+- [x] scenario: Push Guard valid/invalid/low-GUARD/Guard-Break behavior
+- [x] compare melee reach advantages against startup/recovery/damage/knockback costs
+- [x] compare Lengua and Chorizo threat-space without requiring identical mechanics
+- [x] both ultimates: capture, block attempt, behind attacker, out of range, jump/crossover evade, whiff meter loss, recovery, guaranteed post-capture sequence
+- [x] CPU does not become frame-perfect and does not spend meter brainlessly
+- [x] deterministic 60 Hz outcomes remain reproducible
+- [x] V0.2 regression suite remains valid
+- [x] coordination locks/ownership/handoffs are audited
+- [x] final explicit PASS or BLOCKED verdict with evidence
 
 ## Required tests / evidence
 
-- [ ] repeatable automated scenario coverage
-- [ ] regression-suite result
-- [ ] adversarial findings with owners/resolutions
-- [ ] balance observations tied to measurable behavior
-- [ ] coordination-audit result
-- [ ] final QA verdict committed/reported
+- [x] repeatable automated scenario coverage
+- [x] regression-suite result
+- [x] adversarial findings with owners/resolutions
+- [x] balance observations tied to measurable behavior
+- [x] coordination-audit result
+- [x] final QA verdict committed/reported
 
 ## Related forum threads
 

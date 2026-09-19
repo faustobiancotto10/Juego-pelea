@@ -5,9 +5,9 @@ Round: R003-V05-COMBAT-LOOP
 Goal: Repair combat commitment/input foundations and redesign the V0.5 combat loop so active fighting is more rewarding than passive guard + Special repetition.
 Staged activation: enabled
 Planned agents: Neureon, Ricardo, Brancaforte, Germinator, Mario, Gonza
-Current activation gate: STAGE_1_REPAIR_FOUNDATIONS
-Required at current gate: Neureon, Ricardo, Brancaforte
-Start token: START_ROUND — STAGE_1_REPAIR_FOUNDATIONS
+Current activation gate: STAGE_2_CORE
+Required at current gate: Neureon, Ricardo
+Start token: START_ROUND — STAGE_2_CORE
 Completion token: not issued
 
 ## Product authority
@@ -52,14 +52,14 @@ Explicitly deferred:
 ### STAGE_0_SCOPE — complete
 Neureon converted the Astra audit into executable contracts and round ownership.
 
-### STAGE_1_REPAIR_FOUNDATIONS — current
+### STAGE_1_REPAIR_FOUNDATIONS — complete
 Parallel:
 - Ricardo R1: guard/commitment/contact invariants.
 - Brancaforte B1: browser-safe pointer/control lifecycle.
 
 No shared product files between them.
 
-### STAGE_2_CORE
+### STAGE_2_CORE — current
 Ricardo R2 → R3 → R4 → R5:
 content boundary, command buffer/combos/grammar, air+Ultimate exit, CPU perception.
 Freeze one exact core consumer SHA.
@@ -90,5 +90,8 @@ Live coordination remains on `main`. Product code stays on assigned branches. Go
 
 ## Current gate
 
-Ricardo and Brancaforte are PRESENT. Stage 1 is authorized and running.
-Advance only after both R1 and B1 handoffs are complete and verified.
+Stage 1 accepted checkpoints:
+- R1 Ricardo: `5f6d59eb2dae2e386c55593a9af346e184d5611f`
+- B1 Brancaforte: `4eddddad0a69df0b6562e28f3e55fd66bafd4fc5`
+
+Stage 2 is authorized for Ricardo only: execute R2 → R3 → R4 → R5 sequentially, with a handoff/checkpoint after each task. Brancaforte remains WAITING_FOR_TEAM until Stage 4. After R5, freeze the exact core consumer SHA and activate Germinator G1.

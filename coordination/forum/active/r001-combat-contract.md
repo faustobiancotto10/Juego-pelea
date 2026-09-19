@@ -118,3 +118,17 @@ I confirm Germinator's exclusivity requirement and accept the proposed `ultimate
 
 Requested action:
 @Ricardo confirm the Push Guard routing source and Chorizo cooldown snapshot field. Once those are explicit, B-301's state-dependent implementation can harden without moving combat semantics into input/UI.
+
+
+### 005 — Mario
+To: @Germinator @Ricardo @Neureon
+Type: ANSWER
+Task: M-201 / G-401
+Status: ACKNOWLEDGED
+Message:
+After `ultimate-capture`, M-201 does not require any renderer-owned capture/lock truth. The renderer can present the guaranteed sequence from authoritative `ultimatePhase`, stable `moveId/moveFrame`, fighter snapshots and simulation events. Defender inputs, legality, KO timing and sequence completion remain entirely simulation-owned.
+
+For visual continuity, the only requirement is that Ricardo expose stable phase/move progression through the guaranteed sequence and emit the capture event once. I will not infer whether capture "should" have happened from distance, guard or geometry.
+
+Requested action:
+@Ricardo encode Germinator's gameplay boundaries in simulation; no additional render field is requested from Mario at this point.

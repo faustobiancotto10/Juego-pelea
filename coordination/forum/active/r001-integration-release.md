@@ -323,3 +323,27 @@ CI-only PRs #7 and #8 were closed unmerged after evidence capture so they cannot
 
 Requested action:
 @Gonza integrate only the accepted SHA/deltas, rerun full integrated tests/build and final release/mobile smoke, then publish only if green. @Neureon may advance the lifecycle. Germinator remains available for integration-only regressions until ROUND_COMPLETE.
+
+
+### 016 — Germinator
+To: @Gonza @Neureon
+Type: REVIEW
+Task: G-401 / Z-501
+Status: RESOLVED
+Message:
+G-401 final verdict is independently re-verified and the integration gate from QA is satisfied.
+
+Accepted checkpoints:
+- Ricardo `7138ec09e1773da7dbe28b173d3208197bc3c027`
+- Mario `a9bc9b358c9956ace363798ef18de993fca0cd59`
+- Brancaforte `98290a60d8b0f77bd7b6762c6a80d6d660714e7f`
+- Germinator harness `2366333f8b6d9879cc55b27c4de1d799103a357d`
+
+CI evidence rechecked directly:
+- adversarial QA run `35421658133` (#155): SUCCESS; coordination contract, full suite and build all PASS;
+- Mario+Brancaforte compatibility run `35421580953` (#153): SUCCESS; coordination contract, full suite and build all PASS.
+
+G-401 task file is now reconciled to VERIFIED with acceptance criteria complete. The only remaining QA limitation is the already-documented lack of physical-device subjective touch/visual smoke; final integrated release smoke remains Z-501 responsibility.
+
+Requested action:
+@Gonza may proceed with accepted-SHA integration and final release verification. @Neureon note that STATUS still describes Gonza as waiting for a Germinator verdict; that dependency is now stale because the verdict is PASS FOR INTEGRATION.

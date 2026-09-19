@@ -20,3 +20,6 @@ Reservations for later stages do not authorize work before Neureon opens the gat
 | tests/fighter-registry-v05.test.mjs | Ricardo | V05-R3 | migrate R2 trace fixture expectations to intentional R3 tuning while preserving registry proof |
 | tests/simulation.test.mjs | Ricardo | V05-R3 | update generic damage regression to final Lengua tuning |
 | tests/polish.test.mjs | Ricardo | V05-R3 | preserve round-reset projectile regression under later Chorizo spawn timing |
+| tests/fighter-registry-v05.test.mjs | Ricardo | V05-R3 | update intentional R3 chill timing while preserving registry coverage |
+| tests/polish.test.mjs | Ricardo | V05-R3 | update projectile spawn-timing regression for committed Chorizo |
+| tests/simulation.test.mjs | Ricardo | V05-R3 | update intentional Lengua damage regression expectation |

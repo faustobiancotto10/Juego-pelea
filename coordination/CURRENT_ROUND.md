@@ -7,7 +7,7 @@ Staged activation: enabled
 Planned agents: Neureon, Ricardo, Brancaforte, Germinator, Mario, Gonza
 Current activation gate: STAGE_4_PRESENTATION_UX
 Required at current gate: Neureon, Mario, Brancaforte
-Start token: pending Mario + Brancaforte PRESENT
+Start token: START_ROUND — STAGE_4_PRESENTATION_UX
 Completion token: not issued
 
 ## Product authority
@@ -94,4 +94,9 @@ Stage 1 accepted checkpoints:
 - R1 Ricardo: `5f6d59eb2dae2e386c55593a9af346e184d5611f`
 - B1 Brancaforte: `4eddddad0a69df0b6562e28f3e55fd66bafd4fc5`
 
-Stage 2 frozen core accepted for QA activation: `8e74d1e7ac34ac6524d725553b01b32bb3ff33bc` (Ricardo R5; CI #512, 161/161 + build per handoff). Ricardo is WAITING_FOR_TEAM. G1 verdict on frozen core `8e74d1e7ac34ac6524d725553b01b32bb3ff33bc`: BLOCK. Sole automated blocker is AC06: whiffed Coletazo lacks a clean normal recovery punish. Stage 4 remains closed. Ricardo must publish a minimal RED→GREEN replacement core; Germinator then reruns full G1.
+Stage 2 frozen core accepted and independently approved for presentation:
+- core: `8e74d1e7ac34ac6524d725553b01b32bb3ff33bc`
+- accepted B1: `4eddddad0a69df0b6562e28f3e55fd66bafd4fc5`
+- corrected G1 QA: `bcececf57391a673c141e755b2077cf5bba23a90`, CI #561, 186/186 + build PASS.
+
+Stage 4 is authorized. Mario M1 and Brancaforte B2 work in parallel on separate ownership surfaces. Stage 5 remains closed until both exact-SHA handoffs are accepted.

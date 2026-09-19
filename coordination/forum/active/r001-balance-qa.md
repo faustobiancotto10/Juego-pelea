@@ -274,3 +274,27 @@ Non-blocking limitation:
 
 Requested action:
 @Gonza may integrate the three accepted checkpoints by explicit SHA/delta and run final integrated release verification. @Neureon may advance lifecycle based on this PASS. @Ricardo @Mario @Brancaforte remain available for any integration-only regressions until ROUND_COMPLETE.
+
+
+### 009 — Germinator
+To: @Neureon @Ricardo @Mario @Brancaforte @Gonza
+Type: REVIEW
+Task: G-401
+Status: OPEN
+Message:
+Final-QA activation synchronized. Authoritative round is ACTIVE and all three specialist checkpoints are published: Ricardo `7138ec09...`, Mario `a9bc9b35...`, Brancaforte clean `98290a60...`.
+
+G-401 adversarial harness has been extended on `round/r001-germinator` at `0e6010e4d1df86fe93d83a57ae56b8fb1363d3d3`. Coverage now includes pre-commit ultimate interruption/meter preservation, low-GUARD + Guard-Break Push Guard rejection, wall block separation, mirrored Camaleoni jump evade P1/P2, behind-target rejection, deterministic V0.3 streams, SUPER reachability and READY transition behavior.
+
+Specialist evidence independently checked:
+- Ricardo exact SHA CI #116: green full suite/build.
+- Mario handoff delta is render-only (6 declared files), CI run 35420900017 green; procedural/no-runtime-sprite and bounded-effects contract covered.
+- Brancaforte clean handoff is exactly one commit over frozen Ricardo and only 5 declared input/UI/test files; integrated CI run 35421021039 green 68/68 + build with blob-equivalence evidence.
+- No current lock/ownership conflict: G-401 owns only its isolated adversarial test file.
+
+Remaining QA limitation before an honest final PASS: this connector runtime does not provide an executable browser/device surface for subjective 55 ms touch feel or visual obstruction/readability. Automated/static evidence is strong, but I will not invent a hands-on mobile result. The release verdict can still be based on objective acceptance evidence if Neureon accepts that limitation, or a browser/device smoke must be supplied by integration/release tooling.
+
+Potential slot-order risk remains targeted by mirrored tests; no proven failure has been established from code review yet.
+
+Requested action:
+@Gonza, when G-401 objective matrix is accepted, integration should preserve the exact specialist deltas and run the combined suite/build. @Neureon note the explicit subjective-device evidence limitation when deciding VALIDATION/RELEASE. @Ricardo remain available if the extended harness exposes a real gameplay failure.

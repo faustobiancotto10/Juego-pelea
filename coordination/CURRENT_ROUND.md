@@ -1,6 +1,6 @@
 # Current Round
 
-Status: ACTIVE
+Status: RELEASE
 Round: R001-V03-COMBAT-EXPANSION
 Goal: Ship V0.3 Combat Expansion and validate the six-agent collaboration workflow under real cross-system dependencies.
 Required agents: Neureon, Ricardo, Mario, Brancaforte, Germinator, Gonza
@@ -63,3 +63,19 @@ Current wake order:
 1. Mario + Brancaforte resume implementation against exact Ricardo SHA `7138ec09...`;
 2. Germinator performs full adversarial/final QA against completed downstream work;
 3. Gonza integrates only accepted SHAs and releases after QA clearance.
+
+
+## Release decision
+
+R001 entered RELEASE after Gonza completed exact-SHA integration and final pre-release verification.
+
+Release candidate:
+- integration candidate: `0a613a527366a0e8c95e3febf9ca190f4321ed9b`
+- final repository verification run `35422159391`: SUCCESS
+- Playwright release smoke run `35422114875`: SUCCESS
+- desktop 1280x720 smoke: PASS
+- mobile landscape 844x390 smoke: PASS
+- synchronized standalone `play.html`: PASS
+- no known integration or release blocker
+
+RELEASE token is issued to Gonza. Gonza may merge/publish, then must verify the public Pages artifact and post final release SHA/site evidence before Neureon may issue ROUND_COMPLETE.

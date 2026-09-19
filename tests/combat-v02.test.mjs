@@ -30,15 +30,15 @@ test('holding away walks backward and still blocks a compatible incoming strike'
 
 test('standing guard loses to grounded low while down-back blocks low and loses to overhead', () => {
   const stand = new CombatSimulation('chameleon', 'supernariz', { skipIntro: true });
-  stand.fighters[0].x = 1095;
-  stand.fighters[1].x = 1190;
+  stand.fighters[0].x = 500;
+  stand.fighters[1].x = 562;
   stand.step(input({ down: true, attack: true }), input({ right: true }));
   const standAfter = stepN(stand, 18, EMPTY_INPUT, input({ right: true }));
   assert.ok(standAfter.fighters[1].health <= 964, 'standing guard must not block a grounded low normal');
 
   const crouch = new CombatSimulation('chameleon', 'supernariz', { skipIntro: true });
-  crouch.fighters[0].x = 1095;
-  crouch.fighters[1].x = 1190;
+  crouch.fighters[0].x = 500;
+  crouch.fighters[1].x = 562;
   crouch.step(input({ down: true, attack: true }), input({ right: true, down: true }));
   const crouchAfter = stepN(crouch, 18, EMPTY_INPUT, input({ right: true, down: true }));
   assert.ok(crouchAfter.fighters[1].health >= 998, 'down-back should block a grounded low normal');

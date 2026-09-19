@@ -3,7 +3,7 @@ import { GameInput } from '../input/GameInput.js';
 import { FightRenderer } from '../render/FightRenderer.js';
 import { CombatSimulation } from '../simulation/CombatSimulation.js';
 import { CpuController } from '../simulation/CpuController.js';
-import type { FighterId, FighterIndex, MatchSnapshot } from '../types.js';
+import { EMPTY_INPUT, type FighterId, type FighterIndex, type MatchSnapshot } from '../types.js';
 import { backToSelect, chooseFighter, finishFight, initialFlowState, rematch, startFight, type GameFlowState } from './flow.js';
 
 const FIXED_MS = 1000 / 60;
@@ -34,6 +34,8 @@ export class AppController {
   private paused = false;
   private hasShownCombatHint = false;
   private hintTimer = 0;
+  private hasShownSuperReadyHint = false;
+  private superHintTimer = 0;
 
   constructor(private readonly root: HTMLElement) {}
 
@@ -60,7 +62,7 @@ export class AppController {
       <main class="select-screen">
         <div class="select-backdrop"></div>
         <header class="select-header">
-          <span class="game-badge">FIRST PLAYABLE · V0.2</span>
+          <span class="game-badge">FIRST PLAYABLE · V0.3</span>
           <h1>${title}</h1>
           <p>${subtitle}</p>
         </header>
@@ -136,6 +138,7 @@ export class AppController {
   private mountFight(): void {
     if (this.flow.phase !== 'fight' || !this.flow.player || !this.flow.cpu) return;
     this.matchFinished = false;
+    this.hasShownSuperReadyHint = false;
     this.root.innerHTML = `
       <main class="fight-shell" data-game-phase="fight">
         <canvas class="fight-canvas" data-fight-canvas aria-label="Arena de combate"></canvas>
@@ -146,6 +149,7 @@ export class AppController {
         </div>
         <button class="fight-controls-button" data-controls-button type="button" aria-label="Ver controles">?</button>
         ${this.hasShownCombatHint ? '' : '<div class="combat-hint" data-combat-hint><strong>Atrás = retroceder / bloquear</strong><span>Doble atrás = BACKDASH · Bloquear consume GUARD</span></div>'}
+        <div class="super-hint is-hidden" data-super-hint><strong>SUPER READY</strong><span>ATTACK + SPECIAL</span></div>
         <div class="touch-layer" data-touch-controls>
           <div class="dpad" data-dpad aria-label="D-pad de 8 direcciones">
             <span class="dpad-cross dpad-cross--h"></span><span class="dpad-cross dpad-cross--v"></span><span class="dpad-center"></span>
@@ -156,7 +160,7 @@ export class AppController {
             <button class="action-button action-button--attack" data-action="attack" type="button"><span>ATTACK</span></button>
           </div>
         </div>
-        <div class="desktop-hint">A/D mover · S agachar · W/Space salto · J ataque · K especial</div>
+        <div class="desktop-hint">A/D mover · S agachar · W/Space salto · J ataque · K especial · J+K ultimate con SUPER READY</div>
       </main>
       ${this.controlsPanel()}
       ${this.orientationPrompt()}
@@ -190,7 +194,14 @@ export class AppController {
       if (!this.paused) {
         accumulator += elapsed;
         while (accumulator >= FIXED_MS) {
-          const humanInput = playerCpu ? playerCpu.nextInput(snapshot) : this.input?.getFrame() ?? { left: false, right: false, down: false, up: false, jump: false, attack: false, special: false, dashLeft: false, dashRight: false };
+          const playerState = snapshot.fighters[0];
+          const humanInput = playerCpu
+            ? playerCpu.nextInput(snapshot)
+            : this.input?.getFrame({
+                superReady: playerState.superReady,
+                defensiveContext: playerState.blocking || playerState.blockstunFrames > 0,
+                nowMs: now,
+              }) ?? EMPTY_INPUT;
           const cpuInput = cpu.nextInput(snapshot);
           snapshot = simulation.step(humanInput, cpuInput);
           renderer.consumeEvents(snapshot);
@@ -220,6 +231,8 @@ export class AppController {
         <div class="hud-meta"><strong>${FIGHTERS[id].displayName}</strong><span>${index === 0 ? 'P1' : 'CPU'}</span></div>
         <div class="health-track"><span class="health-fill" data-health="${index}"></span></div>
         <div class="guard-row"><span class="guard-label">GUARD</span><div class="guard-track" data-guard-track="${index}"><span class="guard-fill" data-guard="${index}"></span></div></div>
+        <div class="super-row"><span class="super-label">SUPER</span><div class="super-track" data-super-track="${index}"><span class="super-fill" data-super="${index}"></span></div></div>
+        ${id === 'supernariz' ? `<div class="special-cooldown" data-special-cooldown="${index}"><span>CHORIZO</span><span class="special-cooldown-track"><i class="special-cooldown-fill" data-special-cooldown-fill="${index}"></i></span></div>` : ''}
         <div class="round-pips"><i data-win="${index}-0"></i><i data-win="${index}-1"></i></div>
       </section>
     `;
@@ -233,10 +246,32 @@ export class AppController {
       const guard = this.root.querySelector<HTMLElement>(`[data-guard="${index}"]`);
       if (guard) guard.style.transform = `scaleX(${Math.max(0, fighter.guard / fighter.maxGuard)})`;
       this.root.querySelector<HTMLElement>(`[data-guard-track="${index}"]`)?.classList.toggle('is-broken', fighter.guardBreakFrames > 0);
+
+      const superFill = this.root.querySelector<HTMLElement>(`[data-super="${index}"]`);
+      if (superFill) superFill.style.transform = `scaleX(${Math.max(0, Math.min(1, fighter.superMeter / Math.max(1, fighter.maxSuper)))})`;
+      this.root.querySelector<HTMLElement>(`[data-super-track="${index}"]`)?.classList.toggle('is-ready', fighter.superReady);
+
+      const cooldownFill = this.root.querySelector<HTMLElement>(`[data-special-cooldown-fill="${index}"]`);
+      if (cooldownFill) {
+        const cooldownReady = fighter.projectileCooldownMax <= 0
+          ? 1
+          : Math.max(0, Math.min(1, 1 - fighter.projectileCooldown / fighter.projectileCooldownMax));
+        cooldownFill.style.transform = `scaleX(${cooldownReady})`;
+      }
+      this.root.querySelector<HTMLElement>(`[data-special-cooldown="${index}"]`)?.classList.toggle('is-ready', fighter.projectileCooldown <= 0);
+
       for (let pip = 0; pip < 2; pip += 1) {
         this.root.querySelector<HTMLElement>(`[data-win="${index}-${pip}"]`)?.classList.toggle('is-won', pip < fighter.roundWins);
       }
     }
+    if (!this.hasShownSuperReadyHint && snapshot.fighters[0].superReady) {
+      this.hasShownSuperReadyHint = true;
+      const hint = this.root.querySelector<HTMLElement>('[data-super-hint]');
+      hint?.classList.remove('is-hidden');
+      clearTimeout(this.superHintTimer);
+      this.superHintTimer = window.setTimeout(() => hint?.classList.add('is-hidden'), 2600);
+    }
+
     const timer = this.root.querySelector<HTMLElement>('[data-timer]');
     if (timer) timer.textContent = String(Math.ceil(snapshot.roundTimerFrames / 60));
     const round = this.root.querySelector<HTMLElement>('[data-round]');
@@ -285,6 +320,8 @@ export class AppController {
     this.paused = false;
     clearTimeout(this.hintTimer);
     this.hintTimer = 0;
+    clearTimeout(this.superHintTimer);
+    this.superHintTimer = 0;
   }
 
   private bindControlsPanel(pausesFight: boolean): void {

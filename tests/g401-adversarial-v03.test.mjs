@@ -175,21 +175,20 @@ test('an invalid ultimate request cannot spend meter or emit capture/whiff from 
 });
 
 
-async function blockedNoseHit(sim) {
-  const seen = [];
-  sim.step(input({ left: true }), input({ attack: true }));
-  let snap = sim.getSnapshot();
+function closeForPressure(sim, frames = 24) {
+  return stepN(sim, frames, input({ right: true }), input({ left: true }));
+}
 
-  for (let i = 0; i < 36; i += 1) {
-    snap = sim.step(input({ left: true }), input({ left: true }));
+function blockedTramontanaHit(sim) {
+  closeForPressure(sim, 18);
+  let snap = sim.step(input({ left: true }), input({ down: true, special: true }));
+  const seen = [...snap.events];
+
+  for (let i = 0; i < 24 && !seen.some((event) => event.type === 'hit' && event.blocked); i += 1) {
+    snap = sim.step(input({ left: true }), EMPTY_INPUT);
     seen.push(...snap.events);
-    if (seen.some((event) => event.type === 'hit' && event.blocked)) break;
   }
-  assert.ok(seen.some((event) => event.type === 'hit' && event.blocked), 'setup must produce a blocked nose hit');
-
-  for (let i = 0; i < 30 && snap.fighters[1].moveId !== null; i += 1) {
-    snap = sim.step(input({ left: true }), input({ left: true }));
-  }
+  assert.ok(seen.some((event) => event.type === 'hit' && event.blocked), 'setup must produce a blocked Tramontana hit');
   return snap;
 }
 
@@ -210,38 +209,30 @@ test('ultimate startup can be interrupted before commitment without spending SUP
   assert.ok(events.some((event) => event.type === 'hit' && event.attacker === 1 && !event.blocked));
 });
 
-test('Push Guard is rejected below its GUARD cost and during Guard Break', async () => {
+test('Push Guard is rejected below its GUARD cost and during Guard Break', () => {
   const sim = new CombatSimulation('chameleon', 'supernariz', { skipIntro: true });
-  stepN(sim, 58, input({ right: true }), input({ left: true }));
+  closeForPressure(sim, 58);
 
   let snap = sim.getSnapshot();
-  while (snap.fighters[0].guard >= 34 && snap.fighters[0].guardBreakFrames === 0) {
-    snap = await blockedNoseHit(sim);
+  for (let hit = 0; hit < 4; hit += 1) {
+    snap = blockedTramontanaHit(sim);
+    for (let i = 0; i < 40 && snap.fighters[1].moveId !== null; i += 1) {
+      snap = sim.step(input({ left: true }), EMPTY_INPUT);
+    }
   }
-  assert.ok(snap.fighters[0].guard > 0 && snap.fighters[0].guard < 34, 'setup must leave low positive GUARD');
 
-  sim.step(input({ left: true }), input({ attack: true }));
-  let blocked = false;
-  for (let i = 0; i < 16 && !blocked; i += 1) {
-    snap = sim.step(input({ left: true }), EMPTY_INPUT);
-    blocked = snap.events.some((event) => event.type === 'hit' && event.blocked);
-  }
-  assert.equal(blocked, true);
+  assert.ok(snap.fighters[0].guard > 0 && snap.fighters[0].guard < 34, 'four blocked Tramontanas should leave low positive GUARD');
 
   const guardBeforeRejectedPush = snap.fighters[0].guard;
   snap = sim.step(input({ left: true, pushGuard: true }), EMPTY_INPUT);
   assert.equal(snap.events.some((event) => event.type === 'push-guard'), false);
   assert.equal(snap.fighters[0].guard, guardBeforeRejectedPush);
 
-  while (snap.fighters[0].guardBreakFrames === 0) {
-    for (let i = 0; i < 32 && snap.fighters[1].moveId !== null; i += 1) {
-      snap = sim.step(input({ left: true }), input({ left: true }));
-    }
-    sim.step(input({ left: true }), input({ attack: true }));
-    for (let i = 0; i < 18 && snap.fighters[0].guardBreakFrames === 0; i += 1) {
-      snap = sim.step(input({ left: true }), EMPTY_INPUT);
-    }
+  for (let i = 0; i < 40 && snap.fighters[1].moveId !== null; i += 1) {
+    snap = sim.step(input({ left: true }), EMPTY_INPUT);
   }
+  snap = blockedTramontanaHit(sim);
+  assert.ok(snap.fighters[0].guardBreakFrames > 0, 'fifth blocked Tramontana should trigger Guard Break');
 
   const guardAtBreak = snap.fighters[0].guard;
   snap = sim.step(input({ pushGuard: true }), EMPTY_INPUT);

@@ -12,7 +12,7 @@
 }
 * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 html, body, #app { width: 100%; height: 100%; margin: 0; overflow: hidden; }
-body { touch-action: none; overscroll-behavior: none; user-select: none; background: var(--ink); }
+body { overscroll-behavior: none; background: var(--ink); }
 button { font: inherit; color: inherit; }
 
 .select-screen, .vs-screen, .result-screen, .fight-shell { position: relative; width: 100%; height: 100%; overflow: hidden; }

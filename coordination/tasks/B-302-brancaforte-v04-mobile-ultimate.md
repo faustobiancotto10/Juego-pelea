@@ -57,3 +57,15 @@ Replace the uncomfortable mobile Ultimate chord with one dedicated touch button 
 - GREEN run: `35425090149` — coordination contract PASS, full suite 87/87 PASS, build PASS
 - formal handoff: `coordination/handoffs/B-302-brancaforte-v04-mobile-ultimate.md`
 - pending Stage 3 evidence: real iPhone-scale landscape visual/playfield-obstruction and tactile touch smoke; local browser checkout was unavailable because this runtime could not resolve github.com
+
+
+## Validation checkpoint
+
+- frozen R-201 base: `683d81f50afa9626785408ac7f868414ffe4061f`
+- CI-green iterative head: `3926d862c76ca4d5c2e597d988f7ddfe5c15e574`
+- clean handoff commit: `d5bfae4e108f882715c82ccd9282f1cc9c5f396a`
+- clean tree = CI-green tree: `e806c7d55505473bf9fc747496e0801f843a5ee5`
+- RED run: `35424997781`
+- GREEN run: `35425090149` — coordination contract PASS, full suite 87/87 PASS, build PASS
+- formal handoff: `coordination/handoffs/B-302-brancaforte-v04-mobile-ultimate.md`
+- pending Stage 3 evidence: real iPhone-scale landscape visual/playfield-obstruction and tactile touch smoke; local browser checkout was unavailable because this runtime could not resolve github.com

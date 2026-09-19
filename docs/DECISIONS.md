@@ -19,3 +19,9 @@
 - 2026-09-19: Ultimates are unblockable forward capture attacks with finite considerable range. Position, range or crossing behind can evade before capture; after capture the sequence is guaranteed. A committed miss consumes meter and has recovery.
 - 2026-09-19: Camaleoni's ultimate is an invisibility/near-invisibility forward dash capture into a guaranteed combo. Supernariz's ultimate is forward suction into a heavy nazazo and large launch.
 - 2026-09-19: V0.3 adds corner pushback transfer and Push Guard using existing controls; no fourth persistent mobile action button is added.
+
+- 2026-09-19: V0.3 SUPER baseline is cap 100, +0.12 per actual HP dealt and +0.055 per actual HP received; no passive gain, GUARD-only damage gives no SUPER, HP chip contributes normally. SUPER persists across rounds inside one match and resets for a new fight instance.
+- 2026-09-19: Push Guard baseline costs 34 GUARD, buffers for 6 fixed-step frames through hitstop/block context, and authors 122 units of separation. Neutral, Guard Break and insufficient-GUARD requests are rejected by simulation.
+- 2026-09-19: Ultimate meter is consumed at startup→capture commitment, not at initial startup. Pre-commit interruption preserves meter; committed whiffs consume it. Both V0.3 ultimates use a 190 total-damage band.
+- 2026-09-19: Final mobile Ultimate input is READY-only ATTACK+SPECIAL with a 55 ms chord window; outside READY, ATTACK and SPECIAL remain immediate. Defensive SPECIAL routes an exclusive Push Guard intent from simulation-owned defensive context.
+- 2026-09-19: V0.3 first-normal reach is intentionally near-equal (Camaleoni authored edge 86, Supernariz 88), with Supernariz retaining a small speed/tempo edge and Camaleoni compensating via damage/stun/knockback/cancel advantages.

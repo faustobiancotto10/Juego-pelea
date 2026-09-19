@@ -27,7 +27,7 @@ interface Particle {
   life: number;
   maxLife: number;
   radius: number;
-  tone: 'warm' | 'cold' | 'block' | 'break' | 'ultimate';
+  tone: 'warm' | 'cold' | 'block' | 'break' | 'ultimate' | 'tail';
 }
 
 interface PushGuardFlash {
@@ -134,7 +134,9 @@ export class FightRenderer {
         ? 'ultimate'
         : attacker.moveId === 'tramontana'
           ? 'cold'
-          : 'warm';
+          : attacker.moveId === 'coletazo'
+            ? 'tail'
+            : 'warm';
     const count = event.strong ? 18 : 10;
     for (let i = 0; i < count; i += 1) {
       const angle = (Math.PI * 2 * i) / count + (snapshot.frame % 7) * 0.1;
@@ -392,7 +394,9 @@ export class FightRenderer {
               ? '#ff6b65'
               : p.tone === 'ultimate'
                 ? '#fff0a8'
-                : '#ffcf7e';
+                : p.tone === 'tail'
+                  ? '#d9f58f'
+                  : '#ffcf7e';
       ellipse(ctx, p.x, p.y, p.radius * alpha + 1, p.radius * 0.65 * alpha + 0.8, color);
       ctx.restore();
     }

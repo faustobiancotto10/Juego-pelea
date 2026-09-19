@@ -1047,7 +1047,7 @@ export class CombatSimulation {
 
     if (fighter.ultimatePhase === 'recovery') {
       const recoveryFrames = fighter.ultimateConnected
-        ? definition.successRecoveryFrames
+        ? (definition.successRecoveryFrames ?? definition.recoveryFrames)
         : definition.recoveryFrames;
       if (fighter.ultimatePhaseFrame >= recoveryFrames) this.finishUltimate(fighter);
     }
@@ -1198,17 +1198,22 @@ export class CombatSimulation {
       defender.guardBreakFrames = 0;
       defender.landingRecoveryFrames = 0;
       defender.pushGuardRecoveryFrames = 0;
-      defender.stunFrames = Math.max(defender.stunFrames, definition.releaseStunFrames);
+      const releaseHitstun = definition.releaseHitstun ?? 30;
+      const releaseVx = definition.releaseVx ?? definition.releaseKnockback;
+      const releaseVy = definition.releaseVy ?? 0;
+      const releaseSeparation = definition.releaseSeparation ?? Math.abs(definition.sequenceOffsetX);
+
+      defender.stunFrames = Math.max(defender.stunFrames, releaseHitstun);
       defender.grounded = false;
-      defender.vx = facing * definition.releaseVelocityX;
-      defender.vy = definition.releaseVelocityY;
+      defender.vx = facing * releaseVx;
+      defender.vy = releaseVy;
       defender.ultimateReleaseSource = release.attacker;
 
-      const targetX = attacker.x + facing * definition.releaseSeparation;
+      const targetX = attacker.x + facing * releaseSeparation;
       defender.x = targetX;
       this.clampFighter(defender);
       const achieved = (defender.x - attacker.x) * facing;
-      const missing = Math.max(0, definition.releaseSeparation - achieved);
+      const missing = Math.max(0, releaseSeparation - achieved);
       if (missing > 0) {
         attacker.x -= facing * missing;
         this.clampFighter(attacker);

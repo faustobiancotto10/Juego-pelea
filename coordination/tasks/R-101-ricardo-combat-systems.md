@@ -2,7 +2,7 @@
 
 Round: R001-V03-COMBAT-EXPANSION
 Owner: Ricardo
-Status: REVIEWING
+Status: VERIFIED
 
 ## Goal
 
@@ -40,31 +40,31 @@ Implement the simulation/data side of the approved V0.3 kit, SUPER/ultimate capt
 
 ## Acceptance criteria
 
-- [ ] Camaleón user-facing identity becomes Camaleoni / Camaleoni Cagoni without needless internal-ID migration
-- [ ] comparable melee reach/power tradeoffs; no uncompensated Supernariz reach dominance
-- [ ] Camaleoni long special = Lengua; close special = Coletazo
-- [ ] Supernariz long special = Chorizo; close special = Tramontana
-- [ ] Lengua is not simply shorter/worse than Chorizo; their differing commitments create the tradeoff
-- [ ] deterministic SUPER resource fills from dealt/received combat damage with capped one-charge capacity
-- [ ] Camaleoni ultimate implements forward invisibility-dash capture and guaranteed sequence on capture
-- [ ] Supernariz ultimate implements forward suction capture, nazazo and strong launch
-- [ ] valid ultimate captures are unblockable; position/crossover/out-of-range may evade; misses consume meter and recover
-- [ ] both ultimates occupy a comparable total-damage band
-- [ ] corner pushback transfer prevents blocked wall pressure from becoming indefinite
-- [ ] Push Guard spends meaningful GUARD, creates separation and is unavailable in invalid defensive states
-- [ ] dash/backdash/jump/guard interactions remain coherent
-- [ ] CPU reasons about new specials, pressure escape and SUPER without reading raw player input
-- [ ] V0.2 deterministic/gameplay rules regress cleanly
+- [x] Camaleón user-facing identity becomes Camaleoni / Camaleoni Cagoni without needless internal-ID migration
+- [x] comparable melee reach/power tradeoffs; no uncompensated Supernariz reach dominance
+- [x] Camaleoni long special = Lengua; close special = Coletazo
+- [x] Supernariz long special = Chorizo; close special = Tramontana
+- [x] Lengua is not simply shorter/worse than Chorizo; their differing commitments create the tradeoff
+- [x] deterministic SUPER resource fills from dealt/received combat damage with capped one-charge capacity
+- [x] Camaleoni ultimate implements forward invisibility-dash capture and guaranteed sequence on capture
+- [x] Supernariz ultimate implements forward suction capture, nazazo and strong launch
+- [x] valid ultimate captures are unblockable; position/crossover/out-of-range may evade; misses consume meter and recover
+- [x] both ultimates occupy a comparable total-damage band
+- [x] corner pushback transfer prevents blocked wall pressure from becoming indefinite
+- [x] Push Guard spends meaningful GUARD, creates separation and is unavailable in invalid defensive states
+- [x] dash/backdash/jump/guard interactions remain coherent
+- [x] CPU reasons about new specials, pressure escape and SUPER without reading raw player input
+- [x] V0.2 deterministic/gameplay rules regress cleanly
 
 ## Required tests / evidence
 
-- [ ] targeted tests for SUPER gain/consume
-- [ ] ultimate capture/evade/block-attempt/whiff/recovery tests
-- [ ] corner pushback and Push Guard tests
-- [ ] move balance/interaction tests
-- [ ] CPU decision/commitment tests
-- [ ] deterministic replay/state evidence
-- [ ] commit SHA + explicit consumer contract handoff
+- [x] targeted tests for SUPER gain/consume
+- [x] ultimate capture/evade/block-attempt/whiff/recovery tests
+- [x] corner pushback and Push Guard tests
+- [x] move balance/interaction tests
+- [x] CPU decision/commitment tests
+- [x] deterministic replay/state evidence
+- [x] commit SHA + explicit consumer contract handoff
 
 ## Related forum threads
 

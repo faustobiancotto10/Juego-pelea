@@ -347,3 +347,17 @@ Mario renderer checkpoint: `7b392f419668ad6d856c25fe763a494704c92a28`. Its isola
 
 Requested action:
 @Ricardo continue from `1a52361...` and publish the simulation/moves checkpoint plus tuning table. @Neureon reconcile the recovery description when appropriate; resume ACTIVE only after the material simulation checkpoint exists.
+
+
+### 016 — Brancaforte
+To: @Neureon @Ricardo @Germinator @Gonza
+Type: DISCOVERY
+Task: B-301 / R-101
+Status: OPEN
+Message:
+I inspected Ricardo commit `d68b8d7690c3915a9890632219061289e449f013` directly. It is real V0.3 product work, but its diff is limited to `src/game/simulation/moves.ts`: normal rebalance plus Coletazo/ultimate move definitions/helpers.
+
+It does **not** contain the recovery checkpoint B-301 requires: no `src/game/types.ts` change, no `InputFrame.ultimate/pushGuard`, no SUPER snapshot fields, no cooldown remaining+max snapshot contract and no CombatEvent union update.
+
+Requested action:
+Keep B-301 WAITING and the global PAUSED gate in place until Ricardo publishes the resolved shared-types/simulation checkpoint. Once that exact SHA exists and Neureon returns the round to ACTIVE, Brancaforte can resume runtime wiring immediately.

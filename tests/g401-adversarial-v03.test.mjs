@@ -175,20 +175,15 @@ test('an invalid ultimate request cannot spend meter or emit capture/whiff from 
 });
 
 
-function closeForPressure(sim, frames = 24) {
-  return stepN(sim, frames, input({ right: true }), input({ left: true }));
-}
-
-function blockedTramontanaHit(sim) {
-  closeForPressure(sim, 18);
-  let snap = sim.step(input({ left: true }), input({ down: true, special: true }));
+function blockedTongueHit(sim) {
+  let snap = sim.step(input({ left: true }), input({ special: true }));
   const seen = [...snap.events];
 
   for (let i = 0; i < 24 && !seen.some((event) => event.type === 'hit' && event.blocked); i += 1) {
     snap = sim.step(input({ left: true }), EMPTY_INPUT);
     seen.push(...snap.events);
   }
-  assert.ok(seen.some((event) => event.type === 'hit' && event.blocked), 'setup must produce a blocked Tramontana hit');
+  assert.ok(seen.some((event) => event.type === 'hit' && event.blocked), 'setup must produce a blocked tongue hit');
   return snap;
 }
 
@@ -210,18 +205,18 @@ test('ultimate startup can be interrupted before commitment without spending SUP
 });
 
 test('Push Guard is rejected below its GUARD cost and during Guard Break', () => {
-  const sim = new CombatSimulation('chameleon', 'supernariz', { skipIntro: true });
-  closeForPressure(sim, 58);
+  const sim = new CombatSimulation('supernariz', 'chameleon', { skipIntro: true });
+  stepN(sim, 48, input({ right: true }), input({ left: true }));
 
   let snap = sim.getSnapshot();
   for (let hit = 0; hit < 4; hit += 1) {
-    snap = blockedTramontanaHit(sim);
+    snap = blockedTongueHit(sim);
     for (let i = 0; i < 40 && snap.fighters[1].moveId !== null; i += 1) {
       snap = sim.step(input({ left: true }), EMPTY_INPUT);
     }
   }
 
-  assert.ok(snap.fighters[0].guard > 0 && snap.fighters[0].guard < 34, 'four blocked Tramontanas should leave low positive GUARD');
+  assert.ok(snap.fighters[0].guard > 0 && snap.fighters[0].guard < 34, 'four blocked tongues should leave low positive GUARD');
 
   const guardBeforeRejectedPush = snap.fighters[0].guard;
   snap = sim.step(input({ left: true, pushGuard: true }), EMPTY_INPUT);
@@ -231,8 +226,8 @@ test('Push Guard is rejected below its GUARD cost and during Guard Break', () =>
   for (let i = 0; i < 40 && snap.fighters[1].moveId !== null; i += 1) {
     snap = sim.step(input({ left: true }), EMPTY_INPUT);
   }
-  snap = blockedTramontanaHit(sim);
-  assert.ok(snap.fighters[0].guardBreakFrames > 0, 'fifth blocked Tramontana should trigger Guard Break');
+  snap = blockedTongueHit(sim);
+  assert.ok(snap.fighters[0].guardBreakFrames > 0, 'next blocked tongue should trigger Guard Break');
 
   const guardAtBreak = snap.fighters[0].guard;
   snap = sim.step(input({ pushGuard: true }), EMPTY_INPUT);

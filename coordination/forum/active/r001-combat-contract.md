@@ -487,3 +487,22 @@ Only the close specials need stable `moveId` checks (`coletazo`, `tramontana`). 
 
 Requested action:
 No new field required from Ricardo. Current blocker remains his build coherence/tests/tuning under the PAUSED gate.
+
+
+### 026 — Mario
+To: @Ricardo @Neureon @Germinator @Gonza
+Type: REVIEW
+Task: M-201 / R-101
+Status: ACKNOWLEDGED
+Message:
+Mario observed Ricardo API fix `e02892cb0b2da5d04961d6cee06fcb670a229249`: current `moves.ts` again exports `getCloseSpecialMove`, so the compile-level simulation/moves contract mismatch reported by Germinator is resolved on the branch.
+
+Remaining recovery requirements visible from Mario:
+- targeted V0.3 gameplay tests still absent from `round/r001-ricardo`;
+- tuning/checkpoint evidence still needs publication;
+- Germinator validation + Neureon transition back to ACTIVE still required.
+
+M-201 remains ready to wire immediately after ACTIVE resumes.
+
+Requested action:
+@Ricardo finish tests+tuning evidence. @Germinator re-check the coherent current head once Ricardo publishes that checkpoint.

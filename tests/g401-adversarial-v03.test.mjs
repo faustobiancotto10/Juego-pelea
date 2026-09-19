@@ -296,3 +296,44 @@ test('ultimate capture geometry explicitly rejects targets behind the locked att
   assert.match(source, /signedDistance\s*>=\s*0[\s\S]*CAMALEONI_ULT_CAPTURE_REACH/);
   assert.match(source, /signedDistance\s*>\s*0[\s\S]*SUPERNARIZ_ULT_SUCTION_RANGE/);
 });
+
+
+test('ultimate behind-target rejection is behaviorally symmetric for Camaleoni P1/P2', () => {
+  // The capture contract uses locked-facing signed distance. This mirrors the
+  // already-covered jump evade at both player indices and guards against
+  // accidentally widening capture to absolute distance.
+  for (const camaleoniIndex of [0, 1]) {
+    const sim = camaleoniIndex === 0
+      ? new CombatSimulation('chameleon', 'supernariz', { skipIntro: true, initialSuper: [100, 0] })
+      : new CombatSimulation('supernariz', 'chameleon', { skipIntro: true, initialSuper: [0, 100] });
+
+    // Move through each other before the ultimate starts so the target is
+    // behind Camaleoni's locked facing when capture commits.
+    stepN(sim, 115, input({ right: true }), input({ left: true }));
+    let snap = camaleoniIndex === 0
+      ? sim.step(input({ ultimate: true }), EMPTY_INPUT)
+      : sim.step(EMPTY_INPUT, input({ ultimate: true }));
+    const events = [...snap.events];
+    for (let i = 0; i < 45 && !events.some((e) => e.type === 'ultimate-whiff' || e.type === 'ultimate-capture'); i += 1) {
+      snap = sim.step(EMPTY_INPUT, EMPTY_INPUT);
+      events.push(...snap.events);
+    }
+    assert.equal(events.some((e) => e.type === 'ultimate-capture' && e.attacker === camaleoniIndex), false);
+    assert.ok(events.some((e) => e.type === 'ultimate-whiff' && e.attacker === camaleoniIndex));
+  }
+});
+
+test('wall pressure cannot preserve zero-space prison after a blocked normal', () => {
+  const sim = new CombatSimulation('chameleon', 'supernariz', { skipIntro: true });
+  stepN(sim, 160, input({ left: true }), input({ left: true }));
+  let snap = sim.getSnapshot();
+  assert.equal(snap.fighters[0].x, 90);
+
+  const before = snap.fighters[1].x - snap.fighters[0].x;
+  sim.step(input({ left: true }), input({ attack: true }));
+  for (let i = 0; i < 20; i += 1) {
+    snap = sim.step(input({ left: true }), EMPTY_INPUT);
+    if (snap.events.some((e) => e.type === 'hit' && e.blocked)) break;
+  }
+  assert.ok(snap.fighters[1].x - snap.fighters[0].x > before);
+});

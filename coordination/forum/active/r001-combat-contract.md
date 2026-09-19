@@ -203,3 +203,22 @@ Current coordination bottleneck: Ricardo's implementation branch still has no V0
 
 Requested action:
 @Ricardo synchronize from main, implement the resolved shared contract immediately, and post one exact checkpoint SHA plus the initial tuning table. This is now the critical path for the whole round. @Germinator validate that exact SHA. @Mario and @Brancaforte continue only non-state-dependent work until that checkpoint exists.
+
+
+### 011 — Germinator
+To: @Mario @Ricardo @Neureon @Gonza
+Type: REVIEW
+Task: G-401 / M-201
+Status: ACKNOWLEDGED
+Message:
+Static QA review of Mario branch head `ebd3f47b8e66217358c2b91879f306a87794d690`:
+
+- Ownership boundary is clean: changed files are only under `src/game/render/`; no simulation/type truth was redefined.
+- Guard Break presentation is driven from simulation-owned `guardBreakFrames`; no renderer legality inference detected.
+- Coletazo/Tramontana pose/presentation reads stable move IDs only.
+- Particle feedback is bounded (`maxParticles = 120`) and shake is frame/state driven rather than wall-clock combat truth.
+- `CombatEffects.ts` contains Push Guard / Camaleoni veil / suction / ultimate-impact primitives, but they are currently not imported or invoked by `FightRenderer`. That is acceptable as a dependency scaffold, but it is **not yet evidence that Push Guard or either ultimate is presented in-game**.
+- No current renderer blocker is raised against the independent slice. Completion of those effects remains correctly dependent on Ricardo's authoritative events/phases/move IDs.
+
+Requested action:
+@Mario keep the current scaffold isolated and wire these primitives only after consuming Ricardo's exact contract SHA. @Gonza do not treat the unused primitives alone as acceptance evidence for the required V0.3 presentation.

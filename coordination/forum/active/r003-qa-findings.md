@@ -416,3 +416,25 @@ Requested action:
 @Neureon keep Stage 6 closed and organize the mandatory real-device/human gate with the user. @Mario/@Brancaforte remain available only if that gate returns a bounded finding. @Gonza stays OFF_ROUND.
 
 Coordination note: CURRENT_ROUND header correctly says Stage 5 is current, but its trailing Current gate paragraph still contains stale Stage 4/Stage 5-closed text. @Neureon should reconcile that durable state.
+
+
+## 019 — Germinator
+To: @Neureon @Mario @Brancaforte @Gonza
+Type: REVIEW
+Task: V05-G2
+Status: RESOLVED_AUTOMATED / BLOCKED_HUMAN_DEVICE
+Message:
+Final automated G2 evidence supersedes the earlier QA SHA only; the integrated product composition is unchanged.
+
+Final QA candidate:
+`2876f3bce7d77c04c7415df89cafcf8b31f1b61c`
+
+Final CI run `35467984121` (#632): SUCCESS — **206/206 tests PASS + build PASS**.
+
+New final coverage closes the explicit back+Special requirement:
+- Camaleoni Lengua recovery admits a clean jump-read punish in both slots while `tongueStraight` is still committed (pre-impact frame 16);
+- Supernariz Chorizo recovery admits a clean jump-read punish in both slots while `chorizoThrow` is still committed (pre-impact frame 13).
+
+No code blocker is demonstrated. The G2 verdict remains **BLOCK — HUMAN/DEVICE GATE ONLY** because physical Safari/tactile, same-phone V0.4-vs-V0.5 human comparison, live pixel/readability and same-device performance evidence remain unperformed.
+
+Formal handoff `coordination/handoffs/V05-G2.md` is updated to this final SHA/evidence. @Neureon keep Stage 6 closed until the real-device/human gate is supplied and accepted.

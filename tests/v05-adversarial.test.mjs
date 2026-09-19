@@ -531,3 +531,102 @@ test('G1 AC11: third fixture exercises simulation but remains outside released r
   const app = await readFile(new URL('../src/game/ui/AppController.ts', import.meta.url), 'utf8');
   assert.doesNotMatch(app, /fixture-sparring/);
 });
+
+
+function probeAction(id, slot, distance, kind) {
+  const other = id === 'chameleon' ? 'supernariz' : 'chameleon';
+  const sim = new CombatSimulation(slot === 0 ? id : other, slot === 1 ? id : other, { skipIntro: true });
+  sim.fighters[0].x = 500;
+  sim.fighters[1].x = 500 + distance;
+  const attacker = slot;
+  const defender = slot === 0 ? 1 : 0;
+  const start = kind === 'normal' ? input({ attack: true }) : input({ special: true });
+  let snap = sim.step(attacker === 0 ? start : E, attacker === 1 ? start : E);
+  let hit = null;
+  for (let n = 0; n < 100 && hit === null; n += 1) {
+    hit = firstHit(snap, attacker, defender) ?? null;
+    if (hit) break;
+    snap = sim.step(E, E);
+  }
+  return hit ? { hit: true, blocked: hit.blocked, damage: hit.damage, source: hit.source } : { hit: false };
+}
+
+test('G1 distance matrix is slot-symmetric for first normal and ranged Special at 62..620', () => {
+  const distances = [62, 85, 120, 200, 300, 400, 620];
+  const rows = [];
+  for (const id of ['chameleon', 'supernariz']) {
+    for (const kind of ['normal', 'special']) {
+      for (const distance of distances) {
+        const p1 = probeAction(id, 0, distance, kind);
+        const p2 = probeAction(id, 1, distance, kind);
+        rows.push({ id, kind, distance, p1, p2 });
+        assert.deepEqual(p1, p2, `${id} ${kind} distance=${distance}`);
+      }
+    }
+  }
+  console.log('G1 range matrix:', JSON.stringify(rows));
+});
+
+function runUltimateExit(id, attacker, scenario) {
+  const sim = new CombatSimulation(id, id, {
+    skipIntro: true,
+    initialSuper: attacker === 0 ? [100, 0] : [0, 100],
+  });
+  if (scenario === 'center') {
+    if (attacker === 0) {
+      sim.fighters[0].x = 500;
+      sim.fighters[1].x = 620;
+    } else {
+      sim.fighters[0].x = 660;
+      sim.fighters[1].x = 780;
+    }
+  } else if (attacker === 0) {
+    sim.fighters[0].x = 1070;
+    sim.fighters[1].x = 1190;
+  } else {
+    sim.fighters[0].x = 90;
+    sim.fighters[1].x = 210;
+  }
+
+  const defender = attacker === 0 ? 1 : 0;
+  let snap = sim.step(
+    attacker === 0 ? input({ ultimate: true }) : E,
+    attacker === 1 ? input({ ultimate: true }) : E,
+  );
+  let release = null;
+  let defenderHitBeforeReady = false;
+
+  for (let n = 0; n < 360; n += 1) {
+    for (const event of snap.events) {
+      if (event.type === 'ultimate-release' && event.attacker === attacker) release = structuredClone(snap);
+      if (release && snap.fighters[attacker].ultimatePhase !== 'idle'
+        && event.type === 'hit' && event.attacker === defender && event.defender === attacker) {
+        defenderHitBeforeReady = true;
+      }
+    }
+    if (release && snap.fighters[attacker].ultimatePhase === 'idle') break;
+    const mash = input({ attack: n % 2 === 0, jump: n % 2 === 0 });
+    snap = sim.step(attacker === 0 ? E : mash, attacker === 1 ? E : mash);
+  }
+
+  return { snap, release, defenderHitBeforeReady };
+}
+
+test('G1 AC09: successful Ultimate exit is actionable, separated and mirrored at center/walls', () => {
+  for (const id of ['chameleon', 'supernariz']) {
+    for (const attacker of [0, 1]) {
+      for (const scenario of ['center', 'wall']) {
+        const { snap, release, defenderHitBeforeReady } = runUltimateExit(id, attacker, scenario);
+        const defender = attacker === 0 ? 1 : 0;
+        assert.ok(release, `${id} attacker=${attacker} ${scenario}`);
+        assert.equal(release.fighters[defender].capturedBy, null);
+        assert.ok(release.fighters[defender].stunFrames >= 30);
+        assert.ok(Math.abs(release.fighters[defender].vx) >= 14);
+        assert.ok(release.fighters[defender].vy > 0);
+        assert.equal(snap.fighters[attacker].ultimatePhase, 'idle');
+        assert.ok(Math.abs(snap.fighters[defender].x - snap.fighters[attacker].x) >= 200);
+        assert.equal(defenderHitBeforeReady, false);
+      }
+    }
+  }
+});

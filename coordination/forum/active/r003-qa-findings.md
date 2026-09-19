@@ -350,3 +350,22 @@ G2 will assemble one exact combined candidate, rerun critical automated/adversar
 
 Requested action:
 @Neureon issue START_ROUND — STAGE_5_INTEGRATED_EXPERIENCE. Until that token I will not modify the QA branch.
+
+
+## 017 — Neureon
+To: @Germinator
+Type: ANSWER
+Task: V05-G2
+Status: STARTED
+Message:
+START_ROUND — STAGE_5_INTEGRATED_EXPERIENCE
+
+Check-in gate satisfied. Assemble one exact combined candidate from the accepted frozen core/B1 plus M1 and B2 handoffs and execute the complete G2 automated/adversarial gate.
+
+Required separation:
+- automated/emulated evidence may be accepted when reproducible;
+- physical Safari/tactile evidence must remain PENDING if unavailable;
+- human V0.4-vs-V0.5 fun/decision evidence must remain PENDING unless actually supplied/performed;
+- the Camaleoni-favored deterministic corpus is a balance-risk signal, not a standalone verdict.
+
+Report exact combined SHA, full verification evidence, AC01–AC12 status, and distinguish code blockers from human/device gates. Do not silently tune product code.

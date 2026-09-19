@@ -120,3 +120,65 @@ test('active offense can reach SUPER READY before dealing the full 1000 HP', () 
   assert.equal(sawReady, true, 'a strongly winning attacker should be able to reach READY before KO');
   assert.ok(snap.fighters[1].health > 0, 'READY should be reachable before the defender loses the full 1000 HP');
 });
+
+
+test('EMPTY_INPUT exposes V0.3 intents as explicit false booleans', () => {
+  assert.equal(EMPTY_INPUT.ultimate, false);
+  assert.equal(EMPTY_INPUT.pushGuard, false);
+});
+
+test('Supernariz cooldown feedback is simulation-owned and exposes remaining plus max', () => {
+  const sim = new CombatSimulation('chameleon', 'supernariz', { skipIntro: true });
+  const supernariz = sim.getSnapshot().fighters[1];
+
+  assert.equal(typeof supernariz.projectileCooldown, 'number');
+  assert.equal(typeof supernariz.projectileCooldownMax, 'number');
+  assert.ok(supernariz.projectileCooldownMax > 0);
+  assert.ok(supernariz.projectileCooldown >= 0);
+  assert.ok(supernariz.projectileCooldown <= supernariz.projectileCooldownMax);
+});
+
+test('SUPER ready transition emits at most one ready event while meter remains capped', () => {
+  const sim = new CombatSimulation('chameleon', 'supernariz', { skipIntro: true });
+  stepN(sim, 48, input({ right: true }), input({ left: true }));
+
+  let readyEvents = 0;
+  let sawReady = false;
+  let snap = sim.getSnapshot();
+
+  for (let cycle = 0; cycle < 18 && snap.phase === 'fight'; cycle += 1) {
+    snap = sim.step(input({ special: true }), EMPTY_INPUT);
+    readyEvents += snap.events.filter((event) => event.type === 'super-ready' && event.fighter === 0).length;
+    for (let i = 0; i < 34 && snap.phase === 'fight'; i += 1) {
+      snap = sim.step(EMPTY_INPUT, EMPTY_INPUT);
+      readyEvents += snap.events.filter((event) => event.type === 'super-ready' && event.fighter === 0).length;
+      sawReady ||= snap.fighters[0].superReady;
+    }
+    if (snap.phase !== 'fight') break;
+    snap = stepN(sim, 12, input({ right: true }), input({ left: true }));
+    sawReady ||= snap.fighters[0].superReady;
+    if (sawReady) {
+      snap = stepN(sim, 90);
+      readyEvents += snap.events.filter((event) => event.type === 'super-ready' && event.fighter === 0).length;
+      break;
+    }
+  }
+
+  assert.equal(sawReady, true, 'test setup must reach READY');
+  assert.equal(readyEvents, 1, 'READY must emit once on threshold transition, not every capped frame');
+  assert.equal(snap.fighters[0].superMeter, snap.fighters[0].maxSuper);
+});
+
+test('an invalid ultimate request cannot spend meter or emit capture/whiff from empty SUPER', () => {
+  const sim = new CombatSimulation('chameleon', 'supernariz', { skipIntro: true });
+  const before = sim.getSnapshot().fighters[0].superMeter;
+  const snap = sim.step(input({ ultimate: true }), EMPTY_INPUT);
+
+  assert.equal(snap.fighters[0].superMeter, before);
+  assert.equal(snap.fighters[0].ultimatePhase, 'idle');
+  assert.ok(!snap.events.some((event) =>
+    event.type === 'ultimate-start' ||
+    event.type === 'ultimate-capture' ||
+    event.type === 'ultimate-whiff'
+  ));
+});

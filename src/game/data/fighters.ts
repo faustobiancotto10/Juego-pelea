@@ -1,7 +1,7 @@
-import type { FighterId } from '../types.js';
+import type { FighterId, RegisteredFighterId } from '../types.js';
 
 export interface FighterDefinition {
-  id: FighterId;
+  id: RegisteredFighterId;
   displayName: string;
   fullName: string;
   role: string;
@@ -43,4 +43,4 @@ export const FIGHTERS: Record<FighterId, FighterDefinition> = {
   },
 };
 
-export const FIGHTER_IDS = Object.keys(FIGHTERS) as FighterId[];
+export const FIGHTER_IDS: readonly FighterId[] = ['chameleon', 'supernariz'];

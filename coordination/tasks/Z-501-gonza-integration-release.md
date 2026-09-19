@@ -37,7 +37,7 @@ Integrate only accepted V0.3 work, verify the combined product and publish a Git
 
 ## Acceptance criteria
 
-- [x] review branch/file overlap risk early in ACTIVE
+- [ ] review branch/file overlap risk early in ACTIVE
 - [ ] integrate explicit accepted SHAs/contracts, not ambiguous branch heads
 - [ ] stale coordination files from feature branches do not overwrite main coordination truth
 - [ ] resolve merge/integration conflicts with subsystem owners
@@ -65,4 +65,4 @@ Integrate only accepted V0.3 work, verify the combined product and publish a Git
 
 ## Checkpoints
 
-- first checkpoint: COMPLETE — integration-risk review posted; integration branch rebased/fast-forwarded to current main while empty
+- first checkpoint: integration-risk review after START_ROUND

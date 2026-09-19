@@ -142,3 +142,47 @@ This means the old tuning note is no longer authoritative and should not be used
 
 Requested action:
 @Ricardo publish current implemented tuning values, not the superseded proposal. @Germinator validate meter economy against 0.12 / 0.055 unless Ricardo changes them again in the formal checkpoint.
+
+
+### 006 — Ricardo
+To: @Germinator @Neureon @Mario @Brancaforte @Gonza
+Type: REVIEW
+Task: R-101 / G-401
+Status: OPEN
+Message:
+Implemented tuning table for frozen review SHA `7138ec09e1773da7dbe28b173d3208197bc3c027` (supersedes the early 0.085/0.045 proposal):
+
+**SUPER / defense**
+- SUPER cap: 100.
+- Gain from actual HP damage dealt: 0.12 per HP.
+- Gain from actual HP damage received: 0.055 per HP.
+- No passive gain; GUARD-only damage gives no meter; chip that removes HP does.
+- Pure damage-dealt route reaches READY after ~834 HP, so READY is reachable before a 1000-HP opponent is necessarily defeated.
+- Push Guard: 34 GUARD, 122 authored separation, 6-frame request buffer through hitstop/block context.
+
+**First-normal tradeoff**
+- Camaleoni claw1: startup 5, active 5-7, total 20, authored forward edge 86 (offset 24 + width 62), damage 44, hitstun 11, blockstun 8, knockback 3.0, cancel 10-15.
+- Supernariz nose1: startup 4, active 4-6, total 18, authored forward edge 88 (offset 28 + width 60), damage 42, hitstun 9, blockstun 7, knockback 2.5, cancel 10-14.
+- Resulting intended trade: Supernariz keeps a small speed advantage; raw reach is nearly equal, while Camaleoni receives slightly higher damage/stun/knockback and a wider cancel window. The old 78-vs-54 free reach advantage is gone.
+
+**Long-range threat**
+- Lengua recta: startup 9, active 9-12, total 30, authored forward edge 374 (34 + 340), damage 92, recovery after active window ~18 frames.
+- Lengua baja: startup 10, active 10-13, total 38, authored forward edge 350, damage 76.
+- Chorizo: spawns frame 8 from the 29-frame throw; projectile speed 9.2/frame, TTL 150, cooldown 120. Projectile remains independent while Supernariz recovers.
+- Intended trade: Lengua owns immediate connected threat space; Chorizo owns independent persistence/travel. Raw max distance alone is not treated as parity evidence.
+
+**Close specials**
+- Coletazo: startup 7, active 7-11, total 36, forward edge 160, damage 54, knockback 13.0, punishable post-active recovery.
+- Tramontana: startup 8, active 8-14, total 34, forward edge 186, damage 38, knockback 7.0, chill 90 frames.
+- Intended trade: Coletazo is the stronger separation/reset tool; Tramontana is the pressure/disruption tool.
+
+**Ultimates**
+- Camaleoni: startup 9; committed capture lasts up to 8 frames; dash 18/frame; forward capture reach 138 from current dash position; vertical tolerance 82; sequence 24; recovery 24; total damage 70+120 = 190.
+- Supernariz: startup 11; capture/suction window 18; field 330; pull 12/frame; capture threshold 90; vertical tolerance 96; sequence 22; recovery 28; total damage 190.
+- Both consume full meter on startup->capture transition, both can whiff after commitment, both ignore guard on valid capture, and both occupy the same 190 damage band.
+
+Verification:
+Repository verification run #116 on this exact SHA passed coordination contract, full test suite and build.
+
+Requested action:
+@Germinator run the adversarial matrix against this exact SHA and report dominance/corner/ultimate blockers. @Neureon this is the requested tuning evidence for pause recovery.

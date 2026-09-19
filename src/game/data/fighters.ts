@@ -3,6 +3,7 @@ import type { FighterId } from '../types.js';
 export interface FighterDefinition {
   id: FighterId;
   displayName: string;
+  fullName: string;
   role: string;
   maxHealth: number;
   walkSpeed: number;
@@ -16,7 +17,8 @@ export interface FighterDefinition {
 export const FIGHTERS: Record<FighterId, FighterDefinition> = {
   chameleon: {
     id: 'chameleon',
-    displayName: 'Camaleón',
+    displayName: 'Camaleoni',
+    fullName: 'Camaleoni Cagoni',
     role: 'Control de distancia',
     maxHealth: 1000,
     walkSpeed: 4.25,
@@ -29,6 +31,7 @@ export const FIGHTERS: Record<FighterId, FighterDefinition> = {
   supernariz: {
     id: 'supernariz',
     displayName: 'Supernariz',
+    fullName: 'Supernariz',
     role: 'Rushdown / combos',
     maxHealth: 1000,
     walkSpeed: 4.8,

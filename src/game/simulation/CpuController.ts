@@ -1,7 +1,7 @@
 import { EMPTY_INPUT, type FighterIndex, type InputFrame, type MatchSnapshot } from '../types.js';
 
 const THREAT_MOVES = new Set([
-  'claw1', 'claw2', 'tongueStraight', 'tongueLow',
+  'claw1', 'claw2', 'tongueStraight', 'tongueLow', 'coletazo',
   'nose1', 'nose2', 'nose3', 'tramontana',
 ]);
 
@@ -36,16 +36,36 @@ export class CpuController {
     const self = snapshot.fighters[this.cpuIndex];
     const otherIndex: FighterIndex = this.cpuIndex === 0 ? 1 : 0;
     const foe = snapshot.fighters[otherIndex];
-
-    if (self.health <= 0 || self.stunFrames > 0 || self.blockstunFrames > 0 || self.guardBreakFrames > 0) return out;
-
     const distance = Math.abs(foe.x - self.x);
-    const threatRange = foe.id === 'chameleon' && foe.moveId?.startsWith('tongue') ? 360 : 185;
+
+    if (self.health <= 0 || self.stunFrames > 0 || self.guardBreakFrames > 0) return out;
+
+    if (self.blockstunFrames > 0) {
+      const canSpendGuard = self.guard >= 34;
+      const choosesPushGuard = canSpendGuard
+        && distance < 175
+        && (snapshot.frame + this.cpuIndex * 7) % 19 === 0;
+      if (choosesPushGuard) out.pushGuard = true;
+      else Object.assign(out, away(self.x, foe.x));
+      return out;
+    }
+
+    if (foe.ultimatePhase === 'startup' && distance < 360) {
+      if ((snapshot.frame + this.cpuIndex) % 3 === 0 && self.grounded) {
+        out.jump = true;
+      } else {
+        Object.assign(out, dashAway(self.x, foe.x));
+      }
+      this.intentUntil = snapshot.frame + 16;
+      return out;
+    }
+
+    const threatRange = foe.id === 'chameleon' && foe.moveId?.startsWith('tongue') ? 405 : 190;
     const reactionFrame = foe.moveId?.startsWith('tongue') ? 7 : 8;
     const foeThreatening = foe.moveId !== null
       && THREAT_MOVES.has(foe.moveId)
       && foe.moveFrame >= reactionFrame
-      && foe.moveFrame <= 14
+      && foe.moveFrame <= 15
       && distance < threatRange;
     const recognizesThreat = foeThreatening && ((snapshot.frame + this.cpuIndex * 3) % 5 !== 0);
 
@@ -58,8 +78,6 @@ export class CpuController {
     }
 
     if (self.moveId !== null) {
-      // Follow-up taps are attempted only in authored cancel windows. The simulation
-      // itself now rejects whiff-cancels, so the CPU cannot mash a full combo on air.
       if (self.id === 'supernariz' && (self.moveId === 'nose1' || self.moveId === 'nose2') && self.moveFrame === 11) {
         out.attack = true;
       }
@@ -72,6 +90,20 @@ export class CpuController {
       return out;
     }
 
+    if (self.superReady) {
+      const cadence = self.id === 'chameleon' ? 210 : 180;
+      const offset = self.id === 'chameleon' ? 90 : 60;
+      const goodRange = self.id === 'chameleon'
+        ? distance >= 125 && distance <= 285
+        : distance >= 95 && distance <= 300;
+      if (goodRange && snapshot.frame % cadence === offset) {
+        out.ultimate = true;
+        this.intent = 'neutral';
+        this.intentUntil = snapshot.frame + 28;
+        return out;
+      }
+    }
+
     if (snapshot.frame < this.intentUntil) {
       if (this.intent === 'approach') Object.assign(out, toward(self.x, foe.x));
       if (this.intent === 'retreat' || this.intent === 'guard') Object.assign(out, away(self.x, foe.x));
@@ -80,7 +112,6 @@ export class CpuController {
 
     this.intent = 'neutral';
 
-    // Low guard encourages space-making instead of perfect passive defense.
     if (self.guard < 30 && distance < 150 && snapshot.frame % 3 === this.cpuIndex) {
       Object.assign(out, dashAway(self.x, foe.x));
       this.intentUntil = snapshot.frame + 18;
@@ -110,24 +141,30 @@ export class CpuController {
       return out;
     }
 
-    if (distance >= 150 && distance <= 355 && snapshot.frame % 72 === 0) {
+    if (distance >= 165 && distance <= 390 && snapshot.frame % 72 === 0) {
       out.special = true;
-      this.intentUntil = snapshot.frame + 22;
+      this.intentUntil = snapshot.frame + 26;
       return out;
     }
-    if (distance < 88) {
+    if (distance < 145 && snapshot.frame % 84 === 0) {
+      out.up = true;
+      out.special = true;
+      this.intentUntil = snapshot.frame + 24;
+      return out;
+    }
+    if (distance < 92) {
       out.attack = true;
       this.intentUntil = snapshot.frame + 18;
       return out;
     }
-    if (distance < 135) {
+    if (distance < 145) {
       this.intent = 'retreat';
-      this.intentUntil = snapshot.frame + 14;
+      this.intentUntil = snapshot.frame + 16;
       Object.assign(out, away(self.x, foe.x));
       return out;
     }
     this.intent = 'approach';
-    this.intentUntil = snapshot.frame + 14;
+    this.intentUntil = snapshot.frame + 12;
     Object.assign(out, toward(self.x, foe.x));
     return out;
   }

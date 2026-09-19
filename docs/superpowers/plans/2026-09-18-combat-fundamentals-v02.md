@@ -93,4 +93,4 @@
 - [x] Regenerate standalone `play.html` without source-map tokens.
 - [x] Browser-smoke Character Select → CPU select → VS → Fight on desktop and mobile landscape.
 - [x] Verify GUARD/help/hint visually and no runtime exception.
-- [ ] Commit, publish the changed source to GitHub, update `gh-pages`, and verify the public build.
+- [x] Commit, publish the changed source to GitHub, update `gh-pages`, and verify the public build.

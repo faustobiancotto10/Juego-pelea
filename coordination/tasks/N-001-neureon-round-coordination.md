@@ -2,7 +2,7 @@
 
 Round: R001-V03-COMBAT-EXPANSION
 Owner: Neureon
-Status: READY
+Status: WORKING
 
 ## Goal
 
@@ -71,3 +71,4 @@ Coordinate the complete V0.3 round from CHECK_IN through ROUND_COMPLETE without 
 - all six PRESENT blocks verified
 - stale check-in state reconciled after Germinator audit
 - START_ROUND issued; global state moved to ACTIVE
+- resolved V0.3 cross-layer contract ambiguities: ultimate spend boundary, guaranteed capture lock/KO timing, Push Guard routing, action exclusivity, cooldown snapshot ownership and balance evidence

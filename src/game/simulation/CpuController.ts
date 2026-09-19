@@ -41,31 +41,31 @@ export class CpuController {
     if (self.health <= 0 || self.stunFrames > 0 || self.guardBreakFrames > 0) return out;
 
     if (self.blockstunFrames > 0) {
-      // Push Guard is intentionally imperfect and deterministic rather than an automatic escape.
-      if (self.guard >= 34 && distance < 155 && (snapshot.frame + this.cpuIndex * 7) % 23 === 0) {
-        out.pushGuard = true;
+      const canSpendGuard = self.guard >= 34;
+      const choosesPushGuard = canSpendGuard
+        && distance < 175
+        && (snapshot.frame + this.cpuIndex * 7) % 19 === 0;
+      if (choosesPushGuard) out.pushGuard = true;
+      else Object.assign(out, away(self.x, foe.x));
+      return out;
+    }
+
+    if (foe.ultimatePhase === 'startup' && distance < 360) {
+      if ((snapshot.frame + this.cpuIndex) % 3 === 0 && self.grounded) {
+        out.jump = true;
       } else {
-        Object.assign(out, away(self.x, foe.x));
-        if (foe.moveId === 'tongueLow') out.down = true;
+        Object.assign(out, dashAway(self.x, foe.x));
       }
+      this.intentUntil = snapshot.frame + 16;
       return out;
     }
 
-    // Ultimates are unblockable: the CPU answers the visible capture phase with movement,
-    // never by reading raw input or pretending guard can stop it.
-    if (foe.ultimatePhase === 'capture' && distance < (foe.id === 'supernariz' ? 360 : 245)) {
-      if (self.grounded && (snapshot.frame + this.cpuIndex) % 3 === 0) out.jump = true;
-      else Object.assign(out, dashAway(self.x, foe.x));
-      this.intentUntil = snapshot.frame + 12;
-      return out;
-    }
-
-    const threatRange = foe.id === 'chameleon' && foe.moveId?.startsWith('tongue') ? 405 : 185;
+    const threatRange = foe.id === 'chameleon' && foe.moveId?.startsWith('tongue') ? 405 : 190;
     const reactionFrame = foe.moveId?.startsWith('tongue') ? 8 : 8;
     const foeThreatening = foe.moveId !== null
       && THREAT_MOVES.has(foe.moveId)
       && foe.moveFrame >= reactionFrame
-      && foe.moveFrame <= 14
+      && foe.moveFrame <= 15
       && distance < threatRange;
     const recognizesThreat = foeThreatening && ((snapshot.frame + this.cpuIndex * 3) % 5 !== 0);
 
@@ -90,6 +90,20 @@ export class CpuController {
       return out;
     }
 
+    if (self.superReady) {
+      const cadence = self.id === 'chameleon' ? 210 : 180;
+      const offset = self.id === 'chameleon' ? 90 : 60;
+      const goodRange = self.id === 'chameleon'
+        ? distance >= 125 && distance <= 285
+        : distance >= 95 && distance <= 300;
+      if (goodRange && snapshot.frame % cadence === offset) {
+        out.ultimate = true;
+        this.intent = 'neutral';
+        this.intentUntil = snapshot.frame + 28;
+        return out;
+      }
+    }
+
     if (snapshot.frame < this.intentUntil) {
       if (this.intent === 'approach') Object.assign(out, toward(self.x, foe.x));
       if (this.intent === 'retreat' || this.intent === 'guard') Object.assign(out, away(self.x, foe.x));
@@ -98,21 +112,6 @@ export class CpuController {
 
     this.intent = 'neutral';
 
-    // Full meter is an opportunity, not an automatic button press.
-    if (self.superReady && foe.ultimatePhase === 'idle') {
-      const goodRange = self.id === 'chameleon'
-        ? distance >= 120 && distance <= 255
-        : distance >= 95 && distance <= 285;
-      const committedFoe = foe.moveId !== null || foe.dashKind === 'forward' || foe.blockstunFrames > 0;
-      const cadence = self.id === 'chameleon' ? 97 : 83;
-      if (goodRange && (committedFoe || snapshot.frame % cadence === this.cpuIndex * 3)) {
-        out.ultimate = true;
-        this.intentUntil = snapshot.frame + 28;
-        return out;
-      }
-    }
-
-    // Low guard encourages space-making instead of perfect passive defense.
     if (self.guard < 30 && distance < 150 && snapshot.frame % 3 === this.cpuIndex) {
       Object.assign(out, dashAway(self.x, foe.x));
       this.intentUntil = snapshot.frame + 18;
@@ -125,7 +124,7 @@ export class CpuController {
         this.intentUntil = snapshot.frame + 24;
         return out;
       }
-      if (distance >= 135 && distance <= 225 && snapshot.frame % 150 === 0) {
+      if (distance >= 135 && distance <= 235 && snapshot.frame % 150 === 0) {
         out.down = true;
         out.special = true;
         this.intentUntil = snapshot.frame + 25;
@@ -142,30 +141,29 @@ export class CpuController {
       return out;
     }
 
-    // Camaleoni prefers control: close pressure gets Coletazo, mid/far space gets Lengua.
-    if (distance < 142 && snapshot.frame % 44 === 0) {
+    if (distance >= 165 && distance <= 390 && snapshot.frame % 72 === 0) {
+      out.special = true;
+      this.intentUntil = snapshot.frame + 26;
+      return out;
+    }
+    if (distance < 145 && snapshot.frame % 84 === 0) {
       out.special = true;
       this.intentUntil = snapshot.frame + 24;
       return out;
     }
-    if (distance >= 165 && distance <= 390 && snapshot.frame % 72 === 0) {
-      out.special = true;
-      this.intentUntil = snapshot.frame + 28;
-      return out;
-    }
-    if (distance < 88) {
+    if (distance < 92) {
       out.attack = true;
       this.intentUntil = snapshot.frame + 18;
       return out;
     }
     if (distance < 145) {
       this.intent = 'retreat';
-      this.intentUntil = snapshot.frame + 14;
+      this.intentUntil = snapshot.frame + 16;
       Object.assign(out, away(self.x, foe.x));
       return out;
     }
     this.intent = 'approach';
-    this.intentUntil = snapshot.frame + 14;
+    this.intentUntil = snapshot.frame + 12;
     Object.assign(out, toward(self.x, foe.x));
     return out;
   }

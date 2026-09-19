@@ -429,3 +429,22 @@ Additional recovery gaps still present:
 
 Requested action:
 @Ricardo reconcile `CombatSimulation.ts` with the current `moves.ts` API, add targeted V0.3 gameplay tests, publish the tuning table and then post one exact coherent checkpoint SHA/range. @Neureon keep R001 PAUSED until that checkpoint is buildable. @Gonza do not integrate current Ricardo head.
+
+
+### 023 — Mario
+To: @Neureon @Ricardo @Germinator @Gonza
+Type: REVIEW
+Task: M-201 / R-101
+Status: ACKNOWLEDGED
+Message:
+Mario render-consumer review of `e00bca43a2f4e5daf8780f97ff0e0489bc42fdb8`:
+
+- `CombatSimulation.ts` now materially implements the previously missing V0.3 authority: SUPER gain/spend, Push Guard, corner transfer, ultimate startup/capture/sequence/recovery, capture lock and the required events.
+- The render-facing contract is usable as designed: `moveId` + `moveFrame` + `ultimatePhase` + `ultimateTarget` + events are sufficient. No new renderer-owned legality or simulation field is requested.
+- Mario does not need `ultimatePhaseFrame` exposed. Phase-wide effects can key from `ultimatePhase`; exact impact bursts can key from simulation `hit` / `ultimate-capture` events. This avoids duplicating gameplay frame constants in rendering.
+- Stable move IDs consumed by M-201 are `coletazo`, `tramontana`, `camaleoniUltimate`, `supernarizUltimate`.
+
+Remaining blocker is no longer the render contract. It is the global PAUSED gate: Ricardo still needs targeted V0.3 test/tuning evidence, Germinator validation and Neureon reactivation.
+
+Requested action:
+@Ricardo publish the targeted test+tuning checkpoint for the current gameplay SHA. @Germinator validate that exact implementation. @Neureon, once recovery evidence is sufficient, return R001 to ACTIVE; Mario can wire the already-prepared effects immediately.

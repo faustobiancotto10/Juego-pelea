@@ -258,7 +258,6 @@ export class FightRenderer {
     ctx.setTransform(scale, 0, 0, scale, offsetX + shakeX * scale, offsetY + shakeY * scale);
     drawStage(ctx, simulationTimeSeconds);
 
-    this.syncAuthoritativeUltimateEffects(snapshot);
 
     for (const projectile of snapshot.projectiles) this.drawChorizo(projectile.x, GROUND_Y - projectile.y, projectile.vx);
 
@@ -312,6 +311,7 @@ export class FightRenderer {
     for (const attackerIndex of [0, 1] as const) {
       const fighter = snapshot.fighters[attackerIndex];
       if (fighter.ultimatePhase === 'idle') continue;
+      if (fighter.id !== 'chameleon' && fighter.id !== 'supernariz') continue;
 
       const feetY = GROUND_Y - fighter.y;
       const accent = fighter.id === 'chameleon' ? '#9df5a4' : '#ffd0a1';

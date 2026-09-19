@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import { CombatSimulation } from '../dist/game/simulation/CombatSimulation.js';
 import { CpuController } from '../dist/game/simulation/CpuController.js';
 import { FightRenderer } from '../dist/game/render/FightRenderer.js';
+import { getMoveDefinition } from '../dist/game/simulation/moves.js';
 import { EMPTY_INPUT as E } from '../dist/game/types.js';
 
 const input = (patch = {}) => ({ ...E, ...patch });
@@ -382,4 +383,117 @@ test('G2 integrated strategy matrix records damage/time/action variety across pa
   }
 
   console.log('G2 strategy matrix:', JSON.stringify({ categoryTotals, varietySummary, rows }));
+});
+
+
+function firstHit(snapshot, attacker, defender) {
+  return snapshot.events.find((event) => event.type === 'hit' && event.attacker === attacker && event.defender === defender);
+}
+
+function findBackSpecialWhiffPunish(attackerId, attackerSlot) {
+  const defenderId = attackerId === 'chameleon' ? 'supernariz' : 'chameleon';
+  const defenderSlot = attackerSlot === 0 ? 1 : 0;
+  const rangedId = attackerId === 'chameleon' ? 'tongueStraight' : 'chorizoThrow';
+  const ranged = getMoveDefinition(attackerId, rangedId);
+  const recoveryThreshold = ranged.hitbox?.end ?? ranged.spawnProjectileFrame ?? 0;
+  const spacings = [100, 120, 150, 180, 220, 260, 300, 340, 380, 420, 460];
+
+  for (const spacing of spacings) {
+    for (const mode of ['dash', 'jump']) {
+      for (let startFrame = 0; startFrame <= 18; startFrame += 2) {
+        for (let attackDelay = 4; attackDelay <= 24; attackDelay += 2) {
+          const sim = new CombatSimulation(
+            attackerSlot === 0 ? attackerId : defenderId,
+            attackerSlot === 1 ? attackerId : defenderId,
+            { skipIntro: true },
+          );
+          if (attackerSlot === 0) {
+            sim.fighters[0].x = 500;
+            sim.fighters[1].x = 500 + spacing;
+          } else {
+            sim.fighters[0].x = 500;
+            sim.fighters[1].x = 500 + spacing;
+          }
+
+          let snap = sim.getSnapshot();
+          let attackerConnected = false;
+          let pre = null;
+          for (let frame = 0; frame < 70; frame += 1) {
+            const attackerSnap = snap.fighters[attackerSlot];
+            const defenderSnap = snap.fighters[defenderSlot];
+            const attackerAway = away(snap, attackerSlot, { special: frame === 0 });
+
+            let defenderInput = E;
+            if (frame === startFrame) {
+              if (mode === 'dash') {
+                defenderInput = input({
+                  dashRight: defenderSnap.x < attackerSnap.x,
+                  dashLeft: defenderSnap.x > attackerSnap.x,
+                });
+              } else {
+                defenderInput = toward(snap, defenderSlot, { jump: true });
+              }
+            } else if (frame === startFrame + attackDelay) {
+              defenderInput = toward(snap, defenderSlot, { attack: true });
+            } else if (mode === 'jump' && frame > startFrame && frame < startFrame + attackDelay) {
+              defenderInput = toward(snap, defenderSlot);
+            }
+
+            pre = structuredClone(snap);
+            const next = sim.step(
+              attackerSlot === 0 ? attackerAway : defenderInput,
+              attackerSlot === 1 ? attackerAway : defenderInput,
+            );
+
+            if (firstHit(next, attackerSlot, defenderSlot)) attackerConnected = true;
+            const punish = firstHit(next, defenderSlot, attackerSlot);
+            if (punish && !punish.blocked && !attackerConnected) {
+              const preAttacker = pre.fighters[attackerSlot];
+              const preDefender = pre.fighters[defenderSlot];
+              const side = Math.sign(preDefender.x - preAttacker.x);
+              const sameSide = side !== 0
+                && preAttacker.facing === side
+                && preDefender.facing === -side;
+              const committedRecovery = preAttacker.moveId === rangedId
+                && preAttacker.moveFrame > recoveryThreshold;
+              const awayHeld = preAttacker.facing === 1
+                ? attackerAway.left
+                : attackerAway.right;
+              if (sameSide && committedRecovery && awayHeld) {
+                return {
+                  attackerId,
+                  attackerSlot,
+                  defenderId,
+                  rangedId,
+                  spacing,
+                  mode,
+                  startFrame,
+                  attackDelay,
+                  punishDamage: punish.damage,
+                  preImpactMoveFrame: preAttacker.moveFrame,
+                  preImpactAttackerX: preAttacker.x,
+                  preImpactDefenderX: preDefender.x,
+                };
+              }
+            }
+            if (attackerConnected) break;
+            snap = next;
+          }
+        }
+      }
+    }
+  }
+  return null;
+}
+
+test('G2 isolated back+Special fixtures admit a clean recovery whiff-punish in both slots', () => {
+  const fixtures = [];
+  for (const attackerId of ['chameleon', 'supernariz']) {
+    for (const attackerSlot of [0, 1]) {
+      const fixture = findBackSpecialWhiffPunish(attackerId, attackerSlot);
+      assert.ok(fixture, `${attackerId} slot=${attackerSlot}: no clean ranged-Special recovery punish found`);
+      fixtures.push(fixture);
+    }
+  }
+  console.log('G2 back+Special whiff-punish fixtures:', JSON.stringify(fixtures));
 });

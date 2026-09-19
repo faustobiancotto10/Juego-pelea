@@ -64,9 +64,10 @@ export interface CombatSimulationOptions {
 }
 
 function copyInput(input: InputFrame): InputFrame {
+  if (input.commands === undefined) return { ...input };
   return {
     ...input,
-    commands: input.commands?.map((command) => ({
+    commands: input.commands.map((command) => ({
       action: command.action,
       direction: { ...command.direction },
     })),
@@ -125,6 +126,7 @@ function makeFighter(registry: CombatRegistry, id: RegisteredFighterId, index: F
     moveId: null,
     moveFrame: 0,
     comboCount: 0,
+    moveContact: 'none',
     chilledFrames: 0,
     projectileCooldown: 0,
     projectileCooldownMax: projectileCooldownMaxFor(registry, id),
@@ -132,15 +134,18 @@ function makeFighter(registry: CombatRegistry, id: RegisteredFighterId, index: F
     maxSuper: MAX_SUPER,
     superReady: superMeter >= MAX_SUPER,
     ultimatePhase: 'idle',
+    ultimatePhaseFrame: 0,
+    ultimateConnected: false,
     ultimateTarget: null,
     dashKind: null,
     dashFrame: 0,
+    landingRecoveryFrames: 0,
+    pushGuardRecoveryFrames: 0,
     roundWins: 0,
     prevInput: copyInput(EMPTY_INPUT),
     currentMove: null,
     moveHasHit: false,
     moveEffectTriggered: false,
-    ultimatePhaseFrame: 0,
     ultimateFacing: index === 0 ? 1 : -1,
     capturedBy: null,
     pushGuardBufferFrames: 0,
@@ -171,6 +176,7 @@ function cloneFighter(f: FighterState): FighterSnapshot {
     moveId: f.moveId,
     moveFrame: f.moveFrame,
     comboCount: f.comboCount,
+    moveContact: f.moveContact,
     chilledFrames: f.chilledFrames,
     projectileCooldown: f.projectileCooldown,
     projectileCooldownMax: f.projectileCooldownMax,
@@ -178,10 +184,14 @@ function cloneFighter(f: FighterState): FighterSnapshot {
     maxSuper: f.maxSuper,
     superReady: f.superReady,
     ultimatePhase: f.ultimatePhase,
+    ultimatePhaseFrame: f.ultimatePhaseFrame,
+    ultimateConnected: f.ultimateConnected,
     ultimateTarget: f.ultimateTarget,
     capturedBy: f.capturedBy,
     dashKind: f.dashKind,
     dashFrame: f.dashFrame,
+    landingRecoveryFrames: f.landingRecoveryFrames,
+    pushGuardRecoveryFrames: f.pushGuardRecoveryFrames,
     roundWins: f.roundWins,
   };
 }
@@ -529,7 +539,7 @@ export class CombatSimulation {
 
       if (candidates.length === 0) continue;
 
-      let selected = candidates[0];
+      let selected = candidates[0]!;
       for (const candidate of candidates.slice(1)) {
         if (commandPriority(candidate.action) >= commandPriority(selected.action)) selected = candidate;
       }
@@ -698,6 +708,7 @@ export class CombatSimulation {
     const blocked = this.canBlock(defender, defenderInput, hitbox.level);
 
     attacker.moveHasHit = true;
+    attacker.moveContact = blocked ? 'block' : 'hit';
     let actualDamage = 0;
     if (blocked) {
       actualDamage = this.applyDamage(attackerIndex, defenderIndex, hitbox.chipDamage);
@@ -721,6 +732,8 @@ export class CombatSimulation {
       blocked,
       damage: actualDamage,
       strong: hitbox.strong,
+      source: move.category === 'normal' ? 'normal' : move.category === 'ultimate' ? 'ultimate' : 'special',
+      finisher: defender.health <= 0,
     });
   }
 
@@ -780,6 +793,7 @@ export class CombatSimulation {
     fighter.moveId = move.id;
     fighter.moveFrame = 0;
     fighter.moveHasHit = false;
+    fighter.moveContact = 'none';
     fighter.moveEffectTriggered = false;
     fighter.comboCount = comboCount;
     fighter.vx = 0;
@@ -790,6 +804,7 @@ export class CombatSimulation {
     fighter.moveId = null;
     fighter.moveFrame = 0;
     fighter.moveHasHit = false;
+    fighter.moveContact = 'none';
     fighter.moveEffectTriggered = false;
     fighter.comboCount = 0;
   }
@@ -809,6 +824,7 @@ export class CombatSimulation {
     fighter.downGraceSamples = 0;
     fighter.ultimatePhase = 'idle';
     fighter.ultimatePhaseFrame = 0;
+    fighter.ultimateConnected = false;
     fighter.ultimateTarget = null;
     fighter.capturedBy = null;
     this.clearMove(fighter);
@@ -884,6 +900,8 @@ export class CombatSimulation {
         blocked,
         damage: actualDamage,
         strong: definition.strong,
+        source: 'projectile',
+        finisher: defender.health <= 0,
       });
     }
     this.projectiles = this.projectiles.filter((p) => p.active);
@@ -900,6 +918,7 @@ export class CombatSimulation {
     fighter.comboCount = 0;
     fighter.ultimatePhase = 'startup';
     fighter.ultimatePhaseFrame = 0;
+    fighter.ultimateConnected = false;
     fighter.ultimateTarget = null;
     fighter.ultimateFacing = fighter.facing;
     fighter.vx = 0;
@@ -1012,6 +1031,7 @@ export class CombatSimulation {
 
     attacker.ultimatePhase = 'sequence';
     attacker.ultimatePhaseFrame = 0;
+    attacker.ultimateConnected = true;
     attacker.ultimateTarget = defenderIndex;
 
     this.cancelDefenderForCapture(defender);
@@ -1028,6 +1048,7 @@ export class CombatSimulation {
     defender.moveId = null;
     defender.moveFrame = 0;
     defender.moveHasHit = false;
+    defender.moveContact = 'none';
     defender.moveEffectTriggered = false;
     defender.comboCount = 0;
     defender.dashKind = null;
@@ -1039,6 +1060,7 @@ export class CombatSimulation {
     defender.downGraceSamples = 0;
     defender.ultimatePhase = 'idle';
     defender.ultimatePhaseFrame = 0;
+    defender.ultimateConnected = false;
     defender.ultimateTarget = null;
   }
 
@@ -1078,7 +1100,7 @@ export class CombatSimulation {
     const defender = this.fighters[defenderIndex];
     defender.vx = attacker.ultimateFacing * knockback;
     this.hitstopFrames = Math.max(this.hitstopFrames, 7);
-    this.events.push({ type: 'hit', attacker: attackerIndex, defender: defenderIndex, blocked: false, damage: actualDamage, strong: true });
+    this.events.push({ type: 'hit', attacker: attackerIndex, defender: defenderIndex, blocked: false, damage: actualDamage, strong: true, source: 'ultimate', finisher: defender.health <= 0 });
   }
 
   private enterUltimateWhiffRecovery(index: FighterIndex): void {

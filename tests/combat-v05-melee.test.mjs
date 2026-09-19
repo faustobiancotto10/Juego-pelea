@@ -107,8 +107,8 @@ test('DOWN+ATTACK selects the low; standing away loses and down-away blocks it',
     const lowId = id === 'chameleon' ? 'clawLow' : 'noseLow';
 
     const standing = new CombatSimulation(id, id, { skipIntro: true });
-    standing.fighters[0].x = 1095;
-    standing.fighters[1].x = 1190;
+    standing.fighters[0].x = 500;
+    standing.fighters[1].x = 562;
     let snap = standing.step(input({ down: true, attack: true }), input({ right: true }));
     assert.equal(snap.fighters[0].moveId, lowId);
     snap = runUntil(standing, s => s.events.some(e => e.type === 'hit'), 20, E, input({ right: true }));
@@ -117,8 +117,8 @@ test('DOWN+ATTACK selects the low; standing away loses and down-away blocks it',
     assert.equal(standingHit.blocked, false);
 
     const crouch = new CombatSimulation(id, id, { skipIntro: true });
-    crouch.fighters[0].x = 1095;
-    crouch.fighters[1].x = 1190;
+    crouch.fighters[0].x = 500;
+    crouch.fighters[1].x = 562;
     snap = crouch.step(input({ down: true, attack: true }), input({ right: true, down: true }));
     snap = runUntil(crouch, s => s.events.some(e => e.type === 'hit'), 20, E, input({ right: true, down: true }));
     const crouchHit = snap.events.find(e => e.type === 'hit');

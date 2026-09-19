@@ -533,7 +533,7 @@ export class CombatSimulation {
       this.triggerMoveEffect(index, fighter);
       if (fighter.moveFrame >= current.totalFrames) {
         this.clearMove(fighter);
-        if (this.tryExecutePendingNeutral(index)) return;
+        if (fighter.landingRecoveryFrames === 0 && this.tryExecutePendingNeutral(index)) return;
       }
       if (!fighter.grounded) fighter.x += fighter.vx;
       this.integrateVertical(fighter, def.gravity);
@@ -1168,7 +1168,16 @@ export class CombatSimulation {
     this.clampFighter(defender);
 
     const hit = definition.sequenceHits.find((beat) => beat.frame === attacker.ultimatePhaseFrame);
-    if (hit) this.applyUltimateHit(attackerIndex, defenderIndex, hit.damage, hit.knockback);
+    if (hit) {
+      const finalBeat = definition.sequenceHits[definition.sequenceHits.length - 1] === hit;
+      this.applyUltimateHit(
+        attackerIndex,
+        defenderIndex,
+        hit.damage,
+        hit.knockback,
+        finalBeat ? (definition.finalHitstop ?? 7) : 7,
+      );
+    }
 
     if (attacker.ultimatePhaseFrame >= definition.sequenceFrames) {
       this.pendingUltimateReleases.push({
@@ -1228,12 +1237,18 @@ export class CombatSimulation {
     this.pendingUltimateReleases = [];
   }
 
-  private applyUltimateHit(attackerIndex: FighterIndex, defenderIndex: FighterIndex, damage: number, knockback: number): void {
+  private applyUltimateHit(
+    attackerIndex: FighterIndex,
+    defenderIndex: FighterIndex,
+    damage: number,
+    knockback: number,
+    hitstop = 7,
+  ): void {
     const actualDamage = this.applyDamage(attackerIndex, defenderIndex, damage, 'ultimate', false);
     const attacker = this.fighters[attackerIndex];
     const defender = this.fighters[defenderIndex];
     defender.vx = attacker.ultimateFacing * knockback;
-    this.hitstopFrames = Math.max(this.hitstopFrames, 7);
+    this.hitstopFrames = Math.max(this.hitstopFrames, hitstop);
     this.events.push({ type: 'hit', attacker: attackerIndex, defender: defenderIndex, blocked: false, damage: actualDamage, strong: true, source: 'ultimate', finisher: defender.health <= 0 });
   }
 
@@ -1337,6 +1352,7 @@ export class CombatSimulation {
     // Result phases do not advance fighter state, so clear every transient combat
     // lock/timeline before entering round-over. This prevents Ultimate recovery,
     // capture locks or target state from freezing into round-over/match-over.
+    this.pendingUltimateReleases = [];
     this.clearTransientCombatState(this.fighters[0]);
     this.clearTransientCombatState(this.fighters[1]);
 
@@ -1357,6 +1373,7 @@ export class CombatSimulation {
     this.round += 1;
     this.roundWinner = null;
     this.projectiles = [];
+    this.pendingUltimateReleases = [];
     this.roundTimerFrames = ROUND_TIME_FRAMES;
     for (const index of [0, 1] as const) {
       const fighter = this.fighters[index];

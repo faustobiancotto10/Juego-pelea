@@ -102,3 +102,89 @@ test('V0.3 chord buffer does not swallow quick standalone taps shorter than the 
   assert.deepEqual(specialBuffer.sample(false, true, 4010), { attack: false, special: false, ultimate: false });
   assert.deepEqual(specialBuffer.sample(false, false, 4050), { attack: false, special: true, ultimate: false });
 });
+
+
+function createGameInputHarness(GameInput) {
+  const listeners = new Map();
+  const previousWindow = globalThis.window;
+  globalThis.window = {
+    addEventListener(type, handler) {
+      const handlers = listeners.get(type) ?? new Set();
+      handlers.add(handler);
+      listeners.set(type, handlers);
+    },
+    removeEventListener(type, handler) {
+      listeners.get(type)?.delete(handler);
+    },
+  };
+
+  const root = {
+    querySelector() { return null; },
+    querySelectorAll() { return []; },
+  };
+  const input = new GameInput(root);
+  const dispatchKey = (type, code) => {
+    for (const handler of listeners.get(type) ?? []) {
+      handler({ code, repeat: false, preventDefault() {} });
+    }
+  };
+  const cleanup = () => {
+    input.destroy();
+    if (previousWindow === undefined) delete globalThis.window;
+    else globalThis.window = previousWindow;
+  };
+  return { input, dispatchKey, cleanup };
+}
+
+test('GameInput keeps ATTACK/SPECIAL immediate while SUPER is not READY', async () => {
+  const { GameInput } = await import('../dist/game/input/GameInput.js');
+  const harness = createGameInputHarness(GameInput);
+  try {
+    harness.dispatchKey('keydown', 'KeyJ');
+    const attack = harness.input.getFrame({ superReady: false, defensiveContext: false, nowMs: 1000 });
+    assert.equal(attack.attack, true);
+    assert.equal(attack.special, false);
+    assert.equal(attack.ultimate, false);
+
+    harness.dispatchKey('keyup', 'KeyJ');
+    harness.dispatchKey('keydown', 'KeyK');
+    const special = harness.input.getFrame({ superReady: false, defensiveContext: false, nowMs: 1016 });
+    assert.equal(special.attack, false);
+    assert.equal(special.special, true);
+    assert.equal(special.pushGuard, false);
+  } finally {
+    harness.cleanup();
+  }
+});
+
+test('GameInput READY chord emits one Ultimate and defensive SPECIAL emits exclusive Push Guard', async () => {
+  const { GameInput } = await import('../dist/game/input/GameInput.js');
+  const harness = createGameInputHarness(GameInput);
+  try {
+    harness.dispatchKey('keydown', 'KeyJ');
+    const first = harness.input.getFrame({ superReady: true, defensiveContext: false, nowMs: 2000 });
+    assert.equal(first.attack, false);
+    assert.equal(first.special, false);
+    assert.equal(first.ultimate, false);
+
+    harness.dispatchKey('keydown', 'KeyK');
+    const chord = harness.input.getFrame({ superReady: true, defensiveContext: false, nowMs: 2030 });
+    assert.deepEqual(
+      { attack: chord.attack, special: chord.special, ultimate: chord.ultimate, pushGuard: chord.pushGuard },
+      { attack: false, special: false, ultimate: true, pushGuard: false },
+    );
+
+    harness.dispatchKey('keyup', 'KeyJ');
+    harness.dispatchKey('keyup', 'KeyK');
+    harness.input.getFrame({ superReady: true, defensiveContext: false, nowMs: 2046 });
+
+    harness.dispatchKey('keydown', 'KeyK');
+    const pushGuard = harness.input.getFrame({ superReady: false, defensiveContext: true, nowMs: 2062 });
+    assert.deepEqual(
+      { attack: pushGuard.attack, special: pushGuard.special, ultimate: pushGuard.ultimate, pushGuard: pushGuard.pushGuard },
+      { attack: false, special: false, ultimate: false, pushGuard: true },
+    );
+  } finally {
+    harness.cleanup();
+  }
+});

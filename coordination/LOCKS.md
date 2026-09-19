@@ -13,3 +13,6 @@
 | tests/g402-v04.test.mjs | Germinator | G-402 | reserved for Stage 3 independent adversarial QA |
 
 Reservations for later stages prevent overlap but do not authorize work before Neureon opens that stage.
+
+| tests/input.test.mjs | Brancaforte | B-302 | dedicated Ultimate touch-input regression coverage |
+| tests/ui-v04.test.mjs | Brancaforte | B-302 | V0.4 mobile Ultimate HUD/help/layout contract coverage |

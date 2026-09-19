@@ -54,29 +54,38 @@ test('final-round Ultimate KO enters match-over with no stale capture or Ultimat
   assert.equal(snap.fighters[1].capturedBy, null);
 });
 
-test('successful Ultimate exposes authoritative capture state and releases defender back to movement', () => {
+test('successful Ultimate exposes capture truth, authoritative release launch, then neutral movement', () => {
   const sim = new CombatSimulation('supernariz', 'chameleon', { skipIntro: true, initialSuper: [100, 0] });
-  closeFighters(sim, 48);
+  sim.fighters[0].x = 500;
+  sim.fighters[1].x = 620;
 
   sim.step(input({ ultimate: true }), EMPTY_INPUT);
   let snap = runUntil(
     sim,
     (s) => s.fighters[0].ultimatePhase === 'sequence',
-    80,
+    100,
   );
   assert.equal(snap.fighters[1].capturedBy, 0, 'snapshot should expose simulation-owned capture truth');
 
   snap = runUntil(
     sim,
-    (s) => s.fighters[0].ultimatePhase === 'idle',
+    (s) => s.fighters[1].capturedBy === null && s.fighters[1].stunFrames >= 30,
     180,
   );
-  assert.equal(snap.fighters[1].capturedBy, null);
+  assert.equal(snap.fighters[0].ultimatePhase, 'recovery');
   assert.equal(snap.fighters[0].ultimateTarget, null);
+  assert.equal(Math.abs(snap.fighters[1].vx), 14);
+  assert.equal(snap.fighters[1].vy, 5);
+  assert.equal(snap.fighters[1].grounded, false);
 
+  snap = runUntil(
+    sim,
+    (s) => s.fighters[1].stunFrames === 0 && s.fighters[1].grounded && s.fighters[1].landingRecoveryFrames === 0,
+    160,
+  );
   const before = snap.fighters[1].x;
-  snap = stepN(sim, 8, EMPTY_INPUT, input({ right: true }));
-  assert.ok(snap.fighters[1].x > before, 'released defender should regain normal movement');
+  snap = sim.step(EMPTY_INPUT, input({ left: true }));
+  assert.notEqual(snap.fighters[1].x, before, 'released defender regains normal movement after launch/stun/landing recovery');
 });
 
 test('Supernariz CPU leaves a measurable post-commit gap before restarting close pressure', () => {

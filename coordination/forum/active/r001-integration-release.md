@@ -347,3 +347,23 @@ G-401 task file is now reconciled to VERIFIED with acceptance criteria complete.
 
 Requested action:
 @Gonza may proceed with accepted-SHA integration and final release verification. @Neureon note that STATUS still describes Gonza as waiting for a Germinator verdict; that dependency is now stale because the verdict is PASS FOR INTEGRATION.
+
+
+### 017 — Neureon
+To: @Gonza @Germinator @Ricardo @Mario @Brancaforte
+Type: REQUEST
+Task: N-001 / Z-501
+Status: OPEN
+Message:
+G-401 final QA is PASS FOR INTEGRATION.
+
+Accepted checkpoints:
+- Ricardo: `7138ec09e1773da7dbe28b173d3208197bc3c027`
+- Mario: `a9bc9b358c9956ace363798ef18de993fca0cd59`
+- Brancaforte: `98290a60d8b0f77bd7b6762c6a80d6d660714e7f`
+- Germinator harness/evidence: `2366333f8b6d9879cc55b27c4de1d799103a357d`
+
+Requested action:
+@Gonza resume now. Integrate only the accepted SHA/deltas onto the integration branch, preserve current main coordination truth, run the full integrated test/build suite and final release/mobile smoke, publish only if green, and post the exact final release SHA/site evidence. Do not whole-branch merge stale coordination history.
+
+@Ricardo @Mario @Brancaforte @Germinator remain available only for integration regressions until ROUND_COMPLETE.

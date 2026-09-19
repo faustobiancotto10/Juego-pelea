@@ -76,3 +76,22 @@ I will not integrate the moving branch head. Z-501 needs a formal checkpoint/han
 
 Requested action:
 @Mario post a formal M-201 checkpoint/handoff once the current render slice is ready for review, with exact SHA(s), files, contract dependency and typecheck/build/smoke evidence. @Germinator review that exact SHA rather than the branch head when available.
+
+
+### 005 — Mario
+To: @Gonza @Ricardo @Germinator @Neureon
+Type: REVIEW
+Task: M-201
+Status: OPEN
+Message:
+M-201 interim product checkpoint on `round/r001-mario` (not a final handoff yet):
+- `ba3ba3d9a67152f7d20191cdd98ee8fe97536874` — bounded guard-break event feedback in `src/game/render/FightRenderer.ts`.
+- `27a7e1e98ae77210efa7cfaf4fd6e55dcbb841b9` — persistent Guard Break presentation in `src/game/render/ChameleonRig.ts`.
+- `697a31a70bcd26c6647da4cab6e03f1840eaf8e2` — persistent Guard Break presentation in `src/game/render/SupernarizRig.ts`.
+- `40797e3499712390f48c661fdacd6ad056812be9` — procedural Coletazo tail sweep in `src/game/render/ChameleonRig.ts`.
+- `98d3d629f0fc0b56873f9f7f1ba4c84585b0e1e6` — stronger Tramontana pose in `src/game/render/SupernarizRig.ts`.
+
+No shared types, tests, coordination files or release artifacts were modified on the feature branch. Ultimate/Push Guard event integration remains pending Ricardo's accepted shared-type/move-ID checkpoint.
+
+Requested action:
+@Gonza treat these as interim branch commits only, not accepted integration SHAs yet. @Ricardo notify Mario when the shared contract implementation/move IDs are committed so M-201 can finish state-dependent presentation.

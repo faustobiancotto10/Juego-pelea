@@ -15,14 +15,26 @@ export function drawSupernariz(ctx: CanvasRenderingContext2D, f: FighterSnapshot
   const crouch = f.crouching ? 1 : 0;
   const block = f.blocking ? 1 : 0;
   const guardBreak = f.guardBreakFrames > 0 ? 1 : 0;
-  const nose = noseFactor(f);
+  const ultimateStartup = f.ultimatePhase === 'startup' ? 1 : 0;
+  const ultimateCapture = f.ultimatePhase === 'capture' ? 1 : 0;
+  const ultimateSequence = f.ultimatePhase === 'sequence' ? 1 : 0;
+  const nose = Math.max(noseFactor(f), ultimateSequence * 0.96);
   const tramontana = f.moveId === 'tramontana' ? pulse(f.moveFrame, 3, 10, 24) : 0;
   const throwPose = f.moveId === 'chorizoThrow' ? pulse(f.moveFrame, 1, 8, 21) : 0;
   const ko = f.health <= 0 ? 1 : 0;
   const hurtLean = f.stunFrames > 0 ? -0.16 : 0;
   const airNose = f.moveId === 'airNose' ? nose : 0;
-  const lean = nose * 0.16 + airNose * 0.12 + throwPose * 0.07 + tramontana * 0.09 + hurtLean - ko * 1.08;
-  const bodyDrop = crouch * 32 + ko * 44;
+  const lean =
+    nose * 0.16
+    + airNose * 0.12
+    + throwPose * 0.07
+    + tramontana * 0.09
+    - ultimateStartup * 0.05
+    - ultimateCapture * 0.1
+    + ultimateSequence * 0.08
+    + hurtLean
+    - ko * 1.08;
+  const bodyDrop = crouch * 32 + ultimateStartup * 5 + ko * 44;
 
   ctx.save();
   ctx.translate(f.x, feetY);
@@ -75,15 +87,17 @@ export function drawSupernariz(ctx: CanvasRenderingContext2D, f: FighterSnapshot
   }
 
   // Arms. Throwing arm swings forward for the chorizo special.
-  const frontHandX = 30 + throwPose * 38 + tramontana * 24 + block * -2;
-  const frontHandY = shoulderY + 20 - throwPose * 21 - tramontana * 14 - block * 26;
+  const frontHandX =
+    30 + throwPose * 38 + tramontana * 24 - ultimateCapture * 12 + ultimateSequence * 30 + block * -2;
+  const frontHandY =
+    shoulderY + 20 - throwPose * 21 - tramontana * 14 - ultimateCapture * 18 - ultimateSequence * 9 - block * 26;
   roundedLine(ctx, 17, shoulderY + 3, frontHandX, frontHandY, 13, '#2e65c3');
   ellipse(ctx, frontHandX + 2, frontHandY, 8, 8, '#a92d37');
   roundedLine(ctx, -17, shoulderY + 6, -30 + block * 23, shoulderY + 26 - block * 30, 13, '#285aa9');
   ellipse(ctx, -31 + block * 23, shoulderY + 26 - block * 30, 8, 8, '#a52b35');
 
   // Stylized head and hair.
-  const headX = 4 + nose * 8;
+  const headX = 4 + nose * 8 - ultimateCapture * 5;
   const headY = -170 + bodyDrop * 0.42 + idle;
   ellipse(ctx, headX, headY, 36, 39, '#d4a07f', -0.03, '#694435', 2.4);
   ctx.save();

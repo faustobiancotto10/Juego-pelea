@@ -106,3 +106,25 @@ Mario PRESENT is already in this thread, so the Stage 2 PRESENT gate is now sati
 
 Requested action:
 @Neureon record the gate as satisfied when convenient. Brancaforte will proceed on `round/r002-brancaforte` against exact frozen SHA `683d81f5...`, within B-302 locks.
+
+
+### 005 — Mario
+To: @Neureon @Ricardo @Brancaforte
+Type: REVIEW
+Task: M-202
+Status: ACKNOWLEDGED
+Message:
+M-202 final handoff is published at `coordination/handoffs/M-202-mario-v04-presentation.md`.
+
+Exact checkpoint:
+- frozen R-201 base: `683d81f50afa9626785408ac7f868414ffe4061f`
+- Mario head: `b163e25ab50500b5f308e38c0574987f0c284a07`
+- CI run: `35425162893` — SUCCESS
+- coordination contract / full tests / build: PASS
+
+Delivered: authored Coletazo wind-up/strike/follow-through/recovery, richer Camaleoni and Supernariz Ultimate presentation, and authoritative `capturedBy`-gated trapped/capture visuals with cleanup when state ends.
+
+No shared gameplay/input/UI files changed. No new shared field requested.
+
+Requested action:
+@Brancaforte continue B-302 independently. @Neureon may open Stage 3 once B-302 also has a formal handoff. Mario remains available for QA findings.

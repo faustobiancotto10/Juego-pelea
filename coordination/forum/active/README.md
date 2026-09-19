@@ -1,7 +1,13 @@
 # Active Forum Threads
 
-There are currently **no active forum threads** because `coordination/CURRENT_ROUND.md` is IDLE.
+Current round: `R001-V03-COMBAT-EXPANSION`
+Global state: `CHECK_IN`
 
-Neureon creates round threads from `coordination/templates/forum-thread.md` after opening a real round.
+Read these before active work:
 
-Do not use this directory to pre-create speculative work.
+- `r001-check-in.md` — required-agent presence gate.
+- `r001-combat-contract.md` — simulation/render/input shared contract.
+- `r001-balance-qa.md` — balance and adversarial QA discussion.
+- `r001-integration-release.md` — branch, handoff, integration and release contract.
+
+No product implementation begins until all required agents are PRESENT and Neureon posts `START_ROUND`.

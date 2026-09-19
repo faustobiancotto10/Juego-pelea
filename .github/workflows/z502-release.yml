@@ -92,9 +92,10 @@ jobs:
                 if (ub.y < c.height/2 - 20) throw new Error('mobile: Ultimate obstructs upper playfield');
                 if (ub.width < 54 || ub.height < 54) throw new Error('mobile: Ultimate target too small');
 
-                await dpad.dispatchEvent('pointerdown', {pointerId:11,pointerType:'touch',clientX:db.x+db.width*.82,clientY:db.y+db.height*.5,isPrimary:true});
+                await page.mouse.move(db.x+db.width*.82, db.y+db.height*.5);
+                await page.mouse.down();
                 await page.waitForTimeout(100);
-                await dpad.dispatchEvent('pointerup', {pointerId:11,pointerType:'touch',clientX:db.x+db.width*.82,clientY:db.y+db.height*.5,isPrimary:true});
+                await page.mouse.up();
               }
 
               await page.waitForTimeout(500);
@@ -133,6 +134,7 @@ jobs:
             const browser=await chromium.launch({headless:true});
             const page=await browser.newPage({viewport:{width:852,height:393}});
             await page.goto('http://127.0.0.1:4173/touch-harness.html');
+            await page.evaluate(() => { Element.prototype.setPointerCapture = function() {}; Element.prototype.releasePointerCapture = function() {}; });
             await page.waitForFunction(()=>window.__input);
             const d=page.locator('[data-dpad]'), u=page.locator('[data-action="ultimate"]');
             const db=await d.boundingBox(), ub=await u.boundingBox();

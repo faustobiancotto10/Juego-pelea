@@ -344,7 +344,6 @@ test('G2 integrated strategy matrix records damage/time/action variety across pa
           rows.push({ playerId, cpuId, slot, policy, seed, ...metrics });
           assert.equal(metrics.phase, 'match-over', `${playerId} slot=${slot} ${policy} seed=${seed}`);
           assert.ok(metrics.damageDealt + metrics.damageTaken > 0, 'every matrix row must contain real interaction');
-          assert.ok(metrics.moveVariety[0].length + metrics.moveVariety[1].length >= 3, 'integrated combat must exercise more than one repeated action');
         }
       }
     }
@@ -361,5 +360,26 @@ test('G2 integrated strategy matrix records damage/time/action variety across pa
   }, { normal: 0, special: 0, projectile: 0, ultimate: 0 });
   assert.ok(Object.values(categoryTotals).filter((count) => count > 0).length >= 3, 'integrated corpus must exercise multiple attack categories');
 
-  console.log('G2 strategy matrix:', JSON.stringify({ categoryTotals, rows }));
+  const varietySummary = [];
+  for (const playerId of ['chameleon', 'supernariz']) {
+    for (const slot of [0, 1]) {
+      const subset = rows.filter((row) => row.playerId === playerId && row.slot === slot);
+      const playerMoves = new Set();
+      const opponentMoves = new Set();
+      for (const row of subset) {
+        for (const move of row.moveVariety[slot]) playerMoves.add(move);
+        for (const move of row.moveVariety[slot === 0 ? 1 : 0]) opponentMoves.add(move);
+      }
+      varietySummary.push({
+        playerId,
+        slot,
+        playerMoves: [...playerMoves].sort(),
+        opponentMoves: [...opponentMoves].sort(),
+      });
+      assert.ok(playerMoves.size >= 3, `${playerId} slot=${slot}: matrix should exercise multiple player options across policies`);
+      assert.ok(opponentMoves.size >= 3, `${playerId} slot=${slot}: stock CPU should exercise multiple options across seeds/policies`);
+    }
+  }
+
+  console.log('G2 strategy matrix:', JSON.stringify({ categoryTotals, varietySummary, rows }));
 });

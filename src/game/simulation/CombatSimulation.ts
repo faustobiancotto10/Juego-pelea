@@ -355,16 +355,20 @@ export class CombatSimulation {
       return;
     }
 
-    if (Boolean(input.ultimate)) {
-      if (fighter.grounded && fighter.superReady && fighter.currentMove === null && fighter.dashKind === null && pressed(input, fighter.prevInput, 'ultimate')) {
-        this.startUltimate(index);
-      }
+    if (
+      Boolean(input.ultimate)
+      && fighter.grounded
+      && fighter.superReady
+      && fighter.currentMove === null
+      && fighter.dashKind === null
+      && pressed(input, fighter.prevInput, 'ultimate')
+    ) {
+      this.startUltimate(index);
       return;
     }
 
-    if (Boolean(input.pushGuard)) {
-      return;
-    }
+    // Invalid Ultimate / Push Guard requests are inert. They must never suspend
+    // an already committed move timeline.
 
     if (fighter.dashKind) {
       this.updateDash(fighter);
@@ -578,17 +582,7 @@ export class CombatSimulation {
     if (!intervalsOverlap(attackBottom, attackTop, hurtBottom, defender.y + hurtTop)) return;
     if (this.isBackdashStrikeInvulnerable(defender)) return;
 
-    const holdingAway = isAwayHeld(defenderInput, defender.facing);
-    const levelAllowsBlock = hitbox.level === 'mid'
-      || (hitbox.level === 'low' && defenderInput.down)
-      || (hitbox.level === 'overhead' && !defenderInput.down);
-    const blocked = defender.grounded
-      && holdingAway
-      && levelAllowsBlock
-      && defender.dashKind === null
-      && defender.stunFrames === 0
-      && defender.guardBreakFrames === 0
-      && defender.guard > 0;
+    const blocked = this.canBlock(defender, defenderInput, hitbox.level);
 
     attacker.moveHasHit = true;
     let actualDamage = 0;
@@ -615,6 +609,27 @@ export class CombatSimulation {
       damage: actualDamage,
       strong: hitbox.strong,
     });
+  }
+
+  private canBlock(
+    defender: FighterState,
+    input: InputFrame,
+    level: 'mid' | 'low' | 'overhead' = 'mid',
+  ): boolean {
+    const levelAllowsBlock = level === 'mid'
+      || (level === 'low' && input.down)
+      || (level === 'overhead' && !input.down);
+
+    return defender.grounded
+      && isAwayHeld(input, defender.facing)
+      && levelAllowsBlock
+      && defender.currentMove === null
+      && defender.ultimatePhase === 'idle'
+      && defender.dashKind === null
+      && defender.stunFrames === 0
+      && defender.guardBreakFrames === 0
+      && defender.capturedBy === null
+      && defender.guard > 0;
   }
 
   private applyCornerBlockTransfer(attackerIndex: FighterIndex, defenderIndex: FighterIndex, knockback: number): void {
@@ -727,12 +742,7 @@ export class CombatSimulation {
       if (projectile.y < defender.y + 18 || projectile.y > hurtTop + 10) continue;
 
       const defenderInput = inputs[defenderIndex];
-      const blocked = defender.grounded
-        && isAwayHeld(defenderInput, defender.facing)
-        && defender.dashKind === null
-        && defender.stunFrames === 0
-        && defender.guardBreakFrames === 0
-        && defender.guard > 0;
+      const blocked = this.canBlock(defender, defenderInput);
       const requestedDamage = blocked ? 5 : 58;
       const actualDamage = this.applyDamage(projectile.owner, defenderIndex, requestedDamage);
       if (blocked) {

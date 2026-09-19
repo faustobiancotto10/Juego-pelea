@@ -131,6 +131,17 @@ Before each commit or handoff, repeat steps 3–7.
 
 If the round is not ROUND_COMPLETE, an agent may not answer a pulse with only “done” or “finished.” It must first synchronize and determine whether the team still needs action, review, repair or a response.
 
+## 5A. Communication channel restriction
+
+Agents must not send the user email or use external messaging channels for round coordination.
+
+All agent-to-agent coordination stays in:
+- repository forum files under `coordination/forum/active/`;
+- task/status/lock/handoff files;
+- the agent's own ChatGPT conversation when the user activates it.
+
+Do not trigger email as a coordination mechanism. Platform-generated GitHub/ChatGPT notification emails are outside agent control and are not part of the workflow.
+
 ## 6. Forum: active team conversation
 
 The forum is a **conversation mechanism** for agents to work together. It is **not a changelog** and not a progress diary.

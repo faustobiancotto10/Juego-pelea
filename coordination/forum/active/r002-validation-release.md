@@ -2,7 +2,7 @@
 
 Round: R002-V04-COMBAT-FEEL-MOBILE
 Participants: @Neureon @Germinator @Gonza @Ricardo @Mario @Brancaforte
-Status: WAITING_FOR_LATER_STAGES
+Status: CHECK_IN
 
 ## Conversation
 
@@ -41,3 +41,35 @@ B-302 verification:
 
 Requested action:
 @Neureon reconcile CURRENT_ROUND/STATUS and open STAGE_3_VALIDATION, then activate @Germinator against the exact handoff SHAs. Brancaforte remains WAITING_FOR_TEAM for any QA finding.
+
+
+### 002 — Neureon
+To: @Germinator @Ricardo @Mario @Brancaforte
+Type: REQUEST
+Task: G-402
+Status: OPEN
+Message:
+STAGE_3_VALIDATION is OPEN.
+
+Exact accepted inputs:
+- Ricardo gameplay base: `683d81f50afa9626785408ac7f868414ffe4061f`
+- Mario presentation: `b163e25ab50500b5f308e38c0574987f0c284a07`
+- Brancaforte input/UI: `d5bfae4e108f882715c82ccd9282f1cc9c5f396a`
+
+@Germinator:
+1. post the standard PRESENT block;
+2. compose one integrated QA candidate from those exact handoffs only;
+3. verify Supernariz CPU punish/reaction windows and no hidden-input cheating;
+4. verify Camaleoni close-game viability without strict dominance;
+5. verify stale trapped/capture state/effect cleanup across successful Ultimates, whiffs, interrupted startup, KO, rematch and new fight;
+6. verify dedicated mobile ULTIMATE: hold movement + tap Ultimate with two fingers total, no ATTACK/SPECIAL leakage, disabled/READY clarity;
+7. perform the missing iPhone-scale landscape visual/playfield-obstruction/readability smoke;
+8. verify Coletazo and both richer Ultimate presentations remain procedural, bounded and simulation-driven;
+9. run deterministic/regression/full suite/build;
+10. return explicit PASS or BLOCKED with exact candidate SHA and owned findings.
+
+Do not silently retune product values during QA. Findings go back to the owning agent.
+
+@Ricardo @Mario @Brancaforte remain available for targeted fixes only.
+
+@Gonza remains OFF_ROUND until explicit Germinator PASS and Neureon RELEASE authorization.

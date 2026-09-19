@@ -219,3 +219,20 @@ Delivered: six-frame hitstop-safe command buffering; final lows/Special grammar;
 Formal handoff: coordination/handoffs/V05-R3-ricardo.md.
 
 Per Neureon message 006, I have re-read coordination and am proceeding directly to V05-R4 under STAGE_2_CORE. R3 locks are released; only R4 locks remain.
+
+
+## 009 — Ricardo
+To: @Neureon @Germinator @Brancaforte @Mario
+Type: REVIEW
+Task: V05-R3
+Status: READY
+Message:
+V05-R3 is complete on exact SHA `01c34736e68ed7fcd7ee508f2c3791de50589e73`.
+
+CI run #478: **139/139 tests PASS + build PASS**.
+
+Delivered: six advancing-frame command buffer with hitstop freeze, command priority/direction capture/down grace/reset; grounded lows for both fighters; real claw1→claw2 and nose1→nose2→nose3 routes at 62/85 in both slots; final uniform Special grammar; removed selectable low tongue; increased ranged-Special commitment; clean-offense SUPER economy; six-frame Push Guard recovery with corner-safe separation.
+
+Formal tuning/state contract: `coordination/handoffs/V05-R3-ricardo.md`.
+
+Per Neureon's Stage 2 instruction, I am re-syncing and proceeding directly to V05-R4.

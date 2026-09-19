@@ -32,11 +32,23 @@ export function drawChameleon(ctx: CanvasRenderingContext2D, f: FighterSnapshot,
   const guardBreak = f.guardBreakFrames > 0 ? 1 : 0;
   const claw = clawFactor(f);
   const coletazo = coletazoFactor(f);
+  const ultimateStartup = f.ultimatePhase === 'startup' ? 1 : 0;
+  const ultimateCapture = f.ultimatePhase === 'capture' ? 1 : 0;
+  const ultimateSequence = f.ultimatePhase === 'sequence' ? 1 : 0;
   const tongue = tongueFactor(f);
   const lowTongue = f.moveId === 'tongueLow';
   const airClaw = f.moveId === 'airClaw' ? claw : 0;
-  const forwardLean = tongue * 0.12 + claw * 0.07 + airClaw * 0.11 + coletazo * 0.08 + hurtLean - ko * 1.16;
-  const bodyDrop = crouch * 30 + ko * 42;
+  const forwardLean =
+    tongue * 0.12
+    + claw * 0.07
+    + airClaw * 0.11
+    + coletazo * 0.08
+    - ultimateStartup * 0.08
+    + ultimateCapture * 0.18
+    + ultimateSequence * 0.11
+    + hurtLean
+    - ko * 1.16;
+  const bodyDrop = crouch * 30 + ultimateStartup * 7 + ko * 42;
 
   ctx.save();
   ctx.translate(f.x, feetY);
@@ -51,7 +63,8 @@ export function drawChameleon(ctx: CanvasRenderingContext2D, f: FighterSnapshot,
   ctx.restore();
 
   // Tail: a real articulated curve, not a pasted picture. It counterbalances attacks.
-  const tailCounter = -tongue * 28 - claw * 12 + Math.sin(time * 2.8) * 5;
+  const ultimateTailBeat = ultimateSequence * Math.sin(time * 21) * 26;
+  const tailCounter = -tongue * 28 - claw * 12 + ultimateTailBeat + Math.sin(time * 2.8) * 5;
   const tailMidX = lerp(-67, 76, coletazo);
   const tailMidY = lerp(-10 + tailCounter * 0.18, -88, coletazo);
   const tailTipX = lerp(-49, 118, coletazo);
@@ -92,7 +105,10 @@ export function drawChameleon(ctx: CanvasRenderingContext2D, f: FighterSnapshot,
   ellipse(ctx, 8, -82 + bodyDrop * 0.65, 16, 35 - crouch * 7, '#79b654', -0.06);
 
   // Tiny arms are intentionally very short: this is part of the fighter's gameplay identity.
-  const frontReach = 18 + claw * (f.moveId === 'claw2' ? 42 : f.moveId === 'airClaw' ? 52 : 31);
+  const frontReach =
+    18
+    + claw * (f.moveId === 'claw2' ? 42 : f.moveId === 'airClaw' ? 52 : 31)
+    + ultimateSequence * 28;
   const frontY = shoulderY + block * 16 - claw * 8 + airClaw * 18;
   roundedLine(ctx, 12, shoulderY, frontReach, frontY, 11, '#62a444');
   ellipse(ctx, frontReach + 3, frontY, 7, 6, '#86bd5e');
@@ -100,7 +116,7 @@ export function drawChameleon(ctx: CanvasRenderingContext2D, f: FighterSnapshot,
   ellipse(ctx, -25 + block * 13, shoulderY + 18 - block * 25, 7, 6, '#80b75a');
 
   // Oversized stylized human-like head from the reference concept, reconstructed with vector forms.
-  const headX = 4 + tongue * 14 + block * -3;
+  const headX = 4 + tongue * 14 + ultimateCapture * 9 + ultimateSequence * 6 + block * -3;
   const headY = -155 + bodyDrop * 0.43 + idle + (!f.grounded ? 3 : 0);
   ellipse(ctx, headX, headY, 42, 39, '#c98f68', -0.04, '#633f31', 2.5);
   // Ear and cheek contour.

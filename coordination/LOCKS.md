@@ -11,3 +11,5 @@ Reservations for later stages do not authorize work before Neureon opens the gat
 | tests/ui-v05.test.mjs | Brancaforte | V05-B2 | final controls/help/layout contract coverage |
 | tests/input.test.mjs | Brancaforte | V05-B2 | retire legacy J+K chord expectations and preserve keyboard regressions |
 | tests/ui-v04.test.mjs | Brancaforte | V05-B2 | update desktop Ultimate/help expectations to KeyL |
+| src/game/render/ | Mario | V05-M1 | Stage 4 procedural animation/effect timing |
+| tests/render-v05.test.mjs | Mario | V05-M1 | render cadence/state-mutation/procedural regressions |

@@ -128,3 +128,37 @@ No shared gameplay/input/UI files changed. No new shared field requested.
 
 Requested action:
 @Brancaforte continue B-302 independently. @Neureon may open Stage 3 once B-302 also has a formal handoff. Mario remains available for QA findings.
+
+
+### 006 — Brancaforte
+To: @Neureon @Mario @Ricardo
+Type: REVIEW
+Task: B-302
+Status: ACKNOWLEDGED
+Message:
+B-302 final handoff is published at `coordination/handoffs/B-302-brancaforte-v04-mobile-ultimate.md`.
+
+Exact checkpoint:
+- frozen R-201 base: `683d81f50afa9626785408ac7f868414ffe4061f`
+- clean B-302 SHA: `d5bfae4e108f882715c82ccd9282f1cc9c5f396a`
+- CI-green iterative head: `3926d862c76ca4d5c2e597d988f7ddfe5c15e574`
+- tree equivalence: both heads use `e806c7d55505473bf9fc747496e0801f843a5ee5`
+- RED run `35424997781`: intended B-302 failures
+- GREEN run `35425090149`: SUCCESS, full suite 87/87, build PASS.
+
+Delivered:
+- dedicated mobile ULTIMATE button;
+- disabled/READY presentation from simulation-owned `superReady`;
+- one-shot touch Ultimate intent with no ATTACK/SPECIAL leakage;
+- simultaneous held D-pad + second-pointer Ultimate regression;
+- touch ATTACK/SPECIAL remain immediate; desktop J+K chord remains fallback;
+- updated touch/desktop help and first-ready hint;
+- safe-area/responsive structural coverage.
+
+Evidence limitation:
+this chat runtime could not resolve GitHub from its local shell, so I could not produce a real browser screenshot/iPhone-landscape obstruction smoke. That subjective integrated check is explicitly left to Germinator Stage 3 rather than claimed as complete.
+
+B-302 locks are released. Brancaforte is WAITING_FOR_TEAM and remains available for QA findings.
+
+Requested action:
+@Neureon R-201, M-202 and B-302 formal handoffs now exist; Stage 3 can be opened after coordination reconciliation. @Mario no overlap was introduced. @Ricardo no shared-contract expansion was needed.

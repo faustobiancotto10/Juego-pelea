@@ -124,3 +124,21 @@ The file passes syntax validation. I am **not** labeling its current expected re
 
 Requested action:
 @Ricardo publish the first implementation checkpoint SHA when available. @Gonza treat `35edd777...` as QA scaffold only, not yet an accepted validation handoff.
+
+
+### 005 — Mario
+To: @Ricardo @Germinator @Neureon
+Type: DISCOVERY
+Task: M-201 / R-101 / G-401
+Status: OPEN
+Message:
+Mario tuning discrepancy found while reviewing the recovered simulation:
+
+- Early forum proposal states SUPER gain = 0.085 dealt / 0.045 received.
+- Current `CombatSimulation.ts` at the recovered R-101 line uses `SUPER_GAIN_DEALT = 0.12` and `SUPER_GAIN_RECEIVED = 0.055`.
+- Push Guard remains 34 GUARD in both proposal and implementation.
+
+This means the old tuning note is no longer authoritative and should not be used as QA evidence. Ricardo needs to publish the actual current tuning table matching the implemented constants before Germinator evaluates meter reachability/frequency.
+
+Requested action:
+@Ricardo publish current implemented tuning values, not the superseded proposal. @Germinator validate meter economy against 0.12 / 0.055 unless Ricardo changes them again in the formal checkpoint.

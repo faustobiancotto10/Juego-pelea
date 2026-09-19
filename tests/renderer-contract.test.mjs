@@ -10,9 +10,13 @@ const renderFiles = [
   'src/game/render/CombatEffects.ts',
 ];
 
-test('runtime fighter renderer is procedural and does not load reference sprite images', () => {
-  for (const file of renderFiles) assert.equal(existsSync(file), true, `${file} must exist`);
-  const source = renderFiles.map((file) => readFileSync(file, 'utf8')).join('\n');
+function read(file) {
+  assert.equal(existsSync(file), true, `${file} must exist`);
+  return readFileSync(file, 'utf8');
+}
+
+test('runtime fighter renderer stays procedural and reference-image free', () => {
+  const source = renderFiles.map(read).join('\n');
   for (const banned of ['new Image(', 'drawImage(', '.png', '.jpg', '.jpeg', 'spritesheet']) {
     assert.equal(source.includes(banned), false, `renderer must not contain ${banned}`);
   }
@@ -20,43 +24,62 @@ test('runtime fighter renderer is procedural and does not load reference sprite 
   assert.match(source, /bezierCurveTo|quadraticCurveTo/);
 });
 
-test('procedural rigs include authored air-attack and close-special pose handling', () => {
-  const chameleon = readFileSync('src/game/render/ChameleonRig.ts', 'utf8');
-  const supernariz = readFileSync('src/game/render/SupernarizRig.ts', 'utf8');
-  assert.match(chameleon, /airClaw/);
-  assert.match(chameleon, /coletazo/);
-  assert.match(supernariz, /airNose/);
-  assert.match(supernariz, /tramontana/);
+test('V0.4 Coletazo has authored windup strike follow-through recovery and trail', () => {
+  const effects = read('src/game/render/CombatEffects.ts');
+  const chameleon = read('src/game/render/ChameleonRig.ts');
+  const fight = read('src/game/render/FightRenderer.ts');
+
+  for (const phase of ['windup', 'strike', 'followThrough', 'recovery', 'sweep', 'trail']) {
+    assert.equal(effects.includes(phase), true, `Coletazo presentation missing ${phase}`);
+  }
+  assert.match(effects, /getColetazoPresentation/);
+  assert.match(effects, /drawColetazoTrail/);
+  assert.match(chameleon, /getColetazoPresentation/);
+  assert.match(chameleon, /coletazo\.windup/);
+  assert.match(chameleon, /coletazo\.strike/);
+  assert.match(chameleon, /coletazo\.followThrough/);
+  assert.match(fight, /fighter\.moveId !== 'coletazo'/);
+  assert.match(fight, /tone: 'warm' \| 'cold' \| 'block' \| 'break' \| 'ultimate' \| 'tail'/);
 });
 
-test('V0.3 presentation consumes simulation-authored ultimate phases and events', () => {
-  const fight = readFileSync('src/game/render/FightRenderer.ts', 'utf8');
-  const fighter = readFileSync('src/game/render/FighterRenderer.ts', 'utf8');
-  const chameleon = readFileSync('src/game/render/ChameleonRig.ts', 'utf8');
-  const supernariz = readFileSync('src/game/render/SupernarizRig.ts', 'utf8');
+test('V0.4 capture presentation is driven by capturedBy and clears with authoritative state', () => {
+  const fight = read('src/game/render/FightRenderer.ts');
+  assert.match(fight, /fighter\.capturedBy !== null/);
+  assert.match(fight, /target\.capturedBy === attackerIndex/);
+  assert.match(fight, /fighter\.ultimatePhase !== 'idle' \|\| fighter\.capturedBy !== null/);
+  assert.match(fight, /this\.ultimateFlashes = \[\]/);
+  assert.match(fight, /drawCapturedLock/);
+});
+
+test('V0.4 Ultimates include richer startup capture success and recovery presentation', () => {
+  const fight = read('src/game/render/FightRenderer.ts');
+  const fighter = read('src/game/render/FighterRenderer.ts');
+  const chameleon = read('src/game/render/ChameleonRig.ts');
+  const supernariz = read('src/game/render/SupernarizRig.ts');
 
   for (const effect of [
-    'drawPushGuardBurst',
+    'drawCaptureStartup',
     'drawCamaleoniVeil',
     'drawDashAfterimage',
+    'drawCamaleoniSequenceCuts',
+    'drawReappearanceFlash',
+    'drawSupernarizInhalePulse',
     'drawSuctionField',
     'drawNazazoArc',
     'drawLaunchTrail',
-    'drawReappearanceFlash',
-    'drawUltimateImpact',
   ]) assert.equal(fight.includes(effect), true, `missing ${effect}`);
 
-  assert.equal(fight.includes("event.type === 'push-guard'"), true);
-  assert.equal(fight.includes("event.type === 'ultimate-capture'"), true);
-  assert.match(fighter, /ultimatePhase === 'capture'/);
-  assert.match(chameleon, /ultimatePhase === 'startup'/);
-  assert.match(chameleon, /ultimatePhase === 'sequence'/);
-  assert.match(supernariz, /ultimatePhase === 'capture'/);
-  assert.match(supernariz, /ultimatePhase === 'sequence'/);
+  assert.match(fighter, /camaleoniUltimateAlpha/);
+  assert.match(fighter, /fighter\.moveFrame \/ 9/);
+  assert.match(chameleon, /vanishCoil/);
+  assert.match(chameleon, /dashDrive/);
+  assert.match(chameleon, /comboBeat/);
+  assert.match(supernariz, /inhaleBrace/);
+  assert.match(supernariz, /nazazoDrive/);
 });
 
-test('V0.3 transient effects remain bounded for mobile rendering', () => {
-  const fight = readFileSync('src/game/render/FightRenderer.ts', 'utf8');
+test('V0.4 transient effects remain bounded for mobile rendering', () => {
+  const fight = read('src/game/render/FightRenderer.ts');
   assert.match(fight, /const maxParticles = 120/);
   assert.match(fight, /pushGuardFlashes\.length > 6/);
   assert.match(fight, /ultimateFlashes\.length > 6/);

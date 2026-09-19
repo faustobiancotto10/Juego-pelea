@@ -24,14 +24,16 @@ export function drawSupernariz(ctx: CanvasRenderingContext2D, f: FighterSnapshot
   const ko = f.health <= 0 ? 1 : 0;
   const hurtLean = f.stunFrames > 0 ? -0.16 : 0;
   const airNose = f.moveId === 'airNose' ? nose : 0;
+  const inhaleBrace = ultimateStartup * 0.72 + ultimateCapture;
+  const nazazoDrive = ultimateSequence;
   const lean =
     nose * 0.16
     + airNose * 0.12
     + throwPose * 0.07
     + tramontana * 0.09
-    - ultimateStartup * 0.05
-    - ultimateCapture * 0.1
-    + ultimateSequence * 0.08
+    - ultimateStartup * 0.09
+    - ultimateCapture * 0.16
+    + ultimateSequence * 0.15
     + hurtLean
     - ko * 1.08;
   const bodyDrop = crouch * 32 + ultimateStartup * 5 + ko * 44;
@@ -59,7 +61,14 @@ export function drawSupernariz(ctx: CanvasRenderingContext2D, f: FighterSnapshot
   ctx.lineWidth = 2;
   ctx.beginPath();
   ctx.moveTo(-18, shoulderY + 5);
-  ctx.bezierCurveTo(-52 - Math.abs(f.vx) * 2, shoulderY + 18, -65 - Math.sin(time * 3) * 10, -62 + bodyDrop * 0.4, -35, -34 + bodyDrop * 0.5);
+  ctx.bezierCurveTo(
+    -52 - Math.abs(f.vx) * 2 - inhaleBrace * 24,
+    shoulderY + 18 - inhaleBrace * 10,
+    -65 - Math.sin(time * 3) * 10 - inhaleBrace * 34 + nazazoDrive * 16,
+    -62 + bodyDrop * 0.4 - inhaleBrace * 12,
+    -35 - inhaleBrace * 18 + nazazoDrive * 12,
+    -34 + bodyDrop * 0.5,
+  );
   ctx.lineTo(-8, -72 + bodyDrop * 0.45);
   ctx.closePath();
   ctx.fill();
@@ -88,16 +97,27 @@ export function drawSupernariz(ctx: CanvasRenderingContext2D, f: FighterSnapshot
 
   // Arms. Throwing arm swings forward for the chorizo special.
   const frontHandX =
-    30 + throwPose * 38 + tramontana * 24 - ultimateCapture * 12 + ultimateSequence * 30 + block * -2;
+    30
+    + throwPose * 38
+    + tramontana * 24
+    - inhaleBrace * 20
+    + nazazoDrive * 46
+    + block * -2;
   const frontHandY =
-    shoulderY + 20 - throwPose * 21 - tramontana * 14 - ultimateCapture * 18 - ultimateSequence * 9 - block * 26;
+    shoulderY
+    + 20
+    - throwPose * 21
+    - tramontana * 14
+    - inhaleBrace * 24
+    - nazazoDrive * 12
+    - block * 26;
   roundedLine(ctx, 17, shoulderY + 3, frontHandX, frontHandY, 13, '#2e65c3');
   ellipse(ctx, frontHandX + 2, frontHandY, 8, 8, '#a92d37');
   roundedLine(ctx, -17, shoulderY + 6, -30 + block * 23, shoulderY + 26 - block * 30, 13, '#285aa9');
   ellipse(ctx, -31 + block * 23, shoulderY + 26 - block * 30, 8, 8, '#a52b35');
 
   // Stylized head and hair.
-  const headX = 4 + nose * 8 - ultimateCapture * 5;
+  const headX = 4 + nose * 8 - inhaleBrace * 8 + nazazoDrive * 8;
   const headY = -170 + bodyDrop * 0.42 + idle;
   ellipse(ctx, headX, headY, 36, 39, '#d4a07f', -0.03, '#694435', 2.4);
   ctx.save();
@@ -113,8 +133,15 @@ export function drawSupernariz(ctx: CanvasRenderingContext2D, f: FighterSnapshot
   roundedLine(ctx, headX + 8, headY + 23, headX + 22, headY + 23, 2.3, '#6b302e');
 
   // The nose is an articulated tapered vector path; combo moves change its length and arc.
-  const noseLength = lerp(39, f.moveId === 'nose3' ? 142 : f.moveId === 'airNose' ? 128 : 118, nose);
-  const noseLift = f.moveId === 'nose2' ? -12 * nose : f.moveId === 'nose3' ? 7 * nose : f.moveId === 'airNose' ? 20 * nose : 0;
+  const noseLength = lerp(
+    39,
+    f.moveId === 'nose3' ? 142 : f.moveId === 'airNose' ? 128 : 118,
+    nose,
+  ) + nazazoDrive * 24 - inhaleBrace * 8;
+  const noseLift =
+    (f.moveId === 'nose2' ? -12 * nose : f.moveId === 'nose3' ? 7 * nose : f.moveId === 'airNose' ? 20 * nose : 0)
+    - inhaleBrace * 8
+    + nazazoDrive * 9;
   ctx.save();
   ctx.fillStyle = '#c98668';
   ctx.strokeStyle = '#754635';

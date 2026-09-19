@@ -117,7 +117,15 @@ export class GameInput {
   private readonly keys = new Set<string>();
   private touchDirection: DirectionState = { ...NEUTRAL };
   private touchActions: Record<ActionName, boolean> = { attack: false, special: false, jump: false };
+  private readonly actionPointers: Record<ActionName, Set<number>> = {
+    attack: new Set(),
+    special: new Set(),
+    jump: new Set(),
+  };
+  private readonly ultimatePointers = new Set<number>();
   private dpadPointer: number | null = null;
+  private dpadElement: HTMLElement | null = null;
+  private readonly actionButtons = new Set<HTMLButtonElement>();
   private readonly cleanupCallbacks: Array<() => void> = [];
   private readonly doubleTap = new DoubleTapTracker(230);
   private readonly actionChord = new ActionChordBuffer(55);
@@ -128,6 +136,7 @@ export class GameInput {
   constructor(private readonly root: HTMLElement) {
     this.bindKeyboard();
     this.bindTouchControls();
+    this.bindLifecycle();
   }
 
   getFrame(context: CombatInputContext = { superReady: false, defensiveContext: false }): InputFrame {
@@ -174,16 +183,28 @@ export class GameInput {
     return frame;
   }
 
-  destroy(): void {
-    for (const cleanup of this.cleanupCallbacks.splice(0)) cleanup();
+  reset(): void {
     this.keys.clear();
     this.touchDirection = { ...NEUTRAL };
     this.touchActions = { attack: false, special: false, jump: false };
+    for (const pointers of Object.values(this.actionPointers)) pointers.clear();
+    this.ultimatePointers.clear();
+    this.dpadPointer = null;
     this.doubleTap.reset();
     this.actionChord.reset();
     this.touchUltimateQueued = false;
     this.dashLeft = false;
     this.dashRight = false;
+
+    if (this.dpadElement) this.paintDpad(this.dpadElement);
+    for (const button of this.actionButtons) button.classList.remove('is-pressed');
+  }
+
+  destroy(): void {
+    this.reset();
+    for (const cleanup of this.cleanupCallbacks.splice(0)) cleanup();
+    this.dpadElement = null;
+    this.actionButtons.clear();
   }
 
   private registerTap(direction: HorizontalDirection, nowMs: number): void {
@@ -209,8 +230,7 @@ export class GameInput {
       this.keys.delete(event.code);
     };
     const onBlur = () => {
-      this.keys.clear();
-      this.doubleTap.reset();
+      this.reset();
     };
     window.addEventListener('keydown', onDown, { passive: false });
     window.addEventListener('keyup', onUp, { passive: false });
@@ -222,9 +242,38 @@ export class GameInput {
     );
   }
 
+  private bindLifecycle(): void {
+    const onPageHide = () => this.reset();
+    const onOrientationChange = () => this.reset();
+    window.addEventListener('pagehide', onPageHide);
+    window.addEventListener('orientationchange', onOrientationChange);
+    this.cleanupCallbacks.push(
+      () => window.removeEventListener('pagehide', onPageHide),
+      () => window.removeEventListener('orientationchange', onOrientationChange),
+    );
+
+    if (typeof document !== 'undefined') {
+      const onVisibilityChange = () => {
+        if (document.hidden) this.reset();
+      };
+      document.addEventListener('visibilitychange', onVisibilityChange);
+      this.cleanupCallbacks.push(() => document.removeEventListener('visibilitychange', onVisibilityChange));
+    }
+  }
+
+  private tryCapture(element: HTMLElement, pointerId: number): boolean {
+    try {
+      element.setPointerCapture(pointerId);
+      return true;
+    } catch {
+      return false;
+    }
+  }
+
   private bindTouchControls(): void {
     const dpad = this.root.querySelector<HTMLElement>('[data-dpad]');
     if (dpad) {
+      this.dpadElement = dpad;
       const update = (event: PointerEvent) => {
         const rect = dpad.getBoundingClientRect();
         const cx = rect.left + rect.width / 2;
@@ -233,9 +282,14 @@ export class GameInput {
         this.paintDpad(dpad);
       };
       const down = (event: PointerEvent) => {
+        event.preventDefault();
         if (this.dpadPointer !== null) return;
+        if (!this.tryCapture(dpad, event.pointerId)) {
+          this.touchDirection = { ...NEUTRAL };
+          this.paintDpad(dpad);
+          return;
+        }
         this.dpadPointer = event.pointerId;
-        dpad.setPointerCapture(event.pointerId);
         update(event);
         if (this.touchDirection.left !== this.touchDirection.right) {
           this.registerTap(this.touchDirection.left ? 'left' : 'right', performance.now());
@@ -254,26 +308,31 @@ export class GameInput {
       dpad.addEventListener('pointermove', move);
       dpad.addEventListener('pointerup', release);
       dpad.addEventListener('pointercancel', release);
+      dpad.addEventListener('lostpointercapture', release);
       this.cleanupCallbacks.push(
         () => dpad.removeEventListener('pointerdown', down),
         () => dpad.removeEventListener('pointermove', move),
         () => dpad.removeEventListener('pointerup', release),
         () => dpad.removeEventListener('pointercancel', release),
+        () => dpad.removeEventListener('lostpointercapture', release),
       );
     }
 
     for (const button of this.root.querySelectorAll<HTMLButtonElement>('[data-action]')) {
+      this.actionButtons.add(button);
       const action = button.dataset.action;
       if (action === 'ultimate') {
         const down = (event: PointerEvent) => {
           event.preventDefault();
-          button.setPointerCapture(event.pointerId);
+          if (!this.tryCapture(button, event.pointerId)) return;
+          this.ultimatePointers.add(event.pointerId);
           this.touchUltimateQueued = true;
           button.classList.add('is-pressed');
         };
         const release = (event: PointerEvent) => {
           event.preventDefault();
-          button.classList.remove('is-pressed');
+          if (!this.ultimatePointers.delete(event.pointerId)) return;
+          if (this.ultimatePointers.size === 0) button.classList.remove('is-pressed');
         };
         button.addEventListener('pointerdown', down);
         button.addEventListener('pointerup', release);
@@ -290,16 +349,19 @@ export class GameInput {
 
       if (!['attack', 'special', 'jump'].includes(action ?? '')) continue;
       const touchAction = action as ActionName;
+      const pointers = this.actionPointers[touchAction];
       const down = (event: PointerEvent) => {
         event.preventDefault();
-        button.setPointerCapture(event.pointerId);
+        if (!this.tryCapture(button, event.pointerId)) return;
+        pointers.add(event.pointerId);
         this.touchActions[touchAction] = true;
         button.classList.add('is-pressed');
       };
       const release = (event: PointerEvent) => {
         event.preventDefault();
-        this.touchActions[touchAction] = false;
-        button.classList.remove('is-pressed');
+        if (!pointers.delete(event.pointerId)) return;
+        this.touchActions[touchAction] = pointers.size > 0;
+        if (pointers.size === 0) button.classList.remove('is-pressed');
       };
       button.addEventListener('pointerdown', down);
       button.addEventListener('pointerup', release);

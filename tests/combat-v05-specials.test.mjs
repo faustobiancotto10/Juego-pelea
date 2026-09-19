@@ -128,8 +128,9 @@ test('SUPER READY emits exactly once when a clean normal crosses the cap', () =>
   const result = runUntil(sim, (_s, events) => events.some(e => e.type === 'super-ready'), 30);
   assert.equal(result.snap.fighters[0].superMeter, 100);
   assert.equal(result.events.filter(e => e.type === 'super-ready' && e.fighter === 0).length, 1);
-  const later = stepN(sim, 20);
-  assert.equal(later.superMeter, undefined);
+  const laterEvents = [];
+  for (let i = 0; i < 20; i += 1) laterEvents.push(...sim.step(E, E).events);
+  assert.equal(laterEvents.filter(e => e.type === 'super-ready' && e.fighter === 0).length, 0);
 });
 
 test('Push Guard creates six advancing frames of defender recovery', () => {

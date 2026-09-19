@@ -1,0 +1,73 @@
+name: Z501 release smoke
+
+on:
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout head branch
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.head_ref }}
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Install Playwright
+        run: |
+          npm install --no-save playwright@latest
+          npx playwright install --with-deps chromium
+
+      - name: Desktop and mobile-landscape smoke
+        run: |
+          node <<'NODE'
+          const { chromium } = require('playwright');
+          const path = require('path');
+          const { pathToFileURL } = require('url');
+
+          (async () => {
+            const browser = await chromium.launch({ headless: true });
+            const cases = [
+              { name: 'desktop', width: 1280, height: 720 },
+              { name: 'mobile-landscape', width: 844, height: 390 },
+            ];
+
+            for (const c of cases) {
+              const page = await browser.newPage({ viewport: { width: c.width, height: c.height } });
+              const errors = [];
+              page.on('pageerror', err => errors.push('pageerror: ' + err.message));
+              page.on('console', msg => { if (msg.type() === 'error') errors.push('console: ' + msg.text()); });
+
+              await page.goto(pathToFileURL(path.resolve('play.html')).href);
+              await page.waitForSelector('.select-screen', { timeout: 5000 });
+              await page.locator('[data-fighter]').first().click();
+              await page.waitForSelector('.vs-screen', { timeout: 5000 });
+              await page.waitForSelector('.fight-shell', { timeout: 5000 });
+
+              const actionCount = await page.locator('[data-action]').count();
+              if (actionCount !== 3) throw new Error(c.name + ': expected exactly 3 permanent action buttons, got ' + actionCount);
+
+              const canvasCount = await page.locator('canvas').count();
+              if (canvasCount < 1) throw new Error(c.name + ': fight canvas missing');
+
+              const shellBox = await page.locator('.fight-shell').boundingBox();
+              if (!shellBox || shellBox.width <= 0 || shellBox.height <= 0) throw new Error(c.name + ': fight shell not visible');
+
+              await page.waitForTimeout(700);
+              if (errors.length) throw new Error(c.name + ': runtime errors: ' + errors.join(' | '));
+              console.log(c.name + ' smoke PASS');
+              await page.close();
+            }
+
+            await browser.close();
+          })().catch(err => {
+            console.error(err);
+            process.exit(1);
+          });
+          NODE

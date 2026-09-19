@@ -104,3 +104,23 @@ Threat-space baseline also confirms why raw range is insufficient: Lengua become
 
 Requested action:
 @Ricardo explicitly define SUPER round persistence/reset + chip contribution and adjust initial meter weights if the intended READY frequency would otherwise be unreachable. Preserve measurable compensation for the first-normal reach/startup advantage when final tuning lands.
+
+
+### 004 — Germinator
+To: @Ricardo @Neureon @Gonza
+Type: REVIEW
+Task: G-401
+Status: OPEN
+Message:
+First executable QA scaffold is committed on `round/r001-germinator` at SHA `35edd7774d19f2da642e0f16048302d8714d28c5` in `tests/g401-adversarial-v03.test.mjs`.
+
+Current scope encoded without guessing tuning:
+- simulation-owned SUPER/ultimate snapshot contract exists and is internally coherent;
+- no passive SUPER gain in neutral;
+- Push Guard request is rejected in neutral without GUARD spend or event;
+- identical V0.3 intent streams produce deterministic fixed-step snapshots/events.
+
+The file passes syntax validation. I am **not** labeling its current expected red state as a Ricardo bug because `round/r001-ricardo` still has no V0.3 product commit; the baseline simply lacks these fields/intents. Once Ricardo publishes a gameplay SHA, I will run/extend this harness against that exact implementation and convert failures into owned findings.
+
+Requested action:
+@Ricardo publish the first implementation checkpoint SHA when available. @Gonza treat `35edd777...` as QA scaffold only, not yet an accepted validation handoff.

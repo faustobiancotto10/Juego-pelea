@@ -2,11 +2,13 @@
 
 Round: R002-V04-COMBAT-FEEL-MOBILE
 Owner: Brancaforte
-Status: WAITING
+Status: CHECKING_IN
 Branch: round/r002-brancaforte
 
 ## Dependency
-Do not implement state-dependent V0.4 input/HUD behavior until Neureon opens Stage 2 and publishes Ricardo's frozen consumer SHA.
+
+Stage 2 is OPEN. Branch starts from frozen Ricardo consumer SHA `683d81f50afa9626785408ac7f868414ffe4061f`.
+Post PRESENT before implementation. Consume that exact gameplay contract; request any new authoritative state through the forum.
 
 ## Goal
 Replace the uncomfortable mobile Ultimate chord with one dedicated touch button while preserving simulation authority and mobile readability.

@@ -40,6 +40,12 @@ interface PendingCommand {
   remainingFrames: number;
 }
 
+interface PendingUltimateRelease {
+  attacker: FighterIndex;
+  defender: FighterIndex;
+  definition: UltimateDefinition;
+}
+
 interface FighterState extends FighterSnapshot {
   prevInput: InputFrame;
   currentMove: MoveDefinition | null;
@@ -48,6 +54,7 @@ interface FighterState extends FighterSnapshot {
   ultimateFacing: Facing;
   pendingCommand: PendingCommand | null;
   downGraceSamples: number;
+  ultimateReleaseSource: FighterIndex | null;
 }
 
 interface ProjectileState extends ProjectileSnapshot {
@@ -146,6 +153,7 @@ function makeFighter(registry: CombatRegistry, id: RegisteredFighterId, index: F
     capturedBy: null,
     pendingCommand: null,
     downGraceSamples: 0,
+    ultimateReleaseSource: null,
   };
 }
 
@@ -215,6 +223,7 @@ export class CombatSimulation {
   private events: CombatEvent[] = [];
   private projectiles: ProjectileState[] = [];
   private nextProjectileId = 1;
+  private pendingUltimateReleases: PendingUltimateRelease[] = [];
 
   constructor(p1: RegisteredFighterId, p2: RegisteredFighterId, options: CombatSimulationOptions = {}) {
     this.registry = options.registry ?? DEFAULT_COMBAT_REGISTRY;
@@ -252,6 +261,7 @@ export class CombatSimulation {
 
   step(p1Input: InputFrame, p2Input: InputFrame): MatchSnapshot {
     this.events = [];
+    this.pendingUltimateReleases = [];
     this.frame += 1;
     const inputs: readonly [InputFrame, InputFrame] = [p1Input, p2Input];
 
@@ -293,6 +303,7 @@ export class CombatSimulation {
       this.updateFighter(index, inputs[index]);
     }
 
+    this.applyPendingUltimateReleases();
     this.resolvePushboxes();
     this.updateFacing();
     this.resolveMoveHits(0, 1, inputs[1]);
@@ -354,6 +365,9 @@ export class CombatSimulation {
       if (!fighter.grounded) {
         fighter.pendingCommand = null;
         this.startMove(fighter, this.registry.getMove(fighter.id, kit.air), 1);
+        fighter.x += fighter.vx;
+        this.integrateVertical(fighter, def.gravity);
+        this.clampFighter(fighter);
         return true;
       }
       fighter.pendingCommand = null;
@@ -422,10 +436,18 @@ export class CombatSimulation {
       fighter.crouching = false;
       fighter.dashKind = null;
       fighter.dashFrame = 0;
-      fighter.x += fighter.vx;
+      const desiredX = fighter.x + fighter.vx;
+      fighter.x = desiredX;
+      this.clampFighter(fighter);
+      const wallOverflow = desiredX - fighter.x;
+      if (fighter.ultimateReleaseSource !== null && wallOverflow !== 0) {
+        const source = this.fighters[fighter.ultimateReleaseSource];
+        source.x -= wallOverflow;
+        this.clampFighter(source);
+      }
       fighter.vx *= 0.86;
       this.integrateVertical(fighter, def.gravity);
-      this.clampFighter(fighter);
+      if (fighter.stunFrames === 0) fighter.ultimateReleaseSource = null;
       return;
     }
 
@@ -457,6 +479,16 @@ export class CombatSimulation {
       this.integrateVertical(fighter, def.gravity);
       this.clampFighter(fighter);
       return;
+    }
+
+    if (fighter.landingRecoveryFrames > 0 && fighter.grounded) {
+      fighter.landingRecoveryFrames -= 1;
+      if (fighter.currentMove === null) {
+        fighter.blocking = false;
+        fighter.crouching = input.down;
+        fighter.vx = 0;
+        return;
+      }
     }
 
     if (fighter.ultimatePhase !== 'idle') {
@@ -503,6 +535,7 @@ export class CombatSimulation {
         this.clearMove(fighter);
         if (this.tryExecutePendingNeutral(index)) return;
       }
+      if (!fighter.grounded) fighter.x += fighter.vx;
       this.integrateVertical(fighter, def.gravity);
       this.clampFighter(fighter);
       return;
@@ -693,12 +726,19 @@ export class CombatSimulation {
 
   private integrateVertical(fighter: FighterState, gravity: number): void {
     if (fighter.grounded && fighter.y === 0 && fighter.vy === 0) return;
+    const wasGrounded = fighter.grounded;
     fighter.y += fighter.vy;
     fighter.vy -= gravity;
     if (fighter.y <= 0) {
       fighter.y = 0;
       fighter.vy = 0;
       fighter.grounded = true;
+      if (!wasGrounded) {
+        fighter.vx = 0;
+        fighter.landingRecoveryFrames = 4;
+        const index = this.fighters.indexOf(fighter) as FighterIndex;
+        this.events.push({ type: 'land', fighter: index });
+      }
     } else {
       fighter.grounded = false;
     }
@@ -828,7 +868,7 @@ export class CombatSimulation {
     fighter.moveContact = 'none';
     fighter.moveEffectTriggered = false;
     fighter.comboCount = comboCount;
-    fighter.vx = 0;
+    if (fighter.grounded) fighter.vx = 0;
   }
 
   private clearMove(fighter: FighterState): void {
@@ -855,6 +895,7 @@ export class CombatSimulation {
     fighter.pushGuardRecoveryFrames = 0;
     fighter.pendingCommand = null;
     fighter.downGraceSamples = 0;
+    fighter.ultimateReleaseSource = null;
     fighter.ultimatePhase = 'idle';
     fighter.ultimatePhaseFrame = 0;
     fighter.ultimateConnected = false;
@@ -1004,8 +1045,11 @@ export class CombatSimulation {
       return;
     }
 
-    if (fighter.ultimatePhase === 'recovery' && fighter.ultimatePhaseFrame >= definition.recoveryFrames) {
-      this.finishUltimate(fighter);
+    if (fighter.ultimatePhase === 'recovery') {
+      const recoveryFrames = fighter.ultimateConnected
+        ? definition.successRecoveryFrames
+        : definition.recoveryFrames;
+      if (fighter.ultimatePhaseFrame >= recoveryFrames) this.finishUltimate(fighter);
     }
   }
 
@@ -1098,6 +1142,7 @@ export class CombatSimulation {
     defender.blockstunFrames = 0;
     defender.pendingCommand = null;
     defender.downGraceSamples = 0;
+    defender.ultimateReleaseSource = null;
     defender.ultimatePhase = 'idle';
     defender.ultimatePhaseFrame = 0;
     defender.ultimateConnected = false;
@@ -1126,12 +1171,56 @@ export class CombatSimulation {
     if (hit) this.applyUltimateHit(attackerIndex, defenderIndex, hit.damage, hit.knockback);
 
     if (attacker.ultimatePhaseFrame >= definition.sequenceFrames) {
-      defender.capturedBy = null;
-      defender.vx = attacker.ultimateFacing * definition.releaseKnockback;
+      this.pendingUltimateReleases.push({
+        attacker: attackerIndex,
+        defender: defenderIndex,
+        definition,
+      });
       attacker.ultimateTarget = null;
       attacker.ultimatePhase = 'recovery';
       attacker.ultimatePhaseFrame = 0;
     }
+  }
+
+  private applyPendingUltimateReleases(): void {
+    if (this.pendingUltimateReleases.length === 0) return;
+    for (const release of this.pendingUltimateReleases) {
+      const attacker = this.fighters[release.attacker];
+      const defender = this.fighters[release.defender];
+      const definition = release.definition;
+      const facing = attacker.ultimateFacing;
+
+      defender.capturedBy = null;
+      defender.pendingCommand = null;
+      defender.blocking = false;
+      defender.crouching = false;
+      defender.blockstunFrames = 0;
+      defender.guardBreakFrames = 0;
+      defender.landingRecoveryFrames = 0;
+      defender.pushGuardRecoveryFrames = 0;
+      defender.stunFrames = Math.max(defender.stunFrames, definition.releaseStunFrames);
+      defender.grounded = false;
+      defender.vx = facing * definition.releaseVelocityX;
+      defender.vy = definition.releaseVelocityY;
+      defender.ultimateReleaseSource = release.attacker;
+
+      const targetX = attacker.x + facing * definition.releaseSeparation;
+      defender.x = targetX;
+      this.clampFighter(defender);
+      const achieved = (defender.x - attacker.x) * facing;
+      const missing = Math.max(0, definition.releaseSeparation - achieved);
+      if (missing > 0) {
+        attacker.x -= facing * missing;
+        this.clampFighter(attacker);
+      }
+
+      this.events.push({
+        type: 'ultimate-release',
+        attacker: release.attacker,
+        defender: release.defender,
+      });
+    }
+    this.pendingUltimateReleases = [];
   }
 
   private applyUltimateHit(attackerIndex: FighterIndex, defenderIndex: FighterIndex, damage: number, knockback: number): void {
@@ -1196,12 +1285,22 @@ export class CombatSimulation {
   }
 
   private updateFacing(): void {
+    const canReorient = (fighter: FighterState): boolean => fighter.grounded
+      && fighter.currentMove === null
+      && fighter.ultimatePhase === 'idle'
+      && fighter.stunFrames === 0
+      && fighter.blockstunFrames === 0
+      && fighter.guardBreakFrames === 0
+      && fighter.landingRecoveryFrames === 0
+      && fighter.pushGuardRecoveryFrames === 0
+      && fighter.capturedBy === null;
+
     if (this.fighters[0].x < this.fighters[1].x) {
-      if (this.fighters[0].ultimatePhase === 'idle') this.fighters[0].facing = 1;
-      if (this.fighters[1].ultimatePhase === 'idle') this.fighters[1].facing = -1;
+      if (canReorient(this.fighters[0])) this.fighters[0].facing = 1;
+      if (canReorient(this.fighters[1])) this.fighters[1].facing = -1;
     } else if (this.fighters[0].x > this.fighters[1].x) {
-      if (this.fighters[0].ultimatePhase === 'idle') this.fighters[0].facing = -1;
-      if (this.fighters[1].ultimatePhase === 'idle') this.fighters[1].facing = 1;
+      if (canReorient(this.fighters[0])) this.fighters[0].facing = -1;
+      if (canReorient(this.fighters[1])) this.fighters[1].facing = 1;
     }
   }
 

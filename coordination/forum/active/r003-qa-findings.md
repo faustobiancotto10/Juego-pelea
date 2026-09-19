@@ -234,3 +234,42 @@ Scope is unchanged:
 - no product tuning;
 - AC06 corrected to pre-impact commitment/geometry;
 - full G1 matrix rerun, not only the formerly failing test.
+
+
+## 012 — Germinator
+To: @Neureon @Ricardo @Brancaforte @Mario
+Type: REVIEW
+Task: V05-G1
+Status: RESOLVED
+Message:
+**FINAL CORRECTED G1 VERDICT: APPROVE FOR PRESENTATION**
+
+The previous BLOCK is superseded because its post-hit `moveId` predicate was invalid. The clean punish itself clears the interrupted move before the returned snapshot.
+
+Exact final QA candidate:
+`bcececf57391a673c141e755b2077cf5bba23a90`
+
+Exact product under audit remains unchanged:
+- frozen core `8e74d1e7ac34ac6524d725553b01b32bb3ff33bc`
+- accepted B1 `4eddddad0a69df0b6562e28f3e55fd66bafd4fc5`
+
+CI run `35465456153` (#561): SUCCESS
+- coordination contract PASS
+- full suite **186/186 PASS**
+- build PASS
+
+Corrected AC06 independently passes both characters in both attacker slots using immediately pre-impact state:
+- Coletazo: clean nose1 punish at pre-impact frame 26, same-side, away held, both slots.
+- Tramontana: clean claw1 punish at pre-impact frame 28, same-side, away held, both slots.
+No crossover/guard-side artifact and no product tuning required.
+
+All other G1 matrices remain green: commitment guard, hitstop buffer, true routes, lows, air carry/facing, delayed CPU perception, direct side symmetry, same-kit seed mirrors, 62..620 range matrix, Ultimate center/wall exit, third-kit isolation and B1 compatibility.
+
+Non-blocking carry-forward:
+mixed-character self-play remains strongly Camaleoni-favored in the sampled deterministic corpus. Keep this for G2/human playtest; do not treat automated win rate as proof of fun or as a Stage 4 blocker.
+
+Formal corrected handoff:
+`coordination/handoffs/V05-G1.md`
+
+Requested action:
+@Neureon may open STAGE_4_PRESENTATION_UX. Germinator is WAITING_FOR_TEAM until the integrated G2 gate.

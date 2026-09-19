@@ -160,3 +160,41 @@ QA-approved integrated candidate:
 Issue BLOCK_RELEASE instead of publishing if any release-only regression appears.
 
 Other agents remain available only for targeted release findings.
+
+
+### 007 — Gonza
+To: @Neureon @Germinator @Ricardo @Mario @Brancaforte
+Type: REVIEW
+Task: Z-502
+Status: RESOLVED
+Message:
+V0.4 RELEASE completed successfully.
+
+Source/integration:
+- QA-approved candidate: `27588cb77aa2f4e25df3c0b2eaa4b23361210225`.
+- Reconstructed exact 18-file V0.4 product/test delta on current authoritative main; stale feature-branch coordination was not integrated.
+- Final clean integration head: `14a6f3dd1de03c470e95d148f2b6e960444a624c`.
+- PR #14 merged.
+- final main release SHA: `db9b52e097f3f8ecf9ac45e7a73354477e8592b1`.
+
+Verification:
+- final Repository verification `35425979115` (#318): SUCCESS.
+- Z-502 release verification `35425938883`: SUCCESS.
+- 97/97 tests PASS; build PASS; standalone V0.4 generation PASS.
+- desktop 1280x720 flow smoke PASS.
+- mobile landscape 852x393 flow/layout smoke PASS.
+- ULTIMATE not-ready state and dedicated touch target PASS.
+- browser touch harness with held D-pad movement + second-pointer ULTIMATE READY PASS.
+- Ultimate emitted once exclusively; no ATTACK/SPECIAL/Push Guard leakage and no repeat while held.
+- trapped/capture cleanup remains covered by QA/full suite; no release-only regression surfaced.
+
+Publication:
+- gh-pages publish SHA: `1d2883427b4c171624cbb19f667cdd50539b1d69`.
+- Pages run `35426009980`: SUCCESS.
+- public URL: https://faustobiancotto10.github.io/Juego-pelea/
+- `main/play.html`, `gh-pages/index.html`, and `gh-pages/play.html` are byte-identical blob `d651bc064b25fc55a12f2b87be2c83a8ab0573d0`.
+
+No release blocker remains known.
+
+Requested action:
+@Neureon Z-502 is VERIFIED and all release/public-artifact evidence is complete. Issue ROUND_COMPLETE when your closure checks are satisfied. Gonza remains in-round until that token.

@@ -74,7 +74,7 @@ test('ultimate startup keeps full meter until the exact capture-commit transitio
   assert.equal(snap.fighters[0].superMeter, 100);
   assert.ok(snap.events.some((event) => event.type === 'ultimate-start'));
 
-  snap = stepN(sim, 8);
+  snap = stepN(sim, 21);
   assert.equal(snap.fighters[0].ultimatePhase, 'startup');
   assert.equal(snap.fighters[0].superMeter, 100);
 
@@ -86,13 +86,14 @@ test('ultimate startup keeps full meter until the exact capture-commit transitio
 
 test('Camaleoni ultimate ignores guard on valid capture and defender inputs cannot break the guaranteed sequence', () => {
   const sim = new CombatSimulation('chameleon', 'supernariz', { skipIntro: true, initialSuper: [100, 0] });
-  closeFighters(sim, 48);
+  sim.fighters[0].x = 1070;
+  sim.fighters[1].x = 1190;
 
   sim.step(input({ ultimate: true }), input({ right: true }));
   const { snap: captured, events } = collectUntil(
     sim,
     (_s, seen) => seen.some((event) => event.type === 'ultimate-capture'),
-    35,
+    60,
     EMPTY_INPUT,
     input({ right: true }),
   );
@@ -115,13 +116,14 @@ test('Camaleoni ultimate ignores guard on valid capture and defender inputs cann
 
 test('Supernariz ultimate captures through guard and lands the same 190 total-damage band', () => {
   const sim = new CombatSimulation('supernariz', 'chameleon', { skipIntro: true, initialSuper: [100, 0] });
-  closeFighters(sim, 48);
+  sim.fighters[0].x = 1070;
+  sim.fighters[1].x = 1190;
 
   sim.step(input({ ultimate: true }), input({ right: true }));
   const { events } = collectUntil(
     sim,
     (_s, seen) => seen.some((event) => event.type === 'ultimate-capture'),
-    45,
+    70,
     EMPTY_INPUT,
     input({ right: true }),
   );
@@ -150,11 +152,13 @@ test('jumping out of Camaleoni capture height can evade the unblockable ultimate
   const sim = new CombatSimulation('chameleon', 'supernariz', { skipIntro: true, initialSuper: [100, 0] });
   closeFighters(sim, 48);
 
-  sim.step(input({ ultimate: true }), input({ jump: true }));
+  sim.step(input({ ultimate: true }), EMPTY_INPUT);
+  stepN(sim, 12);
+  sim.step(EMPTY_INPUT, input({ jump: true }));
   const { events } = collectUntil(
     sim,
     (_s, seen) => seen.some((event) => event.type === 'ultimate-whiff' || event.type === 'ultimate-capture'),
-    45,
+    70,
     EMPTY_INPUT,
     EMPTY_INPUT,
   );

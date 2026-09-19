@@ -125,7 +125,8 @@ test('Camaleoni close-game tuning preserves Supernariz startup tempo but gains c
   const coletazo = getMoveDefinition('chameleon', 'coletazo');
   const nose1 = getMoveDefinition('supernariz', 'nose1');
 
-  assert.ok(claw1.hitbox.start >= nose1.hitbox.start, 'Supernariz may retain equal or faster startup tempo');
+  assert.ok(claw1.hitbox.start > nose1.hitbox.start, 'Supernariz must retain the faster startup tempo');
+  assert.ok(nose1.totalFrames <= claw1.totalFrames, 'Supernariz should retain equal or better first-normal tempo/recovery');
   assert.ok(
     claw1.hitbox.offsetX + claw1.hitbox.width > nose1.hitbox.offsetX + nose1.hitbox.width,
     'Camaleoni should compensate with practical contest/whiff-punish reach',
@@ -158,5 +159,90 @@ test('V0.4 gameplay remains deterministic for identical fixed-step input streams
           : EMPTY_INPUT;
 
     assert.deepEqual(a.step(p1, p2), b.step(p1, p2));
+  }
+});
+
+
+test('Supernariz final-round Ultimate KO also clears all terminal capture state', () => {
+  const sim = new CombatSimulation('supernariz', 'chameleon', { skipIntro: true, initialSuper: [100, 0] });
+  sim.fighters[0].roundWins = 1;
+  sim.fighters[1].health = 190;
+  closeFighters(sim, 48);
+
+  sim.step(input({ ultimate: true }), EMPTY_INPUT);
+  let snap = runUntil(sim, (s) => s.phase === 'round-over', 220);
+  assert.equal(snap.phase, 'round-over');
+
+  snap = runUntil(sim, (s) => s.phase === 'match-over', 120);
+  assert.equal(snap.phase, 'match-over');
+  for (const fighter of snap.fighters) {
+    assert.equal(fighter.ultimatePhase, 'idle');
+    assert.equal(fighter.ultimateTarget, null);
+    assert.equal(fighter.capturedBy, null);
+    assert.equal(fighter.moveId, null);
+  }
+});
+
+test('Ultimate whiff fully releases transient target/capture state after recovery', () => {
+  const sim = new CombatSimulation('chameleon', 'supernariz', { skipIntro: true, initialSuper: [100, 0] });
+  sim.step(input({ ultimate: true }), EMPTY_INPUT);
+
+  let snap = runUntil(
+    sim,
+    (s) => s.fighters[0].ultimatePhase === 'recovery',
+    80,
+  );
+  assert.equal(snap.fighters[0].superMeter, 0, 'committed whiff should spend meter');
+  assert.equal(snap.fighters[0].ultimateTarget, null);
+  assert.equal(snap.fighters[1].capturedBy, null);
+
+  snap = runUntil(
+    sim,
+    (s) => s.fighters[0].ultimatePhase === 'idle',
+    120,
+  );
+  assert.equal(snap.fighters[0].moveId, null);
+  assert.equal(snap.fighters[0].ultimateTarget, null);
+  assert.equal(snap.fighters[0].capturedBy, null);
+  assert.equal(snap.fighters[1].capturedBy, null);
+});
+
+test('interrupted pre-commit Ultimate startup spends no meter and leaves no capture state', () => {
+  const sim = new CombatSimulation('chameleon', 'supernariz', { skipIntro: true, initialSuper: [100, 0] });
+  closeFighters(sim, 62);
+
+  sim.step(input({ ultimate: true }), input({ attack: true }));
+  const snap = stepN(sim, 12);
+
+  assert.equal(snap.fighters[0].superMeter, 100, 'startup interruption before capture must preserve SUPER');
+  assert.equal(snap.fighters[0].ultimatePhase, 'idle');
+  assert.equal(snap.fighters[0].ultimateTarget, null);
+  assert.equal(snap.fighters[0].capturedBy, null);
+  assert.equal(snap.fighters[0].moveId, null);
+  assert.equal(snap.fighters[1].capturedBy, null);
+});
+
+test('non-final Ultimate KO starts the next round with no stale capture state', () => {
+  const sim = new CombatSimulation('chameleon', 'supernariz', { skipIntro: true, initialSuper: [100, 0] });
+  sim.fighters[1].health = 190;
+  closeFighters(sim, 48);
+
+  sim.step(input({ ultimate: true }), EMPTY_INPUT);
+  let snap = runUntil(sim, (s) => s.phase === 'round-over', 180);
+  assert.equal(snap.phase, 'round-over');
+  for (const fighter of snap.fighters) {
+    assert.equal(fighter.ultimatePhase, 'idle');
+    assert.equal(fighter.ultimateTarget, null);
+    assert.equal(fighter.capturedBy, null);
+    assert.equal(fighter.moveId, null);
+  }
+
+  snap = runUntil(sim, (s) => s.round === 2 && s.phase === 'fight', 140);
+  assert.equal(snap.round, 2);
+  for (const fighter of snap.fighters) {
+    assert.equal(fighter.ultimatePhase, 'idle');
+    assert.equal(fighter.ultimateTarget, null);
+    assert.equal(fighter.capturedBy, null);
+    assert.equal(fighter.moveId, null);
   }
 });

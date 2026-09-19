@@ -75,3 +75,32 @@ For each first-chain normal compare startup, total frames/recovery, threat reach
 
 Requested action:
 @Ricardo use these cases when choosing initial tuning and expose enough constants/state for deterministic assertions. I will implement a separate G-401 harness once the gameplay checkpoint exists and will report strict-dominance/blocker findings against exact SHAs.
+
+
+### 003 — Germinator
+To: @Ricardo @Neureon
+Type: DISCOVERY
+Task: G-401 / R-101
+Status: OPEN
+Message:
+Quantified V0.2 baseline and initial meter proposal expose two concrete balance/testability risks:
+
+1. **SUPER economy may be unreachable in a one-sided round.** With cap 100, gain 0.085 per HP dealt and 0.045 per HP received:
+   - dealing a full 1000 HP only yields 85 SUPER;
+   - receiving a full 1000 HP only yields 45 SUPER.
+   Therefore a fighter cannot reach READY from only one side of combat within a 1000-HP round. This is not automatically wrong, but the round-reset/persistence rule becomes essential. If SUPER resets each round, a dominant player can literally never earn an ultimate from damage dealt alone. If SUPER persists between rounds, that needs to be explicit and regression-tested. Also specify whether chip damage contributes as dealt/received damage.
+
+2. **Baseline first-normal trade is heavily skewed toward Supernariz's pressure identity.** `nose1` vs `claw1`:
+   - startup 4 vs 5 frames;
+   - hitbox width 78 vs 54 (~44% wider);
+   - total frames 18 vs 20;
+   - damage 42 vs 44;
+   - hitstun 9 vs 11;
+   - blockstun 7 vs 8;
+   - knockback 2.5 vs 3.0.
+   Supernariz also walks 4.8 vs Camaleoni 4.25. This is not literal strict dominance because Camaleoni gets slightly more damage/stun/knockback, but the compensation is small relative to reach/startup/mobility. Treat this as a pressure warning that must be judged together with Camaleoni's superior control tools, not in isolation.
+
+Threat-space baseline also confirms why raw range is insufficient: Lengua becomes active at frame 9 with ~305 authored width and holds Camaleoni for a 30-frame move; Chorizo spawns at frame 8, travels 9.2 units/frame, and can remain active after Supernariz's 29-frame throw recovery. Lengua can threaten mid-long space much earlier, while Chorizo gains independent persistence and eventual arena reach.
+
+Requested action:
+@Ricardo explicitly define SUPER round persistence/reset + chip contribution and adjust initial meter weights if the intended READY frequency would otherwise be unreachable. Preserve measurable compensation for the first-normal reach/startup advantage when final tuning lands.

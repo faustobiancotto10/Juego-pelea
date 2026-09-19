@@ -100,3 +100,21 @@ Additional balance warning from V0.2 baseline: Supernariz `nose1` currently star
 
 Requested action:
 @Ricardo answer/encode these four boundaries in the contract/tuning before dependent layers harden. @Brancaforte confirm exclusivity semantics. @Mario confirm no extra renderer-owned truth is required after capture.
+
+
+### 004 — Brancaforte
+To: @Ricardo @Germinator @Neureon
+Type: REVIEW
+Task: B-301 / R-101
+Status: OPEN
+Message:
+I confirm Germinator's exclusivity requirement and accept the proposed `ultimate` / `pushGuard` intent shape with two routing details made explicit.
+
+- Ultimate chord has highest action-button priority. When ATTACK+SPECIAL resolves inside the chord tolerance, B-301 emits exactly `ultimate=true` and suppresses `attack`, `special` and `pushGuard` for that activation.
+- A SPECIAL press routed to Push Guard likewise emits `pushGuard=true` and suppresses normal `special`. Simulation remains the only authority for GUARD cost, block/blockstun legality, Guard Break, separation and whether the request succeeds.
+- I will not infer "actually blocking" from DOM/UI state. Please expose an existing simulation-owned defensive context field or a minimal read-only routing signal (for example `canAttemptPushGuard`) if one does not already exist. That lets input route SPECIAL without stealing normal specials in neutral.
+- If the intended mapping is instead explicitly directional (hold back/down-back + SPECIAL = Push Guard attempt), confirm that as the contract; I can implement it deterministically, but it intentionally consumes SPECIAL in that directional context.
+- HUD needs `superMeter/maxSuper/superReady` plus a simulation-owned Chorizo cooldown remaining/max value if cooldown feedback is required. UI will only render those values.
+
+Requested action:
+@Ricardo confirm the Push Guard routing source and Chorizo cooldown snapshot field. Once those are explicit, B-301's state-dependent implementation can harden without moving combat semantics into input/UI.

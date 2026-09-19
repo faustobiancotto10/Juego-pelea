@@ -31,6 +31,9 @@ export class AppController {
   private input: GameInput | null = null;
   private matchFinished = false;
   private autoplayPlayer = false;
+  private paused = false;
+  private hasShownCombatHint = false;
+  private hintTimer = 0;
 
   constructor(private readonly root: HTMLElement) {}
 
@@ -57,7 +60,7 @@ export class AppController {
       <main class="select-screen">
         <div class="select-backdrop"></div>
         <header class="select-header">
-          <span class="game-badge">FIRST PLAYABLE · V0.1</span>
+          <span class="game-badge">FIRST PLAYABLE · V0.2</span>
           <h1>${title}</h1>
           <p>${subtitle}</p>
         </header>
@@ -66,9 +69,11 @@ export class AppController {
         </section>
         <footer class="select-footer">
           ${selectingCpu ? '<button class="text-button" data-back>← Cambiar mi luchador</button>' : '<span>Touch: D-pad + Ataque + Especial + Salto</span>'}
-          <span>Bloqueo: mantener atrás</span>
+          <button class="text-button controls-link" data-controls-button type="button">? CONTROLES</button>
+          <span>Atrás: retroceder / bloquear</span>
         </footer>
       </main>
+      ${this.controlsPanel()}
       ${this.orientationPrompt()}
     `;
 
@@ -84,6 +89,7 @@ export class AppController {
       this.flow = backToSelect(this.flow);
       this.showCharacterSelect();
     });
+    this.bindControlsPanel(false);
   }
 
   private fighterCard(id: FighterId, cpuSelection: boolean): string {
@@ -138,6 +144,8 @@ export class AppController {
           <div class="hud-center"><span class="round-label" data-round>R1</span><strong class="timer" data-timer>60</strong></div>
           ${this.hudFighter(1, this.flow.cpu)}
         </div>
+        <button class="fight-controls-button" data-controls-button type="button" aria-label="Ver controles">?</button>
+        ${this.hasShownCombatHint ? '' : '<div class="combat-hint" data-combat-hint><strong>Atrás = retroceder / bloquear</strong><span>Doble atrás = BACKDASH · Bloquear consume GUARD</span></div>'}
         <div class="touch-layer" data-touch-controls>
           <div class="dpad" data-dpad aria-label="D-pad de 8 direcciones">
             <span class="dpad-cross dpad-cross--h"></span><span class="dpad-cross dpad-cross--v"></span><span class="dpad-center"></span>
@@ -150,8 +158,16 @@ export class AppController {
         </div>
         <div class="desktop-hint">A/D mover · S agachar · W/Space salto · J ataque · K especial</div>
       </main>
+      ${this.controlsPanel()}
       ${this.orientationPrompt()}
     `;
+
+    this.bindControlsPanel(true);
+    if (!this.hasShownCombatHint) {
+      this.hasShownCombatHint = true;
+      clearTimeout(this.hintTimer);
+      this.hintTimer = window.setTimeout(() => this.root.querySelector<HTMLElement>('[data-combat-hint]')?.classList.add('is-hidden'), 4200);
+    }
 
     const canvas = this.root.querySelector<HTMLCanvasElement>('[data-fight-canvas]');
     const touchRoot = this.root.querySelector<HTMLElement>('[data-touch-controls]');
@@ -171,14 +187,18 @@ export class AppController {
     const frame = (now: number) => {
       const elapsed = Math.min(100, now - previous);
       previous = now;
-      accumulator += elapsed;
-      while (accumulator >= FIXED_MS) {
-        const humanInput = playerCpu ? playerCpu.nextInput(snapshot) : this.input?.getFrame() ?? { left: false, right: false, down: false, up: false, jump: false, attack: false, special: false };
-        const cpuInput = cpu.nextInput(snapshot);
-        snapshot = simulation.step(humanInput, cpuInput);
-        renderer.consumeEvents(snapshot);
-        accumulator -= FIXED_MS;
-        this.updateHud(snapshot);
+      if (!this.paused) {
+        accumulator += elapsed;
+        while (accumulator >= FIXED_MS) {
+          const humanInput = playerCpu ? playerCpu.nextInput(snapshot) : this.input?.getFrame() ?? { left: false, right: false, down: false, up: false, jump: false, attack: false, special: false, dashLeft: false, dashRight: false };
+          const cpuInput = cpu.nextInput(snapshot);
+          snapshot = simulation.step(humanInput, cpuInput);
+          renderer.consumeEvents(snapshot);
+          accumulator -= FIXED_MS;
+          this.updateHud(snapshot);
+        }
+      } else {
+        accumulator = 0;
       }
       renderer.render(snapshot, now / 1000);
       if (snapshot.phase === 'match-over' && snapshot.winner !== null) {
@@ -199,6 +219,7 @@ export class AppController {
       <section class="hud-fighter hud-fighter--${index === 0 ? 'left' : 'right'}">
         <div class="hud-meta"><strong>${FIGHTERS[id].displayName}</strong><span>${index === 0 ? 'P1' : 'CPU'}</span></div>
         <div class="health-track"><span class="health-fill" data-health="${index}"></span></div>
+        <div class="guard-row"><span class="guard-label">GUARD</span><div class="guard-track" data-guard-track="${index}"><span class="guard-fill" data-guard="${index}"></span></div></div>
         <div class="round-pips"><i data-win="${index}-0"></i><i data-win="${index}-1"></i></div>
       </section>
     `;
@@ -209,6 +230,9 @@ export class AppController {
       const fighter = snapshot.fighters[index];
       const health = this.root.querySelector<HTMLElement>(`[data-health="${index}"]`);
       if (health) health.style.transform = `scaleX(${Math.max(0, fighter.health / fighter.maxHealth)})`;
+      const guard = this.root.querySelector<HTMLElement>(`[data-guard="${index}"]`);
+      if (guard) guard.style.transform = `scaleX(${Math.max(0, fighter.guard / fighter.maxGuard)})`;
+      this.root.querySelector<HTMLElement>(`[data-guard-track="${index}"]`)?.classList.toggle('is-broken', fighter.guardBreakFrames > 0);
       for (let pip = 0; pip < 2; pip += 1) {
         this.root.querySelector<HTMLElement>(`[data-win="${index}-${pip}"]`)?.classList.toggle('is-won', pip < fighter.roundWins);
       }
@@ -258,6 +282,40 @@ export class AppController {
     clearTimeout(this.vsTimer);
     this.input?.destroy();
     this.input = null;
+    this.paused = false;
+    clearTimeout(this.hintTimer);
+    this.hintTimer = 0;
+  }
+
+  private bindControlsPanel(pausesFight: boolean): void {
+    const panel = this.root.querySelector<HTMLElement>('[data-controls-panel]');
+    const open = () => {
+      panel?.classList.add('is-open');
+      panel?.setAttribute('aria-hidden', 'false');
+      if (pausesFight) this.paused = true;
+    };
+    const close = () => {
+      panel?.classList.remove('is-open');
+      panel?.setAttribute('aria-hidden', 'true');
+      if (pausesFight) this.paused = false;
+    };
+    for (const button of this.root.querySelectorAll<HTMLButtonElement>('[data-controls-button]')) button.addEventListener('click', open);
+    this.root.querySelector<HTMLButtonElement>('[data-controls-close]')?.addEventListener('click', close);
+  }
+
+  private controlsPanel(): string {
+    return `
+      <aside class="controls-panel" data-controls-panel aria-hidden="true">
+        <div class="controls-card">
+          <div class="controls-heading"><span>GUÍA RÁPIDA</span><strong>CONTROLES</strong><button data-controls-close type="button" aria-label="Cerrar controles">×</button></div>
+          <div class="controls-grid">
+            <section><h3>MOVIMIENTO</h3><p><b>D-pad</b><span>Moverse</span></p><p><b>Atrás</b><span>Retroceder / bloquear</span></p><p><b>Abajo + atrás</b><span>Bloqueo bajo</span></p><p><b>Doble adelante</b><span>Dash</span></p><p><b>Doble atrás</b><span>Backdash / esquiva</span></p></section>
+            <section><h3>ACCIONES</h3><p><b>JUMP</b><span>Saltar</span></p><p><b>ATTACK</b><span>Ataque</span></p><p><b>SPECIAL</b><span>Especial</span></p></section>
+          </div>
+          <div class="controls-tips"><strong>COMBATE</strong><span>Bloquear consume GUARD · Saltar evita lows y algunos proyectiles · Fallar ataques deja recovery · Backdash esquiva strikes durante una ventana corta</span></div>
+        </div>
+      </aside>
+    `;
   }
 
   private orientationPrompt(): string {

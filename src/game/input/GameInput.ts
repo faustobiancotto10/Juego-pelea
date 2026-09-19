@@ -1,4 +1,5 @@
 import { composeInputFrame, directionFromPoint, type DirectionState } from './dpad.js';
+import { DoubleTapTracker, type HorizontalDirection } from './doubleTap.js';
 import { inputFromKeyboard } from './keyboard.js';
 import type { InputFrame } from '../types.js';
 
@@ -12,6 +13,9 @@ export class GameInput {
   private touchActions: Record<ActionName, boolean> = { attack: false, special: false, jump: false };
   private dpadPointer: number | null = null;
   private readonly cleanupCallbacks: Array<() => void> = [];
+  private readonly doubleTap = new DoubleTapTracker(230);
+  private dashLeft = false;
+  private dashRight = false;
 
   constructor(private readonly root: HTMLElement) {
     this.bindKeyboard();
@@ -21,7 +25,7 @@ export class GameInput {
   getFrame(): InputFrame {
     const keyboard = inputFromKeyboard(this.keys);
     const touch = composeInputFrame(this.touchDirection, this.touchActions);
-    return {
+    const frame: InputFrame = {
       left: keyboard.left || touch.left,
       right: keyboard.right || touch.right,
       down: keyboard.down || touch.down,
@@ -29,7 +33,12 @@ export class GameInput {
       jump: keyboard.jump || touch.jump,
       attack: keyboard.attack || touch.attack,
       special: keyboard.special || touch.special,
+      dashLeft: this.dashLeft,
+      dashRight: this.dashRight,
     };
+    this.dashLeft = false;
+    this.dashRight = false;
+    return frame;
   }
 
   destroy(): void {
@@ -37,6 +46,15 @@ export class GameInput {
     this.keys.clear();
     this.touchDirection = { ...NEUTRAL };
     this.touchActions = { attack: false, special: false, jump: false };
+    this.doubleTap.reset();
+    this.dashLeft = false;
+    this.dashRight = false;
+  }
+
+  private registerTap(direction: HorizontalDirection, nowMs: number): void {
+    if (!this.doubleTap.tap(direction, nowMs)) return;
+    if (direction === 'left') this.dashLeft = true;
+    else this.dashRight = true;
   }
 
   private bindKeyboard(): void {
@@ -44,14 +62,21 @@ export class GameInput {
     const onDown = (event: KeyboardEvent) => {
       if (!relevant.has(event.code)) return;
       event.preventDefault();
+      const wasHeld = this.keys.has(event.code);
       this.keys.add(event.code);
+      if (wasHeld || event.repeat) return;
+      if (event.code === 'KeyA' || event.code === 'ArrowLeft') this.registerTap('left', performance.now());
+      if (event.code === 'KeyD' || event.code === 'ArrowRight') this.registerTap('right', performance.now());
     };
     const onUp = (event: KeyboardEvent) => {
       if (!relevant.has(event.code)) return;
       event.preventDefault();
       this.keys.delete(event.code);
     };
-    const onBlur = () => this.keys.clear();
+    const onBlur = () => {
+      this.keys.clear();
+      this.doubleTap.reset();
+    };
     window.addEventListener('keydown', onDown, { passive: false });
     window.addEventListener('keyup', onUp, { passive: false });
     window.addEventListener('blur', onBlur);
@@ -77,6 +102,9 @@ export class GameInput {
         this.dpadPointer = event.pointerId;
         dpad.setPointerCapture(event.pointerId);
         update(event);
+        if (this.touchDirection.left !== this.touchDirection.right) {
+          this.registerTap(this.touchDirection.left ? 'left' : 'right', performance.now());
+        }
       };
       const move = (event: PointerEvent) => {
         if (this.dpadPointer === event.pointerId) update(event);

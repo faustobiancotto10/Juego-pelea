@@ -32,3 +32,12 @@ test('desktop mapping uses W/Space for jump and J/K for combat actions', async (
   assert.equal(frame.jump, true);
   assert.equal(frame.right, false);
 });
+
+test('double-tap tracker emits a dash only for two same-direction taps inside its window', async () => {
+  const { DoubleTapTracker } = await import('../dist/game/input/doubleTap.js');
+  const tracker = new DoubleTapTracker(230);
+  assert.equal(tracker.tap('left', 1000), false);
+  assert.equal(tracker.tap('left', 1180), true);
+  assert.equal(tracker.tap('right', 1500), false);
+  assert.equal(tracker.tap('right', 1800), false);
+});

@@ -16,14 +16,15 @@ test('Camaleón down+special selects low tongue', () => {
   assert.equal(snap.fighters[0].moveId, 'tongueLow');
 });
 
-test('Supernariz attack can chain nose1 -> nose2 -> nose3 through cancel windows', () => {
+test('Supernariz connected attack can chain nose1 -> nose2 -> nose3 through cancel windows', () => {
   const sim = new CombatSimulation('supernariz', 'chameleon', { skipIntro: true });
-  sim.step(input({ attack: true }), EMPTY_INPUT);
-  stepN(sim, 11);
+  stepN(sim, 70, input({ right: true }), input({ left: true }));
   let snap = sim.step(input({ attack: true }), EMPTY_INPUT);
+  while (snap.fighters[0].moveId === 'nose1' && snap.fighters[0].moveFrame < 10) snap = sim.step(EMPTY_INPUT, EMPTY_INPUT);
+  snap = sim.step(input({ attack: true }), EMPTY_INPUT);
   assert.equal(snap.fighters[0].moveId, 'nose2');
   sim.step(EMPTY_INPUT, EMPTY_INPUT);
-  stepN(sim, 10);
+  while (snap.fighters[0].moveId === 'nose2' && snap.fighters[0].moveFrame < 10) snap = sim.step(EMPTY_INPUT, EMPTY_INPUT);
   snap = sim.step(input({ attack: true }), EMPTY_INPUT);
   assert.equal(snap.fighters[0].moveId, 'nose3');
   assert.equal(snap.fighters[0].comboCount, 3);

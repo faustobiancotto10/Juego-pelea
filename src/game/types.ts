@@ -2,6 +2,7 @@ export type FighterId = 'chameleon' | 'supernariz';
 export type FighterIndex = 0 | 1;
 export type Facing = -1 | 1;
 export type MatchPhase = 'intro' | 'fight' | 'round-over' | 'match-over';
+export type DashKind = 'forward' | 'back' | null;
 
 export interface InputFrame {
   left: boolean;
@@ -11,6 +12,8 @@ export interface InputFrame {
   jump: boolean;
   attack: boolean;
   special: boolean;
+  dashLeft: boolean;
+  dashRight: boolean;
 }
 
 export interface FighterSnapshot {
@@ -22,6 +25,10 @@ export interface FighterSnapshot {
   facing: Facing;
   health: number;
   maxHealth: number;
+  guard: number;
+  maxGuard: number;
+  guardRegenDelay: number;
+  guardBreakFrames: number;
   grounded: boolean;
   crouching: boolean;
   blocking: boolean;
@@ -32,6 +39,8 @@ export interface FighterSnapshot {
   comboCount: number;
   chilledFrames: number;
   projectileCooldown: number;
+  dashKind: DashKind;
+  dashFrame: number;
   roundWins: number;
 }
 
@@ -60,6 +69,7 @@ export interface MatchSnapshot {
 
 export type CombatEvent =
   | { type: 'hit'; attacker: FighterIndex; defender: FighterIndex; blocked: boolean; damage: number; strong: boolean }
+  | { type: 'guard-break'; defender: FighterIndex }
   | { type: 'projectile'; owner: FighterIndex; projectileId: number }
   | { type: 'round-start'; round: number }
   | { type: 'round-end'; winner: FighterIndex | null }
@@ -73,4 +83,6 @@ export const EMPTY_INPUT: InputFrame = {
   jump: false,
   attack: false,
   special: false,
+  dashLeft: false,
+  dashRight: false,
 };

@@ -30,9 +30,18 @@ export class ActionChordBuffer {
     if (attackHeld && !this.previousAttack) this.attackStartedAt = nowMs;
     if (specialHeld && !this.previousSpecial) this.specialStartedAt = nowMs;
 
-    if (!attackHeld) this.attackStartedAt = null;
-    if (!specialHeld) this.specialStartedAt = null;
-    if (!attackHeld && !specialHeld) this.chordConsumed = false;
+    const quickAttackRelease =
+      !attackHeld &&
+      this.previousAttack &&
+      this.attackStartedAt !== null &&
+      nowMs - this.attackStartedAt < this.toleranceMs &&
+      !this.chordConsumed;
+    const quickSpecialRelease =
+      !specialHeld &&
+      this.previousSpecial &&
+      this.specialStartedAt !== null &&
+      nowMs - this.specialStartedAt < this.toleranceMs &&
+      !this.chordConsumed;
 
     const withinChordWindow =
       attackHeld &&
@@ -47,14 +56,20 @@ export class ActionChordBuffer {
     const suppressSingles = this.chordConsumed || ultimate;
     const attack =
       !suppressSingles &&
-      attackHeld &&
-      this.attackStartedAt !== null &&
-      nowMs - this.attackStartedAt >= this.toleranceMs;
+      (quickAttackRelease ||
+        (attackHeld &&
+          this.attackStartedAt !== null &&
+          nowMs - this.attackStartedAt >= this.toleranceMs));
     const special =
       !suppressSingles &&
-      specialHeld &&
-      this.specialStartedAt !== null &&
-      nowMs - this.specialStartedAt >= this.toleranceMs;
+      (quickSpecialRelease ||
+        (specialHeld &&
+          this.specialStartedAt !== null &&
+          nowMs - this.specialStartedAt >= this.toleranceMs));
+
+    if (!attackHeld) this.attackStartedAt = null;
+    if (!specialHeld) this.specialStartedAt = null;
+    if (!attackHeld && !specialHeld) this.chordConsumed = false;
 
     this.previousAttack = attackHeld;
     this.previousSpecial = specialHeld;

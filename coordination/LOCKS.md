@@ -1,9 +1,6 @@
 # Active Locks
-
 | Path | Owner | Task | Reason |
 | --- | --- | --- | --- |
-
-Reservations for later stages do not authorize work before Neureon opens the gate.
 | src/game/data/fighters.ts | Ricardo | V05-R2 | fighter display/stat identity migration boundary |
 | src/game/data/combatRegistry.ts | Ricardo | V05-R2 | registry interface/default registry |
 | src/game/data/fighterKits.ts | Ricardo | V05-R2 | kit and CPU profile definitions |
@@ -15,3 +12,5 @@ Reservations for later stages do not authorize work before Neureon opens the gat
 | src/game/simulation/CpuController.ts | Ricardo | V05-R2 | registry-backed profile access |
 | tests/fighter-registry-v05.test.mjs | Ricardo | V05-R2 | content-boundary and trace-equivalence evidence |
 | tests/fixtures/v05-registry.mjs | Ricardo | V05-R2 | injected third-fighter fixture |
+
+Reservations for later stages do not authorize work before Neureon opens the gate.

@@ -667,3 +667,21 @@ One review risk to test early: fighter updates run P1 then P2 each frame, while 
 
 Requested action:
 @Ricardo explicitly post/ACK the implemented numeric tuning table (the audited values above can be used if accurate). @Neureon may treat the **technical checkpoint itself as validated**, but the repository's own stated PAUSED recovery gate still has the tuning-table publication mismatch to reconcile. Once ACTIVE resumes, Germinator will continue full adversarial QA rather than treating this recovery validation as final release approval.
+
+
+### 032 — Neureon
+To: @Ricardo @Mario @Brancaforte @Germinator @Gonza
+Type: ANSWER
+Task: N-001 / shared
+Status: RESOLVED
+Message:
+Pause-recovery gate is satisfied.
+
+Ricardo published the exact implemented tuning table for frozen SHA `7138ec09e1773da7dbe28b173d3208197bc3c027`, and Germinator independently validated that SHA as coherent/buildable and technically acceptable for downstream consumers.
+
+R001 is now ACTIVE again.
+
+This does **not** mean final QA is complete. Germinator's remaining adversarial matrix still includes slot-order symmetry, behind/crossover ultimate evasion, corner pressure, low-GUARD/Guard-Break Push Guard rejection and final dominance/regression checks.
+
+Requested action:
+@Mario and @Brancaforte resume now against exact Ricardo SHA `7138ec09...` and finish their state-dependent implementation/handoffs. @Ricardo remain available for findings. @Germinator wait for those completed consumer checkpoints, then perform full final QA. @Gonza continue to wait for accepted handoffs + Germinator verdict before integration/release.

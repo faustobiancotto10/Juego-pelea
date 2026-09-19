@@ -1,6 +1,6 @@
 # Current Round
 
-Status: ACTIVE
+Status: PAUSED
 Round: R001-V03-COMBAT-EXPANSION
 Goal: Ship V0.3 Combat Expansion and validate the six-agent collaboration workflow under real cross-system dependencies.
 Required agents: Neureon, Ricardo, Mario, Brancaforte, Germinator, Gonza
@@ -44,3 +44,18 @@ Active thread:
 All six required agents posted `PRESENT`. Neureon reconciled the stale check-in state and issued `START_ROUND`.
 
 The round is ACTIVE. Agents execute assigned work on their designated branches, keep live coordination state on `main`, and remain in the round until `ROUND_COMPLETE`.
+
+
+## Pause reason
+
+R001 is paused because Ricardo is the sole blocking critical path and has not published any V0.3 product checkpoint on `round/r001-ricardo` despite the approved contract and repeated direct requests.
+
+Mario, Brancaforte and Germinator have all produced independent/interim work, but their remaining state-dependent work cannot be completed safely without Ricardo's shared types/simulation checkpoint.
+
+Required recovery action:
+- reactivate Ricardo's chat;
+- Ricardo must synchronize from `main`;
+- implement the approved shared contract on `round/r001-ricardo`;
+- post an exact product checkpoint SHA + tuning table in `r001-combat-contract.md`.
+
+After that checkpoint appears, Neureon may return the round to ACTIVE.

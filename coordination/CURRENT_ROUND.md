@@ -7,7 +7,7 @@ Staged activation: enabled
 Planned agents: Neureon, Ricardo, Brancaforte, Germinator, Mario, Gonza
 Current activation gate: STAGE_3_CORE_QA
 Required at current gate: Neureon, Germinator
-Start token: START_ROUND — STAGE_3_CORE_QA
+Start token: G1 BLOCK — repair check-in pending
 Completion token: not issued
 
 ## Product authority
@@ -94,4 +94,4 @@ Stage 1 accepted checkpoints:
 - R1 Ricardo: `5f6d59eb2dae2e386c55593a9af346e184d5611f`
 - B1 Brancaforte: `4eddddad0a69df0b6562e28f3e55fd66bafd4fc5`
 
-Stage 2 frozen core accepted for QA activation: `8e74d1e7ac34ac6524d725553b01b32bb3ff33bc` (Ricardo R5; CI #512, 161/161 + build per handoff). Ricardo is WAITING_FOR_TEAM. Germinator is PRESENT and Stage 3 QA is authorized against exact frozen core `8e74d1e7ac34ac6524d725553b01b32bb3ff33bc`. No presentation work starts until G1 verdict.
+Stage 2 frozen core accepted for QA activation: `8e74d1e7ac34ac6524d725553b01b32bb3ff33bc` (Ricardo R5; CI #512, 161/161 + build per handoff). Ricardo is WAITING_FOR_TEAM. G1 verdict on frozen core `8e74d1e7ac34ac6524d725553b01b32bb3ff33bc`: BLOCK. Sole automated blocker is AC06: whiffed Coletazo lacks a clean normal recovery punish. Stage 4 remains closed. Ricardo must publish a minimal RED→GREEN replacement core; Germinator then reruns full G1.

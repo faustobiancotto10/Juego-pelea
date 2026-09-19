@@ -11,3 +11,4 @@ Reservations for later stages do not authorize work before Neureon opens the gat
 | tests/combat-v03.test.mjs | Ricardo | V05-R5 | migrate obsolete frame-cadence CPU expectations if required |
 | tests/combat-v04.test.mjs | Ricardo | V05-R5 | migrate V0.4 CPU gap/confirm expectations to delayed policy if required |
 | tests/g402-v04.test.mjs | Ricardo | V05-R5 | preserve adversarial CPU regressions under delayed policy if required |
+| tests/fighter-registry-v05.test.mjs | Ricardo | V05-R5 | migrate injected CPU proof from immediate action to delayed profile behavior |

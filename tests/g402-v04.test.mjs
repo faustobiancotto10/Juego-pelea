@@ -44,31 +44,28 @@ test('Supernariz CPU post-commit punish gap persists across multiple decision fr
   }
 });
 
-test('Supernariz CPU remains deterministic but intentionally misses legal chain confirms', () => {
+test('Supernariz CPU remains deterministic and seeded confirms include successes and misses', () => {
   const sim = new CombatSimulation('chameleon', 'supernariz', { skipIntro: true });
-  const nose1 = [];
-  const nose2 = [];
+  const decisions = [];
 
-  for (let frame = 40; frame < 64; frame += 1) {
-    const base = mutableSnapshot(sim);
-    base.frame = frame;
-    base.fighters[0].x = 590;
-    base.fighters[1].x = 680;
-    base.fighters[1].moveFrame = 11;
+  for (let seed = 1; seed <= 64; seed += 1) {
+    const snap = mutableSnapshot(sim);
+    snap.combatTick = 44;
+    snap.frame = 44;
+    snap.fighters[0].x = 590;
+    snap.fighters[1].x = 680;
+    snap.fighters[1].moveId = 'nose2';
+    snap.fighters[1].moveFrame = 8;
+    snap.fighters[1].moveContact = 'hit';
 
-    const a = structuredClone(base);
-    a.fighters[1].moveId = 'nose1';
-    nose1.push(new CpuController(1).nextInput(a).attack);
-
-    const b = structuredClone(base);
-    b.fighters[1].moveId = 'nose2';
-    nose2.push(new CpuController(1).nextInput(b).attack);
+    const a = new CpuController(1, { seed }).nextInput(structuredClone(snap));
+    const b = new CpuController(1, { seed }).nextInput(structuredClone(snap));
+    assert.deepEqual(a, b, `seed ${seed} must replay identically`);
+    decisions.push(Boolean(a.attack));
   }
 
-  for (const decisions of [nose1, nose2]) {
-    assert.ok(decisions.some(Boolean), 'CPU should still convert some pressure');
-    assert.ok(decisions.some((value) => !value), 'CPU must deliberately miss some confirms');
-  }
+  assert.ok(decisions.some(Boolean), 'CPU should still convert some clean-hit pressure');
+  assert.ok(decisions.some(value => !value), 'CPU must deliberately miss some confirms');
 });
 
 test('CPU implementation is snapshot-only and does not import the human input layer', async () => {

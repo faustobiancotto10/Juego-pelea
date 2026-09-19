@@ -1,6 +1,6 @@
 import { DEFAULT_COMBAT_REGISTRY, type CombatRegistry } from '../data/combatRegistry.js';
 import type { UltimateDefinition } from '../data/ultimates.js';
-import { EMPTY_INPUT, type CombatEvent, type Facing, type FighterId, type FighterIndex, type FighterSnapshot, type InputFrame, type MatchSnapshot, type MatchPhase, type ProjectileSnapshot } from '../types.js';
+import { EMPTY_INPUT, type CombatEvent, type Facing, type RegisteredRegisteredFighterId, type FighterIndex, type FighterSnapshot, type InputFrame, type MatchSnapshot, type MatchPhase, type ProjectileSnapshot } from '../types.js';
 import type { MoveDefinition } from './moves.js';
 
 const ARENA_MIN_X = 90;
@@ -69,13 +69,13 @@ function initialSuperFor(options: CombatSimulationOptions, index: FighterIndex):
   return 0;
 }
 
-function projectileCooldownMaxFor(registry: CombatRegistry, id: FighterId): number {
+function projectileCooldownMaxFor(registry: CombatRegistry, id: RegisteredFighterId): number {
   const kit = registry.getKit(id);
   const ranged = registry.getMove(id, kit.rangedSpecial);
   return ranged.projectileKey ? registry.getProjectile(ranged.projectileKey).cooldown : 0;
 }
 
-function makeFighter(registry: CombatRegistry, id: FighterId, index: FighterIndex, superMeter = 0): FighterState {
+function makeFighter(registry: CombatRegistry, id: RegisteredFighterId, index: FighterIndex, superMeter = 0): FighterState {
   const def = registry.getFighter(id);
   return {
     id,
@@ -181,7 +181,7 @@ export class CombatSimulation {
   private projectiles: ProjectileState[] = [];
   private nextProjectileId = 1;
 
-  constructor(p1: FighterId, p2: FighterId, options: CombatSimulationOptions = {}) {
+  constructor(p1: RegisteredFighterId, p2: RegisteredFighterId, options: CombatSimulationOptions = {}) {
     this.registry = options.registry ?? DEFAULT_COMBAT_REGISTRY;
     this.fighters = [
       makeFighter(this.registry, p1, 0, initialSuperFor(options, 0)),

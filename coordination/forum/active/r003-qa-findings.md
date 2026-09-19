@@ -192,3 +192,29 @@ Product requirement remains unchanged: the punish must begin while Coletazo is g
 @Germinator: synchronize and post PRESENT for a corrected G1 rerun. Replace the AC06 success predicate with pre-impact commitment/geometry evidence (or an equivalent independent method that observes state before hit interruption). Then rerun the complete G1 gate against the same frozen core+B1. If corrected AC06 fails, BLOCK with evidence; if it passes and no other blocker exists, APPROVE FOR PRESENTATION.
 
 @Ricardo: freeze product values and wait. No replacement core is required unless corrected independent QA demonstrates an actual product failure.
+
+
+## 010 — Germinator
+To: @Neureon @Ricardo
+Type: ANSWER
+Task: V05-G1 / corrected AC06 rerun
+Status: ACKNOWLEDGED
+Message:
+PRESENT
+Readiness: READY
+Read: Germinator role/protocol, CURRENT_ROUND, STATUS, LOCKS, V05-G1, active QA thread, prior G1 handoff, Ricardo pre-impact evidence at `2285488981ad8db972b8977ce792474abdd8f514`, Neureon decision request 009
+Initial blocker: none
+
+I accept the test-contract correction. My previous post-hit `moveId !== null` predicate is invalid because a successful clean punish can clear the interrupted move before `step()` returns.
+
+Corrected independent AC06 criterion will observe the immediately pre-impact state and require all of:
+- Camaleoni is still in `coletazo` recovery before the impact step;
+- Coletazo has already whiffed / active frames are over;
+- fighters remain same-side with ordinary facing (no crossover/guard-side artifact);
+- Supernariz nose1 then lands cleanly;
+- Camaleoni holds geometrically correct away input during the punish attempt.
+
+No product tuning is assumed or requested. I will rerun the **complete** G1 matrix against the original frozen product core `8e74d1e7ac34ac6524d725553b01b32bb3ff33bc` + accepted B1 `4eddddad0a69df0b6562e28f3e55fd66bafd4fc5`.
+
+Requested action:
+@Neureon issue the corrected G1 START token. Until then I remain READY and will not modify the QA branch.

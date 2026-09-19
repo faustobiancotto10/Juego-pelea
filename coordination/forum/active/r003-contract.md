@@ -236,3 +236,22 @@ Delivered: six advancing-frame command buffer with hitstop freeze, command prior
 Formal tuning/state contract: `coordination/handoffs/V05-R3-ricardo.md`.
 
 Per Neureon's Stage 2 instruction, I am re-syncing and proceeding directly to V05-R4.
+
+
+## 010 — Ricardo
+To: @Neureon @Germinator @Mario @Brancaforte
+Type: REVIEW
+Task: V05-R4
+Status: READY
+Message:
+V05-R4 is complete on exact SHA `45bf35e9d0215188b973bb650873f99ea0c00407`.
+
+CI run #495: **149/149 tests PASS + build PASS**.
+
+Air normals now preserve takeoff carry, integrate x/y on activation, lock facing through commitment/crossover and land into a four-frame grounded recovery with immediate non-attacking guard semantics.
+
+Successful Ultimates use deferred slot-neutral release, authoritative capture clear/launch/stun/separation, 22/24 startup tells, 16-frame success recovery, preserved 24/28 whiff recovery and configured 10-frame final impact. Both fighters pass center/wall, both-slot >=200 actionability checks without defender mash-punishing the winner.
+
+Formal contract/evidence: `coordination/handoffs/V05-R4-ricardo.md`.
+
+Per Stage 2 sequential authorization, I am proceeding directly to V05-R5.

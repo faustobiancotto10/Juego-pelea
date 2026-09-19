@@ -17,6 +17,12 @@ export interface PrioritizedCombatActions extends BufferedCombatActions {
   pushGuard: boolean;
 }
 
+export interface CombatInputContext {
+  superReady: boolean;
+  defensiveContext: boolean;
+  nowMs?: number;
+}
+
 export class ActionChordBuffer {
   private previousAttack = false;
   private previousSpecial = false;
@@ -24,7 +30,23 @@ export class ActionChordBuffer {
   private specialStartedAt: number | null = null;
   private chordConsumed = false;
 
-  constructor(private readonly toleranceMs = 90) {}
+  constructor(private readonly toleranceMs = 55) {}
+
+  reset(): void {
+    this.previousAttack = false;
+    this.previousSpecial = false;
+    this.attackStartedAt = null;
+    this.specialStartedAt = null;
+    this.chordConsumed = false;
+  }
+
+  sync(attackHeld: boolean, specialHeld: boolean): void {
+    this.previousAttack = attackHeld;
+    this.previousSpecial = specialHeld;
+    this.attackStartedAt = null;
+    this.specialStartedAt = null;
+    this.chordConsumed = false;
+  }
 
   sample(attackHeld: boolean, specialHeld: boolean, nowMs: number): BufferedCombatActions {
     if (attackHeld && !this.previousAttack) this.attackStartedAt = nowMs;
@@ -86,7 +108,7 @@ export function resolveActionButtons(
     return { attack: false, special: false, ultimate: true, pushGuard: false };
   }
   if (buffered.special && defensiveContext) {
-    return { attack: buffered.attack, special: false, ultimate: false, pushGuard: true };
+    return { attack: false, special: false, ultimate: false, pushGuard: true };
   }
   return { ...buffered, pushGuard: false };
 }
@@ -98,6 +120,7 @@ export class GameInput {
   private dpadPointer: number | null = null;
   private readonly cleanupCallbacks: Array<() => void> = [];
   private readonly doubleTap = new DoubleTapTracker(230);
+  private readonly actionChord = new ActionChordBuffer(55);
   private dashLeft = false;
   private dashRight = false;
 
@@ -106,19 +129,33 @@ export class GameInput {
     this.bindTouchControls();
   }
 
-  getFrame(): InputFrame {
+  getFrame(context: CombatInputContext = { superReady: false, defensiveContext: false }): InputFrame {
     const keyboard = inputFromKeyboard(this.keys);
     const touch = composeInputFrame(this.touchDirection, this.touchActions);
+    const rawAttack = keyboard.attack || touch.attack;
+    const rawSpecial = keyboard.special || touch.special;
+
+    let buffered: BufferedCombatActions;
+    if (context.superReady) {
+      buffered = this.actionChord.sample(rawAttack, rawSpecial, context.nowMs ?? performance.now());
+    } else {
+      this.actionChord.sync(rawAttack, rawSpecial);
+      buffered = { attack: rawAttack, special: rawSpecial, ultimate: false };
+    }
+    const actions = resolveActionButtons(buffered, context.defensiveContext);
+
     const frame: InputFrame = {
       left: keyboard.left || touch.left,
       right: keyboard.right || touch.right,
       down: keyboard.down || touch.down,
       up: keyboard.up || touch.up,
       jump: keyboard.jump || touch.jump,
-      attack: keyboard.attack || touch.attack,
-      special: keyboard.special || touch.special,
+      attack: actions.attack,
+      special: actions.special,
       dashLeft: this.dashLeft,
       dashRight: this.dashRight,
+      ultimate: actions.ultimate,
+      pushGuard: actions.pushGuard,
     };
     this.dashLeft = false;
     this.dashRight = false;
@@ -131,6 +168,7 @@ export class GameInput {
     this.touchDirection = { ...NEUTRAL };
     this.touchActions = { attack: false, special: false, jump: false };
     this.doubleTap.reset();
+    this.actionChord.reset();
     this.dashLeft = false;
     this.dashRight = false;
   }

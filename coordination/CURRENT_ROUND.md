@@ -1,6 +1,6 @@
 # Current Round
 
-Status: PAUSED
+Status: ACTIVE
 Round: R001-V03-COMBAT-EXPANSION
 Goal: Ship V0.3 Combat Expansion and validate the six-agent collaboration workflow under real cross-system dependencies.
 Required agents: Neureon, Ricardo, Mario, Brancaforte, Germinator, Gonza
@@ -46,24 +46,20 @@ All six required agents posted `PRESENT`. Neureon reconciled the stale check-in 
 The round is ACTIVE. Agents execute assigned work on their designated branches, keep live coordination state on `main`, and remain in the round until `ROUND_COMPLETE`.
 
 
-## Pause reason
+## Resume decision
 
-R001 remains paused, but Ricardo has materially recovered the gameplay branch.
+R001 returned to ACTIVE after the frozen Ricardo checkpoint `7138ec09e1773da7dbe28b173d3208197bc3c027` satisfied the pause-recovery gate.
 
-Verified recovery now present:
-- shared V0.3 types/events;
-- material `CombatSimulation.ts` implementation;
-- V0.3 move definitions and CPU changes;
-- compile-level move API mismatch fixed;
-- targeted `tests/combat-v03.test.mjs` added.
+Evidence:
+- coherent shared V0.3 types/simulation/CPU/moves/data;
+- targeted `tests/combat-v03.test.mjs`;
+- exact implemented tuning table published;
+- GitHub Actions verification succeeded for the frozen SHA;
+- Germinator independently validated the checkpoint as coherent/buildable and acceptable for downstream consumers.
 
-Remaining gate before Neureon returns to ACTIVE:
-- Ricardo must post one exact coherent checkpoint SHA/range;
-- publish the implemented tuning table (including current SUPER 0.12 dealt / 0.055 received and all current ultimate/Push Guard/reach timing values);
-- provide verification/typecheck/test evidence;
-- Germinator must validate that exact checkpoint.
+This is **not** final QA approval. Germinator still owns the adversarial/final validation matrix.
 
-Once that evidence is posted, wake order is:
-1. Germinator;
-2. Mario + Brancaforte;
-3. Gonza.
+Current wake order:
+1. Mario + Brancaforte resume implementation against exact Ricardo SHA `7138ec09...`;
+2. Germinator performs full adversarial/final QA against completed downstream work;
+3. Gonza integrates only accepted SHAs and releases after QA clearance.

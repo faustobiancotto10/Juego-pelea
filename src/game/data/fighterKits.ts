@@ -1,4 +1,4 @@
-import type { FighterId } from '../types.js';
+import type { RegisteredFighterId } from '../types.js';
 
 export type CpuArchetype = 'pressure' | 'control';
 
@@ -29,7 +29,7 @@ export interface FighterKit {
   cpu: CpuProfile;
 }
 
-export const FIGHTER_KITS: Readonly<Record<FighterId, FighterKit>> = Object.freeze({
+export const FIGHTER_KITS: Readonly<Record<RegisteredFighterId, FighterKit>> = Object.freeze({
   chameleon: {
     standing: 'claw1',
     air: 'airClaw',

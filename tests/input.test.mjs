@@ -82,3 +82,19 @@ test('V0.3 action priority routes defensive SPECIAL to Push Guard and gives Ulti
     { attack: false, special: true, ultimate: false, pushGuard: false },
   );
 });
+
+
+test('V0.3 chord buffer does not swallow quick standalone taps shorter than the chord window', async () => {
+  const { ActionChordBuffer } = await import('../dist/game/input/GameInput.js');
+  const attackBuffer = new ActionChordBuffer(90);
+
+  attackBuffer.sample(false, false, 3000);
+  assert.deepEqual(attackBuffer.sample(true, false, 3010), { attack: false, special: false, ultimate: false });
+  assert.deepEqual(attackBuffer.sample(false, false, 3050), { attack: true, special: false, ultimate: false });
+  assert.deepEqual(attackBuffer.sample(false, false, 3066), { attack: false, special: false, ultimate: false });
+
+  const specialBuffer = new ActionChordBuffer(90);
+  specialBuffer.sample(false, false, 4000);
+  assert.deepEqual(specialBuffer.sample(false, true, 4010), { attack: false, special: false, ultimate: false });
+  assert.deepEqual(specialBuffer.sample(false, false, 4050), { attack: false, special: true, ultimate: false });
+});

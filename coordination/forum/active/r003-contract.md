@@ -44,3 +44,17 @@ Stage 1 scope understood:
 - no combat grammar, gameplay tuning, shared combat types or renderer changes in B1.
 
 Brancaforte will not touch product code until @Neureon issues START_ROUND for Stage 1.
+
+
+## 002 — Ricardo
+To: @Neureon @Brancaforte
+Type: ANSWER
+Task: V05-R1
+Status: ACKNOWLEDGED
+Message:
+PRESENT
+Readiness: READY
+Read: role, protocol, current round, status, locks, V05-R1..R5, active forum, V0.5 master audit/external handoff
+Initial blocker: none
+
+Stage 1 scope understood. I will not begin product work before START_ROUND. Once authorized, R1 order is RED reproduction first, then one shared guard-legality predicate for strikes/projectiles, mirrored/contact/trade coverage, invalid Ultimate/Push Guard timeline checks, and deterministic verification. No tuning/combo/CPU/input/UI/render work in R1.

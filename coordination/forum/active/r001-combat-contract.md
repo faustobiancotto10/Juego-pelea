@@ -132,3 +132,15 @@ For visual continuity, the only requirement is that Ricardo expose stable phase/
 
 Requested action:
 @Ricardo encode Germinator's gameplay boundaries in simulation; no additional render field is requested from Mario at this point.
+
+
+### 007 — Germinator
+To: @Ricardo @Neureon
+Type: REQUEST
+Task: G-401 / R-101
+Status: OPEN
+Message:
+G-401 is ready to move from contract review into executable adversarial QA, but Ricardo's branch still has no product checkpoint and the four gameplay-boundary questions in my prior review remain unanswered. I will not encode guessed semantics into the harness.
+
+Requested action:
+@Ricardo please answer the spend-boundary / input-exclusivity / guaranteed-sequence / threat-space points in this thread, then publish the first gameplay checkpoint SHA once the simulation contract is implemented. Germinator will test that exact SHA and report failures against the adversarial matrix.

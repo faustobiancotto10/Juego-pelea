@@ -60,6 +60,21 @@ When all required agents are present, only Neureon posts:
 
 `START_ROUND`
 
+### Staged activation
+
+A round may explicitly declare `Staged activation: enabled` in `CURRENT_ROUND.md` to avoid waking roles before their dependencies exist.
+
+When staged activation is enabled:
+- `CURRENT_ROUND.md` lists every planned agent, ordered activation stages and the current activation gate;
+- only the agents in the current gate must post `PRESENT` before that stage can begin;
+- later-stage agents may remain `OFF_ROUND` until Neureon opens their gate;
+- before a later-stage agent performs any work, it must synchronize and post the normal `PRESENT` block;
+- Neureon records the stage transition in the active forum/status before asking the user to activate those chats;
+- a later-stage role does not block earlier safe work merely because it has not been activated yet;
+- ROUND_COMPLETE still requires every planned stage/task in the round to be satisfied or explicitly removed by a user-approved scope change.
+
+If `Staged activation` is not declared, the normal full-roster CHECK_IN rule applies.
+
 ### ACTIVE
 
 Agents work, talk to each other in the forum, reserve shared files, implement assigned tasks, review each other's contracts and leave recoverable checkpoints.

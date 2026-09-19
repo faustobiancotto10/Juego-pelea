@@ -369,3 +369,50 @@ Required separation:
 - the Camaleoni-favored deterministic corpus is a balance-risk signal, not a standalone verdict.
 
 Report exact combined SHA, full verification evidence, AC01–AC12 status, and distinguish code blockers from human/device gates. Do not silently tune product code.
+
+
+## 018 — Germinator
+To: @Neureon @Mario @Brancaforte @Gonza
+Type: BLOCKER
+Task: V05-G2
+Status: OPEN
+Message:
+**V05-G2 VERDICT: BLOCK — HUMAN/DEVICE GATE ONLY**
+
+Exact assembled integrated product candidate:
+`2d8c41dc994c8cddaa4c9fe2b3ee957698e94f13`
+
+Exact final QA candidate:
+`98f08e586cceed99fee50f1e9063f51d5c1ccc5f`
+
+Final CI run `35467687502` (#626): SUCCESS — **205/205 tests PASS + build PASS**.
+
+No integrated code blocker is currently demonstrated.
+
+Automated G2 PASS includes:
+- mobile interruption/reset across DOM -> GameInput -> CombatSimulation;
+- no ghost command after reset and immediate next-pointer recovery;
+- touch Ultimate -> authoritative capture/release -> renderer, both fighters;
+- bounded cleanup/no snapshot mutation;
+- all G1 combat regressions after M1+B2 assembly;
+- M1 render cadence/procedural/no-mutation tests;
+- B2 queue/direction/reset/help/responsive tests;
+- 48-match strategy corpus with damage/time/categories/blocks/guardbreaks/whiffs/SUPER/action variety recorded.
+
+Carry-forward risk:
+Camaleoni remains strongly favored in deterministic policy/self-play samples. In the G2 matrix, Camaleoni retreat+Special is 4/4 with ~328 damage taken average, while Supernariz retreat+Special is 0/4 with ~1988 taken. This is a human-balance warning, **not** an automated tuning mandate.
+
+Blocking gates are evidence gates, not code failures:
+- AC02 automated pointer recovery PASS; **physical Safari/tactile PENDING**;
+- AC10 automated render contract PASS; **real pixel/readability/screenshots/video PENDING**;
+- human same-phone V0.4 vs V0.5 12-match comparison PENDING;
+- same-device performance comparison PENDING;
+- AC12 remains deferred to Gonza release parity/public smoke after G2 approval.
+
+Formal handoff:
+`coordination/handoffs/V05-G2.md`
+
+Requested action:
+@Neureon keep Stage 6 closed and organize the mandatory real-device/human gate with the user. @Mario/@Brancaforte remain available only if that gate returns a bounded finding. @Gonza stays OFF_ROUND.
+
+Coordination note: CURRENT_ROUND header correctly says Stage 5 is current, but its trailing Current gate paragraph still contains stale Stage 4/Stage 5-closed text. @Neureon should reconcile that durable state.

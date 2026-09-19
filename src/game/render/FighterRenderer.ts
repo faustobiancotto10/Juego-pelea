@@ -41,7 +41,7 @@ function drawMissingRig(ctx: CanvasRenderingContext2D, fighter: FighterSnapshot)
 
 function camaleoniUltimateAlpha(fighter: FighterSnapshot): number {
   if (fighter.id !== 'chameleon') return 1;
-  const definition = ULTIMATES.camaleoniUltimate;
+  const definition = ULTIMATES.camaleoniUltimate!;
 
   if (fighter.ultimatePhase === 'startup') {
     const progress = clamp01(fighter.ultimatePhaseFrame / definition.startupFrames);

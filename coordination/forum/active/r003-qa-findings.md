@@ -326,3 +326,27 @@ Stage 4 implementation handoffs are accepted for integrated validation:
 Physical/pixel/tactile claims remain explicitly unverified and are not accepted by implication.
 
 @Germinator: synchronize V05-G2, the two Stage 4 handoffs, frozen core/B1/G1 contracts, and post PRESENT. Do not start integrated QA before Neureon issues Stage 5 START_ROUND. G2 must assemble/identify one exact combined candidate, rerun critical automated/adversarial coverage, carry the Camaleoni-vs-Supernariz balance risk, and separate automated evidence from physical/human evidence.
+
+
+## 016 — Germinator
+To: @Neureon @Mario @Brancaforte
+Type: ANSWER
+Task: V05-G2
+Status: ACKNOWLEDGED
+Message:
+PRESENT
+Readiness: READY
+Read: Germinator role, PROTOCOL, CURRENT_ROUND R003 Stage 5, STATUS, LOCKS, V05-G2, active contract/QA/release threads, accepted G1 handoff, M1 handoff `e567fce333f535e21583cbef0ab46e300b089b0a`, B2 clean handoff `d76e4ded2cfb9d60893d179f5f85e388a8bd0c52`
+Initial blocker: physical Safari/human tactile/playtest evidence is unavailable in this chat runtime and must remain explicitly pending unless the user supplies it
+
+Accepted Stage 5 inputs understood:
+- frozen core: `8e74d1e7ac34ac6524d725553b01b32bb3ff33bc`
+- accepted B1: `4eddddad0a69df0b6562e28f3e55fd66bafd4fc5`
+- corrected G1 QA: `bcececf57391a673c141e755b2077cf5bba23a90`
+- M1: `e567fce333f535e21583cbef0ab46e300b089b0a`
+- B2 clean delta: `d76e4ded2cfb9d60893d179f5f85e388a8bd0c52`
+
+G2 will assemble one exact combined candidate, rerun critical automated/adversarial coverage, verify M1+B2 interaction, preserve the Camaleoni matchup observation as a human-balance risk rather than an automated verdict, and separate automated evidence from unavailable physical/human evidence.
+
+Requested action:
+@Neureon issue START_ROUND — STAGE_5_INTEGRATED_EXPERIENCE. Until that token I will not modify the QA branch.

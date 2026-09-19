@@ -1,6 +1,6 @@
 import { DEFAULT_COMBAT_REGISTRY, type CombatRegistry } from '../data/combatRegistry.js';
 import type { UltimateDefinition } from '../data/ultimates.js';
-import { EMPTY_INPUT, type CombatEvent, type Facing, type RegisteredFighterId, type FighterIndex, type FighterSnapshot, type InputFrame, type MatchSnapshot, type MatchPhase, type ProjectileSnapshot } from '../types.js';
+import { EMPTY_INPUT, type CombatAction, type CombatEvent, type CommandIntent, type Facing, type RegisteredFighterId, type FighterIndex, type FighterSnapshot, type InputFrame, type MatchSnapshot, type MatchPhase, type ProjectileSnapshot } from '../types.js';
 import type { MoveDefinition } from './moves.js';
 
 const ARENA_MIN_X = 90;
@@ -19,6 +19,8 @@ const GUARD_AFTER_BREAK = 55;
 const PUSH_GUARD_COST = 34;
 const PUSH_GUARD_SEPARATION = 122;
 const PUSH_GUARD_BUFFER_FRAMES = 6;
+const COMMAND_BUFFER_FRAMES = 6;
+const DOWN_GRACE_SAMPLES = 4;
 
 const MAX_SUPER = 100;
 const SUPER_GAIN_DEALT = 0.12;
@@ -32,6 +34,11 @@ const BACK_DASH_SPEED = 7.2;
 const BACK_DASH_INVULN_START = 2;
 const BACK_DASH_INVULN_END = 7;
 
+interface PendingCommand {
+  intent: CommandIntent;
+  remainingFrames: number;
+}
+
 interface FighterState extends FighterSnapshot {
   prevInput: InputFrame;
   currentMove: MoveDefinition | null;
@@ -40,6 +47,8 @@ interface FighterState extends FighterSnapshot {
   ultimatePhaseFrame: number;
   ultimateFacing: Facing;
   pushGuardBufferFrames: number;
+  pendingCommand: PendingCommand | null;
+  downGraceSamples: number;
 }
 
 interface ProjectileState extends ProjectileSnapshot {
@@ -55,7 +64,25 @@ export interface CombatSimulationOptions {
 }
 
 function copyInput(input: InputFrame): InputFrame {
-  return { ...input };
+  return {
+    ...input,
+    commands: input.commands?.map((command) => ({
+      action: command.action,
+      direction: { ...command.direction },
+    })),
+  };
+}
+
+function directionFromInput(input: InputFrame): CommandIntent['direction'] {
+  return { left: input.left, right: input.right, up: input.up, down: input.down };
+}
+
+function commandPriority(action: CombatAction): number {
+  if (action === 'ultimate') return 5;
+  if (action === 'pushGuard') return 4;
+  if (action === 'special') return 3;
+  if (action === 'attack') return 2;
+  return 1;
 }
 
 function pressed(now: InputFrame, before: InputFrame, key: 'jump' | 'attack' | 'special' | 'ultimate'): boolean {
@@ -117,6 +144,8 @@ function makeFighter(registry: CombatRegistry, id: RegisteredFighterId, index: F
     ultimateFacing: index === 0 ? 1 : -1,
     capturedBy: null,
     pushGuardBufferFrames: 0,
+    pendingCommand: null,
+    downGraceSamples: 0,
   };
 }
 
@@ -169,6 +198,7 @@ export class CombatSimulation {
   private readonly registry: CombatRegistry;
   private fighters: [FighterState, FighterState];
   private frame = 0;
+  private combatTick = 0;
   private phase: MatchPhase;
   private introFrames: number;
   private round = 1;
@@ -194,6 +224,7 @@ export class CombatSimulation {
   getSnapshot(): MatchSnapshot {
     return {
       frame: this.frame,
+      combatTick: this.combatTick,
       phase: this.phase,
       round: this.round,
       roundTimerFrames: this.roundTimerFrames,
@@ -204,6 +235,15 @@ export class CombatSimulation {
       projectiles: this.projectiles.filter((p) => p.active).map(({ ttl: _ttl, ...p }) => ({ ...p })),
       events: this.events.map((event) => ({ ...event })),
     };
+  }
+
+  resetInputState(): void {
+    for (const fighter of this.fighters) {
+      fighter.prevInput = copyInput(EMPTY_INPUT);
+      fighter.pendingCommand = null;
+      fighter.downGraceSamples = 0;
+      fighter.pushGuardBufferFrames = 0;
+    }
   }
 
   step(p1Input: InputFrame, p2Input: InputFrame): MatchSnapshot {
@@ -234,7 +274,7 @@ export class CombatSimulation {
       return this.getSnapshot();
     }
 
-    this.primePushGuardBuffers(inputs);
+    this.captureCommands(inputs);
 
     if (this.hitstopFrames > 0) {
       this.hitstopFrames -= 1;
@@ -242,6 +282,7 @@ export class CombatSimulation {
       return this.getSnapshot();
     }
 
+    this.combatTick += 1;
     this.updateFacing();
 
     for (const index of [0, 1] as const) {
@@ -263,6 +304,7 @@ export class CombatSimulation {
       if (roundShouldEnd && !this.hasActiveUltimateSequence()) this.finishRound();
     }
 
+    this.agePendingCommands();
     this.saveInputs(inputs);
     return this.getSnapshot();
   }
@@ -323,7 +365,11 @@ export class CombatSimulation {
     }
 
     if (fighter.blockstunFrames > 0) {
-      if (fighter.pushGuardBufferFrames > 0) {
+      if (fighter.pendingCommand?.intent.action === 'pushGuard') {
+        fighter.pendingCommand = null;
+        fighter.pushGuardBufferFrames = 0;
+        if (this.tryPushGuard(index)) return;
+      } else if (fighter.pushGuardBufferFrames > 0) {
         fighter.pushGuardBufferFrames = 0;
         if (this.tryPushGuard(index)) return;
       }
@@ -347,20 +393,12 @@ export class CombatSimulation {
       return;
     }
 
-    if (
-      Boolean(input.ultimate)
-      && fighter.grounded
-      && fighter.superReady
-      && fighter.currentMove === null
-      && fighter.dashKind === null
-      && pressed(input, fighter.prevInput, 'ultimate')
-    ) {
-      this.startUltimate(index);
-      return;
+    if (fighter.pendingCommand?.intent.action === 'ultimate' && !fighter.superReady) {
+      fighter.pendingCommand = null;
     }
-
-    // Invalid Ultimate / Push Guard requests are inert. They must never suspend
-    // an already committed move timeline.
+    if (fighter.pendingCommand?.intent.action === 'pushGuard') {
+      fighter.pendingCommand = null;
+    }
 
     if (fighter.dashKind) {
       this.updateDash(fighter);
@@ -373,14 +411,19 @@ export class CombatSimulation {
       fighter.blocking = false;
       fighter.crouching = false;
       const current = fighter.currentMove;
+      const pendingAttack = fighter.pendingCommand?.intent.action === 'attack'
+        ? fighter.pendingCommand.intent
+        : null;
       const canChain = fighter.moveHasHit
+        && pendingAttack !== null
+        && !pendingAttack.direction.down
         && current.nextAttack
         && current.cancelStart !== undefined
         && current.cancelEnd !== undefined
         && fighter.moveFrame >= current.cancelStart
-        && fighter.moveFrame <= current.cancelEnd
-        && pressed(input, fighter.prevInput, 'attack');
+        && fighter.moveFrame <= current.cancelEnd;
       if (canChain && current.nextAttack) {
+        fighter.pendingCommand = null;
         this.startMove(fighter, this.registry.getMove(fighter.id, current.nextAttack), fighter.comboCount + 1);
         this.integrateVertical(fighter, def.gravity);
         return;
@@ -405,32 +448,48 @@ export class CombatSimulation {
     }
 
     const kit = this.registry.getKit(fighter.id);
+    const pending = fighter.pendingCommand?.intent ?? null;
 
-    if (!fighter.grounded && pressed(input, fighter.prevInput, 'attack')) {
-      this.startMove(fighter, this.registry.getMove(fighter.id, kit.air), 1);
+    if (pending?.action === 'ultimate') {
+      fighter.pendingCommand = null;
+      if (fighter.grounded && fighter.superReady && fighter.dashKind === null) {
+        this.startUltimate(index);
+        return;
+      }
+    }
+
+    if (pending?.action === 'special') {
+      fighter.pendingCommand = null;
+      if (fighter.grounded) {
+        let moveId = kit.rangedSpecial;
+        if (pending.direction.down) moveId = kit.closeSpecial;
+        const move = this.registry.getMove(fighter.id, moveId);
+        if (!move.projectileKey || fighter.projectileCooldown <= 0) {
+          this.startMove(fighter, move);
+          return;
+        }
+      }
+    }
+
+    if (pending?.action === 'attack') {
+      fighter.pendingCommand = null;
+      if (!fighter.grounded) {
+        this.startMove(fighter, this.registry.getMove(fighter.id, kit.air), 1);
+        return;
+      }
+      const moveId = pending.direction.down && kit.low ? kit.low : kit.standing;
+      this.startMove(fighter, this.registry.getMove(fighter.id, moveId), 1);
       return;
     }
 
-    if (fighter.grounded && pressed(input, fighter.prevInput, 'special')) {
-      let moveId = kit.rangedSpecial;
-      if (input.down && kit.legacyDownSpecial) moveId = kit.legacyDownSpecial;
-      else if (input.up && !input.down && kit.legacyUpSpecial) moveId = kit.legacyUpSpecial;
-
-      const move = this.registry.getMove(fighter.id, moveId);
-      if (!move.projectileKey || fighter.projectileCooldown <= 0) this.startMove(fighter, move);
-      return;
-    }
-
-    if (fighter.grounded && pressed(input, fighter.prevInput, 'attack')) {
-      this.startMove(fighter, this.registry.getMove(fighter.id, kit.standing), 1);
-      return;
-    }
-
-    if (fighter.grounded && pressed(input, fighter.prevInput, 'jump')) {
-      fighter.vy = def.jumpSpeed;
-      fighter.grounded = false;
-      fighter.crouching = false;
-      fighter.blocking = false;
+    if (pending?.action === 'jump') {
+      fighter.pendingCommand = null;
+      if (fighter.grounded) {
+        fighter.vy = def.jumpSpeed;
+        fighter.grounded = false;
+        fighter.crouching = false;
+        fighter.blocking = false;
+      }
     }
 
     fighter.crouching = fighter.grounded && input.down;
@@ -450,6 +509,65 @@ export class CombatSimulation {
 
     this.integrateVertical(fighter, def.gravity);
     this.clampFighter(fighter);
+  }
+
+  private captureCommands(inputs: readonly [InputFrame, InputFrame]): void {
+    for (const index of [0, 1] as const) {
+      const fighter = this.fighters[index];
+      const input = inputs[index];
+
+      if (input.up) fighter.downGraceSamples = 0;
+      else if (input.down) fighter.downGraceSamples = DOWN_GRACE_SAMPLES;
+      else if (fighter.downGraceSamples > 0) fighter.downGraceSamples -= 1;
+
+      const candidates: CommandIntent[] = input.commands !== undefined
+        ? input.commands.slice(0, 4).map((command) => ({
+          action: command.action,
+          direction: { ...command.direction },
+        }))
+        : this.legacyCommands(input, fighter.prevInput);
+
+      if (candidates.length === 0) continue;
+
+      let selected = candidates[0];
+      for (const candidate of candidates.slice(1)) {
+        if (commandPriority(candidate.action) >= commandPriority(selected.action)) selected = candidate;
+      }
+
+      const direction = { ...selected.direction };
+      if (
+        selected.action === 'special'
+        && !direction.down
+        && !direction.up
+        && fighter.downGraceSamples > 0
+      ) {
+        direction.down = true;
+      }
+
+      fighter.pendingCommand = {
+        intent: { action: selected.action, direction },
+        remainingFrames: COMMAND_BUFFER_FRAMES,
+      };
+    }
+  }
+
+  private legacyCommands(input: InputFrame, previous: InputFrame): CommandIntent[] {
+    const direction = directionFromInput(input);
+    const commands: CommandIntent[] = [];
+    if (Boolean(input.jump) && !Boolean(previous.jump)) commands.push({ action: 'jump', direction: { ...direction } });
+    if (Boolean(input.attack) && !Boolean(previous.attack)) commands.push({ action: 'attack', direction: { ...direction } });
+    if (Boolean(input.special) && !Boolean(previous.special)) commands.push({ action: 'special', direction: { ...direction } });
+    if (Boolean(input.pushGuard) && !Boolean(previous.pushGuard)) commands.push({ action: 'pushGuard', direction: { ...direction } });
+    if (Boolean(input.ultimate) && !Boolean(previous.ultimate)) commands.push({ action: 'ultimate', direction: { ...direction } });
+    return commands;
+  }
+
+  private agePendingCommands(): void {
+    for (const fighter of this.fighters) {
+      if (!fighter.pendingCommand) continue;
+      fighter.pendingCommand.remainingFrames -= 1;
+      if (fighter.pendingCommand.remainingFrames <= 0) fighter.pendingCommand = null;
+    }
   }
 
   private primePushGuardBuffers(inputs: readonly [InputFrame, InputFrame]): void {
@@ -687,6 +805,8 @@ export class CombatSimulation {
     fighter.dashKind = null;
     fighter.dashFrame = 0;
     fighter.pushGuardBufferFrames = 0;
+    fighter.pendingCommand = null;
+    fighter.downGraceSamples = 0;
     fighter.ultimatePhase = 'idle';
     fighter.ultimatePhaseFrame = 0;
     fighter.ultimateTarget = null;
@@ -915,6 +1035,8 @@ export class CombatSimulation {
     defender.stunFrames = 0;
     defender.blockstunFrames = 0;
     defender.pushGuardBufferFrames = 0;
+    defender.pendingCommand = null;
+    defender.downGraceSamples = 0;
     defender.ultimatePhase = 'idle';
     defender.ultimatePhaseFrame = 0;
     defender.ultimateTarget = null;

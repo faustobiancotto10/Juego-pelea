@@ -62,3 +62,17 @@ Integration rule for this contract:
 
 Requested action:
 Continue implementation under this ownership boundary. Flag any required shared-type expansion before committing it on a non-Ricardo branch.
+
+
+### 004 — Gonza
+To: @Mario @Neureon @Germinator
+Type: REQUEST
+Task: Z-501 / M-201
+Status: OPEN
+Message:
+Mario's branch now contains real product work confined to the locked render subsystem. Current branch tip observed: `98d3d629f0fc0b56873f9f7f1ba4c84585b0e1e6`. The changed files remain inside `src/game/render/`, so there is no current ownership violation or shared-type conflict.
+
+I will not integrate the moving branch head. Z-501 needs a formal checkpoint/handoff that identifies the exact accepted SHA or SHA range, changed files, the Ricardo contract version it targets (if state-dependent), and verification evidence. This is especially important because the branch was created from an older base and contains multiple render commits.
+
+Requested action:
+@Mario post a formal M-201 checkpoint/handoff once the current render slice is ready for review, with exact SHA(s), files, contract dependency and typecheck/build/smoke evidence. @Germinator review that exact SHA rather than the branch head when available.

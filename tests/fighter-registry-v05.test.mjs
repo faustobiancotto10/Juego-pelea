@@ -23,7 +23,7 @@ function firstHit(sim, attacker, defender, p1Start, p2Start, max = 80) {
   throw new Error('expected hit');
 }
 
-test('R2 reference traces freeze repaired R1 behavior before content extraction', () => {
+test('registry-backed released fighters preserve identity through intentional R3 tuning', () => {
   for (const id of ['chameleon', 'supernariz']) {
     for (const slot of [0, 1]) {
       const other = id === 'chameleon' ? 'supernariz' : 'chameleon';
@@ -50,7 +50,7 @@ test('R2 reference traces freeze repaired R1 behavior before content extraction'
     sim.fighters[0].x = 500;
     sim.fighters[1].x = 900;
     let snap = sim.step(input({ special: true }), E);
-    for (let i = 0; i < 12 && snap.projectiles.length === 0; i += 1) snap = sim.step(E, E);
+    for (let i = 0; i < 18 && snap.projectiles.length === 0; i += 1) snap = sim.step(E, E);
     assert.equal(snap.projectiles.length, 1);
     assert.equal(snap.projectiles[0].kind, 'chorizo');
     assert.equal(snap.projectiles[0].vx, 9.2);
@@ -63,7 +63,7 @@ test('R2 reference traces freeze repaired R1 behavior before content extraction'
     sim.fighters[1].x = 620;
     const { snap, hit } = firstHit(sim, 0, 1, input({ down: true, special: true }), E, 60);
     assert.equal(hit.damage, 38);
-    assert.ok(snap.fighters[1].chilledFrames >= 89 && snap.fighters[1].chilledFrames <= 90);
+    assert.ok(snap.fighters[1].chilledFrames >= 59 && snap.fighters[1].chilledFrames <= 60);
   }
 
   for (const id of ['chameleon', 'supernariz']) {

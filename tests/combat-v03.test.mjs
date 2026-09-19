@@ -214,28 +214,45 @@ test('Camaleoni final Special grammar maps neutral/up to Lengua and down to Cole
   assert.equal(up.step(input({ up: true, special: true }), EMPTY_INPUT).fighters[0].moveId, 'tongueStraight');
 });
 
-test('CPU uses V0.3 actions contextually instead of spending SUPER immediately', () => {
+test('CPU uses delayed seeded actions contextually instead of spending SUPER immediately', () => {
   const sim = new CombatSimulation('chameleon', 'supernariz', { skipIntro: true, initialSuper: [0, 100] });
-  const cpu = new CpuController(1);
-  const first = structuredClone(sim.getSnapshot());
-  first.frame = 1;
-  first.fighters[0].x = 500;
-  first.fighters[1].x = 680;
-  assert.equal(Boolean(cpu.nextInput(first).ultimate), false);
+  const base = structuredClone(sim.getSnapshot());
+  base.fighters[0].x = 500;
+  base.fighters[1].x = 680;
 
-  const opportunity = structuredClone(first);
-  opportunity.frame = 60;
-  const action = new CpuController(1).nextInput(opportunity);
-  assert.equal(action.ultimate, true);
+  const immediate = new CpuController(1, { seed: 17 });
+  const first = structuredClone(base);
+  first.combatTick = 0;
+  first.frame = 0;
+  assert.equal(Boolean(immediate.nextInput(first).ultimate), false, 'READY alone cannot create a current-frame oracle Ultimate');
 
-  const pressured = structuredClone(first);
-  pressured.frame = 12;
+  let someUltimate = false;
+  let someNoUltimate = false;
+  for (let seed = 1; seed <= 32; seed += 1) {
+    const cpu = new CpuController(1, { seed });
+    let used = false;
+    for (let tick = 0; tick < 48; tick += 1) {
+      const snap = structuredClone(base);
+      snap.combatTick = tick;
+      snap.frame = tick;
+      if (cpu.nextInput(snap).ultimate) used = true;
+    }
+    someUltimate ||= used;
+    someNoUltimate ||= !used;
+  }
+  assert.equal(someUltimate, true);
+  assert.equal(someNoUltimate, true);
+
+  const pressuredCpu = new CpuController(1, { seed: 7 });
+  const pressured = structuredClone(base);
+  pressured.combatTick = 0;
+  pressured.frame = 0;
   pressured.fighters[1].blockstunFrames = 6;
   pressured.fighters[1].guard = 100;
   pressured.fighters[0].x = 570;
   pressured.fighters[1].x = 680;
-  const defense = new CpuController(1).nextInput(pressured);
-  assert.equal(defense.pushGuard, true);
+  const defense = pressuredCpu.nextInput(pressured);
+  assert.equal(defense.right, true, 'own blockstun can immediately maintain legal away guard');
 });
 
 test('identical V0.3 input streams produce identical snapshots and event ordering', () => {

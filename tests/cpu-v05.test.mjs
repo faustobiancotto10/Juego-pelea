@@ -70,8 +70,10 @@ function trace(seed, cue = 'none', ticks = 48) {
   return out;
 }
 
-function defensive(frame) {
-  return Boolean(frame.left || frame.right || frame.down || frame.jump || frame.dashLeft || frame.dashRight || frame.pushGuard);
+function threatDefense(frame) {
+  // Scenario CPU is slot 1 at x=700 with foe at x=500: away is RIGHT.
+  // LEFT is ordinary approach and must not count as cue recognition.
+  return Boolean(frame.right || frame.down || frame.jump || frame.dashRight || frame.pushGuard);
 }
 
 test('R5 CPU profiles publish Standard delayed cadence and bounded commitments', () => {
@@ -151,7 +153,7 @@ test('seeded corpus recognizes some cues and permanently misses others instead o
 
     for (let tick = 0; tick < 64; tick += 1) {
       const out = cpu.nextInput(scenario(tick, tick >= 8 ? 'ultimate' : 'none'));
-      if (tick >= 20 && defensive(out)) {
+      if (tick >= 20 && threatDefense(out)) {
         reacted = true;
         reactionCount += 1;
       }
@@ -168,28 +170,31 @@ test('seeded corpus recognizes some cues and permanently misses others instead o
 
 test('a missed cue remains missed, while a later distinct cue can be evaluated', () => {
   let chosenSeed = null;
-  for (let seed = 1; seed <= 200 && chosenSeed === null; seed += 1) {
+  for (let seed = 1; seed <= 400 && chosenSeed === null; seed += 1) {
     const cpu = new CpuController(1, { seed });
-    let reacted = false;
-    for (let tick = 0; tick < 55; tick += 1) {
-      const out = cpu.nextInput(scenario(tick, tick >= 8 ? 'tongue' : 'none'));
-      if (tick >= 20 && defensive(out)) reacted = true;
+    let firstReacted = false;
+    let secondReacted = false;
+    for (let tick = 0; tick < 104; tick += 1) {
+      const cue = tick >= 8 && tick < 45 ? 'tongue' : tick >= 56 ? 'air' : 'none';
+      const out = cpu.nextInput(scenario(tick, cue));
+      if (tick >= 20 && tick < 55 && threatDefense(out)) firstReacted = true;
+      if (tick >= 68 && threatDefense(out)) secondReacted = true;
     }
-    if (!reacted) chosenSeed = seed;
+    if (!firstReacted && secondReacted) chosenSeed = seed;
   }
-  assert.notEqual(chosenSeed, null, 'fixture needs a deterministic missed cue seed');
+  assert.notEqual(chosenSeed, null, 'fixture needs a seed that misses one cue and recognizes a later distinct cue');
 
   const cpu = new CpuController(1, { seed: chosenSeed });
   let firstCueDefense = 0;
   let secondCueDefense = 0;
-  for (let tick = 0; tick < 96; tick += 1) {
+  for (let tick = 0; tick < 104; tick += 1) {
     const cue = tick >= 8 && tick < 45 ? 'tongue' : tick >= 56 ? 'air' : 'none';
     const out = cpu.nextInput(scenario(tick, cue));
-    if (tick >= 20 && tick < 55 && defensive(out)) firstCueDefense += 1;
-    if (tick >= 68 && defensive(out)) secondCueDefense += 1;
+    if (tick >= 20 && tick < 55 && threatDefense(out)) firstCueDefense += 1;
+    if (tick >= 68 && threatDefense(out)) secondCueDefense += 1;
   }
   assert.equal(firstCueDefense, 0, 'missed first cue must stay missed for its lifetime');
-  assert.ok(secondCueDefense >= 0, 'later cue is independently evaluated without reviving the missed cue');
+  assert.ok(secondCueDefense > 0, 'later distinct cue must be independently evaluated');
 });
 
 test('guard-height response comes from delayed observed level, never immediate current cue', () => {

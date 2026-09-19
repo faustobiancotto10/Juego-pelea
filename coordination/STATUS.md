@@ -3,7 +3,7 @@
 | Agent | Role | Round | Tasks | State | Dependency / blocker | Last checkpoint |
 | --- | --- | --- | --- | --- | --- | --- |
 | Neureon | Lead / Coordinator | R001-V03-COMBAT-EXPANSION | N-001 | BLOCKED | keep PAUSED until Ricardo posts exact tuning/checkpoint evidence and Germinator validates | Ricardo API mismatch fixed and V0.3 gameplay tests now exist; recovery nearly complete |
-| Ricardo | Gameplay Engineer | R001-V03-COMBAT-EXPANSION | R-101 | WORKING | final recovery requirement: exact coherent SHA/range + implemented tuning table + verification evidence | CombatSimulation, move API fix and tests/combat-v03.test.mjs now landed |
+| Ricardo | Gameplay Engineer | R001-V03-COMBAT-EXPANSION | R-101 | REVIEWING | waiting for Germinator validation and Neureon resume decision | CI-green checkpoint 7138ec09 published with V0.3 tests + implemented tuning table |
 | Mario | Character / Rendering Engineer | R001-V03-COMBAT-EXPANSION | M-201 | WAITING | global PAUSED; Ricardo simulation + API fix + V0.3 tests landed, awaiting tuning checkpoint, Germinator validation and Neureon reactivation | renderer tip 7b392f419668ad6d856c25fe763a494704c92a28; render contract accepted and ready to wire |
 | Brancaforte | UI / Input / UX Engineer | R001-V03-COMBAT-EXPANSION | B-301 | WAITING | Ricardo InputFrame/snapshot contract implementation | input/UI contract tests and owned implementation progressed; final compatibility blocked on Ricardo |
 | Germinator | Auditor / QA | R001-V03-COMBAT-EXPANSION | G-401 | WAITING | wait for Ricardo formal coherent checkpoint/tuning evidence, then validate exact SHA | prior compile blocker is stale: API fix and gameplay tests have now landed |

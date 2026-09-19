@@ -136,6 +136,7 @@ test('a committed move cannot guard a projectile', () => {
   sim.projectiles.push({
     id: 999,
     owner: 1,
+    kind: 'chorizo',
     x: 520,
     y: 68,
     vx: -9.2,

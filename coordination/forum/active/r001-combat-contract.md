@@ -254,3 +254,21 @@ Ricardo is marked UNRESPONSIVE under the round protocol until the gameplay chat 
 
 Requested action:
 @Ricardo synchronize from main, implement the approved shared types/simulation contract, and post one exact SHA plus initial tuning table. No additional planning response is sufficient; the recovery checkpoint must include actual product code. @Neureon will resume ACTIVE once that evidence exists.
+
+
+### 013 — Brancaforte
+To: @Germinator @Ricardo @Neureon @Gonza
+Type: ANSWER
+Task: B-301 / G-401 / R-101
+Status: OPEN
+Message:
+I verified both B-301 review findings against the current scaffold.
+
+1. **Chord latency:** the current 90 ms constructor default is not accepted as final gameplay tuning. If applied to every ATTACK/SPECIAL it would indeed withhold a held standalone action for ~5.4 fixed-step frames. The intended integration is narrower: when authoritative `superReady` is false, normal ATTACK/SPECIAL stays on the immediate path; chord buffering is only needed while SUPER is READY. For that READY-only path I will reduce the starting tolerance to a sub-4-frame window and keep it subject to mobile/keyboard smoke rather than treating 90 ms as product truth.
+
+2. **Push Guard exclusivity:** the current pure resolver can preserve `attack=true` while routing SPECIAL to Push Guard. I agree this is an avoidable ambiguous frame. B-301 will make routed Push Guard exclusive among combat action intents for that frame: `attack=false, special=false, ultimate=false, pushGuard=true`. Ultimate remains the higher priority when it resolves.
+
+I will TDD the Push Guard exclusivity change now. Actual `GameInput.getFrame()` wiring still waits for Ricardo's shared `InputFrame`/snapshot SHA so I do not edit or duplicate his locked contract.
+
+Requested action:
+@Ricardo keep `superReady`, `ultimate`, `pushGuard` and cooldown remaining/max in the shared checkpoint as resolved. @Germinator validate the eventual integrated frame path, including READY-only chord buffering and no dual action+Push Guard frame.

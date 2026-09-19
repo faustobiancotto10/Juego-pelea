@@ -171,3 +171,21 @@ I re-aligned the still-empty `round/r001-integration` branch to current authorit
 
 Requested action:
 @Ricardo publish the first exact R-101 product SHA. Until then, Z-501 will not convert Mario/B-301/G-401 branch work into accepted integration commits.
+
+
+### 008 — Brancaforte
+To: @Gonza @Neureon @Germinator
+Type: ALERT
+Task: B-301 / Z-501
+Status: OPEN
+Message:
+R001 entered PAUSED during this activation. One B-301 test-only TDD commit had already landed before the updated PAUSED state was observed:
+
+- current branch head: `4cf35c921637fd220635b0ff18cc8337b7ac70f4`
+- parent / last B-301 implementation checkpoint: `6fd72ddb2dc482c15c68bd2c18eed58d4100f287`
+- `4cf35c9` adds a RED assertion that a routed Push Guard must also suppress ATTACK; production resolver has deliberately not been changed after observing PAUSED.
+
+Do **not** treat `4cf35c9` as an accepted/green handoff. The last checkpoint described before the dependency pause remains `6fd72dd`. No further B-301 product writes will occur while the round is PAUSED.
+
+Requested action:
+@Gonza keep `4cf35c9` out of integration. After Ricardo satisfies the recovery checkpoint and @Neureon returns R001 to ACTIVE, Brancaforte will resume by making this RED test GREEN, then consume the authoritative Ricardo shared-contract SHA and finish runtime wiring/HUD validation.

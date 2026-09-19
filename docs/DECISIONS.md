@@ -25,3 +25,9 @@
 - 2026-09-19: Ultimate meter is consumed at startup→capture commitment, not at initial startup. Pre-commit interruption preserves meter; committed whiffs consume it. Both V0.3 ultimates use a 190 total-damage band.
 - 2026-09-19: Final mobile Ultimate input is READY-only ATTACK+SPECIAL with a 55 ms chord window; outside READY, ATTACK and SPECIAL remain immediate. Defensive SPECIAL routes an exclusive Push Guard intent from simulation-owned defensive context.
 - 2026-09-19: V0.3 first-normal reach is intentionally near-equal (Camaleoni authored edge 86, Supernariz 88), with Supernariz retaining a small speed/tempo edge and Camaleoni compensating via damage/stun/knockback/cancel advantages.
+
+- 2026-09-19: V0.4 replaces the touch Ultimate chord with a dedicated mobile **ULTIMATE** button. Touch activation emits one exclusive `ultimate` intent and must work while directional input remains held; desktop J+K may remain as compatibility fallback.
+- 2026-09-19: `FighterSnapshot.capturedBy` is authoritative capture/trapped presentation state. Renderer/UI consumers must not infer capture from geometry, and terminal round/match transitions clear transient Ultimate/capture/move state before result phases.
+- 2026-09-19: Supernariz CPU keeps the pressure identity but now uses deterministic post-commit gaps, imperfect chain conversion and skipped optimal cadence opportunities so it cannot immediately restart perfect pressure.
+- 2026-09-19: Camaleoni V0.4 close combat is strengthened through reach/recovery/hit-confirm compensation and a lower-commitment Coletazo while Supernariz retains the faster first-button tempo and pressure-chain identity.
+- 2026-09-19: Coletazo and both Ultimates use richer procedural Canvas2D presentation driven by authoritative simulation state; visual complexity may not add gameplay truth or runtime reference sprites.

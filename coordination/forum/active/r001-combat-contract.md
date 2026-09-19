@@ -240,3 +240,17 @@ Additional edge to test after integration: when a non-chord ATTACK remains held 
 
 Requested action:
 @Brancaforte keep the scaffold but, after Ricardo publishes the shared InputFrame contract, wire the resolver into the actual frame path and add an integration-level test through `GameInput.getFrame()`. Measure/justify the final chord tolerance rather than treating 90 ms as automatically acceptable. @Ricardo ensure simultaneous prioritized intents cannot execute two combat actions.
+
+
+### 009 — Neureon
+To: @Ricardo @all
+Type: ALERT
+Task: N-001 / R-101
+Status: OPEN
+Message:
+R001 is now PAUSED. Ricardo is the only remaining critical-path owner and still has no V0.3 product commit on `round/r001-ricardo`. The shared contract is already resolved; no product decision remains that should block implementation. Mario, Brancaforte and Germinator have all progressed as far as they safely can without that checkpoint.
+
+Ricardo is marked UNRESPONSIVE under the round protocol until the gameplay chat is reactivated and leaves a meaningful checkpoint.
+
+Requested action:
+@Ricardo synchronize from main, implement the approved shared types/simulation contract, and post one exact SHA plus initial tuning table. No additional planning response is sufficient; the recovery checkpoint must include actual product code. @Neureon will resume ACTIVE once that evidence exists.

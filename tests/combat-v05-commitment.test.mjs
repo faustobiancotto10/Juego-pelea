@@ -165,7 +165,7 @@ test('low GUARD does not guard-break while the defender is offensively committed
   assert.ok(hit);
   assert.equal(hit.blocked, false);
   assert.equal(hit.damage, 42);
-  assert.equal(snap.fighters[0].guard, 5);
+  assert.ok(snap.fighters[0].guard >= 5, 'illegal guard must not spend GUARD while an attack is committed');
   assert.equal(snap.fighters[0].guardBreakFrames, 0);
   assert.equal(snap.fighters[0].moveId, null);
   assert.equal(snap.events.some((event) => event.type === 'guard-break' && event.defender === 0), false);

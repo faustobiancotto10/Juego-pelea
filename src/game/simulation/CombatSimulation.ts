@@ -81,8 +81,9 @@ function pressed(now: InputFrame, before: InputFrame, key: 'jump' | 'attack' | '
 
 function initialSuperFor(options: CombatSimulationOptions, index: FighterIndex): number {
   const configured = options.initialSuper;
-  if (Array.isArray(configured)) return Math.max(0, Math.min(MAX_SUPER, configured[index] ?? 0));
-  return Math.max(0, Math.min(MAX_SUPER, configured ?? 0));
+  if (typeof configured === 'number') return Math.max(0, Math.min(MAX_SUPER, configured));
+  if (configured) return Math.max(0, Math.min(MAX_SUPER, configured[index] ?? 0));
+  return 0;
 }
 
 function makeFighter(id: FighterId, index: FighterIndex, superMeter = 0): FighterState {
@@ -355,7 +356,7 @@ export class CombatSimulation {
     }
 
     if (Boolean(input.ultimate)) {
-      if (fighter.grounded && fighter.superReady && pressed(input, fighter.prevInput, 'ultimate')) {
+      if (fighter.grounded && fighter.superReady && fighter.currentMove === null && fighter.dashKind === null && pressed(input, fighter.prevInput, 'ultimate')) {
         this.startUltimate(index);
       }
       return;
@@ -414,9 +415,8 @@ export class CombatSimulation {
 
     if (fighter.grounded && pressed(input, fighter.prevInput, 'special')) {
       if (fighter.id === 'chameleon') {
-        const foe = this.fighters[index === 0 ? 1 : 0];
-        const close = !input.down && Math.abs(foe.x - fighter.x) <= 165;
-        this.startMove(fighter, close ? getCloseSpecialMove(fighter.id) : getSpecialMove(fighter.id, input.down));
+        if (input.up && !input.down) this.startMove(fighter, getCloseSpecialMove(fighter.id));
+        else this.startMove(fighter, getSpecialMove(fighter.id, input.down));
       } else if (input.down || fighter.projectileCooldown <= 0) {
         this.startMove(fighter, getSpecialMove(fighter.id, input.down));
       }

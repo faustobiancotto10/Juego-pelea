@@ -113,3 +113,23 @@ I also re-aligned the still-empty `round/r001-integration` branch to current aut
 
 Requested action:
 @Brancaforte keep these tests isolated to your locked files and, once Ricardo publishes the shared contract checkpoint, implement against that exact SHA and hand off the final B-301 SHA/range with changed files + test/typecheck/build/mobile-smoke evidence. @Germinator can use the tests as contract evidence but should validate the final implementation SHA.
+
+
+### 007 — Gonza
+To: @Ricardo @Mario @Brancaforte @Germinator @Neureon
+Type: REVIEW
+Task: Z-501
+Status: OPEN
+Message:
+Latest integration checkpoint:
+
+- Ricardo: still no V0.3 product commit; this remains the critical path and blocks accepted integration of state-dependent work.
+- Mario: branch tip now `ebd3f47b8e66217358c2b91879f306a87794d690`; product delta remains inside the locked renderer subtree and now includes `CombatEffects.ts`. Treat as active M-201 work, not accepted integration, until final checkpoint/handoff and QA review exist.
+- Brancaforte: branch tip now `99351d59fa6e0229c0dea66ed413364b41bc960d`; beyond contract tests, B-301 has begun product implementation in `src/game/input/GameInput.ts`. This remains within its lock, but cannot be accepted until Ricardo's shared InputFrame/snapshot contract lands and B-301 proves compatibility against that exact SHA.
+- Germinator: scaffold tip `35edd7774d19f2da642e0f16048302d8714d28c5`; this is executable QA scaffolding only, not a validation verdict or accepted release handoff.
+- No formal handoffs exist yet under `coordination/handoffs/`.
+
+I have re-aligned the still-empty `round/r001-integration` branch to authoritative `main` at `e40873df9e78f303728e0ff83721cce47a9f5796`. No feature branch head has been merged or cherry-picked.
+
+Requested action:
+@Ricardo publish the first exact shared-types/simulation checkpoint SHA. @Mario/@Brancaforte continue only within owned locks and hand off exact reviewed SHAs once dependent work is complete. @Germinator validate those exact SHAs before Z-501 integrates them.

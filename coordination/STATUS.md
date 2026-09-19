@@ -2,8 +2,8 @@
 
 | Agent | Role | Round | Tasks | State | Dependency / blocker | Last checkpoint |
 | --- | --- | --- | --- | --- | --- | --- |
-| Neureon | Lead / Coordinator | R003-V05-COMBAT-LOOP | V05-N1 | READY | waiting Stage 1 PRESENTs | R003 contracts opened from Astra audit |
-| Ricardo | Gameplay Engineer | R003-V05-COMBAT-LOOP | V05-R1..R5 | WAITING_FOR_TEAM | R1 complete; wait for B1 + Neureon Stage 2 gate | V05-R1 green SHA 5f6d59eb; handoff published |
+| Neureon | Lead / Coordinator | R003-V05-COMBAT-LOOP | V05-N1 | READY | monitor Stage 2 checkpoints | Stage 1 accepted; Stage 2 opened |
+| Ricardo | Gameplay Engineer | R003-V05-COMBAT-LOOP | V05-R1..R5 | WORKING | none | Stage 2 authorized; execute R2 next |
 | Brancaforte | UI / Input / UX Engineer | R003-V05-COMBAT-LOOP | V05-B1,B2 | WAITING_FOR_TEAM | wait for Stage 4 after G1 accepted core | B1 clean handoff 4eddddad; CI 35458820283 green 107/107 + build; physical Safari pending later device gate |
 | Mario | Character / Rendering Engineer | R003-V05-COMBAT-LOOP | V05-M1 | OFF_ROUND | wait for G1 accepted core | planned Stage 4 |
 | Germinator | Auditor / QA | R003-V05-COMBAT-LOOP | V05-G1,G2 | OFF_ROUND | wait for frozen core | planned Stages 3/5 |

@@ -223,18 +223,28 @@ test('iPhone-scale 852x393 landscape control geometry preserves a central play l
   const dpadSize = clamp(116, width * 0.18, 172);
   const clusterWidth = clamp(230, width * 0.33, 330);
   const clusterHeight = clamp(134, width * 0.21, 200);
-  const leftInset = 18;
-  const rightInset = 16;
   const bottomInset = 15;
+  const ultimateSize = clamp(62, width * 0.088, 86);
 
-  const dpadRight = leftInset + dpadSize;
-  const clusterLeft = width - rightInset - clusterWidth;
-  const clusterTop = height - bottomInset - clusterHeight;
-  const clearCenterWidth = clusterLeft - dpadRight;
+  const geometry = (safeLeft, safeRight) => {
+    const leftInset = Math.max(18, safeLeft);
+    const rightInset = Math.max(16, safeRight);
+    const dpadRight = leftInset + dpadSize;
+    const clusterLeft = width - rightInset - clusterWidth;
+    return {
+      clearCenterWidth: clusterLeft - dpadRight,
+      clusterTop: height - bottomInset - clusterHeight,
+    };
+  };
 
-  assert.ok(clearCenterWidth >= 360, `central unobstructed lane should remain broad; got ${clearCenterWidth.toFixed(1)}px`);
-  assert.ok(clusterTop >= 190, `action cluster should stay in lower half; got top ${clusterTop.toFixed(1)}px`);
+  const noCutout = geometry(0, 0);
+  const deepLandscapeSafeArea = geometry(59, 59);
+
+  assert.ok(noCutout.clearCenterWidth >= 360, `zero-inset central lane should remain broad; got ${noCutout.clearCenterWidth.toFixed(1)}px`);
+  assert.ok(deepLandscapeSafeArea.clearCenterWidth >= 280, `59px safe-area central lane should remain usable; got ${deepLandscapeSafeArea.clearCenterWidth.toFixed(1)}px`);
+  assert.ok(noCutout.clusterTop >= 190, `action cluster should stay in lower half; got top ${noCutout.clusterTop.toFixed(1)}px`);
   assert.ok(dpadSize <= 155, 'D-pad should remain compact at iPhone-landscape width');
+  assert.ok(ultimateSize >= 72, `Ultimate touch target should remain large enough; got ${ultimateSize.toFixed(1)}px`);
 });
 
 test('capture-linked renderer effects clear when authoritative capture/Ultimate state ends', async () => {

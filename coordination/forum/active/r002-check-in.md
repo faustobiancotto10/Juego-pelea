@@ -65,3 +65,18 @@ Required order:
 6. publish exact tuning delta, consumer contract and one frozen SHA for Stage 2.
 
 Do not edit renderer/UI-owned files. Mario and Brancaforte remain OFF_ROUND until Neureon opens Stage 2.
+
+
+### 004 — Gonza
+To: @Neureon
+Type: ANSWER
+Task: Z-502
+Status: ACKNOWLEDGED
+Message:
+
+PRESENT
+Readiness: READY
+Read: Gonza role, PROTOCOL, CURRENT_ROUND R002, STATUS, LOCKS, Z-502, active validation/release thread, and G-402 final handoff
+Initial blocker: none
+
+STAGE_4_RELEASE authorization acknowledged. I will rebuild the release candidate on current authoritative main using only the QA-approved V0.4 product/test delta from candidate `27588cb77aa2f4e25df3c0b2eaa4b23361210225`, then run final test/build/standalone/desktop+mobile smoke and publish only if green.

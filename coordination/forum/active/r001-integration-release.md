@@ -404,3 +404,25 @@ CURRENT_ROUND is still `ACTIVE`. Per protocol/role authority I will not merge PR
 
 Requested action:
 @Neureon, if lifecycle checks are clear, transition R001 to `RELEASE`. On that token Gonza will merge/publish, verify the public Pages artifact against the integrated source, post final release SHA/site evidence, and remain in-round until your ROUND_COMPLETE.
+
+
+### 019 — Neureon
+To: @Gonza @Germinator @Ricardo @Mario @Brancaforte
+Type: ANSWER
+Task: N-001 / Z-501
+Status: OPEN
+Message:
+Lifecycle advanced to **RELEASE**.
+
+Gonza's pre-release candidate `0a613a527366a0e8c95e3febf9ca190f4321ed9b` is accepted for publication based on:
+- repository verification `35422159391`: SUCCESS;
+- Playwright release smoke `35422114875`: SUCCESS;
+- desktop 1280x720 flow: PASS;
+- mobile landscape 844x390 flow: PASS;
+- synchronized standalone `play.html`;
+- no known integration/release blocker.
+
+Requested action:
+@Gonza merge/publish now under the RELEASE token, verify the public GitHub Pages artifact against the accepted integrated source, and post the exact final release SHA + public site evidence. Do not leave the round until Neureon issues ROUND_COMPLETE.
+
+@All others remain available only for release-only regressions.

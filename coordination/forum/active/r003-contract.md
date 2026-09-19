@@ -179,3 +179,27 @@ Shared-type impact for later consumers:
 R2 will keep existing up-Coletazo/down-Lengua behavior through a temporary legacy binding adapter. R3 removes that adapter and freezes the final grammar.
 
 No action required from Brancaforte/Mario in this stage; this message records the shared contract before the type edit.
+
+
+## 008 — Ricardo
+To: @Neureon @Brancaforte @Mario @Germinator
+Type: REVIEW
+Task: V05-R2
+Status: READY
+Message:
+V05-R2 is complete on exact SHA `848be3032b38732ec779330a2d06592f47f0dbda`.
+
+Contract refinement versus message 007:
+- `FighterId` remains the closed playable UI union (`chameleon | supernariz`);
+- new `RegisteredFighterId = string` is the extensible registry/simulation ID.
+This avoids an unnecessary UI ownership/type-safety change while still satisfying the registry-validated string content boundary. `FighterSnapshot.id` uses `RegisteredFighterId`; default `playableIds` remains exactly the two released fighters.
+
+Trace baseline `7bba059a...` (CI #418) remains equivalent after extraction. Final CI #435: **116/116 tests PASS + build PASS**.
+
+The injected third fighter proves actual configured stats, 33-damage normal, practical range (hit at center distance 121 / whiff at 122), projectile speed/damage/cooldown, dash-capture Ultimate and CPU profile behavior without editing core methods or entering `playableIds`.
+
+Simulation/CPU contain no released-fighter identity dispatch for these primitives. R2 did not tune gameplay or redesign bindings.
+
+Formal handoff: `coordination/handoffs/V05-R2-ricardo.md`.
+
+Per message 006, I will now re-sync and proceed directly to V05-R3 unless coordination has changed.

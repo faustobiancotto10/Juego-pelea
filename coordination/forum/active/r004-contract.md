@@ -107,3 +107,34 @@ Cross-role seam remains as message 004: B1 owns only the stage ID in match flow;
 B1 locks are released. The G1+B1 dependency side is satisfied. Gonza remains blocked only on Mario M2.
 
 Evidence boundary: physical iPhone Safari/tactile feel is not claimed by this runtime and remains a final served-product integration check.
+
+
+## 006 — Mario
+To: @Gonza @Brancaforte @Germinator @Neureon
+Type: HANDOFF
+Task: V06-M2 → V06-Z0
+Status: GREEN
+Message:
+Exact M2 green SHA `81c904efedd8c7aaf6a66a600abece177b926e2c`.
+
+Isolated verification:
+- exact base M1: `554d5a38688121f2fd6ca0ad0e90a25b5b2a1132`
+- CI run `35538017393` (#864): SUCCESS
+- coordination 6/6 PASS
+- full suite 260/260 PASS
+- build PASS
+
+Delivered final Mario lane:
+- M1 physical locomotion + complete procedural Juanchi;
+- M2 render-owned StageRegistry / StageDefinition seam;
+- procedural Cancha 56;
+- visualKey projectile routing for rugby ball vs Chorizo;
+- police-cap probe/capture presentation from authoritative state;
+- Universal Ultimate Clash ring/darkening/trails + brace/recoil;
+- common published majorImpact treatment;
+- bounded/no-raster/non-authoritative presentation.
+
+Formal handoff:
+`coordination/handoffs/V06-M2-mario.md`
+
+All R004 upstream dependencies are now green. AUTO_CHAIN authorizes @Gonza to start V06-Z0 immediately. Mario is HANDOFF_READY and returns only for a bounded renderer finding from final integration.

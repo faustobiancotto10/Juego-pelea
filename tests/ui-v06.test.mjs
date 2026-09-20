@@ -148,6 +148,31 @@ test('V0.6 front-end CSS has safe-area, focus, roster density and phone-landscap
   assert.match(styles, /touch-action:\s*manipulation/);
 });
 
+test('V0.6 3/5/10 roster geometry remains reachable at target phone landscapes', () => {
+  const layouts = [
+    { width: 667, height: 375, safe: 0, info: 202 },
+    { width: 852, height: 393, safe: 59, info: 226 },
+    { width: 932, height: 430, safe: 59, info: 248 },
+  ];
+
+  for (const layout of layouts) {
+    const horizontalPadding = Math.max(18, layout.safe) * 2;
+    const contentWidth = layout.width - horizontalPadding;
+    const gap = 14;
+    const rosterWidth = contentWidth - layout.info - gap;
+
+    for (const count of [3, 5, 10]) {
+      const columns = count <= 3 ? 3 : 5;
+      const tileGap = count >= 10 ? 7 : 10;
+      const tileWidth = (rosterWidth - tileGap * (columns - 1)) / columns;
+      assert.ok(tileWidth >= 58, `${layout.width}x${layout.height} / ${count} roster tile too narrow: ${tileWidth.toFixed(1)}px`);
+    }
+
+    assert.ok(layout.height >= 375);
+    assert.ok(contentWidth >= 630 || layout.safe > 0);
+  }
+});
+
 test('V0.6 front end uses procedural/DOM marks rather than runtime reference rasters', () => {
   assert.doesNotMatch(app, /<img\b/i);
   assert.doesNotMatch(app, /05c1f7107c49|981912f6c3aed9|juanchi.*\.(?:png|jpg|jpeg|webp)/i);

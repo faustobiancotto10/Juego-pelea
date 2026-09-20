@@ -1117,6 +1117,20 @@ export class CombatSimulation {
     this.projectiles = [];
   }
 
+  private clearReturningProjectilesForRoundEnd(): void {
+    for (const projectile of this.projectiles) {
+      if (!projectile.active) continue;
+      const definition = this.registry.getProjectile(projectile.kind);
+      if (this.projectileKind(definition) !== 'returnToOwner') continue;
+      projectile.active = false;
+      const owner = this.fighters[projectile.owner];
+      owner.projectileCooldown = 0;
+      owner.rangedRecoveryFrames = 0;
+      owner.rangedAvailability = 'ready';
+    }
+    this.projectiles = this.projectiles.filter((projectile) => projectile.active);
+  }
+
   private cancelReturningProjectilesFromCurrentEvents(): void {
     for (const event of this.events) {
       if (event.type === 'hit' && !event.blocked) {
@@ -1212,6 +1226,25 @@ export class CombatSimulation {
       defender.y + 18 - definition.collisionHalfHeight,
       hurtTop + 10 + definition.collisionHalfHeight,
     );
+  }
+
+  private normalizeProjectileRuntimeState(
+    projectile: ProjectileState,
+    definition: ProjectileDefinition,
+  ): void {
+    // V0.5 tests/harnesses injected the old minimal ProjectileState directly.
+    // Keep that bounded harness contract while all authored V0.6 spawns publish
+    // the richer state immediately.
+    projectile.visualKey ??= definition.visualKey ?? definition.key;
+    projectile.vy ??= 0;
+    projectile.phase ??= 'outbound';
+    projectile.phaseTick ??= 0;
+    projectile.age ??= 0;
+    projectile.previousX ??= projectile.x;
+    projectile.previousY ??= projectile.y;
+    projectile.outboundContacts ??= new Set<FighterIndex>();
+    projectile.returnContacts ??= new Set<FighterIndex>();
+    projectile.lastContactTick ??= [null, null];
   }
 
   private advanceLinearProjectile(projectile: ProjectileState): void {
@@ -1371,6 +1404,7 @@ export class CombatSimulation {
     for (const projectile of this.projectiles) {
       if (!projectile.active) continue;
       const definition = this.registry.getProjectile(projectile.kind);
+      this.normalizeProjectileRuntimeState(projectile, definition);
       if (this.projectileKind(definition) === 'returnToOwner') {
         const result = this.advanceReturningProjectile(projectile, definition);
         movement.set(projectile.id, { leg: result.movementLeg, catchT: result.catchT, expireAfterContact: result.expireAfterContact });
@@ -2151,7 +2185,9 @@ export class CombatSimulation {
     this.pendingUltimateReleases = [];
     this.clash = null;
     this.hitstopFrames = 0;
-    this.clearEncounterProjectiles(false);
+    // Returning balls cannot survive terminal state; legacy linear projectiles
+    // remain frozen through round-over and are cleared on the next-round reset.
+    this.clearReturningProjectilesForRoundEnd();
     this.clearTransientCombatState(this.fighters[0]);
     this.clearTransientCombatState(this.fighters[1]);
 

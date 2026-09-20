@@ -160,7 +160,7 @@ test('Juanchi rig is procedural and covers frozen identity/prop/action vocabular
     'La 56',
     'rugbyBoomerangThrow',
     'friccion',
-    'policeCapRage',
+    'ultimatePhase',
     'rangedAvailability',
     'drawRugbyBall',
     'drawPoliceCap',

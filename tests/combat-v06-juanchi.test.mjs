@@ -290,12 +290,14 @@ test('R2 Rugby Boomerang return times out after exactly 42 return updates and st
   projectile.vx = -12;
   projectile.vy = 0;
 
-  let updates = 0;
-  while (sim.projectiles.some((p) => p.id === projectile.id) && updates < 50) {
+  const returnStartTick = snap.combatTick;
+  let calls = 0;
+  while (sim.projectiles.some((p) => p.id === projectile.id) && calls < 60) {
     snap = sim.step(E, E);
-    updates += 1;
+    calls += 1;
   }
-  assert.equal(updates, 42);
+  assert.equal(snap.combatTick - returnStartTick, 42, 'timeout counts advancing combat ticks, not hitstop calls');
+  assert.ok(calls >= 42, 'hitstop may add frozen step calls without aging the return leg');
   assert.equal(snap.projectiles.some((p) => p.id === projectile.id), false);
   assert.equal(snap.fighters[0].rangedAvailability, 'cooldown');
   assert.equal(snap.fighters[0].rangedRecoveryFrames, 30);

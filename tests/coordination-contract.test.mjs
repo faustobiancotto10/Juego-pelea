@@ -61,8 +61,9 @@ test('protocol preserves round lifecycle and collaboration semantics', () => {
     assert.match(protocol, new RegExp(token), `protocol missing ${token}`);
   }
 
-  assert.match(protocol, /forum.+conversation/i);
-  assert.match(protocol, /not.+changelog/i);
+  assert.match(protocol, /forum/i);
+  assert.match(protocol, /working communication/i);
+  assert.match(protocol, /not a progress diary/i);
   assert.match(protocol, /only Neureon.+ROUND_COMPLETE/i);
 });
 

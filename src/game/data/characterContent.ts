@@ -2,7 +2,7 @@ import type { FighterDefinition } from './fighters.js';
 import type { FighterKit } from './fighterKits.js';
 import type { ProjectileDefinition } from './projectiles.js';
 import type { UltimateDefinition } from './ultimates.js';
-import type { MoveDefinition, HitboxSpec } from '../simulation/moves.js';
+import type { MoveDefinition, HitboxSpec, MoveHitWindow } from '../simulation/moves.js';
 import type { FighterId, RegisteredFighterId } from '../types.js';
 import { CAMALEONI_CHARACTER_CONTENT } from './characters/camaleoni.js';
 import { SUPERNARIZ_CHARACTER_CONTENT } from './characters/supernariz.js';
@@ -133,7 +133,29 @@ function validateMove(path: string, move: MoveDefinition): void {
   if (!BINDING_ROLES.has(move.bindingRole)) fail(`${path}.bindingRole`, `unknown role ${String(move.bindingRole)}`);
   const total = integer(`${path}.totalFrames`, move.totalFrames, 1);
 
+  if (move.hitbox !== undefined && move.hits !== undefined) fail(path, 'hitbox and hits are mutually exclusive');
   if (move.hitbox !== undefined) validateHitbox(`${path}.hitbox`, move.hitbox, total);
+  if (move.hits !== undefined) {
+    const seenHitIds = new Set<string>();
+    const windows: MoveHitWindow[] = [];
+    for (const [index, hit] of move.hits.entries()) {
+      const hitPath = `${path}.hits[${index}]`;
+      validateHitbox(hitPath, hit, total);
+      nonEmpty(`${hitPath}.hitId`, hit.hitId);
+      if (seenHitIds.has(hit.hitId)) fail(hitPath, `duplicate hitId ${hit.hitId}`);
+      seenHitIds.add(hit.hitId);
+      if (hit.blockKnockback !== undefined) finite(`${hitPath}.blockKnockback`, hit.blockKnockback, 0);
+      windows.push(hit);
+    }
+    for (let a = 0; a < windows.length; a += 1) {
+      for (let b = a + 1; b < windows.length; b += 1) {
+        const first = windows[a]!;
+        const second = windows[b]!;
+        const overlaps = first.start <= second.end && second.start <= first.end;
+        if (overlaps) fail(path, `overlapping hit windows ${first.hitId}/${second.hitId}`);
+      }
+    }
+  }
 
   const cancelStart = move.cancelStart;
   const cancelEnd = move.cancelEnd;

@@ -24,12 +24,18 @@ export interface HitboxSpec {
   guardDamage: number;
 }
 
+export interface MoveHitWindow extends HitboxSpec {
+  hitId: string;
+  blockKnockback?: number;
+}
+
 export interface MoveDefinition {
   id: string;
   category: MoveCategory;
   bindingRole: BindingRole;
   totalFrames: number;
   hitbox?: HitboxSpec;
+  hits?: readonly MoveHitWindow[];
   cancelStart?: number;
   cancelEnd?: number;
   nextAttack?: string;
@@ -44,6 +50,12 @@ export interface MoveDefinition {
 
 export const MOVE_SETS: Readonly<Record<RegisteredFighterId, Readonly<Record<string, MoveDefinition>>>> =
   DEFAULT_CHARACTER_COMPOSITION.moves;
+
+export function getMoveHitWindows(move: MoveDefinition): readonly MoveHitWindow[] {
+  if (move.hits) return move.hits;
+  if (move.hitbox) return [{ ...move.hitbox, hitId: 'single' }];
+  return [];
+}
 
 export function getMoveDefinition(fighter: RegisteredFighterId, moveId: string): MoveDefinition {
   const moveSet = MOVE_SETS[fighter];

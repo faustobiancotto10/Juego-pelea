@@ -122,7 +122,7 @@ export interface MatchSnapshot {
 }
 
 export type CombatEvent =
-  | { type: 'hit'; attacker: FighterIndex; defender: FighterIndex; blocked: boolean; damage: number; strong: boolean; source: HitSource; finisher: boolean }
+  | { type: 'hit'; attacker: FighterIndex; defender: FighterIndex; blocked: boolean; damage: number; strong: boolean; source: HitSource; finisher: boolean; moveId?: string; hitId?: string; projectileId?: number; leg?: 'outbound' | 'return'; majorImpact?: boolean }
   | { type: 'guard-break'; defender: FighterIndex }
   | { type: 'projectile'; owner: FighterIndex; projectileId: number }
   | { type: 'super-ready'; fighter: FighterIndex }

@@ -1,7 +1,7 @@
 import { DEFAULT_COMBAT_REGISTRY, type CombatRegistry } from '../data/combatRegistry.js';
 import type { UltimateDefinition } from '../data/ultimates.js';
 import { EMPTY_INPUT, type ClashSnapshot, type CombatAction, type CombatEvent, type CommandIntent, type Facing, type HitSource, type RegisteredFighterId, type FighterIndex, type FighterSnapshot, type InputFrame, type MatchSnapshot, type MatchPhase, type ProjectileSnapshot } from '../types.js';
-import type { MoveDefinition } from './moves.js';
+import { getMoveHitWindows, type MoveDefinition } from './moves.js';
 import { buildUltimateConfrontationVolume, findUltimateClashIntersection, type UltimateConfrontationProposal, type UltimateClashIntersection } from './ultimateArbitration.js';
 
 const ARENA_MIN_X = 90;
@@ -57,6 +57,7 @@ interface FighterState extends FighterSnapshot {
   currentMove: MoveDefinition | null;
   moveHasHit: boolean;
   moveEffectTriggered: boolean;
+  moveHitLedger: Set<string>;
   ultimateFacing: Facing;
   pendingCommand: PendingCommand | null;
   downGraceSamples: number;
@@ -157,6 +158,7 @@ function makeFighter(registry: CombatRegistry, id: RegisteredFighterId, index: F
     currentMove: null,
     moveHasHit: false,
     moveEffectTriggered: false,
+    moveHitLedger: new Set<string>(),
     ultimateFacing: index === 0 ? 1 : -1,
     capturedBy: null,
     pendingCommand: null,
@@ -796,63 +798,77 @@ export class CombatSimulation {
     const defender = this.fighters[defenderIndex];
     if (attacker.ultimatePhase !== 'idle' || defender.capturedBy !== null) return;
     const move = attacker.currentMove;
-    if (!move || attacker.moveHasHit) return;
-    const hitbox = move.hitbox;
-    if (!hitbox) return;
-    if (attacker.moveFrame < hitbox.start || attacker.moveFrame > hitbox.end) return;
+    if (!move) return;
 
-    const attackMinX = attacker.facing === 1
-      ? attacker.x + hitbox.offsetX
-      : attacker.x - hitbox.offsetX - hitbox.width;
-    const attackMaxX = attackMinX + hitbox.width;
+    const windows = getMoveHitWindows(move);
+    if (windows.length === 0) return;
+
     const defenderDef = this.registry.getFighter(defender.id);
     const hurtHalfWidth = defenderDef.width * 0.5;
     const hurtMinX = defender.x - hurtHalfWidth;
     const hurtMaxX = defender.x + hurtHalfWidth;
     const hurtTop = defender.crouching ? defenderDef.height * 0.66 : defenderDef.height;
     const hurtBottom = defender.y;
-    const attackBottom = attacker.y + hitbox.bottom;
-    const attackTop = attacker.y + hitbox.top;
 
-    if (!intervalsOverlap(attackMinX, attackMaxX, hurtMinX, hurtMaxX)) return;
-    if (!intervalsOverlap(attackBottom, attackTop, hurtBottom, defender.y + hurtTop)) return;
-    if (this.isBackdashStrikeInvulnerable(defender)) return;
+    for (const hitbox of windows) {
+      const ledgerKey = `${hitbox.hitId}:${defenderIndex}`;
+      if (attacker.moveHitLedger.has(ledgerKey)) continue;
+      if (attacker.moveFrame < hitbox.start || attacker.moveFrame > hitbox.end) continue;
 
-    const blocked = this.canBlock(defender, defenderInput, hitbox.level);
-    const source: HitSource = move.category === 'normal'
-      ? 'normal'
-      : move.category === 'ultimate'
-        ? 'ultimate'
-        : 'special';
+      const attackMinX = attacker.facing === 1
+        ? attacker.x + hitbox.offsetX
+        : attacker.x - hitbox.offsetX - hitbox.width;
+      const attackMaxX = attackMinX + hitbox.width;
+      const attackBottom = attacker.y + hitbox.bottom;
+      const attackTop = attacker.y + hitbox.top;
 
-    attacker.moveHasHit = true;
-    attacker.moveContact = blocked ? 'block' : 'hit';
-    let actualDamage = 0;
-    if (blocked) {
-      actualDamage = this.applyDamage(attackerIndex, defenderIndex, hitbox.chipDamage, source, true);
-      defender.blockstunFrames = hitbox.blockstun;
-      defender.blocking = true;
-      defender.vx = attacker.facing * hitbox.knockback * 0.35;
-      this.applyCornerBlockTransfer(attackerIndex, defenderIndex, hitbox.knockback);
-      this.damageGuard(defenderIndex, hitbox.guardDamage);
-    } else {
-      actualDamage = this.applyDamage(attackerIndex, defenderIndex, hitbox.damage, source, false);
-      defender.stunFrames = hitbox.hitstun;
-      defender.blocking = false;
-      defender.vx = attacker.facing * hitbox.knockback;
+      if (!intervalsOverlap(attackMinX, attackMaxX, hurtMinX, hurtMaxX)) continue;
+      if (!intervalsOverlap(attackBottom, attackTop, hurtBottom, defender.y + hurtTop)) continue;
+      if (this.isBackdashStrikeInvulnerable(defender)) continue;
+
+      const blocked = this.canBlock(defender, defenderInput, hitbox.level);
+      const source: HitSource = move.category === 'normal'
+        ? 'normal'
+        : move.category === 'ultimate'
+          ? 'ultimate'
+          : 'special';
+
+      attacker.moveHitLedger.add(ledgerKey);
+      attacker.moveHasHit = true;
+      if (!blocked) attacker.moveContact = 'hit';
+      else if (attacker.moveContact === 'none') attacker.moveContact = 'block';
+
+      let actualDamage = 0;
+      if (blocked) {
+        actualDamage = this.applyDamage(attackerIndex, defenderIndex, hitbox.chipDamage, source, true);
+        defender.blockstunFrames = hitbox.blockstun;
+        defender.blocking = true;
+        const blockKnockback = hitbox.blockKnockback ?? hitbox.knockback * 0.35;
+        defender.vx = attacker.facing * blockKnockback;
+        this.applyCornerBlockTransfer(attackerIndex, defenderIndex, hitbox.knockback);
+        this.damageGuard(defenderIndex, hitbox.guardDamage);
+      } else {
+        actualDamage = this.applyDamage(attackerIndex, defenderIndex, hitbox.damage, source, false);
+        defender.stunFrames = hitbox.hitstun;
+        defender.blocking = false;
+        defender.vx = attacker.facing * hitbox.knockback;
+      }
+      if (move.chillFrames && !blocked) defender.chilledFrames = Math.max(defender.chilledFrames, move.chillFrames);
+      this.hitstopFrames = Math.max(this.hitstopFrames, hitbox.hitstop);
+      this.events.push({
+        type: 'hit',
+        attacker: attackerIndex,
+        defender: defenderIndex,
+        blocked,
+        damage: actualDamage,
+        strong: hitbox.strong,
+        source,
+        finisher: defender.health <= 0,
+        moveId: move.id,
+        hitId: hitbox.hitId,
+      });
+      return;
     }
-    if (move.chillFrames && !blocked) defender.chilledFrames = Math.max(defender.chilledFrames, move.chillFrames);
-    this.hitstopFrames = Math.max(this.hitstopFrames, hitbox.hitstop);
-    this.events.push({
-      type: 'hit',
-      attacker: attackerIndex,
-      defender: defenderIndex,
-      blocked,
-      damage: actualDamage,
-      strong: hitbox.strong,
-      source,
-      finisher: defender.health <= 0,
-    });
   }
 
   private canBlock(
@@ -914,6 +930,7 @@ export class CombatSimulation {
     fighter.moveHasHit = false;
     fighter.moveContact = 'none';
     fighter.moveEffectTriggered = false;
+    fighter.moveHitLedger.clear();
     fighter.comboCount = comboCount;
     if (fighter.grounded) fighter.vx = 0;
   }
@@ -925,6 +942,7 @@ export class CombatSimulation {
     fighter.moveHasHit = false;
     fighter.moveContact = 'none';
     fighter.moveEffectTriggered = false;
+    fighter.moveHitLedger.clear();
     fighter.comboCount = 0;
   }
 
@@ -1472,6 +1490,7 @@ export class CombatSimulation {
     defender.moveHasHit = false;
     defender.moveContact = 'none';
     defender.moveEffectTriggered = false;
+    defender.moveHitLedger.clear();
     defender.comboCount = 0;
     defender.dashKind = null;
     defender.dashFrame = 0;

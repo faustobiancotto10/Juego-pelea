@@ -31,6 +31,20 @@ export const CAMALEONI_CHARACTER_CONTENT: CombatCharacterContent = {
       missChance: 0.25,
       confirmChance: 0.85,
       archetype: 'control',
+      tactics: {
+        ultimateRange: [105, 300],
+        rangedRange: [240, 330],
+        rangedChance: 0.55,
+        closeWeights: {
+          standing: 0.25,
+          low: 0.17,
+          closeSpecial: 0,
+          jump: 0.16,
+          retreat: 0.42,
+        },
+        advanceBehindReturningProjectile: 0,
+        retreatAtPreferredRange: 0.17,
+      },
     },
   },
   moves: {
@@ -47,8 +61,8 @@ export const CAMALEONI_CHARACTER_CONTENT: CombatCharacterContent = {
       hitbox: { start: 5, end: 8, offsetX: 28, width: 82, bottom: 34, top: 100, damage: 60, chipDamage: 4, hitstun: 15, blockstun: 9, knockback: 5.0, hitstop: 5, level: 'mid', strong: true, guardDamage: 15 },
     },
     tongueStraight: {
-      id: 'tongueStraight', category: 'special', bindingRole: 'rangedSpecial', totalFrames: 38, cpuThreatRange: 405, cpuReactionFrame: 7,
-      hitbox: { start: 12, end: 14, offsetX: 34, width: 340, bottom: 50, top: 95, damage: 80, chipDamage: 4, hitstun: 18, blockstun: 12, knockback: 7.4, hitstop: 6, level: 'mid', strong: true, guardDamage: 14 },
+      id: 'tongueStraight', category: 'special', bindingRole: 'rangedSpecial', totalFrames: 46, cpuThreatRange: 405, cpuReactionFrame: 7,
+      hitbox: { start: 12, end: 14, offsetX: 34, width: 340, bottom: 50, top: 95, damage: 80, chipDamage: 4, hitstun: 18, blockstun: 12, knockback: 4.8, hitstop: 6, level: 'mid', strong: true, guardDamage: 14 },
     },
     coletazo: {
       id: 'coletazo', category: 'special', bindingRole: 'closeSpecial', totalFrames: 31, cpuThreatRange: 190, cpuReactionFrame: 8,

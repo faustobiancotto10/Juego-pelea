@@ -24,6 +24,11 @@ test('air normal preserves takeoff carry and integrates x/y on its activation st
   sim.fighters[1].x = 1000;
 
   let snap = sim.step(input({ right: true, jump: true }), E);
+  assert.equal(snap.fighters[0].grounded, true);
+  assert.equal(snap.fighters[0].jumpStartupFrames, 2);
+  snap = sim.step(E, E);
+  assert.equal(snap.fighters[0].jumpStartupFrames, 1);
+  snap = sim.step(E, E);
   assert.equal(snap.fighters[0].grounded, false);
   assert.ok(snap.fighters[0].vx > 4);
   const beforeAttackX = snap.fighters[0].x;

@@ -6,6 +6,7 @@
 4. Logical combat runs at fixed 60 Hz. Do not use wall-clock timers for move frames, stun, cooldowns, or hitstop.
 5. Mobile landscape is primary. Keep the playfield clear and controls usable on a phone.
 6. Update `docs/CURRENT_MILESTONE.md` when meaningful progress or blockers change.
+7. Every animation must physically communicate the action it represents. Position translation alone does not constitute a valid animation. Apply the reusable [animation-quality contract](docs/superpowers/specs/2026-09-20-v06-animation-quality-contract.md); preparation, force production, movement/contact and recovery must remain readable without effects.
 
 ## Multi-Agent Coordination
 

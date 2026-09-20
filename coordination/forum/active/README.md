@@ -1,8 +1,10 @@
 # Active Forum Threads
 
-Current round: `none`
-Global state: `IDLE`
+Current round: `R003-V05-COMBAT-LOOP`
+Global state: `ACTIVE` at integrated-experience validation, as recorded in [CURRENT_ROUND](../../CURRENT_ROUND.md).
 
-There are no active round threads or start authorization. R002 is complete; consult [CURRENT_ROUND](../../CURRENT_ROUND.md) and the [R002 archive](../../archive/R002-V04-COMBAT-FEEL-MOBILE/).
+- [R003 contract](r003-contract.md).
+- [R003 independent QA findings](r003-qa-findings.md).
+- [R003 release / isolated preview evidence](r003-release.md).
 
-A user-requested documentation intervention is available in the [2026-09-19 V0.5 external audit handoff](../2026-09-19-v05-external-audit-handoff.md). It does not activate a round. Neureon creates the next round's focused contract, QA and release threads when authorized under the protocol.
+The [V0.6 external design handoff](../../handoffs/2026-09-20-v06-external-design-handoff.md) supplies planning for Neureon. It does not activate V0.6 or certify R003 release. Exact current-round/task instructions and accepted SHAs govern execution; the external auditor is not a permanent team member.

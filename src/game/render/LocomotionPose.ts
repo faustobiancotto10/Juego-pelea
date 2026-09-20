@@ -91,13 +91,15 @@ function footForCycle(
 }
 
 function neutralPose(fighter: FighterSnapshot): LocomotionPose {
-  const preparation = fighter.grounded && fighter.jumpStartupFrames > 0
+  const clashBrace = fighter.clashRecoveryFrames > 0 && fighter.y <= 0.001 ? 1 : 0;
+  const clashRecoil = fighter.clashRecoveryFrames > 0 && fighter.y > 0.001 ? 1 : 0;
+  const preparation = !clashBrace && fighter.grounded && fighter.jumpStartupFrames > 0
     ? fighter.jumpStartupFrames >= 2 ? 0.55 : 1
     : 0;
   const landingAbsorption = fighter.grounded
     ? clamp01(fighter.landingRecoveryFrames / 4)
     : 0;
-  const airborne = fighter.grounded ? 0 : 1;
+  const airborne = fighter.grounded || clashBrace ? 0 : 1;
   const extension = airborne && fighter.airborneTicks <= 2
     ? clamp01(1 - fighter.airborneTicks / 3)
     : 0;
@@ -111,8 +113,8 @@ function neutralPose(fighter: FighterSnapshot): LocomotionPose {
     phase: 0,
     frontFoot: { x: NEUTRAL_FRONT_X, y: 0 },
     backFoot: { x: NEUTRAL_BACK_X, y: 0 },
-    pelvisDrop: preparation * 18 + landingAbsorption * 20 + tuck * 5,
-    torsoLean: descentBrace * 0.035,
+    pelvisDrop: preparation * 18 + landingAbsorption * 20 + tuck * 5 + clashBrace * 11,
+    torsoLean: descentBrace * 0.035 + clashBrace * 0.13 - clashRecoil * 0.11,
     preparation,
     extension,
     tuck,
@@ -121,8 +123,8 @@ function neutralPose(fighter: FighterSnapshot): LocomotionPose {
     movementBlend: 0,
     dashCompression: 0,
     dashDrive: 0,
-    clashBrace: fighter.clashRecoveryFrames > 0 && fighter.y <= 0.001 ? 1 : 0,
-    clashRecoil: fighter.clashRecoveryFrames > 0 && fighter.y > 0.001 ? 1 : 0,
+    clashBrace,
+    clashRecoil,
     travelIntent: 'idle',
     actualTravel: 0,
   };

@@ -7,7 +7,7 @@ Execution: AUTO_CHAIN
 | Agent | Role | Tasks | State | Dependency / next action |
 | --- | --- | --- | --- | --- |
 | Neureon | Lead / Coordinator | V06-N0 | VERIFIED | Round frozen/open; no per-step gate. Audit/re-plan only when user requests or final closure. |
-| Ricardo | Gameplay Engineer | V06-R0→R1→R2→R3 | WORKING | R1 green at 76290f1 / CI #777; V06-R2 Juanchi gameplay primitives active |
+| Ricardo | Gameplay Engineer | V06-R0→R1→R2→R3 | WORKING | R2 green at 0bf6a56 / CI #800; V06-R3 Lengua/jump prep/CPU follow-through active |
 | Germinator | Auditor / QA | V06-G1 | WAITING_DEPENDENCY | Starts only after Ricardo R3 green handoff. |
 | Mario | Character / Rendering Engineer | V06-M1→M2 | WAITING_DEPENDENCY | Starts only after Germinator G1 green verdict. |
 | Brancaforte | UI / Input / UX Engineer | V06-B1 | WAITING_DEPENDENCY | Starts only after Germinator G1 green verdict. |

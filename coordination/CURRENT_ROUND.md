@@ -23,9 +23,9 @@ Do **not** use main's V0.4 runtime as the implementation base. Main remains coor
 ## Branches
 
 - Ricardo: `round/r004-ricardo`
+- Germinator: `round/r004-germinator`
 - Mario: `round/r004-mario`
 - Brancaforte: `round/r004-brancaforte`
-- Germinator: `round/r004-germinator`
 - Gonza/integration: `round/r004-integration`
 
 ## Frozen product scope
@@ -73,25 +73,33 @@ User-supplied action-sheet SHA-256:
 
 Identity master governs likeness/outfit/proportions. Action sheet guides action/pose language. Both are authoring references only and must never be loaded as runtime fighter sprites/textures.
 
-## Auto-chain dependency graph
+## Auto-chain sequence — authoritative
+
+The established project order is:
+
+**Ricardo → Germinator → Mario + Brancaforte → Gonza**
 
 Immediately eligible:
-- V06-R0 — Ricardo
-- V06-Z0 — Gonza
+- V06-R0 — Ricardo.
 
-After green V06-R0:
-- Ricardo continues directly V06-R1 → V06-R2 → V06-R3.
-- Mario becomes eligible for V06-M1 → V06-M2.
-- Brancaforte becomes eligible for V06-B1.
-- Gonza continues Z0 integration as green exact-SHA handoffs arrive.
+Ricardo then continues automatically:
+- V06-R0 → V06-R1 → V06-R2 → V06-R3.
 
-After R3 + M2 + B1 are assembled by Z0:
-- V06-G1 — Germinator.
+After Ricardo's green V06-R3 handoff:
+- V06-G1 — Germinator audits the complete gameplay/core candidate.
 
-If G1 returns `APPROVE — V06-Z1 UNLOCKED`:
-- V06-Z1 — Gonza starts directly and releases.
+Only after Germinator returns a green gameplay/core verdict:
+- Mario starts V06-M1 → V06-M2.
+- Brancaforte starts V06-B1.
+- Mario and Brancaforte may work in parallel with each other.
 
-No agent waits for a new Neureon START/RELEASE token on the normal path.
+Only after Germinator is green **and** Mario M2 + Brancaforte B1 are green:
+- Gonza starts V06-Z0 final integration/verification.
+- V06-Z1 follows Z0 directly if final integration/parity checks are green.
+
+Gonza does no early preparation/integration in this round.
+
+No agent waits for a new Neureon token on the normal path; dependency handoffs advance the chain automatically.
 
 ## Deviation rule
 

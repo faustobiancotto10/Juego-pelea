@@ -77,6 +77,41 @@ test('R2 default registry publishes exact Juanchi kit and authoritative resource
   assert.equal(cap.sequenceHits.reduce((sum, hit) => sum + hit.damage, 0), 190);
 });
 
+
+test('R2 Juanchi low and air attacks preserve grounded-low / airborne-overhead legality', () => {
+  {
+    const sim = new CombatSimulation('juanchi', 'chameleon', { skipIntro: true });
+    sim.fighters[0].x = 500;
+    sim.fighters[1].x = 562;
+    let snap = sim.step(input({ down: true, attack: true }), E);
+    let hit = null;
+    for (let n = 0; n < 50 && !hit; n += 1) {
+      hit = snap.events.find((event) => event.type === 'hit' && event.attacker === 0) ?? null;
+      if (!hit) snap = sim.step(E, E);
+    }
+    assert.ok(hit);
+    assert.equal(hit.moveId, 'juanchiLow');
+    assert.equal(hit.damage, 36);
+  }
+
+  {
+    const sim = new CombatSimulation('juanchi', 'chameleon', { skipIntro: true });
+    sim.fighters[0].x = 500;
+    sim.fighters[1].x = 562;
+    let snap = sim.step(input({ jump: true }), E);
+    assert.equal(snap.fighters[0].grounded, false);
+    snap = sim.step(input({ attack: true }), E);
+    let hit = null;
+    for (let n = 0; n < 50 && !hit; n += 1) {
+      hit = snap.events.find((event) => event.type === 'hit' && event.attacker === 0) ?? null;
+      if (!hit) snap = sim.step(E, E);
+    }
+    assert.ok(hit);
+    assert.equal(hit.moveId, 'juanchiAir');
+    assert.equal(hit.damage, 62);
+  }
+});
+
 test('R2 Juanchi jab -> shoulder is a true 108 clean route at 62/85 in both slots', () => {
   for (const distance of [62, 85]) {
     for (const slot of [0, 1]) {
@@ -236,6 +271,53 @@ test('R2 outbound wall contact starts the non-damaging turn early without wrappi
   }
   assert.equal(turned, true);
   assert.ok(snap.projectiles[0].x <= 1190 + 18);
+});
+
+
+test('R2 Rugby Boomerang return times out after exactly 42 return updates and starts rearm', () => {
+  const sim = new CombatSimulation('juanchi', 'chameleon', { skipIntro: true });
+  sim.fighters[0].x = 90;
+  sim.fighters[1].x = 1000;
+  let snap = spawnBall(sim);
+  const projectile = sim.projectiles.find((p) => p.owner === 0 && p.kind === 'juanchiRugby');
+  assert.ok(projectile);
+  projectile.phase = 'return';
+  projectile.phaseTick = 0;
+  projectile.x = 1190;
+  projectile.y = 68;
+  projectile.previousX = 1190;
+  projectile.previousY = 68;
+  projectile.vx = -12;
+  projectile.vy = 0;
+
+  let updates = 0;
+  while (sim.projectiles.some((p) => p.id === projectile.id) && updates < 50) {
+    snap = sim.step(E, E);
+    updates += 1;
+  }
+  assert.equal(updates, 42);
+  assert.equal(snap.projectiles.some((p) => p.id === projectile.id), false);
+  assert.equal(snap.fighters[0].rangedAvailability, 'cooldown');
+  assert.equal(snap.fighters[0].rangedRecoveryFrames, 30);
+});
+
+test('R2 round reset clears active Juanchi ball and restores ranged availability to ready', () => {
+  const sim = new CombatSimulation('juanchi', 'chameleon', { skipIntro: true });
+  sim.fighters[0].x = 500;
+  sim.fighters[1].x = 1050;
+  let snap = spawnBall(sim);
+  assert.equal(snap.fighters[0].rangedAvailability, 'inFlight');
+
+  sim.fighters[1].health = 0;
+  snap = sim.step(E, E);
+  assert.equal(snap.phase, 'round-over');
+  assert.equal(snap.projectiles.some((p) => p.owner === 0 && p.kind === 'juanchiRugby'), false);
+
+  for (let n = 0; n < 100 && snap.phase === 'round-over'; n += 1) snap = sim.step(E, E);
+  assert.equal(snap.phase, 'fight');
+  assert.equal(snap.fighters[0].rangedAvailability, 'ready');
+  assert.equal(snap.fighters[0].rangedRecoveryFrames, 0);
+  assert.equal(snap.fighters[0].projectileCooldown, 0);
 });
 
 function runCapSuccess(targetId = 'chameleon', attacker = 0) {

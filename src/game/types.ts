@@ -8,6 +8,8 @@ export type UltimatePhase = 'idle' | 'startup' | 'capture' | 'sequence' | 'recov
 export type ClashPhase = 'freeze' | 'launch';
 export type MoveContact = 'none' | 'hit' | 'block';
 export type HitSource = 'normal' | 'special' | 'projectile' | 'ultimate';
+export type ProjectilePhase = 'outbound' | 'turn' | 'return';
+export type RangedAvailability = 'ready' | 'inFlight' | 'cooldown';
 export type CombatAction = 'attack' | 'special' | 'jump' | 'ultimate' | 'pushGuard';
 
 export interface CommandDirection {
@@ -68,6 +70,8 @@ export interface FighterSnapshot {
   chilledFrames: number;
   projectileCooldown: number;
   projectileCooldownMax: number;
+  rangedAvailability: RangedAvailability;
+  rangedRecoveryFrames: number;
   dashKind: DashKind;
   dashFrame: number;
   landingRecoveryFrames: number;
@@ -92,10 +96,15 @@ export interface ProjectileSnapshot {
   id: number;
   owner: FighterIndex;
   kind: string;
+  visualKey: string;
   x: number;
   y: number;
   vx: number;
+  vy: number;
   active: boolean;
+  phase: ProjectilePhase;
+  phaseTick: number;
+  age: number;
 }
 
 export interface ClashSnapshot {
@@ -125,6 +134,8 @@ export type CombatEvent =
   | { type: 'hit'; attacker: FighterIndex; defender: FighterIndex; blocked: boolean; damage: number; strong: boolean; source: HitSource; finisher: boolean; moveId?: string; hitId?: string; projectileId?: number; leg?: 'outbound' | 'return'; majorImpact?: boolean }
   | { type: 'guard-break'; defender: FighterIndex }
   | { type: 'projectile'; owner: FighterIndex; projectileId: number }
+  | { type: 'projectile-turn'; owner: FighterIndex; projectileId: number }
+  | { type: 'projectile-catch'; owner: FighterIndex; projectileId: number }
   | { type: 'super-ready'; fighter: FighterIndex }
   | { type: 'ultimate-start'; attacker: FighterIndex }
   | { type: 'ultimate-capture'; attacker: FighterIndex; defender: FighterIndex }

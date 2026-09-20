@@ -1,4 +1,5 @@
 import { DEFAULT_COMBAT_REGISTRY, type CombatRegistry } from '../data/combatRegistry.js';
+import type { ProjectileContactDefinition, ProjectileDefinition } from '../data/projectiles.js';
 import type { UltimateDefinition } from '../data/ultimates.js';
 import { EMPTY_INPUT, type ClashSnapshot, type CombatAction, type CombatEvent, type CommandIntent, type Facing, type HitSource, type RegisteredFighterId, type FighterIndex, type FighterSnapshot, type InputFrame, type MatchSnapshot, type MatchPhase, type ProjectileSnapshot } from '../types.js';
 import { getMoveHitWindows, type MoveDefinition } from './moves.js';
@@ -66,6 +67,11 @@ interface FighterState extends FighterSnapshot {
 
 interface ProjectileState extends ProjectileSnapshot {
   ttl: number;
+  previousX: number;
+  previousY: number;
+  outboundContacts: Set<FighterIndex>;
+  returnContacts: Set<FighterIndex>;
+  lastContactTick: [number | null, number | null];
 }
 
 export interface CombatSimulationOptions {
@@ -140,6 +146,8 @@ function makeFighter(registry: CombatRegistry, id: RegisteredFighterId, index: F
     chilledFrames: 0,
     projectileCooldown: 0,
     projectileCooldownMax: projectileCooldownMaxFor(registry, id),
+    rangedAvailability: 'ready',
+    rangedRecoveryFrames: 0,
     superMeter,
     maxSuper: MAX_SUPER,
     superReady: superMeter >= MAX_SUPER,
@@ -193,6 +201,8 @@ function cloneFighter(f: FighterState): FighterSnapshot {
     chilledFrames: f.chilledFrames,
     projectileCooldown: f.projectileCooldown,
     projectileCooldownMax: f.projectileCooldownMax,
+    rangedAvailability: f.rangedAvailability,
+    rangedRecoveryFrames: f.rangedRecoveryFrames,
     superMeter: f.superMeter,
     maxSuper: f.maxSuper,
     superReady: f.superReady,
@@ -266,7 +276,20 @@ export class CombatSimulation {
       winner: this.winner,
       roundWinner: this.roundWinner,
       fighters: [cloneFighter(this.fighters[0]), cloneFighter(this.fighters[1])],
-      projectiles: this.projectiles.filter((p) => p.active).map(({ ttl: _ttl, ...p }) => ({ ...p })),
+      projectiles: this.projectiles.filter((p) => p.active).map((p) => ({
+        id: p.id,
+        owner: p.owner,
+        kind: p.kind,
+        visualKey: p.visualKey,
+        x: p.x,
+        y: p.y,
+        vx: p.vx,
+        vy: p.vy,
+        active: p.active,
+        phase: p.phase,
+        phaseTick: p.phaseTick,
+        age: p.age,
+      })),
       events: this.events.map((event) => ({ ...event })),
     };
   }
@@ -394,9 +417,16 @@ export class CombatSimulation {
       if (!fighter.grounded) return false;
       const moveId = command.direction.down ? kit.closeSpecial : kit.rangedSpecial;
       const move = this.registry.getMove(fighter.id, moveId);
-      if (move.projectileKey && fighter.projectileCooldown > 0) {
-        fighter.pendingCommand = null;
-        return false;
+      if (move.projectileKey) {
+        const projectile = this.registry.getProjectile(move.projectileKey);
+        const kind = projectile.kind ?? 'linear';
+        const unavailable = kind === 'returnToOwner'
+          ? fighter.rangedAvailability !== 'ready'
+          : fighter.projectileCooldown > 0;
+        if (unavailable) {
+          fighter.pendingCommand = null;
+          return false;
+        }
       }
       fighter.pendingCommand = null;
       this.startMove(fighter, move);
@@ -436,6 +466,14 @@ export class CombatSimulation {
     const def = this.registry.getFighter(fighter.id);
 
     if (fighter.projectileCooldown > 0) fighter.projectileCooldown -= 1;
+    if (fighter.rangedRecoveryFrames > 0) fighter.rangedRecoveryFrames -= 1;
+    if (
+      fighter.rangedAvailability === 'cooldown'
+      && fighter.projectileCooldown <= 0
+      && fighter.rangedRecoveryFrames <= 0
+    ) {
+      fighter.rangedAvailability = 'ready';
+    }
     if (fighter.chilledFrames > 0) fighter.chilledFrames -= 1;
     this.updateGuard(fighter);
 
@@ -977,83 +1015,471 @@ export class CombatSimulation {
     if (fighter.moveFrame < move.spawnProjectileFrame) return;
 
     const definition = this.registry.getProjectile(move.projectileKey);
+    const kind = definition.kind ?? 'linear';
     if (this.projectiles.some((projectile) => projectile.active && projectile.owner === index && projectile.kind === definition.key)) {
       fighter.moveEffectTriggered = true;
-      fighter.projectileCooldown = Math.max(fighter.projectileCooldown, definition.cooldown);
+      if (kind === 'linear') {
+        fighter.projectileCooldown = Math.max(fighter.projectileCooldown, definition.cooldown);
+        fighter.rangedRecoveryFrames = Math.max(fighter.rangedRecoveryFrames, definition.cooldown);
+        fighter.rangedAvailability = 'cooldown';
+      }
       return;
     }
+
+    const x = fighter.x + fighter.facing * definition.spawnOffsetX;
+    const y = fighter.y + definition.spawnOffsetY;
     const projectile: ProjectileState = {
       id: this.nextProjectileId++,
       owner: index,
       kind: definition.key,
-      x: fighter.x + fighter.facing * definition.spawnOffsetX,
-      y: fighter.y + definition.spawnOffsetY,
+      visualKey: definition.visualKey ?? definition.key,
+      x,
+      y,
       vx: fighter.facing * definition.speed,
+      vy: 0,
       active: true,
+      phase: 'outbound',
+      phaseTick: 0,
+      age: 0,
       ttl: definition.ttl,
+      previousX: x,
+      previousY: y,
+      outboundContacts: new Set<FighterIndex>(),
+      returnContacts: new Set<FighterIndex>(),
+      lastContactTick: [null, null],
     };
     this.projectiles.push(projectile);
-    fighter.projectileCooldown = definition.cooldown;
+
+    if (kind === 'returnToOwner') {
+      fighter.projectileCooldown = 0;
+      fighter.rangedRecoveryFrames = 0;
+      fighter.rangedAvailability = 'inFlight';
+    } else {
+      fighter.projectileCooldown = definition.cooldown;
+      fighter.rangedRecoveryFrames = definition.cooldown;
+      fighter.rangedAvailability = definition.cooldown > 0 ? 'cooldown' : 'ready';
+    }
+
     fighter.moveEffectTriggered = true;
     this.events.push({ type: 'projectile', owner: index, projectileId: projectile.id });
   }
 
-  private updateProjectiles(inputs: readonly [InputFrame, InputFrame]): void {
+  private projectileKind(definition: ProjectileDefinition): 'linear' | 'returnToOwner' {
+    return definition.kind ?? 'linear';
+  }
+
+  private startReturningRearm(owner: FighterIndex, definition: ProjectileDefinition): void {
+    const fighter = this.fighters[owner];
+    const rearm = definition.returnConfig?.rearmTicks ?? definition.cooldown;
+    fighter.projectileCooldown = rearm;
+    fighter.rangedRecoveryFrames = rearm;
+    fighter.rangedAvailability = rearm > 0 ? 'cooldown' : 'ready';
+  }
+
+  private cancelOwnedReturningProjectile(owner: FighterIndex, startRearm = true): void {
+    for (const projectile of this.projectiles) {
+      if (!projectile.active || projectile.owner !== owner) continue;
+      const definition = this.registry.getProjectile(projectile.kind);
+      if (this.projectileKind(definition) !== 'returnToOwner') continue;
+      projectile.active = false;
+      if (startRearm) this.startReturningRearm(owner, definition);
+      else {
+        const fighter = this.fighters[owner];
+        fighter.projectileCooldown = 0;
+        fighter.rangedRecoveryFrames = 0;
+        fighter.rangedAvailability = 'ready';
+      }
+    }
+  }
+
+  private clearEncounterProjectiles(startReturningRearm: boolean): void {
+    const returningOwners = new Set<FighterIndex>();
     for (const projectile of this.projectiles) {
       if (!projectile.active) continue;
       const definition = this.registry.getProjectile(projectile.kind);
-      projectile.x += projectile.vx;
-      projectile.ttl -= 1;
-      if (projectile.ttl <= 0 || projectile.x < ARENA_MIN_X - 80 || projectile.x > ARENA_MAX_X + 80) {
-        projectile.active = false;
+      if (this.projectileKind(definition) === 'returnToOwner') returningOwners.add(projectile.owner);
+      projectile.active = false;
+    }
+    if (startReturningRearm) {
+      for (const owner of returningOwners) {
+        const projectile = this.projectiles.find((candidate) => candidate.owner === owner);
+        if (!projectile) continue;
+        this.startReturningRearm(owner, this.registry.getProjectile(projectile.kind));
+      }
+    } else {
+      for (const owner of [0, 1] as const) {
+        const fighter = this.fighters[owner];
+        fighter.projectileCooldown = 0;
+        fighter.rangedRecoveryFrames = 0;
+        fighter.rangedAvailability = 'ready';
+      }
+    }
+    this.projectiles = [];
+  }
+
+  private cancelReturningProjectilesFromCurrentEvents(): void {
+    for (const event of this.events) {
+      if (event.type === 'hit' && !event.blocked) {
+        this.cancelOwnedReturningProjectile(event.defender, true);
+      } else if (event.type === 'guard-break') {
+        this.cancelOwnedReturningProjectile(event.defender, true);
+      }
+    }
+  }
+
+  private segmentAabbEntryT(
+    x0: number,
+    y0: number,
+    x1: number,
+    y1: number,
+    minX: number,
+    maxX: number,
+    minY: number,
+    maxY: number,
+  ): number | null {
+    let tMin = 0;
+    let tMax = 1;
+    const axes: readonly [number, number, number, number][] = [
+      [x0, x1 - x0, minX, maxX],
+      [y0, y1 - y0, minY, maxY],
+    ];
+    for (const [origin, delta, min, max] of axes) {
+      if (Math.abs(delta) < 1e-9) {
+        if (origin < min || origin > max) return null;
         continue;
       }
-
-      const defenderIndex: FighterIndex = projectile.owner === 0 ? 1 : 0;
-      const defender = this.fighters[defenderIndex];
-      if (defender.capturedBy !== null) continue;
-      const defenderDef = this.registry.getFighter(defender.id);
-      const half = defenderDef.width * 0.5;
-      const projectileMinX = projectile.x - definition.collisionHalfWidth;
-      const projectileMaxX = projectile.x + definition.collisionHalfWidth;
-      const projectileMinY = projectile.y - definition.collisionHalfHeight;
-      const projectileMaxY = projectile.y + definition.collisionHalfHeight;
-      const hurtTop = defender.y + (defender.crouching ? defenderDef.height * 0.66 : defenderDef.height);
-      if (!intervalsOverlap(projectileMinX, projectileMaxX, defender.x - half, defender.x + half)) continue;
-      if (!intervalsOverlap(projectileMinY, projectileMaxY, defender.y + 18, hurtTop + 10)) continue;
-
-      const defenderInput = inputs[defenderIndex];
-      const blocked = this.canBlock(defender, defenderInput);
-      const requestedDamage = blocked ? definition.chipDamage : definition.damage;
-      const actualDamage = this.applyDamage(projectile.owner, defenderIndex, requestedDamage, 'projectile', blocked);
-      if (blocked) {
-        defender.blockstunFrames = definition.blockstun;
-        defender.blocking = true;
-        defender.vx = Math.sign(projectile.vx) * definition.blockKnockback;
-        this.applyCornerBlockTransfer(projectile.owner, defenderIndex, definition.cornerTransferKnockback);
-        this.damageGuard(defenderIndex, definition.guardDamage);
-      } else {
-        defender.stunFrames = definition.hitstun;
-        defender.blocking = false;
-        defender.vx = Math.sign(projectile.vx) * definition.knockback;
-      }
-      projectile.active = false;
-      this.hitstopFrames = Math.max(this.hitstopFrames, definition.hitstop);
-      this.events.push({
-        type: 'hit',
-        attacker: projectile.owner,
-        defender: defenderIndex,
-        blocked,
-        damage: actualDamage,
-        strong: definition.strong,
-        source: 'projectile',
-        finisher: defender.health <= 0,
-      });
+      const t1 = (min - origin) / delta;
+      const t2 = (max - origin) / delta;
+      const entry = Math.min(t1, t2);
+      const exit = Math.max(t1, t2);
+      tMin = Math.max(tMin, entry);
+      tMax = Math.min(tMax, exit);
+      if (tMax < tMin) return null;
     }
-    this.projectiles = this.projectiles.filter((p) => p.active);
+    return tMax >= 0 && tMin <= 1 ? Math.max(0, tMin) : null;
+  }
+
+  private segmentCircleEntryT(
+    x0: number,
+    y0: number,
+    x1: number,
+    y1: number,
+    cx: number,
+    cy: number,
+    radius: number,
+  ): number | null {
+    const fx = x0 - cx;
+    const fy = y0 - cy;
+    if (fx * fx + fy * fy <= radius * radius) return 0;
+    const dx = x1 - x0;
+    const dy = y1 - y0;
+    const a = dx * dx + dy * dy;
+    if (a <= 1e-9) return null;
+    const b = 2 * (fx * dx + fy * dy);
+    const c = fx * fx + fy * fy - radius * radius;
+    const discriminant = b * b - 4 * a * c;
+    if (discriminant < 0) return null;
+    const root = Math.sqrt(discriminant);
+    const first = (-b - root) / (2 * a);
+    const second = (-b + root) / (2 * a);
+    if (first >= 0 && first <= 1) return first;
+    if (second >= 0 && second <= 1) return second;
+    return null;
+  }
+
+  private projectileContactT(
+    projectile: ProjectileState,
+    defenderIndex: FighterIndex,
+    definition: ProjectileDefinition,
+  ): number | null {
+    const defender = this.fighters[defenderIndex];
+    if (
+      defender.capturedBy !== null
+      || defender.ultimatePhase === 'sequence'
+      || this.fighters[projectile.owner].ultimatePhase === 'sequence'
+    ) return null;
+
+    const defenderDef = this.registry.getFighter(defender.id);
+    const half = defenderDef.width * 0.5;
+    const hurtTop = defender.y + (defender.crouching ? defenderDef.height * 0.66 : defenderDef.height);
+    return this.segmentAabbEntryT(
+      projectile.previousX,
+      projectile.previousY,
+      projectile.x,
+      projectile.y,
+      defender.x - half - definition.collisionHalfWidth,
+      defender.x + half + definition.collisionHalfWidth,
+      defender.y + 18 - definition.collisionHalfHeight,
+      hurtTop + 10 + definition.collisionHalfHeight,
+    );
+  }
+
+  private advanceLinearProjectile(projectile: ProjectileState): void {
+    projectile.previousX = projectile.x;
+    projectile.previousY = projectile.y;
+    projectile.x += projectile.vx;
+    projectile.y += projectile.vy;
+    projectile.phase = 'outbound';
+    projectile.phaseTick += 1;
+    projectile.age += 1;
+    projectile.ttl -= 1;
+    if (
+      projectile.ttl <= 0
+      || projectile.x < ARENA_MIN_X - 80
+      || projectile.x > ARENA_MAX_X + 80
+    ) projectile.active = false;
+  }
+
+  private advanceReturningProjectile(
+    projectile: ProjectileState,
+    definition: ProjectileDefinition,
+  ): { movementLeg: 'outbound' | 'return' | null; catchT: number | null; expireAfterContact: boolean } {
+    const config = definition.returnConfig!;
+    projectile.previousX = projectile.x;
+    projectile.previousY = projectile.y;
+    projectile.age += 1;
+
+    if (projectile.phase === 'turn') {
+      projectile.vx = 0;
+      projectile.vy = 0;
+      projectile.phaseTick += 1;
+      if (projectile.phaseTick >= config.turnTicks) {
+        projectile.phase = 'return';
+        projectile.phaseTick = 0;
+      }
+      return { movementLeg: null, catchT: null, expireAfterContact: false };
+    }
+
+    if (projectile.phase === 'outbound') {
+      const nextX = projectile.x + projectile.vx;
+      const minX = ARENA_MIN_X - definition.collisionHalfWidth;
+      const maxX = ARENA_MAX_X + definition.collisionHalfWidth;
+      projectile.x = Math.max(minX, Math.min(maxX, nextX));
+      projectile.phaseTick += 1;
+      const hitWall = projectile.x !== nextX;
+      if (hitWall || projectile.phaseTick >= config.outboundTicks) {
+        projectile.phase = 'turn';
+        projectile.phaseTick = 0;
+        projectile.vx = 0;
+        this.events.push({ type: 'projectile-turn', owner: projectile.owner, projectileId: projectile.id });
+      }
+      return { movementLeg: 'outbound', catchT: null, expireAfterContact: false };
+    }
+
+    const owner = this.fighters[projectile.owner];
+    const anchorX = owner.x + owner.facing * 20;
+    const anchorY = owner.y + 68;
+    const startDistance = Math.hypot(anchorX - projectile.x, anchorY - projectile.y);
+    if (startDistance <= config.catchRadius) {
+      return { movementLeg: null, catchT: 0, expireAfterContact: false };
+    }
+
+    const dx = anchorX - projectile.x;
+    const dy = anchorY - projectile.y;
+    const distance = Math.hypot(dx, dy);
+    const travel = Math.min(config.returnSpeed, distance);
+    const ux = distance > 0 ? dx / distance : 0;
+    const uy = distance > 0 ? dy / distance : 0;
+    projectile.x += ux * travel;
+    projectile.y += uy * travel;
+    projectile.vx = ux * config.returnSpeed;
+    projectile.vy = uy * config.returnSpeed;
+    projectile.phaseTick += 1;
+
+    const catchT = this.segmentCircleEntryT(
+      projectile.previousX,
+      projectile.previousY,
+      projectile.x,
+      projectile.y,
+      anchorX,
+      anchorY,
+      config.catchRadius,
+    );
+    return {
+      movementLeg: 'return',
+      catchT,
+      expireAfterContact: projectile.phaseTick >= config.maxReturnTicks,
+    };
+  }
+
+  private applyProjectileContact(
+    projectile: ProjectileState,
+    defenderIndex: FighterIndex,
+    definition: ProjectileDefinition,
+    contact: ProjectileContactDefinition,
+    defenderInput: InputFrame,
+    leg: 'outbound' | 'return',
+  ): void {
+    const defender = this.fighters[defenderIndex];
+    const blocked = this.canBlock(defender, defenderInput);
+    const requestedDamage = blocked ? contact.chipDamage : contact.damage;
+    const actualDamage = this.applyDamage(projectile.owner, defenderIndex, requestedDamage, 'projectile', blocked);
+    const travelDirection = Math.sign(projectile.x - projectile.previousX) || Math.sign(projectile.vx) || 1;
+
+    if (blocked) {
+      defender.blockstunFrames = contact.blockstun;
+      defender.blocking = true;
+      defender.vx = travelDirection * contact.blockKnockback;
+      this.applyCornerBlockTransfer(projectile.owner, defenderIndex, definition.cornerTransferKnockback);
+      this.damageGuard(defenderIndex, contact.guardDamage);
+    } else {
+      defender.stunFrames = contact.hitstun;
+      defender.blocking = false;
+      defender.vx = travelDirection * contact.knockback;
+    }
+
+    projectile.lastContactTick[defenderIndex] = this.combatTick;
+    if (leg === 'outbound') projectile.outboundContacts.add(defenderIndex);
+    else projectile.returnContacts.add(defenderIndex);
+
+    this.hitstopFrames = Math.max(this.hitstopFrames, contact.hitstop);
+    this.events.push({
+      type: 'hit',
+      attacker: projectile.owner,
+      defender: defenderIndex,
+      blocked,
+      damage: actualDamage,
+      strong: contact.strong,
+      source: 'projectile',
+      finisher: defender.health <= 0,
+      projectileId: projectile.id,
+      leg,
+    });
+  }
+
+  private finishReturningProjectile(
+    projectile: ProjectileState,
+    definition: ProjectileDefinition,
+    caught: boolean,
+  ): void {
+    projectile.active = false;
+    this.startReturningRearm(projectile.owner, definition);
+    if (caught) {
+      this.events.push({ type: 'projectile-catch', owner: projectile.owner, projectileId: projectile.id });
+    }
+  }
+
+  private updateProjectiles(inputs: readonly [InputFrame, InputFrame]): void {
+    this.cancelReturningProjectilesFromCurrentEvents();
+
+    const movement = new Map<number, {
+      leg: 'outbound' | 'return' | null;
+      catchT: number | null;
+      expireAfterContact: boolean;
+    }>();
+
+    for (const projectile of this.projectiles) {
+      if (!projectile.active) continue;
+      const definition = this.registry.getProjectile(projectile.kind);
+      if (this.projectileKind(definition) === 'returnToOwner') {
+        const result = this.advanceReturningProjectile(projectile, definition);
+        movement.set(projectile.id, { leg: result.movementLeg, catchT: result.catchT, expireAfterContact: result.expireAfterContact });
+      } else {
+        this.advanceLinearProjectile(projectile);
+        movement.set(projectile.id, { leg: 'outbound', catchT: null, expireAfterContact: false });
+      }
+    }
+
+    // Resolve all linear contacts first from the common post-movement view.
+    const linearContacts: Array<{ projectile: ProjectileState; defender: FighterIndex; t: number }> = [];
+    for (const projectile of this.projectiles) {
+      if (!projectile.active) continue;
+      const definition = this.registry.getProjectile(projectile.kind);
+      if (this.projectileKind(definition) !== 'linear') continue;
+      const defender: FighterIndex = projectile.owner === 0 ? 1 : 0;
+      const t = this.projectileContactT(projectile, defender, definition);
+      if (t !== null) linearContacts.push({ projectile, defender, t });
+    }
+
+    for (const proposal of linearContacts) {
+      if (!proposal.projectile.active) continue;
+      const definition = this.registry.getProjectile(proposal.projectile.kind);
+      this.applyProjectileContact(
+        proposal.projectile,
+        proposal.defender,
+        definition,
+        definition,
+        inputs[proposal.defender],
+        'outbound',
+      );
+      proposal.projectile.active = false;
+    }
+
+    // A clean linear-projectile consequence cancels an owner's returning ball
+    // before that ball can rescue them later in the same tick.
+    this.cancelReturningProjectilesFromCurrentEvents();
+
+    // Collect returning contacts before applying any of them. This preserves
+    // the explicit two-returning-ball trade exception.
+    const returningContacts: Array<{
+      projectile: ProjectileState;
+      defender: FighterIndex;
+      leg: 'outbound' | 'return';
+      t: number;
+      catchT: number | null;
+    }> = [];
+
+    for (const projectile of this.projectiles) {
+      if (!projectile.active) continue;
+      const definition = this.registry.getProjectile(projectile.kind);
+      if (this.projectileKind(definition) !== 'returnToOwner') continue;
+      const motion = movement.get(projectile.id);
+      const leg = motion?.leg;
+      if (leg !== 'outbound' && leg !== 'return') continue;
+
+      const defender: FighterIndex = projectile.owner === 0 ? 1 : 0;
+      const ledger = leg === 'outbound' ? projectile.outboundContacts : projectile.returnContacts;
+      if (ledger.has(defender)) continue;
+
+      const config = definition.returnConfig!;
+      const lastContactTick = projectile.lastContactTick[defender];
+      if (
+        leg === 'return'
+        && lastContactTick !== null
+        && this.combatTick - lastContactTick < config.minimumTicksBetweenLegHits
+      ) continue;
+
+      const t = this.projectileContactT(projectile, defender, definition);
+      if (t === null) continue;
+      const catchT = motion?.catchT ?? null;
+      if (leg === 'return' && catchT !== null && catchT <= t) continue;
+      returningContacts.push({ projectile, defender, leg, t, catchT });
+    }
+
+    for (const proposal of returningContacts) {
+      if (!proposal.projectile.active) continue;
+      const definition = this.registry.getProjectile(proposal.projectile.kind);
+      const contact = proposal.leg === 'return' ? definition.returnConfig!.returnHit : definition;
+      this.applyProjectileContact(
+        proposal.projectile,
+        proposal.defender,
+        definition,
+        contact,
+        inputs[proposal.defender],
+        proposal.leg,
+      );
+    }
+
+    // Returning contacts can clean-hit both opposing owners on the same tick;
+    // both contacts above land first, then cancellation/rearm is symmetric.
+    this.cancelReturningProjectilesFromCurrentEvents();
+
+    for (const projectile of this.projectiles) {
+      if (!projectile.active) continue;
+      const definition = this.registry.getProjectile(projectile.kind);
+      if (this.projectileKind(definition) !== 'returnToOwner') continue;
+      const motion = movement.get(projectile.id);
+      if (!motion) continue;
+      if (motion.catchT !== null || motion.expireAfterContact) {
+        this.finishReturningProjectile(projectile, definition, motion.catchT !== null);
+      }
+    }
+
+    this.projectiles = this.projectiles.filter((projectile) => projectile.active);
   }
 
   private startUltimate(index: FighterIndex): void {
+    this.cancelOwnedReturningProjectile(index, true);
     const fighter = this.fighters[index];
     const kit = this.registry.getKit(fighter.id);
     fighter.currentMove = this.registry.getMove(fighter.id, kit.ultimate);
@@ -1326,7 +1752,7 @@ export class CombatSimulation {
         : fighter0.ultimateFacing === 1 ? 0 : 1;
     const right: FighterIndex = left === 0 ? 1 : 0;
 
-    this.projectiles = [];
+    this.clearEncounterProjectiles(true);
     this.pendingUltimateReleases = [];
 
     for (const index of [0, 1] as const) {
@@ -1420,6 +1846,14 @@ export class CombatSimulation {
       const definition = this.registry.getFighter(fighter.id);
 
       if (fighter.projectileCooldown > 0) fighter.projectileCooldown -= 1;
+      if (fighter.rangedRecoveryFrames > 0) fighter.rangedRecoveryFrames -= 1;
+      if (
+        fighter.rangedAvailability === 'cooldown'
+        && fighter.projectileCooldown <= 0
+        && fighter.rangedRecoveryFrames <= 0
+      ) {
+        fighter.rangedAvailability = 'ready';
+      }
       if (fighter.chilledFrames > 0) fighter.chilledFrames -= 1;
       this.updateGuard(fighter);
 
@@ -1473,7 +1907,7 @@ export class CombatSimulation {
 
     // Confirmed sequence owns the encounter. Remove ordinary projectiles so
     // neither participant receives ambiguous off-screen assistance.
-    this.projectiles = [];
+    this.clearEncounterProjectiles(true);
     this.cancelDefenderForCapture(defender);
     defender.capturedBy = attackerIndex;
     defender.vx = 0;
@@ -1717,6 +2151,7 @@ export class CombatSimulation {
     this.pendingUltimateReleases = [];
     this.clash = null;
     this.hitstopFrames = 0;
+    this.clearEncounterProjectiles(false);
     this.clearTransientCombatState(this.fighters[0]);
     this.clearTransientCombatState(this.fighters[1]);
 
@@ -1736,7 +2171,7 @@ export class CombatSimulation {
 
     this.round += 1;
     this.roundWinner = null;
-    this.projectiles = [];
+    this.clearEncounterProjectiles(false);
     this.pendingUltimateReleases = [];
     this.clash = null;
     this.hitstopFrames = 0;
@@ -1756,6 +2191,8 @@ export class CombatSimulation {
       fighter.blocking = false;
       fighter.chilledFrames = 0;
       fighter.projectileCooldown = 0;
+      fighter.rangedAvailability = 'ready';
+      fighter.rangedRecoveryFrames = 0;
       fighter.prevInput = copyInput(EMPTY_INPUT);
       fighter.superReady = fighter.superMeter >= fighter.maxSuper;
       this.clearTransientCombatState(fighter);

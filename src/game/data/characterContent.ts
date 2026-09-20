@@ -233,26 +233,61 @@ function validateFighter(path: string, fighter: FighterDefinition): void {
   nonEmpty(`${path}.accent`, fighter.accent);
 }
 
+function validateProjectileContact(path: string, contact: {
+  damage: number;
+  chipDamage: number;
+  guardDamage: number;
+  hitstun: number;
+  blockstun: number;
+  knockback: number;
+  blockKnockback: number;
+  hitstop: number;
+  strong: boolean;
+}): void {
+  finite(`${path}.damage`, contact.damage, 0);
+  finite(`${path}.chipDamage`, contact.chipDamage, 0);
+  finite(`${path}.guardDamage`, contact.guardDamage, 0);
+  integer(`${path}.hitstun`, contact.hitstun);
+  integer(`${path}.blockstun`, contact.blockstun);
+  finite(`${path}.knockback`, contact.knockback, 0);
+  finite(`${path}.blockKnockback`, contact.blockKnockback, 0);
+  integer(`${path}.hitstop`, contact.hitstop);
+  if (typeof contact.strong !== 'boolean') fail(`${path}.strong`, 'must be boolean');
+}
+
 function validateProjectile(path: string, projectile: ProjectileDefinition): void {
   nonEmpty(`${path}.key`, projectile.key);
   if (projectile.visualKey !== undefined) nonEmpty(`${path}.visualKey`, projectile.visualKey);
+  const kind = projectile.kind ?? 'linear';
+  if (kind !== 'linear' && kind !== 'returnToOwner') fail(`${path}.kind`, `unknown projectile kind ${String(kind)}`);
+  if (projectile.cancelOnOwnerHit !== undefined && typeof projectile.cancelOnOwnerHit !== 'boolean') {
+    fail(`${path}.cancelOnOwnerHit`, 'must be boolean');
+  }
   finite(`${path}.spawnOffsetX`, projectile.spawnOffsetX);
   finite(`${path}.spawnOffsetY`, projectile.spawnOffsetY);
   finite(`${path}.speed`, projectile.speed);
   integer(`${path}.ttl`, projectile.ttl, 1);
   finite(`${path}.collisionHalfWidth`, projectile.collisionHalfWidth, 0);
   finite(`${path}.collisionHalfHeight`, projectile.collisionHalfHeight, 0);
-  finite(`${path}.damage`, projectile.damage, 0);
-  finite(`${path}.chipDamage`, projectile.chipDamage, 0);
-  finite(`${path}.guardDamage`, projectile.guardDamage, 0);
-  integer(`${path}.hitstun`, projectile.hitstun);
-  integer(`${path}.blockstun`, projectile.blockstun);
-  finite(`${path}.knockback`, projectile.knockback, 0);
-  finite(`${path}.blockKnockback`, projectile.blockKnockback, 0);
+  validateProjectileContact(path, projectile);
   finite(`${path}.cornerTransferKnockback`, projectile.cornerTransferKnockback, 0);
-  integer(`${path}.hitstop`, projectile.hitstop);
   integer(`${path}.cooldown`, projectile.cooldown);
-  if (typeof projectile.strong !== 'boolean') fail(`${path}.strong`, 'must be boolean');
+
+  if (kind === 'returnToOwner') {
+    const config = projectile.returnConfig;
+    if (!config) fail(`${path}.returnConfig`, 'required for returnToOwner');
+    integer(`${path}.returnConfig.outboundTicks`, config.outboundTicks, 1);
+    integer(`${path}.returnConfig.turnTicks`, config.turnTicks, 1);
+    finite(`${path}.returnConfig.returnSpeed`, config.returnSpeed, 0.000001);
+    integer(`${path}.returnConfig.maxReturnTicks`, config.maxReturnTicks, 1);
+    finite(`${path}.returnConfig.catchRadius`, config.catchRadius, 0.000001);
+    integer(`${path}.returnConfig.rearmTicks`, config.rearmTicks);
+    integer(`${path}.returnConfig.minimumTicksBetweenLegHits`, config.minimumTicksBetweenLegHits);
+    validateProjectileContact(`${path}.returnConfig.returnHit`, config.returnHit);
+    if (projectile.cooldown !== config.rearmTicks) fail(path, 'returning projectile cooldown must equal rearmTicks');
+  } else if (projectile.returnConfig !== undefined) {
+    fail(`${path}.returnConfig`, 'must be absent for linear projectile');
+  }
 }
 
 function validateUltimate(path: string, ultimate: UltimateDefinition): void {

@@ -67,7 +67,9 @@ export const SUPERNARIZ_CHARACTER_CONTENT: CombatCharacterContent = {
   projectiles: {
     chorizo: {
       key: 'chorizo',
+      kind: 'linear',
       visualKey: 'chorizo',
+      cancelOnOwnerHit: false,
       spawnOffsetX: 68,
       spawnOffsetY: 68,
       speed: 9.2,

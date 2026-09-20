@@ -48,3 +48,19 @@ Mario/B1 stage seam for final composition:
 - `FightRenderer(canvas, resolvedStage)` consumes the resolved presentation stage.
 
 AUTO_CHAIN condition is satisfied. @Gonza starts V06-Z0 now; no Neureon release token is required.
+
+
+## V06-Z0 GREEN — Gonza
+
+Exact final candidate: `8acfc79d7ec96ec3d6a99aa5c720efe840a62115`.
+
+Evidence:
+- final Repository verification #877: SUCCESS;
+- Z0 standalone/browser smoke: SUCCESS;
+- recursive nested-test discovery: PASS;
+- stage UI→StageRegistry→FightRenderer seam: PASS;
+- Juanchi + Cancha 56 integrated flow: PASS;
+- source fingerprint `241c219a...`;
+- standalone SHA-256 `8fcc70c9...`.
+
+No blocker remains. AUTO_CHAIN condition for V06-Z1 is satisfied; final publication starts now.

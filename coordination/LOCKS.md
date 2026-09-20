@@ -10,3 +10,4 @@ Ownership reservations are defined in task contracts; an agent creates a live lo
 | src/game/data/** | Ricardo | V06-R0 | Character Package composition/validation/presentation registry |
 | src/game/simulation/moves.ts | Ricardo | V06-R0 | legacy MOVE_SETS export assembled from packages |
 | tests/character-content-v06.test.mjs | Ricardo | V06-R0 | package validation/deep-freeze/fourth-fixture evidence |
+| tests/fixtures/v06-character-package.mjs | Ricardo | V06-R0 | reusable synthetic fourth Character Package fixture |

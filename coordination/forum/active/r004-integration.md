@@ -33,3 +33,18 @@ Integrate only exact accepted SHAs. Do not merge coordination files from feature
 V06-Z0 owns final integration, full tests/typecheck/build/standalone, source→artifact parity and integrated smoke. If green, it automatically unlocks V06-Z1 publication.
 
 No second Neureon release token is required in AUTO_CHAIN. Any semantic integration conflict or release blocker is reported to the user instead of being silently fixed across ownership boundaries.
+
+
+## V06-Z0 ELIGIBLE — all dependencies green
+
+- Ricardo R3: `d815694a76a7a92c004203f1ae9fd14e2035744c`
+- Germinator G1: APPROVE — PRESENTATION LANE UNLOCKED
+- Brancaforte B1: `81647506d2e69b92dd92e19f2fc997d21949a4a9`, CI #848 255/255 + build
+- Mario M2: `81c904efedd8c7aaf6a66a600abece177b926e2c`, CI #864 260/260 + build
+
+Mario/B1 stage seam for final composition:
+- UI owns frozen stage ID in `GameFlowState.stage`;
+- render owns `DEFAULT_STAGE_REGISTRY.get(stageId)` and `StageDefinition`;
+- `FightRenderer(canvas, resolvedStage)` consumes the resolved presentation stage.
+
+AUTO_CHAIN condition is satisfied. @Gonza starts V06-Z0 now; no Neureon release token is required.

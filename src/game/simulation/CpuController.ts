@@ -68,7 +68,7 @@ export class CpuController {
   private observationHistory: PublicObservation[] = [];
   private processedObservationTick = -1;
   private handledCueKeys = new Set<string>();
-  private seenProjectileIds = new Set<number>();
+  private seenProjectileCueKeys = new Set<string>();
   private cueSerial = 0;
   private lastFoeMoveId: string | null = null;
   private lastFoeMoveFrame = -1;
@@ -100,7 +100,7 @@ export class CpuController {
     this.observationHistory = [];
     this.processedObservationTick = -1;
     this.handledCueKeys.clear();
-    this.seenProjectileIds.clear();
+    this.seenProjectileCueKeys.clear();
     this.cueSerial = 0;
     this.lastFoeMoveId = null;
     this.lastFoeMoveFrame = -1;
@@ -191,6 +191,7 @@ export class CpuController {
 
     if (
       self.dashKind !== null
+      || self.jumpStartupFrames > 0
       || self.ultimatePhase !== 'idle'
       || self.pushGuardRecoveryFrames > 0
       || self.landingRecoveryFrames > 0
@@ -224,7 +225,10 @@ export class CpuController {
 
     if (!delayed) return this.rememberOutput(out);
 
-    this.chooseNeutralPlan(out, self, delayed, snapshot.combatTick, profile);
+    const ownReturningProjectile = snapshot.projectiles.some(
+      (projectile) => projectile.owner === this.cpuIndex && projectile.phase === 'return',
+    );
+    this.chooseNeutralPlan(out, self, delayed, snapshot.combatTick, profile, ownReturningProjectile);
     return this.rememberOutput(out);
   }
 
@@ -236,7 +240,7 @@ export class CpuController {
     this.observationHistory = [];
     this.processedObservationTick = -1;
     this.handledCueKeys.clear();
-    this.seenProjectileIds.clear();
+    this.seenProjectileCueKeys.clear();
     this.cueSerial = 0;
     this.lastFoeMoveId = null;
     this.lastFoeMoveFrame = -1;
@@ -305,11 +309,14 @@ export class CpuController {
     }
 
     for (const projectile of snapshot.projectiles) {
-      if (!projectile.active || projectile.owner !== foeIndex || this.seenProjectileIds.has(projectile.id)) continue;
-      this.seenProjectileIds.add(projectile.id);
+      if (!projectile.active || projectile.owner !== foeIndex || projectile.phase === 'turn') continue;
+      const leg = projectile.phase === 'return' ? 'return' : 'outbound';
+      const cueKey = `${projectile.id}:${leg}`;
+      if (this.seenProjectileCueKeys.has(cueKey)) continue;
+      this.seenProjectileCueKeys.add(cueKey);
       this.cueSerial += 1;
       cues.push({
-        key: `projectile:${projectile.id}:${this.cueSerial}`,
+        key: `projectile:${cueKey}:${this.cueSerial}`,
         kind: 'projectile',
         level: 'mid',
         foeX: projectile.x,
@@ -429,10 +436,76 @@ export class CpuController {
     observed: PublicObservation,
     tick: number,
     profile: CpuProfile,
+    ownReturningProjectile: boolean,
   ): void {
     const distance = Math.abs(observed.foeX - self.x);
     const kit = this.registry.getKit(self.id);
+    const tactics = profile.tactics;
 
+    if (tactics) {
+      if (
+        self.superReady
+        && distance >= tactics.ultimateRange[0]
+        && distance <= tactics.ultimateRange[1]
+        && this.nextRandom() < 0.28
+      ) {
+        out.ultimate = true;
+        return;
+      }
+
+      if (
+        ownReturningProjectile
+        && distance > profile.pressureRange
+        && this.nextRandom() < tactics.advanceBehindReturningProjectile
+      ) {
+        this.commitIntent('approach', tick, profile);
+        this.applyIntent(out, self.x, observed.foeX);
+        return;
+      }
+
+      if (distance < profile.pressureRange) {
+        this.chooseWeightedCloseAction(out, self.x, observed.foeX, tick, profile);
+        return;
+      }
+
+      if (
+        self.rangedAvailability === 'ready'
+        && distance >= tactics.rangedRange[0]
+        && distance <= tactics.rangedRange[1]
+        && this.nextRandom() < tactics.rangedChance
+      ) {
+        out.special = true;
+        return;
+      }
+
+      if (distance >= profile.preferredRange[0] && distance <= profile.preferredRange[1]) {
+        if (this.nextRandom() < tactics.retreatAtPreferredRange) {
+          this.commitIntent('retreat', tick, profile);
+          this.applyIntent(out, self.x, observed.foeX);
+        } else if (profile.archetype === 'pressure') {
+          this.commitIntent('approach', tick, profile);
+          this.applyIntent(out, self.x, observed.foeX);
+        }
+        return;
+      }
+
+      if (distance > profile.preferredRange[1]) {
+        this.commitIntent('approach', tick, profile);
+        this.applyIntent(out, self.x, observed.foeX);
+        return;
+      }
+
+      if (profile.archetype === 'pressure') {
+        this.commitIntent('approach', tick, profile);
+        this.applyIntent(out, self.x, observed.foeX);
+      } else {
+        this.chooseWeightedCloseAction(out, self.x, observed.foeX, tick, profile);
+      }
+      return;
+    }
+
+    // Preserve the released V0.5 seeded policy byte-for-byte when no V0.6
+    // tactics block is authored.
     if (self.superReady && distance >= 105 && distance <= 300 && this.nextRandom() < 0.28) {
       out.ultimate = true;
       return;
@@ -502,6 +575,47 @@ export class CpuController {
       this.applyIntent(out, self.x, observed.foeX);
     } else {
       out.attack = true;
+    }
+  }
+
+  private chooseWeightedCloseAction(
+    out: InputFrame,
+    selfX: number,
+    foeX: number,
+    tick: number,
+    profile: CpuProfile,
+  ): void {
+    const weights = profile.tactics?.closeWeights;
+    if (!weights) return;
+    const entries = [
+      ['standing', weights.standing],
+      ['low', weights.low],
+      ['closeSpecial', weights.closeSpecial],
+      ['jump', weights.jump],
+      ['retreat', weights.retreat],
+    ] as const;
+    const total = entries.reduce((sum, [, weight]) => sum + weight, 0);
+    let roll = this.nextRandom() * total;
+    let choice: (typeof entries)[number][0] = 'standing';
+    for (const [name, weight] of entries) {
+      if (roll < weight) {
+        choice = name;
+        break;
+      }
+      roll -= weight;
+    }
+
+    if (choice === 'standing') out.attack = true;
+    else if (choice === 'low') {
+      out.down = true;
+      out.attack = true;
+    } else if (choice === 'closeSpecial') {
+      out.down = true;
+      out.special = true;
+    } else if (choice === 'jump') out.jump = true;
+    else {
+      this.commitIntent('retreat', tick, profile);
+      this.applyIntent(out, selfX, foeX);
     }
   }
 

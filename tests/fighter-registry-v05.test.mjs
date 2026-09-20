@@ -91,8 +91,8 @@ test('registry-backed released fighters preserve identity through intentional R3
 });
 
 
-test('default combat registry exposes only released playable IDs and rejects unknown content', () => {
-  assert.deepEqual([...DEFAULT_COMBAT_REGISTRY.playableIds], ['chameleon', 'supernariz']);
+test('default combat registry exposes the exact released V0.6 roster and rejects unknown content', () => {
+  assert.deepEqual([...DEFAULT_COMBAT_REGISTRY.playableIds], ['chameleon', 'supernariz', 'juanchi']);
   assert.equal(DEFAULT_COMBAT_REGISTRY.getFighter('chameleon').displayName, 'Camaleoni');
   assert.equal(DEFAULT_COMBAT_REGISTRY.getKit('supernariz').standing, 'nose1');
   assert.equal(DEFAULT_COMBAT_REGISTRY.getProjectile('chorizo').cooldown, 120);

@@ -132,22 +132,25 @@ test('committed Ultimate whiff spends meter, stays disconnected and keeps punish
   }
 });
 
-test('exact simultaneous same-kit capture request resolves deterministically to one capture owner', () => {
+test('exact simultaneous same-kit effective requests resolve as a symmetric V0.6 Clash', () => {
   function trace() {
     const sim = new CombatSimulation('chameleon', 'chameleon', { skipIntro: true, initialSuper: [100, 100] });
     sim.fighters[0].x = 500;
     sim.fighters[1].x = 620;
     let snap = sim.step(input({ ultimate: true }), input({ ultimate: true }));
-    const captures = [];
-    for (let n = 0; n < 100 && captures.length === 0; n += 1) {
+    const clashes = [];
+    for (let n = 0; n < 100 && clashes.length === 0; n += 1) {
       snap = sim.step(E, E);
-      captures.push(...snap.events.filter(e => e.type === 'ultimate-capture'));
+      clashes.push(...snap.events.filter(e => e.type === 'ultimate-clash'));
     }
-    return { captures, snap };
+    return { clashes, snap };
   }
   const a = trace();
   const b = trace();
-  assert.equal(a.captures.length, 1);
-  assert.deepEqual(a.captures, b.captures);
-  assert.equal(a.snap.fighters.filter(f => f.capturedBy !== null).length, 1);
+  assert.equal(a.clashes.length, 1);
+  assert.deepEqual(a.clashes, b.clashes);
+  assert.equal(a.snap.fighters.filter(f => f.capturedBy !== null).length, 0);
+  assert.equal(a.snap.fighters[0].clashRecoveryFrames, 30);
+  assert.equal(a.snap.fighters[1].clashRecoveryFrames, 30);
+  assert.equal(a.snap.clash?.phase, 'freeze');
 });

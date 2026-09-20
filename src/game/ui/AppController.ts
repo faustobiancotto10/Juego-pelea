@@ -1,5 +1,5 @@
 import { DEFAULT_COMBAT_REGISTRY } from '../data/combatRegistry.js';
-import { FIGHTERS } from '../data/fighters.js';
+import { DEFAULT_FIGHTER_PRESENTATION_REGISTRY } from '../data/presentationRegistry.js';
 import { GameInput } from '../input/GameInput.js';
 import { FightRenderer } from '../render/FightRenderer.js';
 import { CombatSimulation } from '../simulation/CombatSimulation.js';
@@ -10,20 +10,18 @@ import { backToSelect, chooseFighter, finishFight, initialFlowState, rematch, st
 const FIXED_MS = 1000 / 60;
 const FIGHTER_ORDER: readonly FighterId[] = DEFAULT_COMBAT_REGISTRY.playableIds;
 
-const fighterCopy: Record<FighterId, { kicker: string; role: string; moves: string; mark: string }> = {
-  chameleon: {
-    kicker: 'CONTROL DE DISTANCIA',
-    role: 'Zoner',
-    moves: 'Garras · Low de garra · Lengua / Coletazo',
-    mark: 'C',
-  },
-  supernariz: {
-    kicker: 'PRESIÓN Y COMBOS',
-    role: 'Rushdown',
-    moves: 'Combo de nariz · Low de nariz · Chorizo / Tramontana',
-    mark: 'N',
-  },
-};
+function fighterDefinition(id: FighterId) {
+  return DEFAULT_COMBAT_REGISTRY.getFighter(id);
+}
+
+function fighterPresentation(id: FighterId) {
+  return DEFAULT_FIGHTER_PRESENTATION_REGISTRY.getPresentation(id);
+}
+
+function playableFighterId(value: string | undefined): FighterId | null {
+  if (!value) return null;
+  return DEFAULT_COMBAT_REGISTRY.playableIds.includes(value) ? value : null;
+}
 
 export class AppController {
   private flow: GameFlowState = initialFlowState();
@@ -56,7 +54,7 @@ export class AppController {
     const selectingCpu = this.flow.phase === 'select-cpu';
     const title = selectingCpu ? 'ELEGÍ AL RIVAL' : 'ELEGÍ TU LUCHADOR';
     const subtitle = selectingCpu
-      ? `Vas con ${this.flow.player ? FIGHTERS[this.flow.player].displayName : ''}. Ahora elegí la CPU.`
+      ? `Vas con ${this.flow.player ? fighterDefinition(this.flow.player).displayName : ''}. Ahora elegí la CPU.`
       : 'Dos estilos opuestos. El mismo lenguaje de controles.';
 
     this.root.innerHTML = `
@@ -82,7 +80,8 @@ export class AppController {
 
     for (const button of this.root.querySelectorAll<HTMLButtonElement>('[data-fighter]')) {
       button.addEventListener('click', () => {
-        const id = button.dataset.fighter as FighterId;
+        const id = playableFighterId(button.dataset.fighter);
+        if (!id) throw new Error(`Unknown playable fighter ${String(button.dataset.fighter)}`);
         this.flow = chooseFighter(this.flow, id);
         if (this.flow.phase === 'select-cpu') this.showCharacterSelect();
         else if (this.flow.phase === 'vs') this.showVs();
@@ -96,7 +95,7 @@ export class AppController {
   }
 
   private fighterCard(id: FighterId, cpuSelection: boolean): string {
-    const info = fighterCopy[id];
+    const info = fighterPresentation(id).select;
     const selected = this.flow.player === id;
     return `
       <button class="fighter-card fighter-card--${id}${selected ? ' is-player' : ''}" data-fighter="${id}" type="button">
@@ -105,7 +104,7 @@ export class AppController {
           <span class="portrait-mark">${info.mark}</span>
           <span class="portrait-detail"></span>
         </span>
-        <span class="fighter-name">${FIGHTERS[id].displayName}</span>
+        <span class="fighter-name">${fighterDefinition(id).displayName}</span>
         <span class="fighter-role">${info.role}</span>
         <span class="fighter-moves">${info.moves}</span>
         <span class="fighter-pick">${cpuSelection ? 'ELEGIR COMO RIVAL' : 'ELEGIR'}</span>
@@ -120,11 +119,11 @@ export class AppController {
     this.root.innerHTML = `
       <main class="vs-screen">
         <div class="vs-side vs-side--left fighter-card--${p1}">
-          <span class="vs-label">JUGADOR</span><strong>${FIGHTERS[p1].displayName}</strong><span>${fighterCopy[p1].role}</span>
+          <span class="vs-label">JUGADOR</span><strong>${fighterDefinition(p1).displayName}</strong><span>${fighterPresentation(p1).select.role}</span>
         </div>
         <div class="vs-mark">VS</div>
         <div class="vs-side vs-side--right fighter-card--${p2}">
-          <span class="vs-label">CPU</span><strong>${FIGHTERS[p2].displayName}</strong><span>${fighterCopy[p2].role}</span>
+          <span class="vs-label">CPU</span><strong>${fighterDefinition(p2).displayName}</strong><span>${fighterPresentation(p2).select.role}</span>
         </div>
       </main>
       ${this.orientationPrompt()}
@@ -232,7 +231,7 @@ export class AppController {
   private hudFighter(index: FighterIndex, id: FighterId): string {
     return `
       <section class="hud-fighter hud-fighter--${index === 0 ? 'left' : 'right'}">
-        <div class="hud-meta"><strong>${FIGHTERS[id].displayName}</strong><span>${index === 0 ? 'P1' : 'CPU'}</span></div>
+        <div class="hud-meta"><strong>${fighterDefinition(id).displayName}</strong><span>${index === 0 ? 'P1' : 'CPU'}</span></div>
         <div class="health-track"><span class="health-fill" data-health="${index}"></span></div>
         <div class="guard-row"><span class="guard-label">GUARD</span><div class="guard-track" data-guard-track="${index}"><span class="guard-fill" data-guard="${index}"></span></div></div>
         <div class="super-row"><span class="super-label">SUPER</span><div class="super-track" data-super-track="${index}"><span class="super-fill" data-super="${index}"></span></div></div>
@@ -306,7 +305,7 @@ export class AppController {
       <main class="result-screen fighter-card--${winnerId}">
         <span class="result-kicker">RESULTADO</span>
         <h1>${playerWon ? 'VICTORIA' : 'DERROTA'}</h1>
-        <p><strong>${FIGHTERS[winnerId].displayName}</strong> gana el duelo.</p>
+        <p><strong>${fighterDefinition(winnerId).displayName}</strong> gana el duelo.</p>
         <div class="result-actions">
           <button class="primary-button" data-rematch>REVANCHA</button>
           <button class="secondary-button" data-select>SELECCIÓN</button>

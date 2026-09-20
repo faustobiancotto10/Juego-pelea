@@ -202,3 +202,97 @@ test('render locomotion sampling never mutates fighter snapshots', () => {
   tracker.sample(0, fighter, 4, 4);
   assert.deepEqual(fighter, before);
 });
+
+
+test('V0.6 stage registry exposes only the frozen presentation IDs and no simulation dependency', async () => {
+  const { DEFAULT_STAGE_REGISTRY } = await import('../dist/game/render/StageRegistry.js');
+  assert.deepEqual(DEFAULT_STAGE_REGISTRY.ids, ['tramontana-dusk', 'cancha-56']);
+  assert.equal(DEFAULT_STAGE_REGISTRY.get('cancha-56').displayName, 'CANCHA 56');
+  const source = readFileSync('src/game/render/StageRegistry.ts', 'utf8');
+  assert.doesNotMatch(source, /simulation|CombatSimulation|damage|collision|hitbox/);
+});
+
+test('stage choice is presentation-only and cannot change deterministic simulation snapshots', async () => {
+  const { DEFAULT_STAGE_REGISTRY } = await import('../dist/game/render/StageRegistry.js');
+  const inputs = [
+    { left:false,right:true,down:false,up:false,jump:false,attack:false,special:false,dashLeft:false,dashRight:false },
+    { left:false,right:false,down:false,up:false,jump:false,attack:true,special:false,dashLeft:false,dashRight:false },
+    { left:true,right:false,down:false,up:false,jump:false,attack:false,special:false,dashLeft:false,dashRight:false },
+  ];
+  const a = new CombatSimulation('juanchi', 'supernariz', { skipIntro: true });
+  const b = new CombatSimulation('juanchi', 'supernariz', { skipIntro: true });
+  DEFAULT_STAGE_REGISTRY.get('tramontana-dusk');
+  DEFAULT_STAGE_REGISTRY.get('cancha-56');
+  for (let i = 0; i < 48; i += 1) {
+    const input = inputs[i % inputs.length];
+    a.setPlayerInput(input);
+    b.setPlayerInput(structuredClone(input));
+    a.step();
+    b.step();
+    assert.deepEqual(a.getSnapshot(), b.getSnapshot());
+  }
+});
+
+test('Cancha 56 source preserves rugby-night gathering identity with bounded procedural crowd', () => {
+  const source = readFileSync('src/game/render/StageRenderer.ts', 'utf8');
+  for (const required of [
+    'drawCancha56',
+    'drawRugbyPosts',
+    'drawFloodlight',
+    'CANCHA_CROWD',
+    'LA 56',
+    'reaction',
+    'clashDarkening',
+  ]) {
+    assert.equal(source.includes(required), true, `Cancha 56 missing ${required}`);
+  }
+  assert.doesNotMatch(source, /new Image\(|drawImage\(|\.png|\.jpg|spritesheet/i);
+  const members = (source.match(/shirt:/g) ?? []).length;
+  assert.ok(members >= 12 && members <= 24, `crowd member budget should stay restrained; got ${members}`);
+});
+
+test('FightRenderer stage seam defaults safely and accepts B1 StageDefinition without UI ownership', () => {
+  const source = readFileSync('src/game/render/FightRenderer.ts', 'utf8');
+  assert.match(source, /stage: StageDefinition = DEFAULT_STAGE_REGISTRY\.get\('tramontana-dusk'\)/);
+  assert.match(source, /setStage\(stage: StageDefinition\)/);
+  assert.match(source, /drawStage\(ctx, combatTimeSeconds, this\.stage/);
+});
+
+test('projectile rendering routes by visualKey and authored projectile phase', () => {
+  const source = readFileSync('src/game/render/FightRenderer.ts', 'utf8');
+  assert.match(source, /projectile\.visualKey === 'rugby-ball'/);
+  assert.match(source, /projectile\.visualKey !== 'chorizo'/);
+  assert.match(source, /projectile\.phase === 'return'/);
+  assert.match(source, /projectile\.phase === 'turn'/);
+  assert.match(source, /drawRugbyBallProp/);
+  assert.doesNotMatch(source, /for \(const projectile of snapshot\.projectiles\) this\.drawChorizo/);
+});
+
+test('Juanchi police-cap presentation follows authoritative probe and capture state only', () => {
+  const source = readFileSync('src/game/render/FightRenderer.ts', 'utf8');
+  assert.match(source, /fighter\.ultimateProbe/);
+  assert.match(source, /probe\.visualKey !== 'police-cap'/);
+  assert.match(source, /target\.capturedBy === attackerIndex/);
+  assert.match(source, /sampleFighterAnchors/);
+  assert.match(source, /drawPoliceCapProp/);
+  assert.doesNotMatch(source, /captureDistance|confrontation|collisionHalfWidth/);
+});
+
+test('Universal Ultimate Clash presentation is event/snapshot driven and bounded', () => {
+  const fight = readFileSync('src/game/render/FightRenderer.ts', 'utf8');
+  const effects = readFileSync('src/game/render/CombatEffects.ts', 'utf8');
+  assert.match(fight, /event\.type === 'ultimate-clash'/);
+  assert.match(fight, /snapshot\.clash/);
+  assert.match(fight, /drawUltimateClashEffect/);
+  assert.match(fight, /drawClashOpposingTrails/);
+  assert.match(fight, /clashFlashes\.length > 6/);
+  assert.match(effects, /CHOQUE/);
+  assert.doesNotMatch(fight, /ultimateEffectiveTick.*<=|abs\(.*ultimateEffectiveTick|findUltimateClashIntersection/);
+});
+
+test('major Ultimate presentation reads published majorImpact instead of guessing final contact', () => {
+  const source = readFileSync('src/game/render/FightRenderer.ts', 'utf8');
+  assert.match(source, /event\.majorImpact === true/);
+  assert.match(source, /peakImpact = majorImpact \|\| ultimateFinisher/);
+  assert.match(source, /stageReactionTicks/);
+});

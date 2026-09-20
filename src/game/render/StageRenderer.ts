@@ -295,23 +295,6 @@ function drawCancha56(
   ctx.fillRect(43, 441, 235, 13);
   ctx.fillRect(1001, 441, 235, 13);
 
-  for (const member of CANCHA_CROWD) drawCrowdMember(ctx, member, time, reaction);
-
-  // Small party/gathering props at the edges only.
-  ctx.fillStyle = '#c0b9a4';
-  ctx.fillRect(206, 470, 34, 18);
-  ctx.fillStyle = '#58606a';
-  ctx.fillRect(209, 466, 28, 5);
-  ctx.fillStyle = '#161b22';
-  ctx.fillRect(1056, 464, 32, 27);
-  ellipse(ctx, 1072, 463, 13, 4, '#313844');
-  ctx.fillStyle = '#232830';
-  ctx.fillRect(1110, 479, 46, 8);
-  ctx.fillStyle = '#a58b4f';
-  ctx.font = '700 15px system-ui, sans-serif';
-  ctx.textAlign = 'center';
-  ctx.fillText('LA 56', 1133, 475);
-
   // Rugby grass and field markings.
   const turf = ctx.createLinearGradient(0, 430, 0, WORLD_HEIGHT);
   turf.addColorStop(0, '#1e3c31');
@@ -347,6 +330,23 @@ function drawCancha56(
   ctx.stroke();
   ctx.setLineDash([]);
   ctx.restore();
+
+  for (const member of CANCHA_CROWD) drawCrowdMember(ctx, member, time, reaction);
+
+  // Small party/gathering props at the edges only.
+  ctx.fillStyle = '#c0b9a4';
+  ctx.fillRect(206, 470, 34, 18);
+  ctx.fillStyle = '#58606a';
+  ctx.fillRect(209, 466, 28, 5);
+  ctx.fillStyle = '#161b22';
+  ctx.fillRect(1056, 464, 32, 27);
+  ellipse(ctx, 1072, 463, 13, 4, '#313844');
+  ctx.fillStyle = '#232830';
+  ctx.fillRect(1110, 479, 46, 8);
+  ctx.fillStyle = '#a58b4f';
+  ctx.font = '700 15px system-ui, sans-serif';
+  ctx.textAlign = 'center';
+  ctx.fillText('LA 56', 1133, 475);
 
   // Contact strip under fighters remains quieter than the crowd/background.
   ctx.fillStyle = 'rgba(5,12,10,.23)';

@@ -53,21 +53,29 @@ Main is coordination/document authority and still contains the old public-root r
 
 `START_ROUND — AUTO_CHAIN` preauthorizes the full dependency graph.
 
+Canonical sequence:
+
+**Ricardo → Germinator → Mario + Brancaforte → Gonza**
+
 Immediate:
-- V06-R0 Ricardo — composition/schema/validation.
-- V06-Z0 Gonza — build/integration tooling.
+- V06-R0 Ricardo.
 
-After R0 green:
-- Ricardo: R1 → R2 → R3 automatically.
-- Mario: M1 → M2 automatically.
+Ricardo continues automatically:
+- R0 → R1 → R2 → R3.
+
+After R3 green:
+- Germinator G1 audits Ricardo's complete gameplay/core candidate.
+
+After G1 `APPROVE — PRESENTATION LANE UNLOCKED`:
+- Mario: M1 → M2.
 - Brancaforte: B1.
-- Gonza continues assembling exact green SHAs.
+- Mario and Brancaforte may work in parallel.
 
-After R3 + M2 + B1 assembled by Z0:
-- Germinator G1.
+After G1 + M2 + B1 are green:
+- Gonza Z0 performs final integration/verification.
+- Green Z0 automatically unlocks Gonza Z1 publication.
 
-After G1 `APPROVE — V06-Z1 UNLOCKED`:
-- Gonza Z1 publishes immediately under its preauthorized contract.
+Gonza performs no early preparation/progressive integration in this round.
 
 No PRESENT/check-in or Neureon token is required between normal green handoffs.
 
@@ -92,10 +100,10 @@ Brancaforte:
 - `src/styles.css`
 
 Germinator:
-- independent tests/evidence and QA branch; fixes normally return to owner.
+- independent gameplay/core audit immediately after Ricardo; fixes normally return to Ricardo.
 
 Gonza:
-- build/test discovery/tooling/integration/standalone/Pages release.
+- final-stage integration, full-suite/build/standalone/parity verification and Pages release only after Germinator + Mario + Brancaforte are green.
 
 Neureon:
 - coordination/contracts only; audit/re-plan when user requests; final archive/reset.
@@ -116,6 +124,6 @@ Record the finding in `coordination/forum/active/r004-findings.md`. The user dec
 
 ## Release acceptance
 
-Germinator checks V6-01..V6-12 from V06-G1, including physical iPhone/Safari evidence. G1 APPROVE automatically unlocks Z1.
+Germinator's G1 is the gameplay/core gate between Ricardo and presentation work.
 
-Gonza releases only the exact approved candidate and verifies source→standalone→served parity.
+Mario/Brancaforte then satisfy their visual/UI acceptance contracts. Gonza is the final integrator/release verifier and must run full integrated smoke, build/parity and release checks before publishing the exact candidate.

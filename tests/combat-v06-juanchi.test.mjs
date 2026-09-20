@@ -99,6 +99,10 @@ test('R2 Juanchi low and air attacks preserve grounded-low / airborne-overhead l
     sim.fighters[0].x = 500;
     sim.fighters[1].x = 562;
     let snap = sim.step(input({ jump: true }), E);
+    assert.equal(snap.fighters[0].grounded, true);
+    assert.equal(snap.fighters[0].jumpStartupFrames, 2);
+    snap = sim.step(E, E);
+    snap = sim.step(E, E);
     assert.equal(snap.fighters[0].grounded, false);
     snap = sim.step(input({ attack: true }), E);
     let hit = null;

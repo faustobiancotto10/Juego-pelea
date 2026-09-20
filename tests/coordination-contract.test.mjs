@@ -37,15 +37,15 @@ test('protocol preserves round lifecycle and collaboration semantics', () => {
   const protocol = read('coordination/PROTOCOL.md');
   for (const token of [
     'IDLE',
-    'CHECK_IN',
     'ACTIVE',
     'VALIDATION',
     'RELEASE',
     'ROUND_COMPLETE',
     'PAUSED',
-    'PRESENT',
+    'AUTO_CHAIN',
     'START_ROUND',
-    'WAITING_FOR_TEAM',
+    'WAITING_DEPENDENCY',
+    'HANDOFF_READY',
     'UNRESPONSIVE',
     'QUESTION',
     'PROPOSAL',
@@ -91,11 +91,11 @@ test('coordination state is internally valid in idle or live rounds', () => {
   assert.ok(statusMatch, 'missing global round status');
 
   const globalState = statusMatch[1];
-  const allowedGlobalStates = ['IDLE', 'CHECK_IN', 'ACTIVE', 'VALIDATION', 'RELEASE', 'ROUND_COMPLETE', 'PAUSED'];
+  const allowedGlobalStates = ['IDLE', 'ACTIVE', 'VALIDATION', 'RELEASE', 'ROUND_COMPLETE', 'PAUSED'];
   assert.ok(allowedGlobalStates.includes(globalState), `invalid global state ${globalState}`);
 
   const status = read('coordination/STATUS.md');
-  const agentStates = ['OFF_ROUND', 'CHECKING_IN', 'READY', 'WORKING', 'WAITING', 'WAITING_FOR_TEAM', 'REVIEWING', 'VERIFIED', 'BLOCKED', 'UNRESPONSIVE'];
+  const agentStates = ['OFF_ROUND', 'READY', 'WORKING', 'WAITING_DEPENDENCY', 'HANDOFF_READY', 'REVIEWING', 'VERIFIED', 'BLOCKED', 'UNRESPONSIVE'];
 
   for (const name of ['Neureon', 'Ricardo', 'Mario', 'Brancaforte', 'Germinator', 'Gonza']) {
     const line = status.split('\n').find((candidate) => candidate.startsWith(`| ${name} |`));
@@ -105,7 +105,7 @@ test('coordination state is internally valid in idle or live rounds', () => {
 
   if (globalState === 'IDLE') {
     assert.match(round, /Round:\s*none/);
-    assert.match(round, /Required agents:\s*none/);
+    assert.match(round, /(Required|Planned) agents:\s*none/);
     for (const name of ['Neureon', 'Ricardo', 'Mario', 'Brancaforte', 'Germinator', 'Gonza']) {
       const line = status.split('\n').find((candidate) => candidate.startsWith(`| ${name} |`));
       assert.match(line, /OFF_ROUND/);
@@ -114,7 +114,7 @@ test('coordination state is internally valid in idle or live rounds', () => {
     assert.match(read('coordination/forum/active/README.md'), /no active/i);
   } else {
     assert.doesNotMatch(round, /Round:\s*none/);
-    assert.doesNotMatch(round, /Required agents:\s*none/);
+    assert.doesNotMatch(round, /(Required|Planned) agents:\s*none/);
   }
 });
 

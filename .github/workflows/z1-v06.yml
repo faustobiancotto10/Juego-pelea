@@ -1,0 +1,133 @@
+name: Z1 V0.6 release verification
+
+on:
+  pull_request:
+
+jobs:
+  z1-source:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout frozen release candidate
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.head_ref }}
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Install tools
+        run: |
+          npm install --global typescript@latest esbuild@latest
+          npm install --no-save playwright@latest
+          npx playwright install --with-deps chromium
+
+      - name: Full suite typecheck build
+        run: |
+          npm test
+          npm run typecheck
+          npm run build
+
+      - name: Juanchi moves and Ultimate Clash release smoke
+        run: |
+          node --test tests/combat-v06-juanchi.test.mjs tests/combat-v06-clash.test.mjs tests/render-v06.test.mjs
+          echo "Rugby Boomerang / Friccion / Police Cap Rage / Ultimate Clash targeted release suite PASS"
+
+      - name: Rebuild and verify standalone parity
+        run: |
+          esbuild dist/main.js --bundle --format=iife --platform=browser --target=es2020 --outfile=standalone.js
+          node <<'NODE'
+          const fs=require('fs');
+          let html=fs.readFileSync('index.html','utf8');
+          const css=fs.readFileSync('src/styles.css','utf8');
+          const js=fs.readFileSync('standalone.js','utf8');
+          html=html
+            .replace('<title>First Playable Fight</title>','<title>Juego Pelea V0.6</title>')
+            .replace('<link rel="stylesheet" href="./styles.css" />','<style>\n'+css+'\n</style>')
+            .replace('<script type="module" src="./main.js"></script>','<script>\n'+js+'\n</script>');
+          fs.writeFileSync('play.rebuilt.html',html);
+          NODE
+          cmp play.html play.rebuilt.html
+          ACTUAL=$(sha256sum play.html | cut -d' ' -f1)
+          echo "RELEASE_ARTIFACT_SHA256=$ACTUAL"
+          test "$ACTUAL" = "8fcc70c9d79042aa00275adb765ab0abdcaeb1b25a0965c540178a35fd80c2dc"
+
+      - name: Create controller smoke harness
+        run: |
+          cat > smoke-harness.html <<'HTML'
+          <!doctype html><html><body><div id="app"></div>
+          <script type="module">
+            import { AppController } from './dist/game/ui/AppController.js';
+            const root=document.querySelector('#app');
+            const controller=new AppController(root);
+            window.__controller=controller;
+            controller.start();
+          </script></body></html>
+          HTML
+
+      - name: All fighters stages flow and lifecycle smoke
+        run: |
+          python3 -m http.server 4173 >/tmp/z1-http.log 2>&1 &
+          SERVER_PID=$!
+          trap "kill $SERVER_PID" EXIT
+          node <<'NODE'
+          const { chromium }=require('playwright');
+          const fighters=['chameleon','supernariz','juanchi'];
+          const stages=['tramontana-dusk','cancha-56'];
+
+          async function enter(page, player, stage) {
+            await page.goto('http://127.0.0.1:4173/smoke-harness.html');
+            const errors=[];
+            page.on('pageerror',e=>errors.push(e.message));
+            page.on('console',m=>{if(m.type()==='error')errors.push(m.text())});
+            await page.waitForSelector('[data-game-phase="title"]');
+            if((await page.locator('[data-start]').textContent())?.trim()!=='COMENZAR') throw new Error('COMENZAR missing');
+            await page.locator('[data-start]').click();
+            await page.locator(`[data-fighter="${player}"]`).click();
+            await page.locator('[data-fighter-confirm]').click();
+            await page.waitForSelector('[data-game-phase="select-cpu"]');
+            const opponent=player==='chameleon'?'supernariz':'chameleon';
+            await page.locator(`[data-fighter="${opponent}"]`).click();
+            await page.locator('[data-fighter-confirm]').click();
+            await page.waitForSelector('[data-game-phase="select-stage"]');
+            await page.locator(`[data-stage="${stage}"]`).click();
+            await page.locator('[data-stage-confirm]').click();
+            await page.waitForSelector('[data-game-phase="vs"]');
+            await page.waitForSelector('[data-game-phase="fight"]',{timeout:5000});
+            if(await page.locator('.fight-shell').getAttribute('data-stage')!==stage) throw new Error('stage mismatch');
+            await page.waitForTimeout(250);
+            if(errors.length) throw new Error(errors.join(' | '));
+          }
+
+          (async()=>{
+            const browser=await chromium.launch({headless:true});
+            const page=await browser.newPage({viewport:{width:852,height:393}});
+            for(const fighter of fighters){
+              for(const stage of stages){
+                await enter(page,fighter,stage);
+              }
+            }
+            await enter(page,'juanchi','cancha-56');
+
+            const dpad=page.locator('[data-dpad]');
+            const box=await dpad.boundingBox();
+            await page.mouse.move(box.x+box.width*.8,box.y+box.height*.5);
+            await page.mouse.down();
+            await page.locator('[data-controls-button]').click();
+            await page.waitForSelector('[data-controls-panel].is-open');
+            await page.locator('[data-controls-close]').click();
+            await page.mouse.up();
+
+            await page.evaluate(()=>window.__controller['showResult'](0));
+            await page.waitForSelector('[data-game-phase="result"]');
+            await page.locator('[data-rematch]').click();
+            await page.waitForSelector('[data-game-phase="vs"]');
+            await page.waitForSelector('[data-game-phase="fight"]',{timeout:5000});
+            if(await page.locator('.fight-shell').getAttribute('data-stage')!=='cancha-56') throw new Error('rematch stage mismatch');
+
+            console.log('all 3 fighters x 2 stages flow PASS');
+            console.log('result/rematch/input interruption smoke PASS');
+            await browser.close();
+          })().catch(e=>{console.error(e);process.exit(1)});
+          NODE

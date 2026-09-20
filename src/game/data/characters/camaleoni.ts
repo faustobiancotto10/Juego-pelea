@@ -1,0 +1,104 @@
+import type { CombatCharacterContent } from '../characterContent.js';
+
+export const CAMALEONI_CHARACTER_CONTENT: CombatCharacterContent = {
+  fighter: {
+    id: 'chameleon',
+    displayName: 'Camaleoni',
+    fullName: 'Camaleoni Cagoni',
+    role: 'Control de distancia',
+    maxHealth: 1000,
+    walkSpeed: 4.25,
+    jumpSpeed: 12.4,
+    gravity: 0.72,
+    width: 54,
+    height: 118,
+    accent: '#7abf43',
+  },
+  kit: {
+    standing: 'claw1',
+    low: 'clawLow',
+    air: 'airClaw',
+    rangedSpecial: 'tongueStraight',
+    closeSpecial: 'coletazo',
+    ultimate: 'ultimateCamaleoni',
+    cpu: {
+      preferredRange: [240, 330],
+      pressureRange: 105,
+      reactionTicks: 12,
+      decisionTicks: 8,
+      commitmentTicks: [12, 18],
+      missChance: 0.25,
+      confirmChance: 0.85,
+      archetype: 'control',
+    },
+  },
+  moves: {
+    claw1: {
+      id: 'claw1', category: 'normal', bindingRole: 'standing', totalFrames: 19, cpuThreatRange: 190, cpuReactionFrame: 8, cancelStart: 9, cancelEnd: 12, nextAttack: 'claw2',
+      hitbox: { start: 5, end: 7, offsetX: 24, width: 70, bottom: 28, top: 92, damage: 46, chipDamage: 3, hitstun: 16, blockstun: 8, knockback: 3.2, hitstop: 4, level: 'mid', strong: false, guardDamage: 9 },
+    },
+    clawLow: {
+      id: 'clawLow', category: 'normal', bindingRole: 'low', totalFrames: 25, cpuThreatRange: 150, cpuReactionFrame: 8,
+      hitbox: { start: 7, end: 9, offsetX: 22, width: 65, bottom: 8, top: 35, damage: 36, chipDamage: 2, hitstun: 13, blockstun: 8, knockback: 3.5, hitstop: 4, level: 'low', strong: false, guardDamage: 10 },
+    },
+    claw2: {
+      id: 'claw2', category: 'normal', bindingRole: 'chain', totalFrames: 22, cpuThreatRange: 190, cpuReactionFrame: 8,
+      hitbox: { start: 5, end: 8, offsetX: 28, width: 82, bottom: 34, top: 100, damage: 60, chipDamage: 4, hitstun: 15, blockstun: 9, knockback: 5.0, hitstop: 5, level: 'mid', strong: true, guardDamage: 15 },
+    },
+    tongueStraight: {
+      id: 'tongueStraight', category: 'special', bindingRole: 'rangedSpecial', totalFrames: 38, cpuThreatRange: 405, cpuReactionFrame: 7,
+      hitbox: { start: 12, end: 14, offsetX: 34, width: 340, bottom: 50, top: 95, damage: 80, chipDamage: 4, hitstun: 18, blockstun: 12, knockback: 7.4, hitstop: 6, level: 'mid', strong: true, guardDamage: 14 },
+    },
+    coletazo: {
+      id: 'coletazo', category: 'special', bindingRole: 'closeSpecial', totalFrames: 31, cpuThreatRange: 190, cpuReactionFrame: 8,
+      hitbox: { start: 6, end: 10, offsetX: 18, width: 146, bottom: 24, top: 104, damage: 52, chipDamage: 4, hitstun: 14, blockstun: 9, knockback: 13.5, hitstop: 5, level: 'mid', strong: true, guardDamage: 15 },
+    },
+    ultimateCamaleoni: {
+      id: 'ultimateCamaleoni', category: 'ultimate', bindingRole: 'ultimate', totalFrames: 72, ultimate: true, ultimateKey: 'camaleoniUltimate',
+    },
+    airClaw: {
+      id: 'airClaw', category: 'normal', bindingRole: 'air', totalFrames: 22,
+      hitbox: { start: 4, end: 9, offsetX: 20, width: 72, bottom: -38, top: 42, damage: 62, chipDamage: 4, hitstun: 14, blockstun: 9, knockback: 5.2, hitstop: 5, level: 'overhead', strong: true, guardDamage: 16 },
+    },
+  },
+  projectiles: {},
+  ultimates: {
+    camaleoniUltimate: {
+      key: 'camaleoniUltimate',
+      kind: 'dashCapture',
+      startupFrames: 22,
+      captureFrames: 8,
+      recoveryFrames: 24,
+      successRecoveryFrames: 16,
+      captureReach: 138,
+      captureVertical: 82,
+      dashSpeed: 18,
+      sequenceFrames: 24,
+      sequenceOffsetX: 62,
+      sequenceHits: [
+        { frame: 6, damage: 70, knockback: 6.5 },
+        { frame: 16, damage: 120, knockback: 13.5 },
+      ],
+      releaseKnockback: 13.5,
+      releaseSeparation: 200,
+      releaseVx: 14,
+      releaseVy: 5,
+      releaseHitstun: 30,
+      finalHitstop: 10,
+      visualKey: 'camaleoni',
+    },
+  },
+  presentation: {
+    rigKey: 'chameleon',
+    ultimateVisualKey: 'camaleoni',
+    accent: '#7abf43',
+    effectAccent: '#9fe870',
+    select: {
+      kicker: 'CONTROL DE DISTANCIA',
+      role: 'Zoner',
+      moves: 'Garras · Low de garra · Lengua / Coletazo',
+      mark: 'C',
+    },
+    rangedAvailabilityLabel: null,
+  },
+};

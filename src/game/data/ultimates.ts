@@ -1,3 +1,5 @@
+import { DEFAULT_CHARACTER_COMPOSITION } from './characterContent.js';
+
 export type UltimateKind = 'dashCapture' | 'suctionCapture';
 
 export interface UltimateHitBeat {
@@ -33,54 +35,5 @@ export interface UltimateDefinition {
   visualKey: string;
 }
 
-export const ULTIMATES: Readonly<Record<string, UltimateDefinition>> = Object.freeze({
-  camaleoniUltimate: {
-    key: 'camaleoniUltimate',
-    kind: 'dashCapture',
-    startupFrames: 22,
-    captureFrames: 8,
-    recoveryFrames: 24,
-    successRecoveryFrames: 16,
-    captureReach: 138,
-    captureVertical: 82,
-    dashSpeed: 18,
-    sequenceFrames: 24,
-    sequenceOffsetX: 62,
-    sequenceHits: [
-      { frame: 6, damage: 70, knockback: 6.5 },
-      { frame: 16, damage: 120, knockback: 13.5 },
-    ],
-    releaseKnockback: 13.5,
-    releaseSeparation: 200,
-    releaseVx: 14,
-    releaseVy: 5,
-    releaseHitstun: 30,
-    finalHitstop: 10,
-    visualKey: 'camaleoni',
-  },
-  supernarizUltimate: {
-    key: 'supernarizUltimate',
-    kind: 'suctionCapture',
-    startupFrames: 24,
-    captureFrames: 18,
-    recoveryFrames: 28,
-    successRecoveryFrames: 16,
-    captureReach: 90,
-    captureVertical: 96,
-    suctionRange: 330,
-    suctionSpeed: 12,
-    captureDistance: 90,
-    sequenceFrames: 22,
-    sequenceOffsetX: 74,
-    sequenceHits: [
-      { frame: 14, damage: 190, knockback: 15.5 },
-    ],
-    releaseKnockback: 15.5,
-    releaseSeparation: 200,
-    releaseVx: 14,
-    releaseVy: 5,
-    releaseHitstun: 30,
-    finalHitstop: 10,
-    visualKey: 'supernariz',
-  },
-});
+export const ULTIMATES: Readonly<Record<string, UltimateDefinition>> =
+  DEFAULT_CHARACTER_COMPOSITION.ultimates;

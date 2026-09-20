@@ -1,5 +1,9 @@
+import { DEFAULT_CHARACTER_COMPOSITION } from './characterContent.js';
+
 export interface ProjectileDefinition {
   key: string;
+  /** Explicit render routing key for Character Packages. Legacy injected sources may omit until migrated. */
+  visualKey?: string;
   spawnOffsetX: number;
   spawnOffsetY: number;
   speed: number;
@@ -19,25 +23,5 @@ export interface ProjectileDefinition {
   strong: boolean;
 }
 
-export const PROJECTILES: Readonly<Record<string, ProjectileDefinition>> = Object.freeze({
-  chorizo: {
-    key: 'chorizo',
-    spawnOffsetX: 68,
-    spawnOffsetY: 68,
-    speed: 9.2,
-    ttl: 150,
-    collisionHalfWidth: 22,
-    collisionHalfHeight: 0,
-    damage: 58,
-    chipDamage: 5,
-    guardDamage: 14,
-    hitstun: 14,
-    blockstun: 10,
-    knockback: 5,
-    blockKnockback: 2.1,
-    cornerTransferKnockback: 6,
-    hitstop: 4,
-    cooldown: 120,
-    strong: false,
-  },
-});
+export const PROJECTILES: Readonly<Record<string, ProjectileDefinition>> =
+  DEFAULT_CHARACTER_COMPOSITION.projectiles;

@@ -1,5 +1,5 @@
-export type FighterId = 'chameleon' | 'supernariz';
 export type RegisteredFighterId = string;
+export type FighterId = RegisteredFighterId;
 export type FighterIndex = 0 | 1;
 export type Facing = -1 | 1;
 export type MatchPhase = 'intro' | 'fight' | 'round-over' | 'match-over';

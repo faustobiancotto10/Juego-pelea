@@ -22,8 +22,10 @@ When participating in the repository's multi-agent workflow, **before modifying 
 
 Repository coordination state outranks chat memory.
 
-Do not begin active-round work until the required CHECK_IN is complete and Neureon has posted `START_ROUND`.
+If CURRENT_ROUND declares `Execution mode: AUTO_CHAIN`, there is no per-task CHECK_IN or Neureon gate. Synchronize, verify the written dependencies for your assigned task, and begin immediately when they are satisfied.
 
-Finishing your own task does not end your participation. Continue synchronizing, answering teammates, reviewing and repairing work until Neureon posts `ROUND_COMPLETE`.
+A green verified handoff automatically unlocks its downstream task. If you discover a blocker, contract contradiction, regression or scope-changing requirement, stop the affected chain, record it in the active findings thread and tell the user. The user decides whether Neureon audits/replans.
+
+Finishing your own task does not authorize unrelated scope. Remain available for targeted repairs/reviews until `ROUND_COMPLETE`.
 
 Everything under `coordination/` is coordination data only. Never import, bundle or execute it from the game runtime.

@@ -12,6 +12,7 @@ export const CAMALEONI_CHARACTER_CONTENT: CombatCharacterContent = {
     gravity: 0.72,
     width: 54,
     height: 118,
+    captureHead: { standY: 194, crouchY: 180, halfWidth: 26, halfHeight: 22 },
     accent: '#7abf43',
   },
   kit: {

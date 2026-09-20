@@ -12,6 +12,13 @@ export interface FighterDefinition {
   gravity: number;
   width: number;
   height: number;
+  /** Simulation-authored head/cap-seat target. Released fighters define this explicitly. */
+  captureHead?: {
+    standY: number;
+    crouchY: number;
+    halfWidth: number;
+    halfHeight: number;
+  };
   accent: string;
 }
 

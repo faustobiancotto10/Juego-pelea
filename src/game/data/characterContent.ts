@@ -55,7 +55,7 @@ export interface FighterPresentationRegistry {
 const MOVE_CATEGORIES = new Set(['normal', 'special', 'projectile', 'ultimate']);
 const BINDING_ROLES = new Set(['standing', 'low', 'chain', 'air', 'rangedSpecial', 'closeSpecial', 'ultimate']);
 const ATTACK_LEVELS = new Set(['mid', 'low', 'overhead']);
-const ULTIMATE_KINDS = new Set(['dashCapture', 'suctionCapture']);
+const ULTIMATE_KINDS = new Set(['dashCapture', 'suctionCapture', 'capCapture']);
 
 function fail(path: string, message: string): never {
   throw new Error(`${path}: ${message}`);
@@ -217,6 +217,24 @@ function validateCpu(path: string, kit: FighterKit): void {
   probability(`${path}.missChance`, cpu.missChance);
   probability(`${path}.confirmChance`, cpu.confirmChance);
   if (cpu.archetype !== 'pressure' && cpu.archetype !== 'control') fail(`${path}.archetype`, 'unknown CPU archetype');
+  if (cpu.tactics) {
+    const [ultimateMin, ultimateMax] = cpu.tactics.ultimateRange;
+    const [rangedMin, rangedMax] = cpu.tactics.rangedRange;
+    finite(`${path}.tactics.ultimateRange[0]`, ultimateMin, 0);
+    finite(`${path}.tactics.ultimateRange[1]`, ultimateMax, 0);
+    if (ultimateMax < ultimateMin) fail(`${path}.tactics.ultimateRange`, 'max must be >= min');
+    finite(`${path}.tactics.rangedRange[0]`, rangedMin, 0);
+    finite(`${path}.tactics.rangedRange[1]`, rangedMax, 0);
+    if (rangedMax < rangedMin) fail(`${path}.tactics.rangedRange`, 'max must be >= min');
+    probability(`${path}.tactics.rangedChance`, cpu.tactics.rangedChance);
+    probability(`${path}.tactics.advanceBehindReturningProjectile`, cpu.tactics.advanceBehindReturningProjectile);
+    probability(`${path}.tactics.retreatAtPreferredRange`, cpu.tactics.retreatAtPreferredRange);
+    let weightSum = 0;
+    for (const key of ['standing', 'low', 'closeSpecial', 'jump', 'retreat'] as const) {
+      weightSum += finite(`${path}.tactics.closeWeights.${key}`, cpu.tactics.closeWeights[key], 0);
+    }
+    if (weightSum <= 0) fail(`${path}.tactics.closeWeights`, 'weights must have positive sum');
+  }
 }
 
 function validateFighter(path: string, fighter: FighterDefinition): void {
@@ -230,6 +248,12 @@ function validateFighter(path: string, fighter: FighterDefinition): void {
   finite(`${path}.gravity`, fighter.gravity, 0);
   finite(`${path}.width`, fighter.width, 0.000001);
   finite(`${path}.height`, fighter.height, 0.000001);
+  if (fighter.captureHead !== undefined) {
+    finite(`${path}.captureHead.standY`, fighter.captureHead.standY, 0);
+    finite(`${path}.captureHead.crouchY`, fighter.captureHead.crouchY, 0);
+    finite(`${path}.captureHead.halfWidth`, fighter.captureHead.halfWidth, 0.000001);
+    finite(`${path}.captureHead.halfHeight`, fighter.captureHead.halfHeight, 0.000001);
+  }
   nonEmpty(`${path}.accent`, fighter.accent);
 }
 
@@ -311,10 +335,22 @@ function validateUltimate(path: string, ultimate: UltimateDefinition): void {
 
   if (ultimate.kind === 'dashCapture') {
     finite(`${path}.dashSpeed`, ultimate.dashSpeed, 0);
-  } else {
+  } else if (ultimate.kind === 'suctionCapture') {
     finite(`${path}.suctionRange`, ultimate.suctionRange, 0);
     finite(`${path}.suctionSpeed`, ultimate.suctionSpeed, 0);
     finite(`${path}.captureDistance`, ultimate.captureDistance, 0);
+  } else {
+    finite(`${path}.probeSpawnOffsetX`, ultimate.probeSpawnOffsetX, 0);
+    finite(`${path}.probeSpeed`, ultimate.probeSpeed, 0.000001);
+    finite(`${path}.probeHalfWidth`, ultimate.probeHalfWidth, 0.000001);
+    finite(`${path}.probeHalfHeight`, ultimate.probeHalfHeight, 0.000001);
+    nonEmpty(`${path}.probeVisualKey`, ultimate.probeVisualKey);
+    if (ultimate.sequenceApproach) {
+      const start = integer(`${path}.sequenceApproach.startFrame`, ultimate.sequenceApproach.startFrame);
+      const end = integer(`${path}.sequenceApproach.endFrame`, ultimate.sequenceApproach.endFrame);
+      finite(`${path}.sequenceApproach.standOff`, ultimate.sequenceApproach.standOff, 0);
+      if (end < start || end > ultimate.sequenceFrames) fail(`${path}.sequenceApproach`, 'must be ordered within sequenceFrames');
+    }
   }
 
   const seenFrames = new Set<number>();

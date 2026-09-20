@@ -12,6 +12,7 @@ export const SUPERNARIZ_CHARACTER_CONTENT: CombatCharacterContent = {
     gravity: 0.74,
     width: 56,
     height: 122,
+    captureHead: { standY: 209, crouchY: 195, halfWidth: 26, halfHeight: 22 },
     accent: '#2f6bd7',
   },
   kit: {

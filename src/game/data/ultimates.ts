@@ -1,6 +1,6 @@
 import { DEFAULT_CHARACTER_COMPOSITION } from './characterContent.js';
 
-export type UltimateKind = 'dashCapture' | 'suctionCapture';
+export type UltimateKind = 'dashCapture' | 'suctionCapture' | 'capCapture';
 
 export interface UltimateHitBeat {
   frame: number;
@@ -22,6 +22,16 @@ export interface UltimateDefinition {
   suctionRange?: number;
   suctionSpeed?: number;
   captureDistance?: number;
+  probeSpawnOffsetX?: number;
+  probeSpeed?: number;
+  probeHalfWidth?: number;
+  probeHalfHeight?: number;
+  probeVisualKey?: string;
+  sequenceApproach?: {
+    startFrame: number;
+    endFrame: number;
+    standOff: number;
+  };
   sequenceFrames: number;
   sequenceOffsetX: number;
   sequenceHits: readonly UltimateHitBeat[];

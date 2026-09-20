@@ -1,6 +1,6 @@
 # Reusable Character Package and production pipeline
 
-Date: 2026-09-20 (audit begun 2026-09-19). Permanent workflow target, first exercised by Juanchi. [System composition](2026-09-20-v06-content-expansion-design.md), [Juanchi example](2026-09-20-v06-juanchi-character-contract.md) and [animation standard](2026-09-20-v06-animation-quality-contract.md) define the first version. No agent activation is implied.
+Date: 2026-09-20 (audit begun 2026-09-19). Permanent workflow target, first exercised by Juanchi. [System composition](2026-09-20-v06-content-expansion-design.md), [Juanchi example](2026-09-20-v06-juanchi-character-contract.md) and [animation standard](2026-09-20-v06-animation-quality-contract.md) define the first version. **R004 is now active under AUTO_CHAIN; CURRENT_ROUND/task contracts govern execution.**
 
 ## Purpose
 
@@ -15,7 +15,7 @@ Use `docs/characters/<id>/` as the durable authoring folder, separate from runti
 | File | Required content | Owner / acceptance |
 | --- | --- | --- |
 | `PACKAGE.md` | stable ID/version/status; display identity; source reference paths/hashes; gameplay/art/UX contract links; all accepted SHAs; remaining gates | Neureon; no ambiguous master or branch |
-| `references/master.*` | user-approved visual master, original unmodified file; written identity corrections recorded in PACKAGE | User authority / Neureon intake |
+| `references/master.*` | user-approved visual master or repository authoring copy; PACKAGE records the original user-supplied source hash and any conversion/compression; written identity corrections recorded | User authority / Neureon intake |
 | `references/poses.*` or `POSE_REFERENCES.md` | authored/referenced front-side silhouette and key action poses, ground baseline, facing, prop anchors, readable dimensions | Mario; guidance only, no runtime imports |
 | `GAMEPLAY.md` | archetype, strengths/weaknesses, stats, universal mechanics exceptions, existing/new primitive declaration, interactions with every roster archetype | Ricardo with Neureon |
 | `MOVES.md` | IDs/bindings; complete frame/contact/damage/guard/stun/kb/hitstop/cancel table; projectile/Ultimate lifecycle including resets | Ricardo; all units/conventions explicit |
@@ -25,7 +25,7 @@ Use `docs/characters/<id>/` as the durable authoring folder, separate from runti
 | `CPU.md` | preferred ranges, choice weights, special availability, delayed visible cues, explicit fairness limits | Ricardo; no input oracle |
 | `ACCEPTANCE.md` | test IDs/scenarios, negative cases, automation vs human gates, exact commands, captured evidence and unresolved findings | Germinator verifies independently |
 
-For Juanchi these documents may initially reference the complete V0.6 contracts instead of copying them. Package status must be honest: `CONCEPT`, `CONTRACT_READY`, `VISUAL_REFERENCE_PENDING`, `IN_IMPLEMENTATION`, `QA_READY`, `ACCEPTED`, `RELEASED`. Multiple gate flags may be recorded; lack of master need not block gameplay or stage architecture. Final rig likeness approval remains blocked until the master arrives. No placeholder image should be presented as authoritative.
+For Juanchi these documents may reference the complete V0.6 contracts instead of copying them. Package status must be honest: `CONCEPT`, `CONTRACT_READY`, `VISUAL_REFERENCE_SUPPLIED`, `IN_IMPLEMENTATION`, `QA_READY`, `ACCEPTED`, `RELEASED`. Source hashes in PACKAGE establish visual authority; repository copies are authoring access only. No placeholder image should be presented as authoritative.
 
 Reference files remain under authoring/docs directories and must be excluded from standalone/runtime asset lists. SHA/hash identifies the actual master being reviewed, not just a mutable filename. Any pose sheet conflicting with the master is secondary; record an explicit decision before changing identity.
 
@@ -48,7 +48,7 @@ Ricardo then owns runtime data/physics/CPU. Mario owns rig/presentation and can 
 
 Only one role edits a shared file at a time. Stable interface change goes through its owner; do not let each agent invent slightly different fields. Fixture snapshots must conform to the actual shared exported types and include reset/default values; fixtures are not runtime fakes shipped to users.
 
-DIRECT_START fits an unambiguous task with role, branch, exact accepted base/input SHAs, owned files, evidence and prohibited scope already written. The user pulse triggers synchronization and work, not an extra PRESENT pulse. Unclear contracts, replaced roles or genuinely missing inputs justify a check-in/question. Do not require all six agents to be active merely because they are on the permanent team.
+Under R004 `AUTO_CHAIN`, each written V06 task is preauthorized once its declared dependencies are green. The user pulse triggers synchronization and immediate eligible work; no PRESENT or per-stage Neureon token is required. A blocker/contract change stops only affected downstream work and is reported to the user.
 
 ## Reusable automated roster contract
 

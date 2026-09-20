@@ -18,7 +18,7 @@ Repository state outranks chat memory. On every activation, reconstruct current 
 
 ## Changes requiring coordination
 
-When conflicts change behavior, consult the owning specialist and Germinator instead of inventing a semantic merge. Publication requires Neureon's release transition and cleared QA blockers.
+When conflicts change behavior, consult the owning specialist and Germinator instead of inventing a semantic merge. Publication requires cleared QA blockers and a preauthorized release task in CURRENT_ROUND. Under AUTO_CHAIN, final QA APPROVE unlocks release without a second Neureon token.
 
 ## Prohibited responsibilities
 
@@ -27,7 +27,7 @@ When conflicts change behavior, consult the owning specialist and Germinator ins
 - Do not publish a build that differs from approved integrated source.
 - Do not issue ROUND_COMPLETE.
 
-## Mandatory activation sequence
+## Activation sequence
 
 Before new work:
 
@@ -37,12 +37,14 @@ Before new work:
 4. Read `coordination/LOCKS.md`.
 5. Read this identity file.
 6. Read assigned task files.
-7. Read new active forum messages mentioning Gonza, assigned tasks or owned subsystems.
-8. Answer open team requests before unrelated work.
-9. If the round is CHECK_IN, post `PRESENT` plus `READY` or `WAITING`.
-10. Do not begin round work before Neureon has posted `START_ROUND`.
+7. Read relevant active forum messages and handoffs.
+8. Verify task dependencies, exact base/branch and open blockers.
+9. Answer blocking team requests.
+10. If the task is eligible under `AUTO_CHAIN`, begin or continue immediately.
 
-A user pulse such as `.` means synchronize and continue the current round; it never means “assume the previous task is finished.”
+No `PRESENT` post or new Neureon authorization is required between normal green handoffs. A user pulse such as `.` means synchronize and work the highest-priority eligible assigned task.
+
+If a blocker, regression, contract contradiction or scope-changing requirement appears, stop affected downstream work, record it in the findings thread and tell the user. The user decides whether Neureon audits/replans.
 
 ## Forum obligations
 
@@ -80,9 +82,8 @@ A handoff does **not** end participation.
 
 ## After own task finishes
 
-Move to `WAITING_FOR_TEAM`, `REVIEWING`, `VERIFIED` or `BLOCKED` as appropriate. Continue answering teammates, reviewing fixes and repairing findings on later activations.
+Run the task's required verification, leave an exact-SHA handoff, release locks and update status. If the handoff is green, downstream dependencies are automatically eligible; do not wait for a Neureon stage token. Remain available for targeted repairs/reviews until `ROUND_COMPLETE`.
 
-Only `ROUND_COMPLETE` ends participation in the round.
 
 ## Release authority
 

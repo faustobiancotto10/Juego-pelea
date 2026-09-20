@@ -1,12 +1,20 @@
 # Agent Status
 
+No global round is active.
+
 | Agent | Role | Round | Tasks | State | Dependency / blocker | Last checkpoint |
 | --- | --- | --- | --- | --- | --- | --- |
-| Neureon | Lead / Coordinator | R003-V05-COMBAT-LOOP | V05-N1 | READY | waiting V05-Z0 preview + human/device evidence | G2 automated green; preview deployment authorized |
-| Ricardo | Gameplay Engineer | R003-V05-COMBAT-LOOP | V05-R1..R5 | READY | no active product task; wait for corrected G1 findings | READY issued after AC06 diagnosis; product values frozen |
-| Brancaforte | UI / Input / UX Engineer | R003-V05-COMBAT-LOOP | V05-B1,B2 | WAITING_FOR_TEAM | wait for M1 acceptance + Stage 5 G2; repair B2 findings if assigned | B2 clean handoff d76e4ded; CI #598 green 179/179 + build; physical Safari/tactile gate pending G2 |
-| Mario | Character / Rendering Engineer | R003-V05-COMBAT-LOOP | V05-M1 | WAITING_FOR_TEAM | B2 completion then Stage 5 G2; pixel/device evidence pending there | handoff e567fce333f535e21583cbef0ab46e300b089b0a; exact-core CI #599 169/169 + build PASS |
-| Germinator | Auditor / QA | R003-V05-COMBAT-LOOP | V05-G1,G2 | BLOCKED | mandatory physical Safari + human V0.4/V0.5 + same-device performance evidence missing | final automated G2 2876f3bc; CI #632 206/206 + build; no code blocker |
-| Gonza | Integration / Release | R003-V05-COMBAT-LOOP | V05-Z0,Z1 | WAITING_FOR_TEAM | human/device gate still blocks Z1 release | V05-Z0 PREVIEW_READY; isolated /v05-preview/ deployed, root V0.4 preserved byte-identical |
+| Neureon | Lead / Coordinator | none | none | OFF_ROUND | none | R003 archived; ROUND_COMPLETE issued |
+| Ricardo | Gameplay Engineer | none | none | OFF_ROUND | none | V0.5 R1–R5 accepted/frozen |
+| Brancaforte | UI / Input / UX Engineer | none | none | OFF_ROUND | none | V0.5 B1/B2 accepted |
+| Mario | Character / Rendering Engineer | none | none | OFF_ROUND | none | V0.5 M1 accepted |
+| Germinator | Auditor / QA | none | none | OFF_ROUND | none | V0.5 G2 automated QA 206/206 + build; human/device evidence remained unresolved |
+| Gonza | Integration / Release | none | none | OFF_ROUND | none | V0.5 preview verified; official V0.5 release not executed |
+
+Last closed round:
+- `R003-V05-COMBAT-LOOP`
+- archive: `coordination/archive/R003-V05-COMBAT-LOOP.md`
+
+No V0.6 round or task activation is currently authorized.
 
 Allowed states: `OFF_ROUND`, `CHECKING_IN`, `READY`, `WORKING`, `WAITING`, `WAITING_FOR_TEAM`, `REVIEWING`, `VERIFIED`, `BLOCKED`, `UNRESPONSIVE`.

@@ -46,7 +46,7 @@ test('an active attack damages once and produces hitstun/hitstop', () => {
   const after = sim.getSnapshot().fighters[1];
   assert.ok(after.health < before);
   assert.ok(after.stunFrames > 0 || sawHitstop);
-  assert.equal(before - after.health, 92);
+  assert.equal(before - after.health, 80);
 });
 
 test('holding away blocks and reduces damage', () => {

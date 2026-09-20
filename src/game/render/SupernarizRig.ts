@@ -1,4 +1,6 @@
 import type { FighterSnapshot } from '../types.js';
+import type { LocomotionPose } from './LocomotionPose.js';
+import { getAirPresentationPose, getMovePresentationPhase } from './PresentationPose.js';
 import { GROUND_Y, ellipse, lerp, polygon, pulse, roundedLine } from './drawUtils.js';
 
 function noseFactor(f: FighterSnapshot): number {
@@ -9,12 +11,22 @@ function noseFactor(f: FighterSnapshot): number {
   return pulse(f.moveFrame, 2, 7, 17);
 }
 
-export function drawSupernariz(ctx: CanvasRenderingContext2D, f: FighterSnapshot, time: number): void {
+export function drawSupernariz(
+  ctx: CanvasRenderingContext2D,
+  f: FighterSnapshot,
+  locomotion: LocomotionPose,
+  time: number,
+): void {
   const feetY = GROUND_Y - f.y;
   const idle = Math.sin(time * 5.8 + f.x * 0.01) * 1.2;
   const crouch = f.crouching ? 1 : 0;
   const block = f.blocking ? 1 : 0;
   const guardBreak = f.guardBreakFrames > 0 ? 1 : 0;
+  const movePhase = getMovePresentationPhase(f);
+  const motion = getAirPresentationPose(f);
+  const lowNose = f.moveId === 'noseLow'
+    ? Math.max(movePhase.active, (1 - movePhase.startup) * (1 - movePhase.recovery) * 0.74)
+    : 0;
   const ultimateStartup = f.ultimatePhase === 'startup' ? 1 : 0;
   const ultimateCapture = f.ultimatePhase === 'capture' ? 1 : 0;
   const ultimateSequence = f.ultimatePhase === 'sequence' ? 1 : 0;
@@ -23,20 +35,31 @@ export function drawSupernariz(ctx: CanvasRenderingContext2D, f: FighterSnapshot
   const throwPose = f.moveId === 'chorizoThrow' ? pulse(f.moveFrame, 1, 8, 21) : 0;
   const ko = f.health <= 0 ? 1 : 0;
   const hurtLean = f.stunFrames > 0 ? -0.16 : 0;
-  const airNose = f.moveId === 'airNose' ? nose : 0;
+  const airNose = f.moveId === 'airNose' ? Math.max(nose, movePhase.active) : 0;
   const inhaleBrace = ultimateStartup * 0.72 + ultimateCapture;
+  const airTilt = -motion.ascent * 0.06 + motion.descent * 0.1;
+  const landingCompression = locomotion.landingAbsorption * 4;
   const nazazoDrive = ultimateSequence;
   const lean =
     nose * 0.16
     + airNose * 0.12
     + throwPose * 0.07
     + tramontana * 0.09
+    + lowNose * 0.05
+    + airTilt
     - ultimateStartup * 0.09
     - ultimateCapture * 0.16
     + ultimateSequence * 0.15
+    + locomotion.torsoLean
     + hurtLean
     - ko * 1.08;
-  const bodyDrop = crouch * 32 + ultimateStartup * 5 + ko * 44;
+  const bodyDrop =
+    locomotion.pelvisDrop
+    + crouch * 32
+    + lowNose * 25
+    + landingCompression
+    + ultimateStartup * 5
+    + ko * 44;
 
   ctx.save();
   ctx.translate(f.x, feetY);
@@ -51,8 +74,16 @@ export function drawSupernariz(ctx: CanvasRenderingContext2D, f: FighterSnapshot
 
   const hipY = -60 + bodyDrop;
   const shoulderY = -126 + bodyDrop * 0.45 + idle;
-  const step = f.grounded ? Math.sin(time * 10.5 + f.x * 0.025) * Math.min(9, Math.abs(f.vx) * 1.6) : 0;
-  const knee = crouch * 20 + (!f.grounded ? 12 : 0);
+  const jumpTuck = locomotion.tuck * 25 + locomotion.descentBrace * 10;
+  const backFootX = locomotion.backFoot.x;
+  const frontFootX = locomotion.frontFoot.x;
+  const backFootY = -locomotion.backFoot.y - jumpTuck;
+  const frontFootY = -locomotion.frontFoot.y - jumpTuck - locomotion.extension * 3;
+  const knee =
+    crouch * 20
+    + lowNose * 21
+    + motion.airborne * (10 + motion.apex * 13)
+    + locomotion.landingAbsorption * 8;
 
   // Cape goes behind the body with a wind-responsive Bézier silhouette.
   ctx.save();
@@ -75,13 +106,15 @@ export function drawSupernariz(ctx: CanvasRenderingContext2D, f: FighterSnapshot
   ctx.stroke();
   ctx.restore();
 
-  // Legs and boots.
-  roundedLine(ctx, -12, hipY, -14 - step, -30 + knee, 19, '#2f5fb2');
-  roundedLine(ctx, -14 - step, -30 + knee, -25 - step * 0.45, -5, 15, '#376dc8');
-  roundedLine(ctx, 12, hipY, 17 + step, -29 + knee, 19, '#2f5fb2');
-  roundedLine(ctx, 17 + step, -29 + knee, 28 + step * 0.45, -5, 15, '#376dc8');
-  roundedLine(ctx, -31 - step * 0.45, -4, -13 - step * 0.45, -4, 10, '#a62b34');
-  roundedLine(ctx, 15 + step * 0.45, -4, 34 + step * 0.45, -4, 10, '#a62b34');
+  // Legs and boots follow root travel rather than a wall-time oscillator.
+  const backKneeX = lerp(-12, backFootX, 0.54) - 6;
+  const frontKneeX = lerp(12, frontFootX, 0.54) + 6;
+  roundedLine(ctx, -12, hipY, backKneeX, -30 + knee + backFootY * 0.34, 19, '#2f5fb2');
+  roundedLine(ctx, backKneeX, -30 + knee + backFootY * 0.34, backFootX, backFootY - 5, 15, '#376dc8');
+  roundedLine(ctx, 12, hipY, frontKneeX, -29 + knee + frontFootY * 0.34, 19, '#2f5fb2');
+  roundedLine(ctx, frontKneeX, -29 + knee + frontFootY * 0.34, frontFootX, frontFootY - 5, 15, '#376dc8');
+  roundedLine(ctx, backFootX - 9, backFootY - 4, backFootX + 10, backFootY - 4, 10, '#a62b34');
+  roundedLine(ctx, frontFootX - 9, frontFootY - 4, frontFootX + 11, frontFootY - 4, 10, '#a62b34');
 
   // Slim suit torso.
   ellipse(ctx, 0, -94 + bodyDrop * 0.62, 29, 51 - crouch * 8, '#2d61bd', -0.03, '#16376f', 3);
@@ -100,6 +133,7 @@ export function drawSupernariz(ctx: CanvasRenderingContext2D, f: FighterSnapshot
     30
     + throwPose * 38
     + tramontana * 24
+    + lowNose * 22
     - inhaleBrace * 20
     + nazazoDrive * 46
     + block * -2;
@@ -108,6 +142,7 @@ export function drawSupernariz(ctx: CanvasRenderingContext2D, f: FighterSnapshot
     + 20
     - throwPose * 21
     - tramontana * 14
+    + lowNose * 42
     - inhaleBrace * 24
     - nazazoDrive * 12
     - block * 26;
@@ -118,7 +153,13 @@ export function drawSupernariz(ctx: CanvasRenderingContext2D, f: FighterSnapshot
 
   // Stylized head and hair.
   const headX = 4 + nose * 8 - inhaleBrace * 8 + nazazoDrive * 8;
-  const headY = -170 + bodyDrop * 0.42 + idle;
+  const headY =
+    -170
+    + bodyDrop * 0.42
+    + idle
+    - motion.ascent * 5
+    + motion.apex * 3
+    + motion.descent * 7;
   ellipse(ctx, headX, headY, 36, 39, '#d4a07f', -0.03, '#694435', 2.4);
   ctx.save();
   ctx.fillStyle = '#191a1b';
@@ -135,11 +176,19 @@ export function drawSupernariz(ctx: CanvasRenderingContext2D, f: FighterSnapshot
   // The nose is an articulated tapered vector path; combo moves change its length and arc.
   const noseLength = lerp(
     39,
-    f.moveId === 'nose3' ? 142 : f.moveId === 'airNose' ? 128 : 118,
-    nose,
+    f.moveId === 'nose3' ? 142 : f.moveId === 'airNose' ? 128 : f.moveId === 'noseLow' ? 108 : 118,
+    Math.max(nose, lowNose),
   ) + nazazoDrive * 24 - inhaleBrace * 8;
   const noseLift =
-    (f.moveId === 'nose2' ? -12 * nose : f.moveId === 'nose3' ? 7 * nose : f.moveId === 'airNose' ? 20 * nose : 0)
+    (f.moveId === 'nose2'
+      ? -12 * nose
+      : f.moveId === 'nose3'
+        ? 7 * nose
+        : f.moveId === 'airNose'
+          ? 20 * nose + motion.descent * 9
+          : f.moveId === 'noseLow'
+            ? 38 * lowNose
+            : 0)
     - inhaleBrace * 8
     + nazazoDrive * 9;
   ctx.save();

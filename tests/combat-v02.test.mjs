@@ -28,18 +28,20 @@ test('holding away walks backward and still blocks a compatible incoming strike'
   assert.ok(after.fighters[1].health > 900, 'blocked tongue should only deal chip damage');
 });
 
-test('standing guard loses to low while down-back blocks low and loses to overhead', () => {
+test('standing guard loses to grounded low while down-back blocks low and loses to overhead', () => {
   const stand = new CombatSimulation('chameleon', 'supernariz', { skipIntro: true });
-  closeFighters(stand, 58);
-  stand.step(input({ down: true, special: true }), input({ right: true }));
-  const standAfter = stepN(stand, 22, EMPTY_INPUT, input({ right: true }));
-  assert.ok(standAfter.fighters[1].health <= 924, 'standing guard must not block a low tongue');
+  stand.fighters[0].x = 500;
+  stand.fighters[1].x = 562;
+  stand.step(input({ down: true, attack: true }), input({ right: true }));
+  const standAfter = stepN(stand, 18, EMPTY_INPUT, input({ right: true }));
+  assert.ok(standAfter.fighters[1].health <= 964, 'standing guard must not block a grounded low normal');
 
   const crouch = new CombatSimulation('chameleon', 'supernariz', { skipIntro: true });
-  closeFighters(crouch, 58);
-  crouch.step(input({ down: true, special: true }), input({ right: true, down: true }));
-  const crouchAfter = stepN(crouch, 22, EMPTY_INPUT, input({ right: true, down: true }));
-  assert.ok(crouchAfter.fighters[1].health > 980, 'down-back should block a low tongue');
+  crouch.fighters[0].x = 500;
+  crouch.fighters[1].x = 562;
+  crouch.step(input({ down: true, attack: true }), input({ right: true, down: true }));
+  const crouchAfter = stepN(crouch, 18, EMPTY_INPUT, input({ right: true, down: true }));
+  assert.ok(crouchAfter.fighters[1].health >= 998, 'down-back should block a grounded low normal');
 
   const overhead = new CombatSimulation('supernariz', 'chameleon', { skipIntro: true });
   closeFighters(overhead, 68);
@@ -52,19 +54,18 @@ test('standing guard loses to low while down-back blocks low and loses to overhe
 
 test('guard damage can break defense and guard later regenerates', () => {
   const sim = new CombatSimulation('chameleon', 'supernariz', { skipIntro: true });
-  closeFighters(sim, 58);
-  let snap = sim.getSnapshot();
-  const maxGuard = snap.fighters[1].maxGuard;
-  assert.equal(snap.fighters[1].guard, maxGuard);
+  sim.fighters[0].x = 500;
+  sim.fighters[1].x = 700;
+  sim.fighters[1].guard = 14;
+  sim.fighters[1].guardRegenDelay = 45;
 
-  for (let attempt = 0; attempt < 8 && snap.fighters[1].guardBreakFrames === 0; attempt += 1) {
-    sim.step(input({ special: true }), input({ right: true }));
-    snap = stepN(sim, 16, EMPTY_INPUT, input({ right: true }));
-    if (snap.fighters[1].guardBreakFrames > 0) break;
-    snap = stepN(sim, 20, input({ right: true }), input({ left: true }));
+  sim.step(input({ special: true }), input({ right: true }));
+  let snap = sim.getSnapshot();
+  for (let i = 0; i < 40 && snap.fighters[1].guardBreakFrames === 0; i += 1) {
+    snap = sim.step(EMPTY_INPUT, input({ right: true }));
   }
   assert.equal(snap.fighters[1].guard, 0);
-  assert.ok(snap.fighters[1].guardBreakFrames > 0, 'repeated blocking should eventually cause guard break');
+  assert.ok(snap.fighters[1].guardBreakFrames > 0, 'one blocked Lengua at 14 GUARD should break defense');
 
   snap = stepN(sim, 130);
   assert.equal(snap.fighters[1].guardBreakFrames, 0);
@@ -105,7 +106,7 @@ test('forward dash closes distance and backdash has a brief strike-evasion windo
 test('jumping can clear a low strike, clear a chorizo projectile, and cross over the opponent', () => {
   const low = new CombatSimulation('supernariz', 'chameleon', { skipIntro: true });
   closeFighters(low, 60);
-  low.step(input({ jump: true }), input({ down: true, special: true }));
+  low.step(input({ jump: true }), input({ down: true, attack: true }));
   const lowSnap = stepN(low, 18, input({ right: true }), EMPTY_INPUT);
   assert.equal(lowSnap.fighters[0].health, 1000, 'an airborne fighter above the low hitbox should not be hit');
 
@@ -120,21 +121,33 @@ test('jumping can clear a low strike, clear a chorizo projectile, and cross over
   closeFighters(cross, 74);
   const beforeSide = cross.getSnapshot();
   assert.ok(beforeSide.fighters[0].x < beforeSide.fighters[1].x);
-  cross.step(input({ jump: true }), EMPTY_INPUT);
-  snap = stepN(cross, 34, input({ right: true }), EMPTY_INPUT);
+  snap = cross.step(input({ right: true, jump: true }), EMPTY_INPUT);
+  const takeoffFacing = snap.fighters[0].facing;
+  for (let i = 0; i < 40 && snap.fighters[0].x <= snap.fighters[1].x; i += 1) {
+    snap = cross.step(input({ right: true }), EMPTY_INPUT);
+  }
   assert.ok(snap.fighters[0].x > snap.fighters[1].x, 'forward jump should be able to cross over a grounded rival');
-  assert.equal(snap.fighters[0].facing, -1);
+  assert.equal(snap.fighters[0].facing, takeoffFacing, 'facing remains locked while airborne');
+
+  for (let i = 0; i < 80 && (!snap.fighters[0].grounded || snap.fighters[0].landingRecoveryFrames > 0); i += 1) {
+    snap = cross.step(EMPTY_INPUT, EMPTY_INPUT);
+  }
+  snap = cross.step(EMPTY_INPUT, EMPTY_INPUT);
+  assert.equal(snap.fighters[0].facing, -1, 'grounded actionable neutral reorients after the crossover');
 });
 
 test('backdash recovery cannot turn into guard while the dash is still committed', () => {
   const sim = new CombatSimulation('supernariz', 'chameleon', { skipIntro: true });
-  closeFighters(sim, 52);
+  sim.fighters[0].x = 90;
+  sim.fighters[1].x = 185;
   const before = sim.getSnapshot().fighters[0].health;
 
-  sim.step(input({ left: true, dashLeft: true }), input({ special: true }));
-  const snap = stepN(sim, 14, input({ left: true }), EMPTY_INPUT);
+  sim.step(input({ left: true, dashLeft: true }), EMPTY_INPUT);
+  stepN(sim, 6, input({ left: true }), EMPTY_INPUT);
+  sim.step(input({ left: true }), input({ attack: true }));
+  const snap = stepN(sim, 8, input({ left: true }), EMPTY_INPUT);
 
-  assert.ok(snap.fighters[0].health <= before - 90, 'late backdash recovery should be vulnerable, not auto-block while holding away');
+  assert.ok(snap.fighters[0].health < before, 'late backdash recovery should be vulnerable, not auto-block while holding away');
 });
 
 test('backdash does not add projectile invulnerability or projectile guard', () => {

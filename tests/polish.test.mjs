@@ -15,6 +15,7 @@ test('each fighter can start a distinct air attack while airborne', () => {
     const sim = new CombatSimulation(id, 'chameleon', { skipIntro: true });
     sim.step(tap({ jump: true }), neutral());
     sim.step(neutral(), neutral());
+    sim.step(neutral(), neutral());
     const snapshot = sim.step(tap({ attack: true }), neutral());
     assert.equal(snapshot.fighters[0].grounded, false);
     assert.equal(snapshot.fighters[0].moveId, id === 'chameleon' ? 'airClaw' : 'airNose');
@@ -24,10 +25,10 @@ test('each fighter can start a distinct air attack while airborne', () => {
 test('round reset clears any projectile left frozen during round-over', () => {
   const sim = new CombatSimulation('supernariz', 'chameleon', { skipIntro: true });
   let snapshot = sim.getSnapshot();
-  for (let i = 0; i < 3588; i += 1) snapshot = sim.step(neutral(), neutral());
+  for (let i = 0; i < 3582; i += 1) snapshot = sim.step(neutral(), neutral());
   snapshot = sim.step(tap({ special: true }), neutral());
   snapshot = sim.step(neutral(), neutral());
-  for (let i = 0; i < 9; i += 1) snapshot = sim.step(neutral(), neutral());
+  for (let i = 0; i < 13; i += 1) snapshot = sim.step(neutral(), neutral());
   assert.ok(snapshot.projectiles.length > 0, 'projectile should exist immediately before round end');
   while (snapshot.phase === 'fight') snapshot = sim.step(neutral(), neutral());
   assert.equal(snapshot.phase, 'round-over');

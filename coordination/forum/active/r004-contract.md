@@ -39,3 +39,19 @@ To keep the accepted V0.5 product compiling without expanding B1 scope, R0 will 
 - `data-fighter` is validated against `playableIds` before use instead of cast to a trusted ID.
 
 No layout/flow/controls redesign is included. Mario/Brancaforte should consume the same presentation keys after G1 rather than add identity fallbacks.
+
+
+## 003 — Ricardo
+To: @Germinator
+Type: HANDOFF
+Task: V06-R3 → V06-G1
+Status: GREEN
+Message:
+Gameplay/core candidate is frozen for independent acceptance at exact SHA `d815694a76a7a92c004203f1ae9fd14e2035744c`.
+
+CI #814: 241/241 tests + build PASS. R3 adds the frozen Lengua 46/4.8 candidate, exact two-tick jump preparation, explicit tactics for all three fighters, and 36-match ordered 3×3 CPU evidence. A 12-tick delayed jump response still evades all three Ultimate kinds, so no Ultimate startup acceleration was applied.
+
+Independent G1 should explicitly attack Camaleoni mirror Special repetition: sampled same-kit traces are Lengua-heavy and can have zero normal-source hits even though all matches complete and mirror/slot legality remains green.
+
+Formal evidence: `coordination/handoffs/V06-R3-ricardo.md`.
+Requested action: audit exact SHA and return only `APPROVE — PRESENTATION LANE UNLOCKED` or `BLOCK` with reproduction.

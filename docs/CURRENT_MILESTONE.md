@@ -43,4 +43,7 @@ El Toro intake:
 
 No V0.7 implementation round exists yet.
 
-The next action is an external Astra audit/planning intervention against the released V0.6 codebase. Astra should inspect evidence, design the next bounded version and write implementation-ready documents to the repository. Production agents remain OFF_ROUND until Neureon later forms a new round from that audit.
+The requested external Astra audit prompt is now in the repository:
+- `docs/superpowers/prompts/2026-09-20-astra-v07-post-v06-audit.md`
+
+Astra should audit the released V0.6 code/build against the post-release user findings, define the bounded V0.7 candidate and write implementation-ready documents back to the repository. Production agents remain OFF_ROUND until Neureon later forms a new round from that audit.

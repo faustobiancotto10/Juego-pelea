@@ -1,116 +1,28 @@
 # Current Round
 
-Status: ACTIVE  
-Round: R004-V06-CONTENT-EXPANSION  
-Execution mode: AUTO_CHAIN  
-Goal: ship V0.6 with Juanchi, Cancha 56, physical locomotion, Universal Ultimate Clash, targeted combat fixes, scalable content architecture and a real fighting-game front end.
+Status: IDLE  
+Round: none  
+Execution mode: none  
+Goal: none
 
-Start token: `START_ROUND — AUTO_CHAIN`  
-Issued: 2026-09-20  
-Per-task Neureon gates: disabled  
-Completion token: not issued
+Start token: none  
+Completion token: `ROUND_COMPLETE — R004-V06-CONTENT-EXPANSION`
 
-## Exact product baseline
+## Last closed round
 
-Product base for every V0.6 feature branch:
-`2d8c41dc994c8cddaa4c9fe2b3ee957698e94f13`
+`R004-V06-CONTENT-EXPANSION` is archived at:
+- `coordination/archive/R004-V06-CONTENT-EXPANSION.md`
 
-QA reference:
-`2876f3bce7d77c04c7415df89cafcf8b31f1b61c`
+V0.6 is officially released:
+- product merge `60f30d4a100f3d853e2408e3eee7bbde4e2170fe`
+- Pages publish `93d2fdd6f4b764a49fa70ad1ff6ac1f348fb85cc`
 
-Do **not** use main's V0.4 runtime as the implementation base. Main remains coordination/document authority; product branches were created from the accepted V0.5 product SHA above.
+## Current planning state
 
-## Branches
+No implementation round is active.
 
-- Ricardo: `round/r004-ricardo`
-- Germinator: `round/r004-germinator`
-- Mario: `round/r004-mario`
-- Brancaforte: `round/r004-brancaforte`
-- Gonza/integration: `round/r004-integration`
+Authoritative next-version inputs:
+- `docs/feedback/2026-09-20-v06-post-release-playtest.md`
+- `docs/characters/el-toro/PACKAGE.md`
 
-## Frozen product scope
-
-1. Juanchi as complete third player/CPU fighter.
-2. Rugby Boomerang returning projectile.
-3. Fricción authored three-contact close Special.
-4. Police Cap Rage cap-capture Ultimate.
-5. Universal Ultimate Clash across all three fighters.
-6. Physical locomotion/jump quality pass across all three.
-7. Targeted Lengua/Ultimate follow-through from V0.5 playtest.
-8. Second stage `CANCHA 56`: night rugby field + restrained party/gathering + spectators around the field.
-9. Fighting-game front-end:
-   `TITLE/COVER → FIGHTER SELECT → OPPONENT SELECT → STAGE SELECT → VS → FIGHT → RESULT`.
-10. Reusable Character Package/content/presentation architecture.
-11. 3/5/10 roster scalability tests and fourth synthetic package fixture.
-12. Reproducible source→standalone→served release parity.
-
-Out of scope:
-- fourth playable fighter;
-- runtime raster fighter sprites;
-- generic ECS/script/cinematic engine;
-- fifth action button;
-- stage gameplay hazards;
-- online/story/shop/account systems.
-
-## Authoritative V0.6 specs
-
-- `docs/superpowers/specs/2026-09-20-v06-content-expansion-design.md`
-- `docs/superpowers/specs/2026-09-20-v06-juanchi-character-contract.md`
-- `docs/superpowers/specs/2026-09-20-v06-animation-quality-contract.md`
-- `docs/superpowers/specs/2026-09-20-v06-ultimate-clash-contract.md`
-- `docs/superpowers/specs/2026-09-20-v06-character-package-pipeline.md`
-- `docs/superpowers/specs/2026-09-20-v06-cancha56-stage-contract.md`
-- `docs/superpowers/specs/2026-09-20-v06-fighting-game-ui-flow.md`
-- `docs/characters/juanchi/**`
-
-## Juanchi visual authority
-
-User-supplied identity master SHA-256:
-`05c1f7107c49caa65bb719ce6ca17c45f47f2667523f77d7214ed82b6d3226b8`
-
-User-supplied action-sheet SHA-256:
-`981912f6c3aed94dd51ccef0356045ffa5395814daeb559bf264cb59692e8639`
-
-Identity master governs likeness/outfit/proportions. Action sheet guides action/pose language. Both are authoring references only and must never be loaded as runtime fighter sprites/textures.
-
-## Auto-chain sequence — authoritative
-
-The established project order is:
-
-**Ricardo → Germinator → Mario + Brancaforte → Gonza**
-
-Immediately eligible:
-- V06-R0 — Ricardo.
-
-Ricardo then continues automatically:
-- V06-R0 → V06-R1 → V06-R2 → V06-R3.
-
-After Ricardo's green V06-R3 handoff:
-- V06-G1 — Germinator audits the complete gameplay/core candidate.
-
-Only after Germinator returns a green gameplay/core verdict:
-- Mario starts V06-M1 → V06-M2.
-- Brancaforte starts V06-B1.
-- Mario and Brancaforte may work in parallel with each other.
-
-Only after Germinator is green **and** Mario M2 + Brancaforte B1 are green:
-- Gonza starts V06-Z0 final integration/verification.
-- V06-Z1 follows Z0 directly if final integration/parity checks are green.
-
-Gonza does no early preparation/integration in this round.
-
-No agent waits for a new Neureon token on the normal path; dependency handoffs advance the chain automatically.
-
-## Deviation rule
-
-If an agent discovers a blocker, reproducible regression, frozen-contract contradiction, missing authoritative input or required scope change:
-1. stop the affected dependency chain;
-2. record it in `r004-findings.md`;
-3. mark BLOCKED;
-4. tell the user directly with evidence.
-
-The user decides whether to ask Neureon for audit/re-plan. Do not silently redesign the product and do not create a per-step coordinator gate.
-
-## Completion
-
-After successful V06-Z1, product work is finished. Neureon will archive/reset and issue `ROUND_COMPLETE` when the user asks for final closure.
+The next requested activity is an external Astra audit/planning pass. That planning work does **not** activate V0.7 or authorize production code.

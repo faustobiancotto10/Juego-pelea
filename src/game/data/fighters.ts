@@ -1,7 +1,8 @@
-import type { FighterId } from '../types.js';
+import { DEFAULT_CHARACTER_COMPOSITION } from './characterContent.js';
+import type { FighterId, RegisteredFighterId } from '../types.js';
 
 export interface FighterDefinition {
-  id: FighterId;
+  id: RegisteredFighterId;
   displayName: string;
   fullName: string;
   role: string;
@@ -11,36 +12,17 @@ export interface FighterDefinition {
   gravity: number;
   width: number;
   height: number;
+  /** Simulation-authored head/cap-seat target. Released fighters define this explicitly. */
+  captureHead?: {
+    standY: number;
+    crouchY: number;
+    halfWidth: number;
+    halfHeight: number;
+  };
   accent: string;
 }
 
-export const FIGHTERS: Record<FighterId, FighterDefinition> = {
-  chameleon: {
-    id: 'chameleon',
-    displayName: 'Camaleoni',
-    fullName: 'Camaleoni Cagoni',
-    role: 'Control de distancia',
-    maxHealth: 1000,
-    walkSpeed: 4.25,
-    jumpSpeed: 12.4,
-    gravity: 0.72,
-    width: 54,
-    height: 118,
-    accent: '#7abf43',
-  },
-  supernariz: {
-    id: 'supernariz',
-    displayName: 'Supernariz',
-    fullName: 'Supernariz',
-    role: 'Rushdown / combos',
-    maxHealth: 1000,
-    walkSpeed: 4.8,
-    jumpSpeed: 12.1,
-    gravity: 0.74,
-    width: 56,
-    height: 122,
-    accent: '#2f6bd7',
-  },
-};
+export const FIGHTERS: Readonly<Record<RegisteredFighterId, FighterDefinition>> =
+  DEFAULT_CHARACTER_COMPOSITION.fighters;
 
-export const FIGHTER_IDS = Object.keys(FIGHTERS) as FighterId[];
+export const FIGHTER_IDS: readonly FighterId[] = DEFAULT_CHARACTER_COMPOSITION.playableIds;

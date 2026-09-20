@@ -43,67 +43,6 @@ test('double-tap tracker emits a dash only for two same-direction taps inside it
 });
 
 
-test('V0.3 action chord buffer emits one ultimate intent without leaking attack or special', async () => {
-  const module = await import('../dist/game/input/GameInput.js');
-  assert.equal(typeof module.ActionChordBuffer, 'function');
-  const buffer = new module.ActionChordBuffer(90);
-
-  assert.deepEqual(buffer.sample(false, false, 1000), { attack: false, special: false, ultimate: false });
-  assert.deepEqual(buffer.sample(true, false, 1010), { attack: false, special: false, ultimate: false });
-  assert.deepEqual(buffer.sample(true, true, 1050), { attack: false, special: false, ultimate: true });
-  assert.deepEqual(buffer.sample(true, true, 1066), { attack: false, special: false, ultimate: false });
-  assert.deepEqual(buffer.sample(false, false, 1080), { attack: false, special: false, ultimate: false });
-});
-
-test('V0.3 chord buffer preserves standalone actions after the tolerance window', async () => {
-  const { ActionChordBuffer } = await import('../dist/game/input/GameInput.js');
-  assert.equal(typeof ActionChordBuffer, 'function');
-  const buffer = new ActionChordBuffer(90);
-
-  buffer.sample(false, false, 2000);
-  assert.deepEqual(buffer.sample(true, false, 2010), { attack: false, special: false, ultimate: false });
-  assert.deepEqual(buffer.sample(true, false, 2105), { attack: true, special: false, ultimate: false });
-});
-
-test('V0.3 action priority routes defensive SPECIAL to Push Guard and gives Ultimate top priority', async () => {
-  const module = await import('../dist/game/input/GameInput.js');
-  assert.equal(typeof module.resolveActionButtons, 'function');
-
-  assert.deepEqual(
-    module.resolveActionButtons({ attack: true, special: true, ultimate: true }, true),
-    { attack: false, special: false, ultimate: true, pushGuard: false },
-  );
-  assert.deepEqual(
-    module.resolveActionButtons({ attack: false, special: true, ultimate: false }, true),
-    { attack: false, special: false, ultimate: false, pushGuard: true },
-  );
-  assert.deepEqual(
-    module.resolveActionButtons({ attack: true, special: true, ultimate: false }, true),
-    { attack: false, special: false, ultimate: false, pushGuard: true },
-  );
-  assert.deepEqual(
-    module.resolveActionButtons({ attack: false, special: true, ultimate: false }, false),
-    { attack: false, special: true, ultimate: false, pushGuard: false },
-  );
-});
-
-
-test('V0.3 chord buffer does not swallow quick standalone taps shorter than the chord window', async () => {
-  const { ActionChordBuffer } = await import('../dist/game/input/GameInput.js');
-  const attackBuffer = new ActionChordBuffer(90);
-
-  attackBuffer.sample(false, false, 3000);
-  assert.deepEqual(attackBuffer.sample(true, false, 3010), { attack: false, special: false, ultimate: false });
-  assert.deepEqual(attackBuffer.sample(false, false, 3050), { attack: true, special: false, ultimate: false });
-  assert.deepEqual(attackBuffer.sample(false, false, 3066), { attack: false, special: false, ultimate: false });
-
-  const specialBuffer = new ActionChordBuffer(90);
-  specialBuffer.sample(false, false, 4000);
-  assert.deepEqual(specialBuffer.sample(false, true, 4010), { attack: false, special: false, ultimate: false });
-  assert.deepEqual(specialBuffer.sample(false, false, 4050), { attack: false, special: true, ultimate: false });
-});
-
-
 function createGameInputHarness(GameInput) {
   const listeners = new Map();
   const previousWindow = globalThis.window;
@@ -156,39 +95,6 @@ test('GameInput keeps ATTACK/SPECIAL immediate while SUPER is not READY', async 
     harness.cleanup();
   }
 });
-
-test('GameInput READY chord emits one Ultimate and defensive SPECIAL emits exclusive Push Guard', async () => {
-  const { GameInput } = await import('../dist/game/input/GameInput.js');
-  const harness = createGameInputHarness(GameInput);
-  try {
-    harness.dispatchKey('keydown', 'KeyJ');
-    const first = harness.input.getFrame({ superReady: true, defensiveContext: false, nowMs: 2000 });
-    assert.equal(first.attack, false);
-    assert.equal(first.special, false);
-    assert.equal(first.ultimate, false);
-
-    harness.dispatchKey('keydown', 'KeyK');
-    const chord = harness.input.getFrame({ superReady: true, defensiveContext: false, nowMs: 2030 });
-    assert.deepEqual(
-      { attack: chord.attack, special: chord.special, ultimate: chord.ultimate, pushGuard: chord.pushGuard },
-      { attack: false, special: false, ultimate: true, pushGuard: false },
-    );
-
-    harness.dispatchKey('keyup', 'KeyJ');
-    harness.dispatchKey('keyup', 'KeyK');
-    harness.input.getFrame({ superReady: true, defensiveContext: false, nowMs: 2046 });
-
-    harness.dispatchKey('keydown', 'KeyK');
-    const pushGuard = harness.input.getFrame({ superReady: false, defensiveContext: true, nowMs: 2062 });
-    assert.deepEqual(
-      { attack: pushGuard.attack, special: pushGuard.special, ultimate: pushGuard.ultimate, pushGuard: pushGuard.pushGuard },
-      { attack: false, special: false, ultimate: false, pushGuard: true },
-    );
-  } finally {
-    harness.cleanup();
-  }
-});
-
 
 function createTouchButton(action) {
   const listeners = new Map();
@@ -283,19 +189,16 @@ function createTouchGameInputHarness(GameInput) {
   return { input, dpad, attack, special, jump, ultimate, cleanup };
 }
 
-test('V0.4 touch ULTIMATE emits one exclusive intent and does not repeat while held', async () => {
+test('V0.4 touch ULTIMATE surface still emits one queued edge and does not repeat while held', async () => {
   const { GameInput } = await import('../dist/game/input/GameInput.js');
   const harness = createTouchGameInputHarness(GameInput);
   try {
     harness.ultimate.dispatch('pointerdown', 22);
     const first = harness.input.getFrame({ superReady: true, defensiveContext: false, nowMs: 5000 });
-    assert.deepEqual(
-      { attack: first.attack, special: first.special, ultimate: first.ultimate, pushGuard: first.pushGuard },
-      { attack: false, special: false, ultimate: true, pushGuard: false },
-    );
+    assert.deepEqual((first.commands ?? []).map((command) => command.action), ['ultimate']);
 
     const held = harness.input.getFrame({ superReady: true, defensiveContext: false, nowMs: 5016 });
-    assert.equal(held.ultimate, false);
+    assert.deepEqual(held.commands ?? [], []);
   } finally {
     harness.cleanup();
   }
@@ -312,28 +215,24 @@ test('V0.4 touch ULTIMATE can fire while D-pad movement stays held with another 
     harness.ultimate.dispatch('pointerdown', 32);
     const ultimate = harness.input.getFrame({ superReady: true, defensiveContext: false, nowMs: 6016 });
     assert.equal(ultimate.right, true);
-    assert.equal(ultimate.ultimate, true);
-    assert.equal(ultimate.attack, false);
-    assert.equal(ultimate.special, false);
+    assert.deepEqual((ultimate.commands ?? []).map((command) => command.action), ['ultimate']);
 
     harness.ultimate.dispatch('pointerup', 32);
     const after = harness.input.getFrame({ superReady: true, defensiveContext: false, nowMs: 6032 });
     assert.equal(after.right, true);
-    assert.equal(after.ultimate, false);
+    assert.deepEqual(after.commands ?? [], []);
   } finally {
     harness.cleanup();
   }
 });
 
-test('V0.4 touch ULTIMATE is inert before SUPER READY while keyboard chord compatibility remains', async () => {
+test('V0.5 touch ULTIMATE edge is meter-agnostic and leaves legality to simulation', async () => {
   const { GameInput } = await import('../dist/game/input/GameInput.js');
   const harness = createTouchGameInputHarness(GameInput);
   try {
     harness.ultimate.dispatch('pointerdown', 40);
     const notReady = harness.input.getFrame({ superReady: false, defensiveContext: false, nowMs: 7000 });
-    assert.equal(notReady.ultimate, false);
-    assert.equal(notReady.attack, false);
-    assert.equal(notReady.special, false);
+    assert.deepEqual((notReady.commands ?? []).map((command) => command.action), ['ultimate']);
   } finally {
     harness.cleanup();
   }

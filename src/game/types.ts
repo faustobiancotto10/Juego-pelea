@@ -1,9 +1,28 @@
-export type FighterId = 'chameleon' | 'supernariz';
+export type RegisteredFighterId = string;
+export type FighterId = RegisteredFighterId;
 export type FighterIndex = 0 | 1;
 export type Facing = -1 | 1;
 export type MatchPhase = 'intro' | 'fight' | 'round-over' | 'match-over';
 export type DashKind = 'forward' | 'back' | null;
 export type UltimatePhase = 'idle' | 'startup' | 'capture' | 'sequence' | 'recovery';
+export type ClashPhase = 'freeze' | 'launch';
+export type MoveContact = 'none' | 'hit' | 'block';
+export type HitSource = 'normal' | 'special' | 'projectile' | 'ultimate';
+export type ProjectilePhase = 'outbound' | 'turn' | 'return';
+export type RangedAvailability = 'ready' | 'inFlight' | 'cooldown';
+export type CombatAction = 'attack' | 'special' | 'jump' | 'ultimate' | 'pushGuard';
+
+export interface CommandDirection {
+  left: boolean;
+  right: boolean;
+  up: boolean;
+  down: boolean;
+}
+
+export interface CommandIntent {
+  action: CombatAction;
+  direction: CommandDirection;
+}
 
 export interface InputFrame {
   left: boolean;
@@ -19,10 +38,25 @@ export interface InputFrame {
   ultimate?: boolean;
   /** Gameplay intent emitted by the input layer for SPECIAL during a blocking context. */
   pushGuard?: boolean;
+  /**
+   * Lossless action edges for this sample. When defined (including []), these
+   * are the only action edges; held booleans never synthesize duplicates.
+   */
+  commands?: readonly CommandIntent[];
+}
+
+export interface UltimateProbeSnapshot {
+  x: number;
+  y: number;
+  previousX: number;
+  previousY: number;
+  halfWidth: number;
+  halfHeight: number;
+  visualKey: string;
 }
 
 export interface FighterSnapshot {
-  id: FighterId;
+  id: RegisteredFighterId;
   x: number;
   y: number;
   vx: number;
@@ -35,6 +69,8 @@ export interface FighterSnapshot {
   guardRegenDelay: number;
   guardBreakFrames: number;
   grounded: boolean;
+  jumpStartupFrames: number;
+  airborneTicks: number;
   crouching: boolean;
   blocking: boolean;
   stunFrames: number;
@@ -42,16 +78,31 @@ export interface FighterSnapshot {
   moveId: string | null;
   moveFrame: number;
   comboCount: number;
+  moveContact: MoveContact;
   chilledFrames: number;
   projectileCooldown: number;
   projectileCooldownMax: number;
+  rangedAvailability: RangedAvailability;
+  rangedRecoveryFrames: number;
   dashKind: DashKind;
   dashFrame: number;
+  landingRecoveryFrames: number;
+  pushGuardRecoveryFrames: number;
   superMeter: number;
   maxSuper: number;
   superReady: boolean;
   ultimatePhase: UltimatePhase;
+  ultimatePhaseFrame: number;
+  ultimateConnected: boolean;
   ultimateTarget: FighterIndex | null;
+  /** First advancing tick on which this committed Ultimate can affect the opponent. */
+  ultimateEffectiveTick: number | null;
+  /** Simulation-owned non-damaging cap probe, when applicable. */
+  ultimateProbe: UltimateProbeSnapshot | null;
+  /** World-space captured target x used by cap sequences. */
+  captureAnchorX: number | null;
+  /** Shared bilateral lock after an accepted Universal Ultimate Clash. */
+  clashRecoveryFrames: number;
   /** Simulation-owned defender capture lock. Renderer may consume but never infer it. */
   capturedBy: FighterIndex | null;
   roundWins: number;
@@ -60,19 +111,34 @@ export interface FighterSnapshot {
 export interface ProjectileSnapshot {
   id: number;
   owner: FighterIndex;
-  kind: 'chorizo';
+  kind: string;
+  visualKey: string;
   x: number;
   y: number;
   vx: number;
+  vy: number;
   active: boolean;
+  phase: ProjectilePhase;
+  phaseTick: number;
+  age: number;
+}
+
+export interface ClashSnapshot {
+  id: number;
+  phase: ClashPhase;
+  launchTick: number | null;
+  remainingLaunchTicks: number;
 }
 
 export interface MatchSnapshot {
   frame: number;
+  /** Advancing fight-step clock: frozen by hitstop and outside active fighting. */
+  combatTick: number;
   phase: MatchPhase;
   round: number;
   roundTimerFrames: number;
   hitstopFrames: number;
+  clash: ClashSnapshot | null;
   winner: FighterIndex | null;
   roundWinner: FighterIndex | null;
   fighters: readonly [FighterSnapshot, FighterSnapshot];
@@ -81,14 +147,21 @@ export interface MatchSnapshot {
 }
 
 export type CombatEvent =
-  | { type: 'hit'; attacker: FighterIndex; defender: FighterIndex; blocked: boolean; damage: number; strong: boolean }
+  | { type: 'hit'; attacker: FighterIndex; defender: FighterIndex; blocked: boolean; damage: number; strong: boolean; source: HitSource; finisher: boolean; moveId?: string; hitId?: string; projectileId?: number; leg?: 'outbound' | 'return'; majorImpact?: boolean }
   | { type: 'guard-break'; defender: FighterIndex }
   | { type: 'projectile'; owner: FighterIndex; projectileId: number }
+  | { type: 'projectile-turn'; owner: FighterIndex; projectileId: number }
+  | { type: 'projectile-catch'; owner: FighterIndex; projectileId: number }
   | { type: 'super-ready'; fighter: FighterIndex }
   | { type: 'ultimate-start'; attacker: FighterIndex }
   | { type: 'ultimate-capture'; attacker: FighterIndex; defender: FighterIndex }
   | { type: 'ultimate-whiff'; attacker: FighterIndex }
   | { type: 'push-guard'; defender: FighterIndex; attacker: FighterIndex }
+  | { type: 'jump-start'; fighter: FighterIndex }
+  | { type: 'takeoff'; fighter: FighterIndex }
+  | { type: 'land'; fighter: FighterIndex }
+  | { type: 'ultimate-release'; attacker: FighterIndex; defender: FighterIndex }
+  | { type: 'ultimate-clash'; clashId: number; fighters: readonly [FighterIndex, FighterIndex]; x: number; y: number }
   | { type: 'round-start'; round: number }
   | { type: 'round-end'; winner: FighterIndex | null }
   | { type: 'match-end'; winner: FighterIndex };

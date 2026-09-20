@@ -10,10 +10,10 @@ const stepN = (sim, frames, p1 = EMPTY_INPUT, p2 = EMPTY_INPUT) => {
   return snap;
 };
 
-test('Camaleón down+special selects low tongue', () => {
+test('Camaleón down+special selects Coletazo', () => {
   const sim = new CombatSimulation('chameleon', 'supernariz', { skipIntro: true });
   const snap = sim.step(input({ down: true, special: true }), EMPTY_INPUT);
-  assert.equal(snap.fighters[0].moveId, 'tongueLow');
+  assert.equal(snap.fighters[0].moveId, 'coletazo');
 });
 
 test('Supernariz connected attack can chain nose1 -> nose2 -> nose3 through cancel windows', () => {

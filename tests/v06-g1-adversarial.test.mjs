@@ -194,7 +194,8 @@ test('G1 Police Cap Rage preserves meter if interrupted before commitment and lo
   assert.ok(firstHit(snap, 1, 0));
   assert.notEqual(snap.fighters[0].ultimatePhase, 'sequence');
   assert.equal(snap.fighters[0].ultimateConnected, false);
-  assert.equal(snap.fighters[0].superMeter, 0);
+  assert.ok(snap.fighters[0].superMeter < 100, 'committed 100 SUPER must be lost even if the interrupt hit grants fresh received-damage meter');
+  assert.equal(snap.fighters[0].superReady, false);
   assert.equal(snap.events.some((event) => event.type === 'ultimate-capture'), false);
 });
 
@@ -310,6 +311,70 @@ test('G1 Universal Clash rejects effective deltas ±4 for every ordered 3x3 pair
     }
   }
 });
+test('G1 accepted Clash clears live Rugby/linear projectiles and starts Juanchi rearm exactly once', () => {
+  const sim = new CombatSimulation('juanchi', 'supernariz', { skipIntro: true });
+  sim.fighters[0].x = 500;
+  sim.fighters[1].x = 620;
+  sim.combatTick = 100;
+  sim.fighters[0].rangedAvailability = 'inFlight';
+  sim.fighters[0].projectileCooldown = 0;
+  sim.fighters[0].rangedRecoveryFrames = 0;
+
+  sim.projectiles.push(
+    {
+      id: 801,
+      owner: 0,
+      kind: 'juanchiRugby',
+      visualKey: 'rugby-ball',
+      x: 170,
+      y: 68,
+      vx: 12,
+      vy: 0,
+      active: true,
+      phase: 'outbound',
+      phaseTick: 4,
+      age: 4,
+      ttl: 60,
+      previousX: 158,
+      previousY: 68,
+      outboundContacts: new Set(),
+      returnContacts: new Set(),
+      lastContactTick: [null, null],
+    },
+    {
+      id: 802,
+      owner: 1,
+      kind: 'chorizo',
+      visualKey: 'chorizo',
+      x: 1080,
+      y: 62,
+      vx: -9.2,
+      vy: 0,
+      active: true,
+      phase: 'outbound',
+      phaseTick: 1,
+      age: 1,
+      ttl: 120,
+      previousX: 1089.2,
+      previousY: 62,
+      outboundContacts: new Set(),
+      returnContacts: new Set(),
+      lastContactTick: [null, null],
+    },
+  );
+
+  primeUltimateCapture(sim, 0, 101);
+  primeUltimateCapture(sim, 1, 101);
+
+  const snap = sim.step(E, E);
+  assert.equal(snap.events.filter((event) => event.type === 'ultimate-clash').length, 1);
+  assert.equal(snap.events.some((event) => event.type === 'hit'), false);
+  assert.equal(snap.projectiles.length, 0);
+  assert.equal(snap.fighters[0].rangedAvailability, 'cooldown');
+  assert.equal(snap.fighters[0].rangedRecoveryFrames, 30);
+  assert.equal(snap.fighters[0].projectileCooldown, 30);
+});
+
 
 test('G1 repeated Lengua can be jump-read and advanced through into melee range without taking a Lengua hit', () => {
   const sim = new CombatSimulation('chameleon', 'supernariz', { skipIntro: true });

@@ -482,6 +482,9 @@ export class CpuController {
         if (this.nextRandom() < tactics.retreatAtPreferredRange) {
           this.commitIntent('retreat', tick, profile);
           this.applyIntent(out, self.x, observed.foeX);
+        } else if (profile.archetype === 'pressure') {
+          this.commitIntent('approach', tick, profile);
+          this.applyIntent(out, self.x, observed.foeX);
         }
         return;
       }
@@ -492,7 +495,12 @@ export class CpuController {
         return;
       }
 
-      this.chooseWeightedCloseAction(out, self.x, observed.foeX, tick, profile);
+      if (profile.archetype === 'pressure') {
+        this.commitIntent('approach', tick, profile);
+        this.applyIntent(out, self.x, observed.foeX);
+      } else {
+        this.chooseWeightedCloseAction(out, self.x, observed.foeX, tick, profile);
+      }
       return;
     }
 

@@ -64,3 +64,23 @@ Evidence:
 - standalone SHA-256 `8fcc70c9...`.
 
 No blocker remains. AUTO_CHAIN condition for V06-Z1 is satisfied; final publication starts now.
+
+
+## V06-Z1 VERIFIED — Gonza
+
+V0.6 release completed.
+
+Evidence:
+- frozen Z0 candidate: `8acfc79d7ec96ec3d6a99aa5c720efe840a62115`;
+- final release head after repaired-main composition: `0ad9b33886c9abf038822446744c60204eecdcbe`;
+- PR #27 merged to main as `60f30d4a100f3d853e2408e3eee7bbde4e2170fe`;
+- final merge-ref verification #900 / `35539373697`: SUCCESS;
+- isolated Z1 verification `35538824377`: SUCCESS;
+- all 3 fighters × 2 stages flow, Juanchi targeted moves, Ultimate Clash, result/rematch and input interruption: PASS;
+- standalone SHA-256: `8fcc70c9d79042aa00275adb765ab0abdcaeb1b25a0965c540178a35fd80c2dc`;
+- gh-pages publish `93d2fdd6f4b764a49fa70ad1ff6ac1f348fb85cc`;
+- Pages run `35539408774`: SUCCESS;
+- main/public standalone blob parity: `bda2d2a16a0cd640f654b3b9c7aef148b7213f38`;
+- public URL: https://faustobiancotto10.github.io/Juego-pelea/.
+
+V06-Z1 is VERIFIED. Product work is complete. Gonza remains available until Neureon archives/resets and issues ROUND_COMPLETE when the user requests closure.

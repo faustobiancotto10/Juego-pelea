@@ -15,6 +15,7 @@ test('each fighter can start a distinct air attack while airborne', () => {
     const sim = new CombatSimulation(id, 'chameleon', { skipIntro: true });
     sim.step(tap({ jump: true }), neutral());
     sim.step(neutral(), neutral());
+    sim.step(neutral(), neutral());
     const snapshot = sim.step(tap({ attack: true }), neutral());
     assert.equal(snapshot.fighters[0].grounded, false);
     assert.equal(snapshot.fighters[0].moveId, id === 'chameleon' ? 'airClaw' : 'airNose');

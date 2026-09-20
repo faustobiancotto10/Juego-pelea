@@ -45,6 +45,16 @@ export interface InputFrame {
   commands?: readonly CommandIntent[];
 }
 
+export interface UltimateProbeSnapshot {
+  x: number;
+  y: number;
+  previousX: number;
+  previousY: number;
+  halfWidth: number;
+  halfHeight: number;
+  visualKey: string;
+}
+
 export interface FighterSnapshot {
   id: RegisteredFighterId;
   x: number;
@@ -85,6 +95,10 @@ export interface FighterSnapshot {
   ultimateTarget: FighterIndex | null;
   /** First advancing tick on which this committed Ultimate can affect the opponent. */
   ultimateEffectiveTick: number | null;
+  /** Simulation-owned non-damaging cap probe, when applicable. */
+  ultimateProbe: UltimateProbeSnapshot | null;
+  /** World-space captured target x used by cap sequences. */
+  captureAnchorX: number | null;
   /** Shared bilateral lock after an accepted Universal Ultimate Clash. */
   clashRecoveryFrames: number;
   /** Simulation-owned defender capture lock. Renderer may consume but never infer it. */

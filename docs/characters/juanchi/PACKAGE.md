@@ -15,8 +15,10 @@ Pose/action sprite-sheet source SHA-256:
 `981912f6c3aed94dd51ccef0356045ffa5395814daeb559bf264cb59692e8639`
 
 Repository authoring copies:
-- `docs/characters/juanchi/references/master-reference.webp`
-- `docs/characters/juanchi/references/action-sheet-reference.webp`
+- `docs/characters/juanchi/references/master-reference.webp` — 500×375 derivative, SHA-256 `861d41dcb54e6dea03ba928d74c255f5a95f565121aecdfdb0b5570eec222be6`
+- `docs/characters/juanchi/references/action-sheet-reference.webp` — 320×240 derivative, SHA-256 `0f82c25b04731485e58960fa342b898033692de1e834c0f2389bc6e1b77fa00b`
+
+The original user-supplied source hashes above remain the authority; the WebP copies are compact derivatives for agent access.
 
 The identity master has priority for face, hair, proportions, clothing and prop identity. The action sheet has priority for pose language/action intent when it does not contradict the identity master.
 

@@ -45,3 +45,6 @@
 - 2026-09-20: V0.6 front-end flow is `TITLE/COVER → FIGHTER SELECT → OPPONENT SELECT → STAGE SELECT → VS → FIGHT → RESULT`, with a dominant `COMENZAR` entry action, scalable roster UI, two selectable stages and rematch retaining selections.
 - 2026-09-20: V0.6 stage/UI architecture must scale structurally beyond two fighters; metadata-only 5/10 roster fixtures and a fourth synthetic package verify this without shipping a fourth playable fighter.
 - 2026-09-20: Canonical R004 specialist order is **Ricardo → Germinator → Mario + Brancaforte → Gonza**. Germinator audits Ricardo's completed gameplay/core candidate before presentation/UI work. Mario and Brancaforte then execute in parallel. Gonza performs no early integration/preparation; he is the final integration/release role.
+
+- 2026-09-20: V0.6 is the official published release from main product merge `60f30d4a100f3d853e2408e3eee7bbde4e2170fe`, with Pages publish `93d2fdd6f4b764a49fa70ad1ff6ac1f348fb85cc`. R004 is archived and no implementation round is currently active.
+- 2026-09-20: Post-release human playtest evidence is not overridden by green automated QA. The next audit must address Lengua dominance, weak CPU/difficulty, Juanchi locomotion quality, attack/effects presentation quality and requested fourth fighter El Toro.

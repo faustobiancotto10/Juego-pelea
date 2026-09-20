@@ -442,3 +442,88 @@ export function drawSupernarizInhalePulse(
   }
   ctx.restore();
 }
+
+
+export function drawUltimateClashEffect(
+  ctx: CanvasRenderingContext2D,
+  x: number,
+  y: number,
+  intensity: number,
+): void {
+  const t = clamp01(intensity);
+  if (t <= 0) return;
+
+  ctx.save();
+  ctx.translate(x, y);
+  ctx.globalAlpha = 0.18 + t * 0.74;
+
+  const radius = lerp(22, 116, 1 - t);
+  for (let i = 0; i < 3; i += 1) {
+    ctx.strokeStyle = i === 0 ? '#fff7d5' : i === 1 ? '#e6c863' : '#91c8ff';
+    ctx.lineWidth = 7 - i * 1.6;
+    ctx.beginPath();
+    ctx.arc(0, 0, radius + i * 18, 0, Math.PI * 2);
+    ctx.stroke();
+  }
+
+  ctx.lineCap = 'round';
+  for (let side = -1; side <= 1; side += 2) {
+    for (let i = 0; i < 4; i += 1) {
+      const yy = -34 + i * 23;
+      ctx.globalAlpha = (0.2 + t * 0.5) * (1 - i * 0.1);
+      ctx.strokeStyle = i % 2 === 0 ? '#fff3c3' : '#9fd4ff';
+      ctx.lineWidth = 5 - i * 0.6;
+      ctx.beginPath();
+      ctx.moveTo(side * 18, yy);
+      ctx.lineTo(side * lerp(52, 175 - i * 12, t), yy + side * (i - 1.5) * 3);
+      ctx.stroke();
+    }
+  }
+
+  if (t > 0.55) {
+    ctx.globalAlpha = (t - 0.55) / 0.45 * 0.86;
+    ctx.fillStyle = '#fff5ca';
+    ctx.font = '900 28px system-ui, sans-serif';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText('CHOQUE', 0, -82);
+  }
+
+  ctx.restore();
+}
+
+export function drawClashOpposingTrails(
+  ctx: CanvasRenderingContext2D,
+  leftX: number,
+  leftY: number,
+  rightX: number,
+  rightY: number,
+  intensity: number,
+): void {
+  const t = clamp01(intensity);
+  if (t <= 0) return;
+
+  const midX = (leftX + rightX) * 0.5;
+  const midY = (leftY + rightY) * 0.5 - 94;
+  ctx.save();
+  ctx.globalAlpha = 0.16 + t * 0.34;
+  ctx.lineCap = 'round';
+
+  for (let i = 0; i < 3; i += 1) {
+    const spread = (i - 1) * 21;
+    ctx.strokeStyle = i === 1 ? '#fff0ae' : '#8fcaff';
+    ctx.lineWidth = 7 - i * 1.2;
+
+    ctx.beginPath();
+    ctx.moveTo(leftX, leftY - 96 + spread);
+    ctx.quadraticCurveTo(midX - 68, midY + spread * 0.25, midX - 12, midY + spread * 0.08);
+    ctx.stroke();
+
+    ctx.beginPath();
+    ctx.moveTo(rightX, rightY - 96 - spread);
+    ctx.quadraticCurveTo(midX + 68, midY - spread * 0.25, midX + 12, midY - spread * 0.08);
+    ctx.stroke();
+  }
+
+  ctx.restore();
+}

@@ -6,7 +6,7 @@
   "scripts": {
     "clean": "rm -rf dist",
     "typecheck": "tsc --noEmit",
-    "test": "rm -rf dist && tsc && node --test tests/*.test.mjs",
+    "test": "rm -rf dist && tsc && node scripts/run-tests.mjs",
     "build": "npm run clean && tsc && cp index.html dist/index.html && cp src/styles.css dist/styles.css",
     "serve": "python3 -m http.server 4173 -d dist"
   }

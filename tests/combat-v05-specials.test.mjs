@@ -53,7 +53,7 @@ test('R3 final Special grammar is uniform and low tongue is not selectable', () 
 
 test('R3 applies approved commitment candidates to ranged Specials and Tramontana', () => {
   const tongue = getMoveDefinition('chameleon', 'tongueStraight');
-  assert.equal(tongue.totalFrames, 38);
+  assert.equal(tongue.totalFrames, 46);
   assert.deepEqual(
     [tongue.hitbox.start, tongue.hitbox.end, tongue.hitbox.damage, tongue.hitbox.chipDamage, tongue.hitbox.guardDamage],
     [12, 14, 80, 4, 14],

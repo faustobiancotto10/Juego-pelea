@@ -27,7 +27,7 @@ function collectUntil(sim, predicate, maxFrames, p1 = EMPTY_INPUT, p2 = EMPTY_IN
   return { snap, events };
 }
 
-test('SUPER has no passive gain and damage dealt is more efficient than damage received', () => {
+test('SUPER has no passive gain and clean Special rewards use the V0.5 category rates', () => {
   const neutral = new CombatSimulation('chameleon', 'supernariz', { skipIntro: true });
   const neutralSnap = stepN(neutral, 180);
   assert.equal(neutralSnap.fighters[0].superMeter, 0);
@@ -42,10 +42,9 @@ test('SUPER has no passive gain and damage dealt is more efficient than damage r
     30,
   );
 
-  assert.equal(snap.fighters[1].health, 908);
-  assert.ok(snap.fighters[0].superMeter > snap.fighters[1].superMeter);
-  assert.ok(snap.fighters[0].superMeter > 10);
-  assert.ok(snap.fighters[1].superMeter > 4);
+  assert.equal(snap.fighters[1].health, 920);
+  assert.equal(snap.fighters[0].superMeter, 8);
+  assert.equal(snap.fighters[1].superMeter, 4.4);
 });
 
 test('SUPER READY is capped and emits once when damage crosses the threshold', () => {
@@ -75,7 +74,7 @@ test('ultimate startup keeps full meter until the exact capture-commit transitio
   assert.equal(snap.fighters[0].superMeter, 100);
   assert.ok(snap.events.some((event) => event.type === 'ultimate-start'));
 
-  snap = stepN(sim, 8);
+  snap = stepN(sim, 21);
   assert.equal(snap.fighters[0].ultimatePhase, 'startup');
   assert.equal(snap.fighters[0].superMeter, 100);
 
@@ -87,13 +86,14 @@ test('ultimate startup keeps full meter until the exact capture-commit transitio
 
 test('Camaleoni ultimate ignores guard on valid capture and defender inputs cannot break the guaranteed sequence', () => {
   const sim = new CombatSimulation('chameleon', 'supernariz', { skipIntro: true, initialSuper: [100, 0] });
-  closeFighters(sim, 48);
+  sim.fighters[0].x = 1070;
+  sim.fighters[1].x = 1190;
 
   sim.step(input({ ultimate: true }), input({ right: true }));
   const { snap: captured, events } = collectUntil(
     sim,
     (_s, seen) => seen.some((event) => event.type === 'ultimate-capture'),
-    35,
+    60,
     EMPTY_INPUT,
     input({ right: true }),
   );
@@ -116,13 +116,14 @@ test('Camaleoni ultimate ignores guard on valid capture and defender inputs cann
 
 test('Supernariz ultimate captures through guard and lands the same 190 total-damage band', () => {
   const sim = new CombatSimulation('supernariz', 'chameleon', { skipIntro: true, initialSuper: [100, 0] });
-  closeFighters(sim, 48);
+  sim.fighters[0].x = 1070;
+  sim.fighters[1].x = 1190;
 
   sim.step(input({ ultimate: true }), input({ right: true }));
   const { events } = collectUntil(
     sim,
     (_s, seen) => seen.some((event) => event.type === 'ultimate-capture'),
-    45,
+    70,
     EMPTY_INPUT,
     input({ right: true }),
   );
@@ -151,11 +152,13 @@ test('jumping out of Camaleoni capture height can evade the unblockable ultimate
   const sim = new CombatSimulation('chameleon', 'supernariz', { skipIntro: true, initialSuper: [100, 0] });
   closeFighters(sim, 48);
 
-  sim.step(input({ ultimate: true }), input({ jump: true }));
+  sim.step(input({ ultimate: true }), EMPTY_INPUT);
+  stepN(sim, 12);
+  sim.step(EMPTY_INPUT, input({ jump: true }));
   const { events } = collectUntil(
     sim,
     (_s, seen) => seen.some((event) => event.type === 'ultimate-whiff' || event.type === 'ultimate-capture'),
-    45,
+    70,
     EMPTY_INPUT,
     EMPTY_INPUT,
   );
@@ -200,39 +203,56 @@ test('Push Guard request is inert in neutral and cannot spend GUARD', () => {
   assert.equal(snap.events.some((event) => event.type === 'push-guard'), false);
 });
 
-test('Camaleoni keeps Lengua mappings and adds Coletazo on up+SPECIAL', () => {
+test('Camaleoni final Special grammar maps neutral/up to Lengua and down to Coletazo', () => {
   const neutral = new CombatSimulation('chameleon', 'supernariz', { skipIntro: true });
   assert.equal(neutral.step(input({ special: true }), EMPTY_INPUT).fighters[0].moveId, 'tongueStraight');
 
-  const low = new CombatSimulation('chameleon', 'supernariz', { skipIntro: true });
-  assert.equal(low.step(input({ down: true, special: true }), EMPTY_INPUT).fighters[0].moveId, 'tongueLow');
-
   const close = new CombatSimulation('chameleon', 'supernariz', { skipIntro: true });
-  assert.equal(close.step(input({ up: true, special: true }), EMPTY_INPUT).fighters[0].moveId, 'coletazo');
+  assert.equal(close.step(input({ down: true, special: true }), EMPTY_INPUT).fighters[0].moveId, 'coletazo');
+
+  const up = new CombatSimulation('chameleon', 'supernariz', { skipIntro: true });
+  assert.equal(up.step(input({ up: true, special: true }), EMPTY_INPUT).fighters[0].moveId, 'tongueStraight');
 });
 
-test('CPU uses V0.3 actions contextually instead of spending SUPER immediately', () => {
+test('CPU uses delayed seeded actions contextually instead of spending SUPER immediately', () => {
   const sim = new CombatSimulation('chameleon', 'supernariz', { skipIntro: true, initialSuper: [0, 100] });
-  const cpu = new CpuController(1);
-  const first = structuredClone(sim.getSnapshot());
-  first.frame = 1;
-  first.fighters[0].x = 500;
-  first.fighters[1].x = 680;
-  assert.equal(Boolean(cpu.nextInput(first).ultimate), false);
+  const base = structuredClone(sim.getSnapshot());
+  base.fighters[0].x = 500;
+  base.fighters[1].x = 680;
 
-  const opportunity = structuredClone(first);
-  opportunity.frame = 60;
-  const action = new CpuController(1).nextInput(opportunity);
-  assert.equal(action.ultimate, true);
+  const immediate = new CpuController(1, { seed: 17 });
+  const first = structuredClone(base);
+  first.combatTick = 0;
+  first.frame = 0;
+  assert.equal(Boolean(immediate.nextInput(first).ultimate), false, 'READY alone cannot create a current-frame oracle Ultimate');
 
-  const pressured = structuredClone(first);
-  pressured.frame = 12;
+  let someUltimate = false;
+  let someNoUltimate = false;
+  for (let seed = 1; seed <= 32; seed += 1) {
+    const cpu = new CpuController(1, { seed });
+    let used = false;
+    for (let tick = 0; tick < 48; tick += 1) {
+      const snap = structuredClone(base);
+      snap.combatTick = tick;
+      snap.frame = tick;
+      if (cpu.nextInput(snap).ultimate) used = true;
+    }
+    someUltimate ||= used;
+    someNoUltimate ||= !used;
+  }
+  assert.equal(someUltimate, true);
+  assert.equal(someNoUltimate, true);
+
+  const pressuredCpu = new CpuController(1, { seed: 7 });
+  const pressured = structuredClone(base);
+  pressured.combatTick = 0;
+  pressured.frame = 0;
   pressured.fighters[1].blockstunFrames = 6;
   pressured.fighters[1].guard = 100;
   pressured.fighters[0].x = 570;
   pressured.fighters[1].x = 680;
-  const defense = new CpuController(1).nextInput(pressured);
-  assert.equal(defense.pushGuard, true);
+  const defense = pressuredCpu.nextInput(pressured);
+  assert.equal(defense.right, true, 'own blockstun can immediately maintain legal away guard');
 });
 
 test('identical V0.3 input streams produce identical snapshots and event ordering', () => {

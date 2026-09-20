@@ -69,6 +69,8 @@ export interface FighterSnapshot {
   guardRegenDelay: number;
   guardBreakFrames: number;
   grounded: boolean;
+  jumpStartupFrames: number;
+  airborneTicks: number;
   crouching: boolean;
   blocking: boolean;
   stunFrames: number;
@@ -155,6 +157,8 @@ export type CombatEvent =
   | { type: 'ultimate-capture'; attacker: FighterIndex; defender: FighterIndex }
   | { type: 'ultimate-whiff'; attacker: FighterIndex }
   | { type: 'push-guard'; defender: FighterIndex; attacker: FighterIndex }
+  | { type: 'jump-start'; fighter: FighterIndex }
+  | { type: 'takeoff'; fighter: FighterIndex }
   | { type: 'land'; fighter: FighterIndex }
   | { type: 'ultimate-release'; attacker: FighterIndex; defender: FighterIndex }
   | { type: 'ultimate-clash'; clashId: number; fighters: readonly [FighterIndex, FighterIndex]; x: number; y: number }

@@ -64,6 +64,7 @@ interface FighterState extends FighterSnapshot {
   downGraceSamples: number;
   ultimateReleaseSource: FighterIndex | null;
   ultimateSequenceStartX: number | null;
+  jumpTakeoffDirection: -1 | 0 | 1;
 }
 
 interface ProjectileState extends ProjectileSnapshot {
@@ -136,6 +137,8 @@ function makeFighter(registry: CombatRegistry, id: RegisteredFighterId, index: F
     guardRegenDelay: 0,
     guardBreakFrames: 0,
     grounded: true,
+    jumpStartupFrames: 0,
+    airborneTicks: 0,
     crouching: false,
     blocking: false,
     stunFrames: 0,
@@ -176,6 +179,7 @@ function makeFighter(registry: CombatRegistry, id: RegisteredFighterId, index: F
     downGraceSamples: 0,
     ultimateReleaseSource: null,
     ultimateSequenceStartX: null,
+    jumpTakeoffDirection: 0,
   };
 }
 
@@ -194,6 +198,8 @@ function cloneFighter(f: FighterState): FighterSnapshot {
     guardRegenDelay: f.guardRegenDelay,
     guardBreakFrames: f.guardBreakFrames,
     grounded: f.grounded,
+    jumpStartupFrames: f.jumpStartupFrames,
+    airborneTicks: f.airborneTicks,
     crouching: f.crouching,
     blocking: f.blocking,
     stunFrames: f.stunFrames,
@@ -455,13 +461,19 @@ export class CombatSimulation {
     }
 
     if (command.action === 'jump') {
-      if (!fighter.grounded) return false;
+      if (!fighter.grounded || fighter.jumpStartupFrames > 0) return false;
       fighter.pendingCommand = null;
-      fighter.vy = def.jumpSpeed;
-      fighter.grounded = false;
+      fighter.jumpStartupFrames = 2;
+      fighter.airborneTicks = 0;
+      fighter.jumpTakeoffDirection = command.direction.left === command.direction.right
+        ? 0
+        : command.direction.left ? -1 : 1;
+      fighter.vx = 0;
+      fighter.vy = 0;
       fighter.crouching = false;
       fighter.blocking = false;
-      return false;
+      this.events.push({ type: 'jump-start', fighter: index });
+      return true;
     }
 
     return false;
@@ -575,6 +587,28 @@ export class CombatSimulation {
         fighter.vx = 0;
         return;
       }
+    }
+
+    if (fighter.jumpStartupFrames > 0) {
+      fighter.jumpStartupFrames -= 1;
+      fighter.blocking = false;
+      fighter.crouching = false;
+      fighter.dashKind = null;
+      fighter.dashFrame = 0;
+      fighter.vx = 0;
+      fighter.vy = 0;
+
+      if (fighter.jumpStartupFrames === 0) {
+        fighter.vx = fighter.jumpTakeoffDirection * def.walkSpeed;
+        fighter.vy = def.jumpSpeed;
+        fighter.grounded = false;
+        fighter.jumpTakeoffDirection = 0;
+        fighter.x += fighter.vx;
+        this.integrateVertical(fighter, def.gravity);
+        this.clampFighter(fighter);
+        this.events.push({ type: 'takeoff', fighter: index });
+      }
+      return;
     }
 
     if (fighter.ultimatePhase !== 'idle') {
@@ -817,8 +851,20 @@ export class CombatSimulation {
     }
   }
 
+  private cancelJumpPreparation(fighter: FighterState): void {
+    fighter.jumpStartupFrames = 0;
+    fighter.jumpTakeoffDirection = 0;
+    if (fighter.grounded) {
+      fighter.vy = 0;
+      fighter.airborneTicks = 0;
+    }
+  }
+
   private integrateVertical(fighter: FighterState, gravity: number): void {
-    if (fighter.grounded && fighter.y === 0 && fighter.vy === 0) return;
+    if (fighter.grounded && fighter.y === 0 && fighter.vy === 0) {
+      fighter.airborneTicks = 0;
+      return;
+    }
     const wasGrounded = fighter.grounded;
     fighter.y += fighter.vy;
     fighter.vy -= gravity;
@@ -826,14 +872,16 @@ export class CombatSimulation {
       fighter.y = 0;
       fighter.vy = 0;
       fighter.grounded = true;
+      fighter.airborneTicks = 0;
       if (!wasGrounded) {
         fighter.vx = 0;
-        fighter.landingRecoveryFrames = 4;
+        fighter.landingRecoveryFrames = fighter.clashRecoveryFrames > 0 ? 0 : 4;
         const index = this.fighters.indexOf(fighter) as FighterIndex;
         this.events.push({ type: 'land', fighter: index });
       }
     } else {
       fighter.grounded = false;
+      fighter.airborneTicks += 1;
     }
   }
 
@@ -893,6 +941,7 @@ export class CombatSimulation {
         this.damageGuard(defenderIndex, hitbox.guardDamage);
       } else {
         actualDamage = this.applyDamage(attackerIndex, defenderIndex, hitbox.damage, source, false);
+        this.cancelJumpPreparation(defender);
         defender.stunFrames = hitbox.hitstun;
         defender.blocking = false;
         defender.vx = attacker.facing * hitbox.knockback;
@@ -928,6 +977,7 @@ export class CombatSimulation {
       && isAwayHeld(input, defender.facing)
       && levelAllowsBlock
       && defender.currentMove === null
+      && defender.jumpStartupFrames === 0
       && defender.ultimatePhase === 'idle'
       && defender.dashKind === null
       && defender.stunFrames === 0
@@ -963,6 +1013,7 @@ export class CombatSimulation {
     defender.blocking = false;
     if (defender.pendingCommand?.intent.action === 'pushGuard') defender.pendingCommand = null;
     defender.guardBreakFrames = GUARD_BREAK_FRAMES;
+    this.cancelJumpPreparation(defender);
     defender.vx *= 0.5;
     this.events.push({ type: 'guard-break', defender: defenderIndex });
   }
@@ -1000,6 +1051,9 @@ export class CombatSimulation {
     fighter.guardBreakFrames = 0;
     fighter.dashKind = null;
     fighter.dashFrame = 0;
+    fighter.jumpStartupFrames = 0;
+    fighter.jumpTakeoffDirection = 0;
+    fighter.airborneTicks = 0;
     fighter.landingRecoveryFrames = 0;
     fighter.pushGuardRecoveryFrames = 0;
     fighter.pendingCommand = null;
@@ -1365,6 +1419,7 @@ export class CombatSimulation {
       this.applyCornerBlockTransfer(projectile.owner, defenderIndex, definition.cornerTransferKnockback);
       this.damageGuard(defenderIndex, contact.guardDamage);
     } else {
+      this.cancelJumpPreparation(defender);
       defender.stunFrames = contact.hitstun;
       defender.blocking = false;
       defender.vx = travelDirection * contact.knockback;
@@ -1897,6 +1952,9 @@ export class CombatSimulation {
       fighter.guardBreakFrames = 0;
       fighter.dashKind = null;
       fighter.dashFrame = 0;
+      fighter.jumpStartupFrames = 0;
+      fighter.jumpTakeoffDirection = 0;
+      fighter.airborneTicks = 0;
       fighter.landingRecoveryFrames = 0;
       fighter.pushGuardRecoveryFrames = 0;
       fighter.pendingCommand = null;
@@ -2070,6 +2128,9 @@ export class CombatSimulation {
     defender.comboCount = 0;
     defender.dashKind = null;
     defender.dashFrame = 0;
+    defender.jumpStartupFrames = 0;
+    defender.jumpTakeoffDirection = 0;
+    defender.airborneTicks = 0;
     defender.landingRecoveryFrames = 0;
     defender.pushGuardRecoveryFrames = 0;
     defender.stunFrames = 0;
@@ -2280,6 +2341,7 @@ export class CombatSimulation {
   private updateFacing(): void {
     const canReorient = (fighter: FighterState): boolean => fighter.grounded
       && fighter.currentMove === null
+      && fighter.jumpStartupFrames === 0
       && fighter.ultimatePhase === 'idle'
       && fighter.stunFrames === 0
       && fighter.blockstunFrames === 0
@@ -2366,6 +2428,9 @@ export class CombatSimulation {
       fighter.guardRegenDelay = 0;
       fighter.guardBreakFrames = 0;
       fighter.grounded = true;
+      fighter.jumpStartupFrames = 0;
+      fighter.jumpTakeoffDirection = 0;
+      fighter.airborneTicks = 0;
       fighter.crouching = false;
       fighter.blocking = false;
       fighter.chilledFrames = 0;

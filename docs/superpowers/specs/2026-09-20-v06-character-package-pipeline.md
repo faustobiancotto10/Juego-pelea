@@ -44,7 +44,7 @@ A new fighter using existing primitives should require **zero universal simulati
 
 Neureon freezes ID, bindings, move/frame conventions, collision dimensions, required events/fields, visual keys and reference identity. Numeric balance tuning may continue later only within these meanings; a schema or timeline change that affects Mario/Brancaforte requires one concise forum contract update with accepted SHA.
 
-Ricardo then owns runtime data/physics/CPU. Mario owns rig/presentation and can build against deterministic snapshot fixtures immediately; he does not wait for gameplay QA to begin art. Brancaforte owns selection/help/availability states against metadata fixtures. Germinator starts adversarial cases from the written contract and later runs the actual integrated code. Gonza prepares reproducible build/parity tooling independently, then integrates accepted deltas. No developer may import another branch's stale coordination state.
+R004 uses the project's canonical delivery order: **Ricardo → Germinator → Mario + Brancaforte → Gonza**. Ricardo owns runtime data/physics/CPU and finishes the gameplay/core chain first. Germinator independently audits that gameplay/core candidate. Only after a green Germinator verdict do Mario and Brancaforte implement the final rendering/UI lanes in parallel. Gonza acts last: integration, complete build/parity verification and release. No developer may import another branch's stale coordination state.
 
 Only one role edits a shared file at a time. Stable interface change goes through its owner; do not let each agent invent slightly different fields. Fixture snapshots must conform to the actual shared exported types and include reset/default values; fixtures are not runtime fakes shipped to users.
 

@@ -297,3 +297,34 @@ test('major Ultimate presentation reads published majorImpact instead of guessin
   assert.match(source, /peakImpact = majorImpact \|\| ultimateFinisher/);
   assert.match(source, /stageReactionTicks/);
 });
+
+
+test('Clash freeze uses a grounded brace and launch uses recoil instead of jump-prep language', () => {
+  const tracker = new LocomotionPoseTracker();
+  const base = baseFighter('juanchi');
+  const freeze = tracker.sample(0, travelSnapshot(base, 1, {
+    x: 420,
+    y: 0,
+    vx: -16,
+    vy: 8,
+    grounded: false,
+    clashRecoveryFrames: 30,
+    airborneTicks: 0,
+  }), 40, 12);
+  assert.equal(freeze.clashBrace, 1);
+  assert.equal(freeze.extension, 0);
+  assert.ok(freeze.torsoLean > 0.1);
+
+  const launch = tracker.sample(0, travelSnapshot(base, 2, {
+    x: 404,
+    y: 8,
+    vx: -14.4,
+    vy: 7.2,
+    grounded: false,
+    clashRecoveryFrames: 29,
+    airborneTicks: 0,
+  }), 41, 13);
+  assert.equal(launch.clashBrace, 0);
+  assert.equal(launch.clashRecoil, 1);
+  assert.ok(launch.torsoLean < 0);
+});

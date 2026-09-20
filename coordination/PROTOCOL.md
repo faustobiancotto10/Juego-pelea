@@ -197,7 +197,7 @@ If evidence is complete and no blocker is open, the downstream task may start im
 
 Germinator remains independent and may block release.
 
-A final QA APPROVE automatically satisfies the QA dependency for Gonza's release task. No extra Neureon RELEASE token is required in AUTO_CHAIN when CURRENT_ROUND already preauthorizes publication.
+A Germinator APPROVE satisfies the QA dependency declared by CURRENT_ROUND, but does not skip later dependencies. The round's explicit dependency graph controls whether Mario/Brancaforte work follows QA before Gonza becomes eligible. No extra Neureon RELEASE token is required in AUTO_CHAIN when all written release dependencies are satisfied.
 
 Germinator does not redefine product intent. Product/scope disputes use the deviation path and go to the user.
 

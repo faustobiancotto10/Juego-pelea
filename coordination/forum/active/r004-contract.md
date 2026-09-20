@@ -71,3 +71,39 @@ Expected integration seam:
 - Gonza: final composition passes the resolved StageDefinition into FightRenderer using M2's accepted constructor contract.
 
 This preserves parallel ownership and avoids a temporary UI-owned stage renderer.
+
+
+## 005 — Brancaforte
+To: @Mario @Gonza @Neureon
+Type: HANDOFF
+Task: V06-B1
+Status: GREEN
+Message:
+V06-B1 is complete on exact SHA `81647506d2e69b92dd92e19f2fc997d21949a4a9`, based directly on accepted G1 product `d815694a76a7a92c004203f1ae9fd14e2035744c`.
+
+TDD evidence:
+- RED run `35537255220` (#842): 10 intended V0.6 UI/flow failures.
+- GREEN run `35537585227` (#848): **255/255 PASS + build PASS**.
+
+Delivered:
+- cover-first COMENZAR/CONTROLES front end;
+- registry-driven player/opponent selection for Camaleoni/Supernariz/Juanchi;
+- selected-state + info/confirm UI;
+- standard/compact/dense 3/5/10 roster modes;
+- stage select for `tramontana-dusk` / `cancha-56`;
+- stage carried through VS/fight/result/rematch;
+- result rematch/change-fighters/change-stage paths;
+- metadata-driven ranged availability HUD (`LISTA / EN VUELO / REARME`);
+- three-fighter control copy with the established four action buttons;
+- safe-area/focus/touch/phone-landscape styling;
+- no runtime Juanchi master/sheet raster use;
+- no simulation/render/gameplay authority moved into UI.
+
+Formal handoff:
+`coordination/handoffs/V06-B1-brancaforte.md`.
+
+Cross-role seam remains as message 004: B1 owns only the stage ID in match flow; M2 owns StageRegistry/StageDefinition; Gonza performs final renderer wiring after M2 green.
+
+B1 locks are released. The G1+B1 dependency side is satisfied. Gonza remains blocked only on Mario M2.
+
+Evidence boundary: physical iPhone Safari/tactile feel is not claimed by this runtime and remains a final served-product integration check.

@@ -14,3 +14,5 @@ Ownership reservations are defined in task contracts; an agent creates a live lo
 | src/game/simulation/ultimateArbitration.ts | Ricardo | V06-R2 | capCapture confrontation volume |
 | tests/combat-v06-juanchi.test.mjs | Ricardo | V06-R2 | Juanchi primitive acceptance matrix |
 | tests/character-content-v06.test.mjs | Ricardo | V06-R2 | update R0 pre-R2 roster assertions after Juanchi release |
+| tests/fighter-registry-v05.test.mjs | Ricardo | V06-R2 | update released-roster expectation from 2 to 3 while preserving fourth-fixture isolation |
+| tests/fighters.test.mjs | Ricardo | V06-R2 | update legacy two-fighter roster assertion to V0.6 released roster |

@@ -1,52 +1,46 @@
 # Current Milestone
 
-**Official published root:** V0.4 until V0.6 release completes.  
-**Last closed development milestone:** V0.5 preview / R003.  
-**Live round:** `R004-V06-CONTENT-EXPANSION` — ACTIVE / AUTO_CHAIN.
+**Official published version:** V0.6  
+**Product merge:** `60f30d4a100f3d853e2408e3eee7bbde4e2170fe`  
+**GitHub Pages publish:** `93d2fdd6f4b764a49fa70ad1ff6ac1f348fb85cc`  
+**Public standalone blob:** `bda2d2a16a0cd640f654b3b9c7aef148b7213f38`  
+**Live round:** none / IDLE
 
-## V0.6 active execution — 2026-09-20
+Public build:
+https://faustobiancotto10.github.io/Juego-pelea/
 
-Exact product base:
-`2d8c41dc994c8cddaa4c9fe2b3ee957698e94f13`
+## V0.6 closure
 
-QA reference:
-`2876f3bce7d77c04c7415df89cafcf8b31f1b61c`
+R004 is closed:
+- `coordination/archive/R004-V06-CONTENT-EXPANSION.md`
 
-Feature branches were created from the exact V0.5 product base. Main remains authoritative for live coordination/docs.
-
-Round scope:
-- Juanchi third fighter;
-- Rugby Boomerang, Fricción, Police Cap Rage;
+V0.6 delivered:
+- Juanchi;
+- Rugby Boomerang / Fricción / Police Cap Rage;
 - Universal Ultimate Clash;
-- physical locomotion all three fighters;
-- bounded Lengua/Ultimate follow-through;
-- Cancha 56 night rugby-party stage with spectators/ambient life;
-- title/cover + COMENZAR + scalable fighter/opponent select + stage select + VS;
-- reusable Character Package/content/render/UI production path;
-- final adversarial/device QA and reproducible release.
+- content/presentation package architecture;
+- physical animation pass;
+- Cancha 56;
+- fighting-game front-end flow;
+- final deterministic integration and release verification.
 
-Execution is AUTO_CHAIN. Ricardo R0 and Gonza Z0 are immediately eligible. Green handoffs unlock downstream tasks without Neureon approval. Blockers/contract changes are reported to the user; Neureon audits/replans when requested.
+## Post-release findings
 
-## Juanchi references
+The user's published-build playtest is preserved at:
+- `docs/feedback/2026-09-20-v06-post-release-playtest.md`
 
-The user supplied:
-- identity master source SHA-256 `05c1f7107c49caa65bb719ce6ca17c45f47f2667523f77d7214ed82b6d3226b8`;
-- action-sheet source SHA-256 `981912f6c3aed94dd51ccef0356045ffa5395814daeb559bf264cb59692e8639`.
+Primary next-version concerns:
+- Lengua still too dominant/spammable;
+- CPU too easy; explicit difficulties requested;
+- Juanchi walk still looks wrong;
+- attack animations/effects do not reach character-design quality; Juanchi red aura is notably missing;
+- new fighter requested: El Toro.
 
-Identity master controls likeness/outfit/proportions. Action sheet guides pose/action language. They are authoring references only, never runtime fighter images.
+El Toro intake:
+- `docs/characters/el-toro/PACKAGE.md`
 
-See `docs/characters/juanchi/PACKAGE.md`.
+## Next action
 
-## V0.5 historical status
+No V0.7 implementation round exists yet.
 
-R003 is closed and retained only as `coordination/archive/R003-V05-COMBAT-LOOP.md`.
-
-V0.5 was never promoted to official root. Its isolated preview remains historical development evidence. Old V0.5 operational tasks, handoffs, plan, forum threads and execution audit have been removed. R003 survives only as the historical archive plus durable historical decisions; R004 is the only executable instruction set.
-
-## V0.6 authority
-
-- `coordination/CURRENT_ROUND.md`
-- `coordination/tasks/V06-*.md`
-- `coordination/forum/active/r004-*.md`
-- `docs/superpowers/specs/2026-09-20-v06-*.md`
-- `docs/characters/juanchi/**`
+The next action is an external Astra audit/planning intervention against the released V0.6 codebase. Astra should inspect evidence, design the next bounded version and write implementation-ready documents to the repository. Production agents remain OFF_ROUND until Neureon later forms a new round from that audit.

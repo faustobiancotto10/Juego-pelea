@@ -69,8 +69,8 @@ Reserve shared files before material edits. Never edit a file locked by another 
 
 ## Verification evidence
 
-- confirm all required agents posted PRESENT;
-- confirm tasks, reviews and blockers are satisfied;
+- confirm the round/task dependency graph is internally coherent;
+- confirm required green handoffs and blockers are represented truthfully;
 - confirm Germinator's QA verdict;
 - confirm Gonza's integration/release evidence when release is required;
 - confirm archive/reset before claiming the round is closed.

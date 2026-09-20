@@ -5,6 +5,7 @@ export type Facing = -1 | 1;
 export type MatchPhase = 'intro' | 'fight' | 'round-over' | 'match-over';
 export type DashKind = 'forward' | 'back' | null;
 export type UltimatePhase = 'idle' | 'startup' | 'capture' | 'sequence' | 'recovery';
+export type ClashPhase = 'freeze' | 'launch';
 export type MoveContact = 'none' | 'hit' | 'block';
 export type HitSource = 'normal' | 'special' | 'projectile' | 'ultimate';
 export type CombatAction = 'attack' | 'special' | 'jump' | 'ultimate' | 'pushGuard';
@@ -78,6 +79,10 @@ export interface FighterSnapshot {
   ultimatePhaseFrame: number;
   ultimateConnected: boolean;
   ultimateTarget: FighterIndex | null;
+  /** First advancing tick on which this committed Ultimate can affect the opponent. */
+  ultimateEffectiveTick: number | null;
+  /** Shared bilateral lock after an accepted Universal Ultimate Clash. */
+  clashRecoveryFrames: number;
   /** Simulation-owned defender capture lock. Renderer may consume but never infer it. */
   capturedBy: FighterIndex | null;
   roundWins: number;
@@ -93,6 +98,13 @@ export interface ProjectileSnapshot {
   active: boolean;
 }
 
+export interface ClashSnapshot {
+  id: number;
+  phase: ClashPhase;
+  launchTick: number | null;
+  remainingLaunchTicks: number;
+}
+
 export interface MatchSnapshot {
   frame: number;
   /** Advancing fight-step clock: frozen by hitstop and outside active fighting. */
@@ -101,6 +113,7 @@ export interface MatchSnapshot {
   round: number;
   roundTimerFrames: number;
   hitstopFrames: number;
+  clash: ClashSnapshot | null;
   winner: FighterIndex | null;
   roundWinner: FighterIndex | null;
   fighters: readonly [FighterSnapshot, FighterSnapshot];
@@ -119,6 +132,7 @@ export type CombatEvent =
   | { type: 'push-guard'; defender: FighterIndex; attacker: FighterIndex }
   | { type: 'land'; fighter: FighterIndex }
   | { type: 'ultimate-release'; attacker: FighterIndex; defender: FighterIndex }
+  | { type: 'ultimate-clash'; clashId: number; fighters: readonly [FighterIndex, FighterIndex]; x: number; y: number }
   | { type: 'round-start'; round: number }
   | { type: 'round-end'; winner: FighterIndex | null }
   | { type: 'match-end'; winner: FighterIndex };

@@ -1,7 +1,8 @@
 import { DEFAULT_COMBAT_REGISTRY, type CombatRegistry } from '../data/combatRegistry.js';
 import type { UltimateDefinition } from '../data/ultimates.js';
-import { EMPTY_INPUT, type CombatAction, type CombatEvent, type CommandIntent, type Facing, type HitSource, type RegisteredFighterId, type FighterIndex, type FighterSnapshot, type InputFrame, type MatchSnapshot, type MatchPhase, type ProjectileSnapshot } from '../types.js';
+import { EMPTY_INPUT, type ClashSnapshot, type CombatAction, type CombatEvent, type CommandIntent, type Facing, type HitSource, type RegisteredFighterId, type FighterIndex, type FighterSnapshot, type InputFrame, type MatchSnapshot, type MatchPhase, type ProjectileSnapshot } from '../types.js';
 import type { MoveDefinition } from './moves.js';
+import { buildUltimateConfrontationVolume, findUltimateClashIntersection, type UltimateConfrontationProposal, type UltimateClashIntersection } from './ultimateArbitration.js';
 
 const ARENA_MIN_X = 90;
 const ARENA_MAX_X = 1190;
@@ -44,6 +45,11 @@ interface PendingUltimateRelease {
   attacker: FighterIndex;
   defender: FighterIndex;
   definition: UltimateDefinition;
+}
+
+interface ClashState extends ClashSnapshot {
+  left: FighterIndex;
+  right: FighterIndex;
 }
 
 interface FighterState extends FighterSnapshot {
@@ -140,6 +146,8 @@ function makeFighter(registry: CombatRegistry, id: RegisteredFighterId, index: F
     ultimatePhaseFrame: 0,
     ultimateConnected: false,
     ultimateTarget: null,
+    ultimateEffectiveTick: null,
+    clashRecoveryFrames: 0,
     dashKind: null,
     dashFrame: 0,
     landingRecoveryFrames: 0,
@@ -190,6 +198,8 @@ function cloneFighter(f: FighterState): FighterSnapshot {
     ultimatePhaseFrame: f.ultimatePhaseFrame,
     ultimateConnected: f.ultimateConnected,
     ultimateTarget: f.ultimateTarget,
+    ultimateEffectiveTick: f.ultimateEffectiveTick,
+    clashRecoveryFrames: f.clashRecoveryFrames,
     capturedBy: f.capturedBy,
     dashKind: f.dashKind,
     dashFrame: f.dashFrame,
@@ -224,6 +234,8 @@ export class CombatSimulation {
   private projectiles: ProjectileState[] = [];
   private nextProjectileId = 1;
   private pendingUltimateReleases: PendingUltimateRelease[] = [];
+  private clash: ClashState | null = null;
+  private nextClashId = 1;
 
   constructor(p1: RegisteredFighterId, p2: RegisteredFighterId, options: CombatSimulationOptions = {}) {
     this.registry = options.registry ?? DEFAULT_COMBAT_REGISTRY;
@@ -243,6 +255,12 @@ export class CombatSimulation {
       round: this.round,
       roundTimerFrames: this.roundTimerFrames,
       hitstopFrames: this.hitstopFrames,
+      clash: this.clash ? {
+        id: this.clash.id,
+        phase: this.clash.phase,
+        launchTick: this.clash.launchTick,
+        remainingLaunchTicks: this.clash.remainingLaunchTicks,
+      } : null,
       winner: this.winner,
       roundWinner: this.roundWinner,
       fighters: [cloneFighter(this.fighters[0]), cloneFighter(this.fighters[1])],
@@ -288,7 +306,10 @@ export class CombatSimulation {
       return this.getSnapshot();
     }
 
-    this.captureCommands(inputs);
+    const clashBufferOpen = this.clash?.phase === 'launch'
+      && this.clash.remainingLaunchTicks <= COMMAND_BUFFER_FRAMES;
+    if (this.clash === null || clashBufferOpen) this.captureCommands(inputs);
+    else this.clearPendingActionCommands();
 
     if (this.hitstopFrames > 0) {
       this.hitstopFrames -= 1;
@@ -297,6 +318,20 @@ export class CombatSimulation {
     }
 
     this.combatTick += 1;
+
+    if (this.clash !== null) {
+      this.advanceClashLaunch();
+      this.roundTimerFrames = Math.max(0, this.roundTimerFrames - 1);
+      const clashEnded = this.clash === null;
+      const roundShouldEnd = this.fighters[0].health <= 0
+        || this.fighters[1].health <= 0
+        || this.roundTimerFrames <= 0;
+      if (clashEnded && roundShouldEnd) this.finishRound();
+      this.agePendingCommands();
+      this.saveInputs(inputs);
+      return this.getSnapshot();
+    }
+
     this.updateFacing();
 
     for (const index of [0, 1] as const) {
@@ -306,17 +341,22 @@ export class CombatSimulation {
     this.applyPendingUltimateReleases();
     this.resolvePushboxes();
     this.updateFacing();
+
+    // Ordinary attacks/projectiles always get their shared-tick interruption
+    // opportunity before an unconfirmed Ultimate proposal can Clash/capture.
     this.resolveMoveHits(0, 1, inputs[1]);
     this.resolveMoveHits(1, 0, inputs[0]);
     this.updateProjectiles(inputs);
     this.cancelInterruptedMoves();
+
+    this.resolveUltimateArbitration();
 
     if (this.phase === 'fight') {
       this.roundTimerFrames = Math.max(0, this.roundTimerFrames - 1);
       const roundShouldEnd = this.fighters[0].health <= 0
         || this.fighters[1].health <= 0
         || this.roundTimerFrames <= 0;
-      if (roundShouldEnd && !this.hasActiveUltimateSequence()) this.finishRound();
+      if (roundShouldEnd && this.clash === null && !this.hasActiveUltimateSequence()) this.finishRound();
     }
 
     this.agePendingCommands();
@@ -570,6 +610,13 @@ export class CombatSimulation {
 
     this.integrateVertical(fighter, def.gravity);
     this.clampFighter(fighter);
+  }
+
+  private clearPendingActionCommands(): void {
+    for (const fighter of this.fighters) {
+      fighter.pendingCommand = null;
+      fighter.downGraceSamples = 0;
+    }
   }
 
   private captureCommands(inputs: readonly [InputFrame, InputFrame]): void {
@@ -900,6 +947,8 @@ export class CombatSimulation {
     fighter.ultimatePhaseFrame = 0;
     fighter.ultimateConnected = false;
     fighter.ultimateTarget = null;
+    fighter.ultimateEffectiveTick = null;
+    fighter.clashRecoveryFrames = 0;
     fighter.capturedBy = null;
     this.clearMove(fighter);
   }
@@ -1000,6 +1049,7 @@ export class CombatSimulation {
     fighter.ultimatePhaseFrame = 0;
     fighter.ultimateConnected = false;
     fighter.ultimateTarget = null;
+    fighter.ultimateEffectiveTick = null;
     fighter.ultimateFacing = fighter.facing;
     fighter.vx = 0;
     fighter.blocking = false;
@@ -1035,8 +1085,8 @@ export class CombatSimulation {
     }
 
     if (fighter.ultimatePhase === 'capture') {
-      if (definition.kind === 'dashCapture') this.updateDashCapture(index, definition);
-      else this.updateSuctionCapture(index, definition);
+      // Capture movement/pull is only proposed here. Common arbitration runs
+      // after ordinary strike/projectile contacts for both slots.
       return;
     }
 
@@ -1053,60 +1103,345 @@ export class CombatSimulation {
     }
   }
 
-  private updateDashCapture(index: FighterIndex, definition: UltimateDefinition): void {
-    const attacker = this.fighters[index];
-    const defenderIndex: FighterIndex = index === 0 ? 1 : 0;
-    const defender = this.fighters[defenderIndex];
-    const dashSpeed = definition.dashSpeed ?? 0;
-
-    attacker.x += attacker.ultimateFacing * dashSpeed;
-    this.clampFighter(attacker);
-
-    const signedDistance = (defender.x - attacker.x) * attacker.ultimateFacing;
-    const verticalDistance = Math.abs(defender.y - attacker.y);
-    const inRegion = signedDistance >= 0
-      && signedDistance <= definition.captureReach
-      && verticalDistance <= definition.captureVertical;
-
-    if (inRegion) {
-      this.beginUltimateSequence(index, defenderIndex);
-      return;
-    }
-
-    if (attacker.ultimatePhaseFrame >= definition.captureFrames) {
-      this.enterUltimateWhiffRecovery(index);
-    }
+  private boundedX(x: number): number {
+    return Math.max(ARENA_MIN_X, Math.min(ARENA_MAX_X, x));
   }
 
-  private updateSuctionCapture(index: FighterIndex, definition: UltimateDefinition): void {
-    const attacker = this.fighters[index];
-    const defenderIndex: FighterIndex = index === 0 ? 1 : 0;
-    const defender = this.fighters[defenderIndex];
-    const suctionRange = definition.suctionRange ?? 0;
-    const suctionSpeed = definition.suctionSpeed ?? 0;
-    const captureDistance = definition.captureDistance ?? definition.captureReach;
+  private collectUltimateProposals(): readonly [UltimateConfrontationProposal | null, UltimateConfrontationProposal | null] {
+    const plannedCenters: [number, number] = [this.fighters[0].x, this.fighters[1].x];
 
-    const signedDistance = (defender.x - attacker.x) * attacker.ultimateFacing;
-    const verticalDistance = Math.abs(defender.y - attacker.y);
-    const inField = signedDistance > 0
-      && signedDistance <= suctionRange
-      && verticalDistance <= definition.captureVertical;
+    for (const index of [0, 1] as const) {
+      const fighter = this.fighters[index];
+      if (fighter.ultimatePhase !== 'capture' || fighter.currentMove === null) continue;
+      if (fighter.ultimateEffectiveTick === null) fighter.ultimateEffectiveTick = this.combatTick;
+      const definition = this.activeUltimateDefinition(fighter);
+      if (definition.kind === 'dashCapture') {
+        plannedCenters[index] = this.boundedX(
+          fighter.x + fighter.ultimateFacing * (definition.dashSpeed ?? 0),
+        );
+      } else if (definition.kind !== 'suctionCapture') {
+        const exhaustive: never = definition.kind;
+        throw new Error(`Unsupported Ultimate proposal kind ${String(exhaustive)}`);
+      }
+    }
 
-    if (inField) {
-      const pullDirection = Math.sign(attacker.x - defender.x);
-      defender.x += pullDirection * suctionSpeed;
-      this.clampFighter(defender);
-      const remaining = Math.abs(defender.x - attacker.x);
-      if (remaining <= captureDistance) {
-        this.beginUltimateSequence(index, defenderIndex);
+    const build = (index: FighterIndex): UltimateConfrontationProposal | null => {
+      const fighter = this.fighters[index];
+      if (
+        fighter.ultimatePhase !== 'capture'
+        || fighter.currentMove === null
+        || fighter.ultimateEffectiveTick === null
+        || fighter.health <= 0
+        || fighter.stunFrames > 0
+        || fighter.guardBreakFrames > 0
+        || fighter.capturedBy !== null
+        || !fighter.grounded
+        || fighter.superMeter > 0
+      ) return null;
+
+      const targetIndex: FighterIndex = index === 0 ? 1 : 0;
+      const target = this.fighters[targetIndex];
+      const definition = this.activeUltimateDefinition(fighter);
+      const plannedX = plannedCenters[index];
+      const targetPlannedX = plannedCenters[targetIndex];
+      const confrontation = buildUltimateConfrontationVolume(
+        definition,
+        fighter.x,
+        plannedX,
+        fighter.y,
+        fighter.ultimateFacing,
+      );
+
+      let wouldCapture = false;
+      let proposedTargetX: number | null = null;
+      const verticalDistance = Math.abs(target.y - fighter.y);
+
+      if (definition.kind === 'dashCapture') {
+        const targetPathMin = Math.min(target.x, targetPlannedX);
+        const targetPathMax = Math.max(target.x, targetPlannedX);
+        const targetStartedForward = (target.x - fighter.x) * fighter.ultimateFacing >= 0;
+        const sweptHorizontal = intervalsOverlap(
+          confrontation.minX,
+          confrontation.maxX,
+          targetPathMin,
+          targetPathMax,
+        );
+        wouldCapture = targetStartedForward
+          && sweptHorizontal
+          && verticalDistance <= definition.captureVertical;
+      } else if (definition.kind === 'suctionCapture') {
+        const suctionRange = definition.suctionRange ?? 0;
+        const suctionSpeed = definition.suctionSpeed ?? 0;
+        const captureDistance = definition.captureDistance ?? definition.captureReach;
+        const signedDistance = (targetPlannedX - fighter.x) * fighter.ultimateFacing;
+        const inField = signedDistance > 0
+          && signedDistance <= suctionRange
+          && verticalDistance <= definition.captureVertical;
+        if (inField) {
+          const delta = fighter.x - targetPlannedX;
+          const pull = Math.sign(delta) * Math.min(Math.abs(delta), suctionSpeed);
+          proposedTargetX = this.boundedX(targetPlannedX + pull);
+          wouldCapture = Math.abs(proposedTargetX - fighter.x) <= captureDistance;
+        }
+      } else {
+        const exhaustive: never = definition.kind;
+        throw new Error(`Unsupported Ultimate proposal kind ${String(exhaustive)}`);
+      }
+
+      return {
+        owner: index,
+        target: targetIndex,
+        definition,
+        effectiveTick: fighter.ultimateEffectiveTick,
+        phaseFrame: fighter.ultimatePhaseFrame,
+        currentX: fighter.x,
+        currentY: fighter.y,
+        plannedX,
+        targetCurrentX: target.x,
+        targetPlannedX,
+        facing: fighter.ultimateFacing,
+        confrontation,
+        wouldCapture,
+        proposedTargetX,
+      };
+    };
+
+    return [build(0), build(1)];
+  }
+
+  private resolveUltimateArbitration(): void {
+    const proposals = this.collectUltimateProposals();
+    const first = proposals[0];
+    const second = proposals[1];
+
+    if (first && second) {
+      const clashPoint = findUltimateClashIntersection(first, second, this.combatTick);
+      if (clashPoint) {
+        this.acceptUltimateClash(clashPoint);
         return;
       }
     }
 
-    if (attacker.ultimatePhaseFrame >= definition.captureFrames) {
-      this.enterUltimateWhiffRecovery(index);
+    const captures = proposals.filter(
+      (proposal): proposal is UltimateConfrontationProposal => proposal !== null && proposal.wouldCapture,
+    );
+
+    if (captures.length === 2) {
+      const [a, b] = captures;
+      if (a.effectiveTick === b.effectiveTick) {
+        // Exact mutual late tie: symmetric committed whiff, never slot priority.
+        this.commitUltimateCasterPlans(proposals);
+        this.enterUltimateWhiffRecovery(a.owner);
+        this.enterUltimateWhiffRecovery(b.owner);
+        return;
+      }
+      const winner = a.effectiveTick < b.effectiveTick ? a : b;
+      this.acceptUltimateCapture(winner);
+      return;
+    }
+
+    if (captures.length === 1) {
+      this.acceptUltimateCapture(captures[0]);
+      return;
+    }
+
+    this.commitUltimateMotions(proposals);
+
+    for (const proposal of proposals) {
+      if (!proposal) continue;
+      const fighter = this.fighters[proposal.owner];
+      if (
+        fighter.ultimatePhase === 'capture'
+        && fighter.ultimatePhaseFrame >= proposal.definition.captureFrames
+      ) {
+        this.enterUltimateWhiffRecovery(proposal.owner);
+      }
     }
   }
+
+  private commitUltimateCasterPlans(
+    proposals: readonly [UltimateConfrontationProposal | null, UltimateConfrontationProposal | null],
+  ): void {
+    const finalX: [number, number] = [this.fighters[0].x, this.fighters[1].x];
+    for (const proposal of proposals) {
+      if (proposal) finalX[proposal.owner] = proposal.plannedX;
+    }
+    this.fighters[0].x = this.boundedX(finalX[0]);
+    this.fighters[1].x = this.boundedX(finalX[1]);
+  }
+
+  private commitUltimateMotions(
+    proposals: readonly [UltimateConfrontationProposal | null, UltimateConfrontationProposal | null],
+  ): void {
+    const finalX: [number, number] = [this.fighters[0].x, this.fighters[1].x];
+
+    for (const proposal of proposals) {
+      if (proposal) finalX[proposal.owner] = proposal.plannedX;
+    }
+    for (const proposal of proposals) {
+      if (proposal?.proposedTargetX !== null && proposal?.proposedTargetX !== undefined) {
+        finalX[proposal.target] = proposal.proposedTargetX;
+      }
+    }
+
+    this.fighters[0].x = this.boundedX(finalX[0]);
+    this.fighters[1].x = this.boundedX(finalX[1]);
+  }
+
+  private acceptUltimateCapture(proposal: UltimateConfrontationProposal): void {
+    const attacker = this.fighters[proposal.owner];
+    const defender = this.fighters[proposal.target];
+
+    attacker.x = this.boundedX(proposal.plannedX);
+    defender.x = this.boundedX(proposal.proposedTargetX ?? proposal.targetPlannedX);
+    this.beginUltimateSequence(proposal.owner, proposal.target);
+  }
+
+  private acceptUltimateClash(point: UltimateClashIntersection): void {
+    const fighter0 = this.fighters[0];
+    const fighter1 = this.fighters[1];
+    const left: FighterIndex = fighter0.x < fighter1.x
+      ? 0
+      : fighter1.x < fighter0.x
+        ? 1
+        : fighter0.ultimateFacing === 1 ? 0 : 1;
+    const right: FighterIndex = left === 0 ? 1 : 0;
+
+    this.projectiles = [];
+    this.pendingUltimateReleases = [];
+
+    for (const index of [0, 1] as const) {
+      const fighter = this.fighters[index];
+      fighter.blocking = false;
+      fighter.crouching = false;
+      fighter.stunFrames = 0;
+      fighter.blockstunFrames = 0;
+      fighter.guardBreakFrames = 0;
+      fighter.dashKind = null;
+      fighter.dashFrame = 0;
+      fighter.landingRecoveryFrames = 0;
+      fighter.pushGuardRecoveryFrames = 0;
+      fighter.pendingCommand = null;
+      fighter.downGraceSamples = 0;
+      fighter.ultimateReleaseSource = null;
+      fighter.ultimatePhase = 'idle';
+      fighter.ultimatePhaseFrame = 0;
+      fighter.ultimateConnected = false;
+      fighter.ultimateTarget = null;
+      fighter.ultimateEffectiveTick = null;
+      fighter.capturedBy = null;
+      fighter.superMeter = 0;
+      fighter.superReady = false;
+      fighter.clashRecoveryFrames = 30;
+      this.clearMove(fighter);
+    }
+
+    this.establishClashBaseSeparation(left, right, point.x);
+
+    const leftFighter = this.fighters[left];
+    const rightFighter = this.fighters[right];
+    leftFighter.vx = -16;
+    rightFighter.vx = 16;
+    leftFighter.vy = 8;
+    rightFighter.vy = 8;
+    leftFighter.grounded = false;
+    rightFighter.grounded = false;
+
+    const clashId = this.nextClashId++;
+    this.clash = {
+      id: clashId,
+      phase: 'freeze',
+      launchTick: null,
+      remainingLaunchTicks: 30,
+      left,
+      right,
+    };
+    this.hitstopFrames = 12;
+    this.events.push({
+      type: 'ultimate-clash',
+      clashId,
+      fighters: [0, 1],
+      x: point.x,
+      y: point.y,
+    });
+  }
+
+  private establishClashBaseSeparation(
+    leftIndex: FighterIndex,
+    rightIndex: FighterIndex,
+    midpoint: number,
+  ): void {
+    const left = this.fighters[leftIndex];
+    const right = this.fighters[rightIndex];
+    if (right.x - left.x >= 160) return;
+
+    let leftX = this.boundedX(midpoint - 80);
+    let rightX = this.boundedX(midpoint + 80);
+
+    if (rightX - leftX < 160) {
+      if (leftX <= ARENA_MIN_X) rightX = this.boundedX(leftX + 160);
+      if (rightX >= ARENA_MAX_X) leftX = this.boundedX(rightX - 160);
+    }
+
+    left.x = leftX;
+    right.x = rightX;
+  }
+
+  private advanceClashLaunch(): void {
+    const clash = this.clash;
+    if (!clash) return;
+
+    if (clash.phase === 'freeze') {
+      clash.phase = 'launch';
+      clash.launchTick = this.combatTick;
+    }
+
+    for (const index of [0, 1] as const) {
+      const fighter = this.fighters[index];
+      const definition = this.registry.getFighter(fighter.id);
+
+      if (fighter.projectileCooldown > 0) fighter.projectileCooldown -= 1;
+      if (fighter.chilledFrames > 0) fighter.chilledFrames -= 1;
+      this.updateGuard(fighter);
+
+      fighter.x = this.boundedX(fighter.x + fighter.vx);
+      fighter.vx *= 0.90;
+
+      const wasGrounded = fighter.grounded;
+      if (!fighter.grounded || fighter.y !== 0 || fighter.vy !== 0) {
+        fighter.y += fighter.vy;
+        fighter.vy -= definition.gravity;
+        if (fighter.y <= 0) {
+          fighter.y = 0;
+          fighter.vy = 0;
+          fighter.grounded = true;
+          if (!wasGrounded) this.events.push({ type: 'land', fighter: index });
+        } else {
+          fighter.grounded = false;
+        }
+      }
+    }
+
+    clash.remainingLaunchTicks -= 1;
+    const remaining = Math.max(0, clash.remainingLaunchTicks);
+    this.fighters[0].clashRecoveryFrames = remaining;
+    this.fighters[1].clashRecoveryFrames = remaining;
+
+    if (remaining > 0) return;
+
+    for (const fighter of this.fighters) {
+      fighter.vx = 0;
+      fighter.vy = 0;
+      fighter.landingRecoveryFrames = 0;
+      fighter.clashRecoveryFrames = 0;
+      if (fighter.y <= 0) {
+        fighter.y = 0;
+        fighter.grounded = true;
+      }
+    }
+    this.clash = null;
+  }
+
 
   private beginUltimateSequence(attackerIndex: FighterIndex, defenderIndex: FighterIndex): void {
     const attacker = this.fighters[attackerIndex];
@@ -1117,6 +1452,9 @@ export class CombatSimulation {
     attacker.ultimateConnected = true;
     attacker.ultimateTarget = defenderIndex;
 
+    // Confirmed sequence owns the encounter. Remove ordinary projectiles so
+    // neither participant receives ambiguous off-screen assistance.
+    this.projectiles = [];
     this.cancelDefenderForCapture(defender);
     defender.capturedBy = attackerIndex;
     defender.vx = 0;
@@ -1147,6 +1485,8 @@ export class CombatSimulation {
     defender.ultimatePhaseFrame = 0;
     defender.ultimateConnected = false;
     defender.ultimateTarget = null;
+    defender.ultimateEffectiveTick = null;
+    defender.clashRecoveryFrames = 0;
   }
 
   private updateUltimateSequence(attackerIndex: FighterIndex, definition: UltimateDefinition): void {
@@ -1267,6 +1607,7 @@ export class CombatSimulation {
     fighter.ultimatePhaseFrame = 0;
     fighter.ultimateConnected = false;
     fighter.ultimateTarget = null;
+    fighter.ultimateEffectiveTick = null;
     this.clearMove(fighter);
   }
 
@@ -1275,6 +1616,7 @@ export class CombatSimulation {
     fighter.ultimatePhaseFrame = 0;
     fighter.ultimateConnected = false;
     fighter.ultimateTarget = null;
+    fighter.ultimateEffectiveTick = null;
     this.clearMove(fighter);
   }
 
@@ -1353,6 +1695,8 @@ export class CombatSimulation {
     // lock/timeline before entering round-over. This prevents Ultimate recovery,
     // capture locks or target state from freezing into round-over/match-over.
     this.pendingUltimateReleases = [];
+    this.clash = null;
+    this.hitstopFrames = 0;
     this.clearTransientCombatState(this.fighters[0]);
     this.clearTransientCombatState(this.fighters[1]);
 
@@ -1374,6 +1718,8 @@ export class CombatSimulation {
     this.roundWinner = null;
     this.projectiles = [];
     this.pendingUltimateReleases = [];
+    this.clash = null;
+    this.hitstopFrames = 0;
     this.roundTimerFrames = ROUND_TIME_FRAMES;
     for (const index of [0, 1] as const) {
       const fighter = this.fighters[index];

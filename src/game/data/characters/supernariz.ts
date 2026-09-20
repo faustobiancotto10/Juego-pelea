@@ -31,6 +31,20 @@ export const SUPERNARIZ_CHARACTER_CONTENT: CombatCharacterContent = {
       missChance: 0.25,
       confirmChance: 0.75,
       archetype: 'pressure',
+      tactics: {
+        ultimateRange: [105, 300],
+        rangedRange: [360, 620],
+        rangedChance: 0.48,
+        closeWeights: {
+          standing: 0.62,
+          low: 0.20,
+          closeSpecial: 0.18,
+          jump: 0,
+          retreat: 0,
+        },
+        advanceBehindReturningProjectile: 0,
+        retreatAtPreferredRange: 0,
+      },
     },
   },
   moves: {

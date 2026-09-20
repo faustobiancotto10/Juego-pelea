@@ -37,3 +37,10 @@
 - 2026-09-19: V0.5 deliberately defers throws/grab-tech, blanket large cooldowns, new universal resources, long combo systems and a generic fighter scripting engine. Existing air overhead + one grounded low per fighter is the first guard-counterplay experiment.
 - 2026-09-19: CPU reactions in V0.5 must use deterministic delayed public-snapshot perception with latched misses and commitment; immediate current-frame reaction retries are not acceptable.
 - 2026-09-19: Before adding playable fighters, V0.5 extracts only the bounded current fighter-kit/projectile/Ultimate content boundary needed to remove identity hardcoding. A third test-only kit validates scalability without becoming selectable.
+
+- 2026-09-20: R004/V0.6 uses exact product base `2d8c41dc994c8cddaa4c9fe2b3ee957698e94f13`; main remains live coordination/document authority until accepted V0.6 integration/release.
+- 2026-09-20: R004 executes in `AUTO_CHAIN`: one round start preauthorizes the dependency graph. Green handoffs unlock downstream tasks without PRESENT/check-in or per-stage Neureon approval. Blockers/contract or scope changes are reported to the user, who decides whether Neureon audits/replans.
+- 2026-09-20: Juanchi is the V0.6 third playable/CPU fighter. The supplied identity master governs likeness/outfit/proportions; the supplied action sheet guides pose/action language. Reference rasters are authoring-only and never runtime fighter sprites/textures.
+- 2026-09-20: Cancha 56 is a presentation-only night rugby-field gathering: visible posts/fence/floodlights plus restrained clusters of spectators and subtle party/ambient movement. The central fight corridor must remain readable; no crowd or prop affects simulation.
+- 2026-09-20: V0.6 front-end flow is `TITLE/COVER → FIGHTER SELECT → OPPONENT SELECT → STAGE SELECT → VS → FIGHT → RESULT`, with a dominant `COMENZAR` entry action, scalable roster UI, two selectable stages and rematch retaining selections.
+- 2026-09-20: V0.6 stage/UI architecture must scale structurally beyond two fighters; metadata-only 5/10 roster fixtures and a fourth synthetic package verify this without shipping a fourth playable fighter.

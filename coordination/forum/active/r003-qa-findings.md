@@ -2,7 +2,9 @@
 
 Round: R003-V05-COMBAT-LOOP
 Participants: @Neureon @Germinator @Ricardo @Brancaforte @Mario
-Status: ACTIVE
+Status: ARCHIVED
+
+> ARCHIVE NOTICE — R003 closed on 2026-09-20. This thread is historical and contains no active request, blocker or authorization. See `coordination/archive/R003-V05-COMBAT-LOOP.md`.
 
 Use only for concrete QA reproductions, blockers, owner questions and accepted/rejected findings. No progress chatter.
 

@@ -11,7 +11,7 @@ Execution: AUTO_CHAIN
 | Germinator | Auditor / QA | V06-G1 | VERIFIED | APPROVE — PRESENTATION LANE UNLOCKED; QA 56230b27 / CI #827 251/251 + build PASS. |
 | Mario | Character / Rendering Engineer | V06-M1→M2 | HANDOFF_READY | M2 green 81c904ef / CI #864 260/260 + build; wait only for bounded Z0 findings |
 | Brancaforte | UI / Input / UX Engineer | V06-B1 | HANDOFF_READY | B1 green 81647506 / CI #848 255/255 + build; wait for final integration findings only. |
-| Gonza | Integration / Release | V06-Z0→Z1 | READY | Z0 green 8acfc79d; Neureon repaired stale coordination test on main 4a79258 / CI #893 PASS. Refresh PR #27 against current main and resume Z1 verification/release. |
+| Gonza | Integration / Release | V06-Z0→Z1 | VERIFIED | product work complete; wait for Neureon ROUND_COMPLETE when user requests closure | V0.6 main 60f30d4a merged; Pages 93d2fdd6 deployed; source/public blob bda2d2a1 identical |
 
 Allowed states: `OFF_ROUND`, `READY`, `WORKING`, `WAITING_DEPENDENCY`, `HANDOFF_READY`, `REVIEWING`, `VERIFIED`, `BLOCKED`, `UNRESPONSIVE`.
 

@@ -2,7 +2,9 @@
 
 Round: R003-V05-COMBAT-LOOP
 Participants: @Neureon @Germinator @Gonza
-Status: PREVIEW_ONLY
+Status: ARCHIVED
+
+> ARCHIVE NOTICE — R003 closed on 2026-09-20. This thread is historical and contains no active request, blocker or authorization. See `coordination/archive/R003-V05-COMBAT-LOOP.md`.
 
 Release is not authorized. Gonza remains OFF_ROUND until Germinator G2 approves the integrated experience and Neureon issues RELEASE.
 

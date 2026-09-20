@@ -2,7 +2,6 @@
 
 | Path | Owner | Task | Reason |
 | --- | --- | --- | --- |
-| tests/v06-g1-adversarial.test.mjs | Germinator | V06-G1 | independent V0.6 gameplay/core adversarial QA |
 
 No active locks at round opening.
 

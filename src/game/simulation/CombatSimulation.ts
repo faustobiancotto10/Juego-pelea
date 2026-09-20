@@ -63,6 +63,7 @@ interface FighterState extends FighterSnapshot {
   pendingCommand: PendingCommand | null;
   downGraceSamples: number;
   ultimateReleaseSource: FighterIndex | null;
+  ultimateSequenceStartX: number | null;
 }
 
 interface ProjectileState extends ProjectileSnapshot {
@@ -156,6 +157,8 @@ function makeFighter(registry: CombatRegistry, id: RegisteredFighterId, index: F
     ultimateConnected: false,
     ultimateTarget: null,
     ultimateEffectiveTick: null,
+    ultimateProbe: null,
+    captureAnchorX: null,
     clashRecoveryFrames: 0,
     dashKind: null,
     dashFrame: 0,
@@ -172,6 +175,7 @@ function makeFighter(registry: CombatRegistry, id: RegisteredFighterId, index: F
     pendingCommand: null,
     downGraceSamples: 0,
     ultimateReleaseSource: null,
+    ultimateSequenceStartX: null,
   };
 }
 
@@ -211,6 +215,8 @@ function cloneFighter(f: FighterState): FighterSnapshot {
     ultimateConnected: f.ultimateConnected,
     ultimateTarget: f.ultimateTarget,
     ultimateEffectiveTick: f.ultimateEffectiveTick,
+    ultimateProbe: f.ultimateProbe ? { ...f.ultimateProbe } : null,
+    captureAnchorX: f.captureAnchorX,
     clashRecoveryFrames: f.clashRecoveryFrames,
     capturedBy: f.capturedBy,
     dashKind: f.dashKind,
@@ -1004,6 +1010,9 @@ export class CombatSimulation {
     fighter.ultimateConnected = false;
     fighter.ultimateTarget = null;
     fighter.ultimateEffectiveTick = null;
+    fighter.ultimateProbe = null;
+    fighter.captureAnchorX = null;
+    fighter.ultimateSequenceStartX = null;
     fighter.clashRecoveryFrames = 0;
     fighter.capturedBy = null;
     this.clearMove(fighter);
@@ -1528,6 +1537,9 @@ export class CombatSimulation {
     fighter.ultimateConnected = false;
     fighter.ultimateTarget = null;
     fighter.ultimateEffectiveTick = null;
+    fighter.ultimateProbe = null;
+    fighter.captureAnchorX = null;
+    fighter.ultimateSequenceStartX = null;
     fighter.ultimateFacing = fighter.facing;
     fighter.vx = 0;
     fighter.blocking = false;
@@ -1558,6 +1570,7 @@ export class CombatSimulation {
         fighter.superReady = false;
         fighter.ultimatePhase = 'capture';
         fighter.ultimatePhaseFrame = 0;
+        if (definition.kind === 'capCapture') this.initializeCapProbe(index, definition);
       }
       return;
     }
@@ -1581,6 +1594,53 @@ export class CombatSimulation {
     }
   }
 
+  private initializeCapProbe(index: FighterIndex, definition: UltimateDefinition): void {
+    const fighter = this.fighters[index];
+    const targetIndex: FighterIndex = index === 0 ? 1 : 0;
+    const targetDefinition = this.registry.getFighter(this.fighters[targetIndex].id);
+    const head = targetDefinition.captureHead;
+    if (!head) throw new Error(`Missing captureHead for ${targetDefinition.id}`);
+    const spawnOffset = definition.probeSpawnOffsetX ?? 0;
+    const x = fighter.x + fighter.ultimateFacing * spawnOffset;
+    fighter.ultimateProbe = {
+      x,
+      y: head.standY,
+      previousX: x,
+      previousY: head.standY,
+      halfWidth: definition.probeHalfWidth ?? 0,
+      halfHeight: definition.probeHalfHeight ?? 0,
+      visualKey: definition.probeVisualKey ?? definition.visualKey,
+    };
+  }
+
+  private capProbePlan(
+    fighter: FighterState,
+    definition: UltimateDefinition,
+  ): {
+    previousX: number;
+    nextX: number;
+    y: number;
+    halfWidth: number;
+    halfHeight: number;
+    terminatesAtWall: boolean;
+  } {
+    const probe = fighter.ultimateProbe;
+    if (!probe) throw new Error(`Missing cap probe for ${fighter.id}`);
+    const speed = definition.probeSpeed ?? 0;
+    const rawNextX = probe.x + fighter.ultimateFacing * speed;
+    const minX = ARENA_MIN_X - probe.halfWidth;
+    const maxX = ARENA_MAX_X + probe.halfWidth;
+    const nextX = Math.max(minX, Math.min(maxX, rawNextX));
+    return {
+      previousX: probe.x,
+      nextX,
+      y: probe.y,
+      halfWidth: probe.halfWidth,
+      halfHeight: probe.halfHeight,
+      terminatesAtWall: nextX !== rawNextX,
+    };
+  }
+
   private boundedX(x: number): number {
     return Math.max(ARENA_MIN_X, Math.min(ARENA_MAX_X, x));
   }
@@ -1597,7 +1657,7 @@ export class CombatSimulation {
         plannedCenters[index] = this.boundedX(
           fighter.x + fighter.ultimateFacing * (definition.dashSpeed ?? 0),
         );
-      } else if (definition.kind !== 'suctionCapture') {
+      } else if (definition.kind !== 'suctionCapture' && definition.kind !== 'capCapture') {
         const exhaustive: never = definition.kind;
         throw new Error(`Unsupported Ultimate proposal kind ${String(exhaustive)}`);
       }
@@ -1622,12 +1682,16 @@ export class CombatSimulation {
       const definition = this.activeUltimateDefinition(fighter);
       const plannedX = plannedCenters[index];
       const targetPlannedX = plannedCenters[targetIndex];
+      const capProbe = definition.kind === 'capCapture'
+        ? this.capProbePlan(fighter, definition)
+        : null;
       const confrontation = buildUltimateConfrontationVolume(
         definition,
         fighter.x,
         plannedX,
         fighter.y,
         fighter.ultimateFacing,
+        capProbe,
       );
 
       let wouldCapture = false;
@@ -1661,6 +1725,23 @@ export class CombatSimulation {
           proposedTargetX = this.boundedX(targetPlannedX + pull);
           wouldCapture = Math.abs(proposedTargetX - fighter.x) <= captureDistance;
         }
+      } else if (definition.kind === 'capCapture') {
+        const targetDefinition = this.registry.getFighter(target.id);
+        const head = targetDefinition.captureHead;
+        if (!head) throw new Error(`Missing captureHead for ${targetDefinition.id}`);
+        const front = (target.x - fighter.x) * fighter.ultimateFacing >= 0;
+        const headY = target.y + (target.crouching ? head.crouchY : head.standY);
+        const contactT = this.segmentAabbEntryT(
+          capProbe!.previousX,
+          capProbe!.y,
+          capProbe!.nextX,
+          capProbe!.y,
+          target.x - head.halfWidth - capProbe!.halfWidth,
+          target.x + head.halfWidth + capProbe!.halfWidth,
+          headY - head.halfHeight - capProbe!.halfHeight,
+          headY + head.halfHeight + capProbe!.halfHeight,
+        );
+        wouldCapture = front && contactT !== null;
       } else {
         const exhaustive: never = definition.kind;
         throw new Error(`Unsupported Ultimate proposal kind ${String(exhaustive)}`);
@@ -1681,6 +1762,7 @@ export class CombatSimulation {
         confrontation,
         wouldCapture,
         proposedTargetX,
+        capProbe,
       };
     };
 
@@ -1731,7 +1813,10 @@ export class CombatSimulation {
       const fighter = this.fighters[proposal.owner];
       if (
         fighter.ultimatePhase === 'capture'
-        && fighter.ultimatePhaseFrame >= proposal.definition.captureFrames
+        && (
+          fighter.ultimatePhaseFrame >= proposal.definition.captureFrames
+          || proposal.capProbe?.terminatesAtWall === true
+        )
       ) {
         this.enterUltimateWhiffRecovery(proposal.owner);
       }
@@ -1765,6 +1850,15 @@ export class CombatSimulation {
 
     this.fighters[0].x = this.boundedX(finalX[0]);
     this.fighters[1].x = this.boundedX(finalX[1]);
+
+    for (const proposal of proposals) {
+      if (!proposal?.capProbe) continue;
+      const probe = this.fighters[proposal.owner].ultimateProbe;
+      if (!probe) continue;
+      probe.previousX = probe.x;
+      probe.previousY = probe.y;
+      probe.x = proposal.capProbe.nextX;
+    }
   }
 
   private acceptUltimateCapture(proposal: UltimateConfrontationProposal): void {
@@ -1773,6 +1867,11 @@ export class CombatSimulation {
 
     attacker.x = this.boundedX(proposal.plannedX);
     defender.x = this.boundedX(proposal.proposedTargetX ?? proposal.targetPlannedX);
+    if (proposal.capProbe && attacker.ultimateProbe) {
+      attacker.ultimateProbe.previousX = attacker.ultimateProbe.x;
+      attacker.ultimateProbe.previousY = attacker.ultimateProbe.y;
+      attacker.ultimateProbe.x = proposal.capProbe.nextX;
+    }
     this.beginUltimateSequence(proposal.owner, proposal.target);
   }
 
@@ -1808,6 +1907,9 @@ export class CombatSimulation {
       fighter.ultimateConnected = false;
       fighter.ultimateTarget = null;
       fighter.ultimateEffectiveTick = null;
+      fighter.ultimateProbe = null;
+      fighter.captureAnchorX = null;
+      fighter.ultimateSequenceStartX = null;
       fighter.capturedBy = null;
       fighter.superMeter = 0;
       fighter.superReady = false;
@@ -1933,11 +2035,17 @@ export class CombatSimulation {
   private beginUltimateSequence(attackerIndex: FighterIndex, defenderIndex: FighterIndex): void {
     const attacker = this.fighters[attackerIndex];
     const defender = this.fighters[defenderIndex];
+    const definition = this.activeUltimateDefinition(attacker);
 
     attacker.ultimatePhase = 'sequence';
     attacker.ultimatePhaseFrame = 0;
     attacker.ultimateConnected = true;
     attacker.ultimateTarget = defenderIndex;
+    attacker.ultimateSequenceStartX = attacker.x;
+    if (definition.kind === 'capCapture') {
+      attacker.captureAnchorX = defender.x;
+      attacker.ultimateProbe = null;
+    }
 
     // Confirmed sequence owns the encounter. Remove ordinary projectiles so
     // neither participant receives ambiguous off-screen assistance.
@@ -1974,6 +2082,9 @@ export class CombatSimulation {
     defender.ultimateConnected = false;
     defender.ultimateTarget = null;
     defender.ultimateEffectiveTick = null;
+    defender.ultimateProbe = null;
+    defender.captureAnchorX = null;
+    defender.ultimateSequenceStartX = null;
     defender.clashRecoveryFrames = 0;
   }
 
@@ -1992,8 +2103,25 @@ export class CombatSimulation {
     defender.capturedBy = attackerIndex;
     defender.vx = 0;
     defender.vy = 0;
-    defender.x = attacker.x + attacker.ultimateFacing * definition.sequenceOffsetX;
-    this.clampFighter(defender);
+
+    if (definition.kind === 'capCapture') {
+      const anchorX = attacker.captureAnchorX ?? defender.x;
+      defender.x = this.boundedX(anchorX);
+      const approach = definition.sequenceApproach;
+      if (approach && attacker.ultimatePhaseFrame >= approach.startFrame) {
+        const startX = attacker.ultimateSequenceStartX ?? attacker.x;
+        const signedDistance = (anchorX - startX) * attacker.ultimateFacing;
+        const endX = signedDistance <= approach.standOff
+          ? startX
+          : this.boundedX(anchorX - attacker.ultimateFacing * approach.standOff);
+        const span = Math.max(1, approach.endFrame - approach.startFrame);
+        const t = Math.max(0, Math.min(1, (attacker.ultimatePhaseFrame - approach.startFrame) / span));
+        attacker.x = startX + (endX - startX) * t;
+      }
+    } else {
+      defender.x = attacker.x + attacker.ultimateFacing * definition.sequenceOffsetX;
+      this.clampFighter(defender);
+    }
 
     const hit = definition.sequenceHits.find((beat) => beat.frame === attacker.ultimatePhaseFrame);
     if (hit) {
@@ -2004,6 +2132,7 @@ export class CombatSimulation {
         hit.damage,
         hit.knockback,
         finalBeat ? (definition.finalHitstop ?? 7) : 7,
+        finalBeat,
       );
     }
 
@@ -2056,6 +2185,9 @@ export class CombatSimulation {
         this.clampFighter(attacker);
       }
 
+      attacker.ultimateProbe = null;
+      attacker.captureAnchorX = null;
+      attacker.ultimateSequenceStartX = null;
       this.events.push({
         type: 'ultimate-release',
         attacker: release.attacker,
@@ -2071,13 +2203,14 @@ export class CombatSimulation {
     damage: number,
     knockback: number,
     hitstop = 7,
+    majorImpact = false,
   ): void {
     const actualDamage = this.applyDamage(attackerIndex, defenderIndex, damage, 'ultimate', false);
     const attacker = this.fighters[attackerIndex];
     const defender = this.fighters[defenderIndex];
     defender.vx = attacker.ultimateFacing * knockback;
     this.hitstopFrames = Math.max(this.hitstopFrames, hitstop);
-    this.events.push({ type: 'hit', attacker: attackerIndex, defender: defenderIndex, blocked: false, damage: actualDamage, strong: true, source: 'ultimate', finisher: defender.health <= 0 });
+    this.events.push({ type: 'hit', attacker: attackerIndex, defender: defenderIndex, blocked: false, damage: actualDamage, strong: true, source: 'ultimate', finisher: defender.health <= 0, majorImpact });
   }
 
   private enterUltimateWhiffRecovery(index: FighterIndex): void {
@@ -2087,6 +2220,9 @@ export class CombatSimulation {
     fighter.ultimatePhaseFrame = 0;
     fighter.ultimateConnected = false;
     fighter.ultimateTarget = null;
+    fighter.ultimateProbe = null;
+    fighter.captureAnchorX = null;
+    fighter.ultimateSequenceStartX = null;
     this.events.push({ type: 'ultimate-whiff', attacker: index });
   }
 
@@ -2096,6 +2232,9 @@ export class CombatSimulation {
     fighter.ultimateConnected = false;
     fighter.ultimateTarget = null;
     fighter.ultimateEffectiveTick = null;
+    fighter.ultimateProbe = null;
+    fighter.captureAnchorX = null;
+    fighter.ultimateSequenceStartX = null;
     this.clearMove(fighter);
   }
 

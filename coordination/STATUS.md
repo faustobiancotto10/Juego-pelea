@@ -9,9 +9,9 @@ Execution: AUTO_CHAIN
 | Neureon | Lead / Coordinator | V06-N0 | VERIFIED | Round frozen/open; no per-step gate. Audit/re-plan only when user requests or final closure. |
 | Ricardo | Gameplay Engineer | V06-R0→R1→R2→R3 | VERIFIED | G1 approved exact d815694a; no active gameplay task unless downstream returns a bounded finding. |
 | Germinator | Auditor / QA | V06-G1 | VERIFIED | APPROVE — PRESENTATION LANE UNLOCKED; QA 56230b27 / CI #827 251/251 + build PASS. |
-| Mario | Character / Rendering Engineer | V06-M1→M2 | WORKING | M1 green 554d5a38 / CI #847 251/251+build; auto-chained V06-M2 |
+| Mario | Character / Rendering Engineer | V06-M1→M2 | HANDOFF_READY | M2 green 81c904ef / CI #864 260/260 + build; wait only for bounded Z0 findings |
 | Brancaforte | UI / Input / UX Engineer | V06-B1 | HANDOFF_READY | B1 green 81647506 / CI #848 255/255 + build; wait for final integration findings only. |
-| Gonza | Integration / Release | V06-Z0→Z1 | WAITING_DEPENDENCY | G1 + B1 are green; wait only for Mario M2 green handoff before Z0. |
+| Gonza | Integration / Release | V06-Z0→Z1 | READY | All upstream dependencies green; AUTO_CHAIN authorizes V06-Z0 immediately. |
 
 Allowed states: `OFF_ROUND`, `READY`, `WORKING`, `WAITING_DEPENDENCY`, `HANDOFF_READY`, `REVIEWING`, `VERIFIED`, `BLOCKED`, `UNRESPONSIVE`.
 

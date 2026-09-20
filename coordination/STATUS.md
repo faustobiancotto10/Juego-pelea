@@ -11,7 +11,7 @@ Execution: AUTO_CHAIN
 | Germinator | Auditor / QA | V06-G1 | VERIFIED | APPROVE — PRESENTATION LANE UNLOCKED; QA 56230b27 / CI #827 251/251 + build PASS. |
 | Mario | Character / Rendering Engineer | V06-M1→M2 | HANDOFF_READY | M2 green 81c904ef / CI #864 260/260 + build; wait only for bounded Z0 findings |
 | Brancaforte | UI / Input / UX Engineer | V06-B1 | HANDOFF_READY | B1 green 81647506 / CI #848 255/255 + build; wait for final integration findings only. |
-| Gonza | Integration / Release | V06-Z0→Z1 | READY | All upstream dependencies green; AUTO_CHAIN authorizes V06-Z0 immediately. |
+| Gonza | Integration / Release | V06-Z0→Z1 | WORKING | none | V06-Z0 started; composing exact accepted SHAs + stage seam + recursive test discovery |
 
 Allowed states: `OFF_ROUND`, `READY`, `WORKING`, `WAITING_DEPENDENCY`, `HANDOFF_READY`, `REVIEWING`, `VERIFIED`, `BLOCKED`, `UNRESPONSIVE`.
 

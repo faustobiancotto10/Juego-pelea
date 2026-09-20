@@ -8,6 +8,15 @@ export interface UltimateConfrontationVolume {
   maxY: number;
 }
 
+export interface CapProbePlan {
+  previousX: number;
+  nextX: number;
+  y: number;
+  halfWidth: number;
+  halfHeight: number;
+  terminatesAtWall: boolean;
+}
+
 export interface UltimateConfrontationProposal {
   owner: FighterIndex;
   target: FighterIndex;
@@ -23,6 +32,7 @@ export interface UltimateConfrontationProposal {
   confrontation: UltimateConfrontationVolume;
   wouldCapture: boolean;
   proposedTargetX: number | null;
+  capProbe: CapProbePlan | null;
 }
 
 export interface UltimateClashIntersection {
@@ -36,6 +46,7 @@ export function buildUltimateConfrontationVolume(
   plannedX: number,
   y: number,
   facing: Facing,
+  capProbe: CapProbePlan | null = null,
 ): UltimateConfrontationVolume {
   if (definition.kind === 'dashCapture') {
     const pathMin = Math.min(currentX, plannedX);
@@ -52,8 +63,15 @@ export function buildUltimateConfrontationVolume(
       : { minX: currentX - range, maxX: currentX, minY: y, maxY: y + definition.captureVertical };
   }
 
-  const exhaustive: never = definition.kind;
-  throw new Error(`Unsupported Ultimate confrontation kind ${String(exhaustive)}`);
+  if (!capProbe) throw new Error('capCapture confrontation requires a cap probe plan');
+  const pathMin = Math.min(capProbe.previousX, capProbe.nextX) - capProbe.halfWidth;
+  const pathMax = Math.max(capProbe.previousX, capProbe.nextX) + capProbe.halfWidth;
+  return {
+    minX: pathMin,
+    maxX: pathMax,
+    minY: y,
+    maxY: y + definition.captureVertical,
+  };
 }
 
 function targetIsForward(proposal: UltimateConfrontationProposal): boolean {

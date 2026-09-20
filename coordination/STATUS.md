@@ -1,19 +1,15 @@
 # Agent Status
 
-Round: `R004-V06-CONTENT-EXPANSION`  
-Global state: ACTIVE  
-Execution: AUTO_CHAIN
+Global state: IDLE  
+Round: none
 
-| Agent | Role | Tasks | State | Dependency / next action |
-| --- | --- | --- | --- | --- |
-| Neureon | Lead / Coordinator | V06-N0 | VERIFIED | Round frozen/open; no per-step gate. Audit/re-plan only when user requests or final closure. |
-| Ricardo | Gameplay Engineer | V06-R0→R1→R2→R3 | VERIFIED | G1 approved exact d815694a; no active gameplay task unless downstream returns a bounded finding. |
-| Germinator | Auditor / QA | V06-G1 | VERIFIED | APPROVE — PRESENTATION LANE UNLOCKED; QA 56230b27 / CI #827 251/251 + build PASS. |
-| Mario | Character / Rendering Engineer | V06-M1→M2 | HANDOFF_READY | M2 green 81c904ef / CI #864 260/260 + build; wait only for bounded Z0 findings |
-| Brancaforte | UI / Input / UX Engineer | V06-B1 | HANDOFF_READY | B1 green 81647506 / CI #848 255/255 + build; wait for final integration findings only. |
-| Gonza | Integration / Release | V06-Z0→Z1 | VERIFIED | product work complete; wait for Neureon ROUND_COMPLETE when user requests closure | V0.6 main 60f30d4a merged; Pages 93d2fdd6 deployed; source/public blob bda2d2a1 identical |
+| Agent | Role | State | Note |
+| --- | --- | --- | --- |
+| Neureon | Lead / Coordinator | OFF_ROUND | R004 archived / ROUND_COMPLETE. |
+| Ricardo | Gameplay Engineer | OFF_ROUND | V0.6 gameplay/core frozen. |
+| Germinator | Auditor / QA | OFF_ROUND | V0.6 QA complete. |
+| Mario | Character / Rendering Engineer | OFF_ROUND | V0.6 rendering/stage work frozen. |
+| Brancaforte | UI / Input / UX Engineer | OFF_ROUND | V0.6 front-end work frozen. |
+| Gonza | Integration / Release | OFF_ROUND | V0.6 released and verified. |
 
-Allowed states: `OFF_ROUND`, `READY`, `WORKING`, `WAITING_DEPENDENCY`, `HANDOFF_READY`, `REVIEWING`, `VERIFIED`, `BLOCKED`, `UNRESPONSIVE`.
-
-Authoritative sequence: **Ricardo → Germinator → Mario + Brancaforte → Gonza**.
-Normal green handoffs unlock downstream tasks without Neureon authorization.
+No implementation agent is authorized until a new round is explicitly opened.

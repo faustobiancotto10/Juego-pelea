@@ -191,6 +191,7 @@ export class CpuController {
 
     if (
       self.dashKind !== null
+      || self.jumpStartupFrames > 0
       || self.ultimatePhase !== 'idle'
       || self.pushGuardRecoveryFrames > 0
       || self.landingRecoveryFrames > 0

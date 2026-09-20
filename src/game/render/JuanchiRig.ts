@@ -237,7 +237,7 @@ export function sampleJuanchiAnchors(
   };
 }
 
-function drawRugbyBall(
+export function drawRugbyBallProp(
   ctx: CanvasRenderingContext2D,
   x: number,
   y: number,
@@ -252,7 +252,7 @@ function drawRugbyBall(
   ctx.restore();
 }
 
-function drawPoliceCap(
+export function drawPoliceCapProp(
   ctx: CanvasRenderingContext2D,
   x: number,
   y: number,
@@ -448,7 +448,7 @@ export function drawJuanchi(
     const ballHand = fighter.moveId === 'rugbyBoomerangThrow'
       ? action.frontHand
       : action.backHand;
-    drawRugbyBall(
+    drawRugbyBallProp(
       ctx,
       ballHand.x + (fighter.moveId === 'rugbyBoomerangThrow' ? 5 : -1),
       -ballHand.y - 2,
@@ -460,9 +460,9 @@ export function drawJuanchi(
     fighter.ultimatePhase === 'idle'
     || (fighter.ultimatePhase === 'recovery' && fighter.ultimatePhaseFrame >= 8);
   if (beltCapVisible) {
-    drawPoliceCap(ctx, anchors.belt.x - 6, -anchors.belt.y + 7, -0.42);
+    drawPoliceCapProp(ctx, anchors.belt.x - 6, -anchors.belt.y + 7, -0.42);
   } else if (fighter.ultimatePhase === 'startup' && fighter.ultimatePhaseFrame < 16) {
-    drawPoliceCap(ctx, action.frontHand.x + 2, -action.frontHand.y - 4, 0.18);
+    drawPoliceCapProp(ctx, action.frontHand.x + 2, -action.frontHand.y - 4, 0.18);
   }
 
   if (fighter.blocking) {

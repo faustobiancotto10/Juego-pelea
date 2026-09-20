@@ -10,3 +10,5 @@ Ownership reservations are defined in task contracts; an agent creates a live lo
 | src/game/data/ultimates.ts | Ricardo | V06-R1 | typed Ultimate confrontation/release contract |
 | src/game/simulation/CombatSimulation.ts | Ricardo | V06-R1 | common Ultimate proposal/arbitration and Clash lifecycle |
 | tests/combat-v06-clash.test.mjs | Ricardo | V06-R1 | deterministic Clash acceptance matrix |
+| src/game/simulation/ultimateArbitration.ts | Ricardo | V06-R1 | typed common Ultimate proposal/Clash geometry helper |
+| tests/combat-v05-ultimate.test.mjs | Ricardo | V06-R1 | update superseded simultaneous-capture expectation to Clash |

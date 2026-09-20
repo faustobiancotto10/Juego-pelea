@@ -1,6 +1,6 @@
 # Juanchi — complete V0.6 Character Contract
 
-Date: 2026-09-20 (audit begun 2026-09-19). Package ID `juanchi`, version1.0 candidate. Gameplay/design contract ready; authoritative visual master **not present in the audited repository**. Neureon records its path/hash when supplied. Mario may build proportions/animation infrastructure from this written brief, but cannot claim approved likeness before seeing it. No runtime raster references.
+Date: 2026-09-20 (audit begun 2026-09-19). Package ID `juanchi`, version1.0 candidate. **Frozen for active R004 implementation.** The user supplied the authoritative identity master and action-sheet references on 2026-09-20. Source SHA-256: identity `05c1f7107c49caa65bb719ce6ca17c45f47f2667523f77d7214ed82b6d3226b8`; action sheet `981912f6c3aed94dd51ccef0356045ffa5395814daeb559bf264cb59692e8639`. Repository authoring copies live under `docs/characters/juanchi/references/`. Identity master controls likeness/outfit/proportions; the sheet guides action language. No runtime raster references.
 
 Related: [system design](2026-09-20-v06-content-expansion-design.md), [animation](2026-09-20-v06-animation-quality-contract.md), [Clash](2026-09-20-v06-ultimate-clash-contract.md), [production pipeline](2026-09-20-v06-character-package-pipeline.md).
 

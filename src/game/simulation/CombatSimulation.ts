@@ -1227,7 +1227,8 @@ export class CombatSimulation {
     );
 
     if (captures.length === 2) {
-      const [a, b] = captures;
+      const a = captures[0]!;
+      const b = captures[1]!;
       if (a.effectiveTick === b.effectiveTick) {
         // Exact mutual late tie: symmetric committed whiff, never slot priority.
         this.commitUltimateCasterPlans(proposals);
@@ -1241,7 +1242,7 @@ export class CombatSimulation {
     }
 
     if (captures.length === 1) {
-      this.acceptUltimateCapture(captures[0]);
+      this.acceptUltimateCapture(captures[0]!);
       return;
     }
 

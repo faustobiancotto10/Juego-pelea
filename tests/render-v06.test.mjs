@@ -223,13 +223,14 @@ test('stage choice is presentation-only and cannot change deterministic simulati
   const b = new CombatSimulation('juanchi', 'supernariz', { skipIntro: true });
   DEFAULT_STAGE_REGISTRY.get('tramontana-dusk');
   DEFAULT_STAGE_REGISTRY.get('cancha-56');
+  const neutral = {
+    left:false,right:false,down:false,up:false,jump:false,attack:false,special:false,dashLeft:false,dashRight:false,
+  };
   for (let i = 0; i < 48; i += 1) {
     const input = inputs[i % inputs.length];
-    a.setPlayerInput(input);
-    b.setPlayerInput(structuredClone(input));
-    a.step();
-    b.step();
-    assert.deepEqual(a.getSnapshot(), b.getSnapshot());
+    const snapshotA = a.step(input, neutral);
+    const snapshotB = b.step(structuredClone(input), structuredClone(neutral));
+    assert.deepEqual(snapshotA, snapshotB);
   }
 });
 

@@ -120,7 +120,7 @@ test('R0 validation rejects duplicate fighter, projectile and playable IDs', () 
 test('R0 validation rejects missing references, cancel cycles and invalid timelines', () => {
   const missing = structuredClone(fourthCharacterPackage);
   missing.kit.standing = 'not-there';
-  assert.throws(() => composeCharacterContent([missing], []), /missing referenced entry not-there/);
+  assert.throws(() => composeCharacterContent([missing], []), /Unknown move fixture-fourth: not-there/);
 
   const chain = structuredClone(fourthCharacterPackage);
   chain.moves.fourFollow.nextAttack = 'fourJab';

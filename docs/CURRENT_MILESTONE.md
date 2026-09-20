@@ -41,7 +41,7 @@ See `docs/characters/juanchi/PACKAGE.md`.
 
 R003 is closed and retained only as `coordination/archive/R003-V05-COMBAT-LOOP.md`.
 
-V0.5 was never promoted to official root. Its isolated preview remains historical development evidence. Old V0.5 operational task/plan/forum instructions are not active and are being removed so R004 is the only executable instruction set.
+V0.5 was never promoted to official root. Its isolated preview remains historical development evidence. Old V0.5 operational tasks, handoffs, plan, forum threads and execution audit have been removed. R003 survives only as the historical archive plus durable historical decisions; R004 is the only executable instruction set.
 
 ## V0.6 authority
 

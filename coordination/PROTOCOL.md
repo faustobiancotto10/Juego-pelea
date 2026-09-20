@@ -2,375 +2,235 @@
 
 ## 1. Authority
 
-The repository is authoritative over chat memory.
+Repository state is authoritative over chat memory.
 
-Priority order:
-
+Priority:
 1. Direct user instruction for the current objective.
 2. `coordination/CURRENT_ROUND.md`.
-3. This `PROTOCOL.md`.
-4. The agent's own identity file in `coordination/agents/`.
-5. `STATUS.md`, `LOCKS.md`, assigned task files and active forum threads.
-6. Root `AGENTS.md` and `docs/DECISIONS.md`.
+3. This protocol.
+4. Agent identity file.
+5. STATUS / LOCKS / assigned task / active forum.
+6. Root AGENTS and durable decisions.
 7. Conversation memory.
 
-If chat memory contradicts repository state, follow the repository and raise the mismatch in the active forum.
+If chat and repository disagree, follow repository state and report the mismatch.
 
 ## 2. Team
 
-- **Neureon** — Lead / Coordinator
-- **Ricardo** — Gameplay Engineer
-- **Mario** — Character / Rendering Engineer
-- **Brancaforte** — UI / Input / UX Engineer
-- **Germinator** — Auditor / QA
-- **Gonza** — Integration / Release
+- Neureon — Lead / Coordinator
+- Ricardo — Gameplay Engineer
+- Mario — Character / Rendering Engineer
+- Brancaforte — UI / Input / UX Engineer
+- Germinator — Auditor / QA
+- Gonza — Integration / Release
 
-## 3. Global round lifecycle
+## 3. Round model
 
-Exactly one global state is active:
+Exactly one global round exists.
 
-`IDLE → CHECK_IN → ACTIVE → VALIDATION → RELEASE → ROUND_COMPLETE`
+Normal lifecycle:
 
-`PAUSED` may be entered from any nonterminal state when safe progress is impossible.
+`IDLE → ACTIVE → VALIDATION → RELEASE → ROUND_COMPLETE`
 
-Only Neureon may change the global round state.
+`PAUSED` is used only when safe progress requires a user decision, unavailable evidence, unresolved conflict or a blocking failure.
 
-### IDLE
+Neureon opens a round once. A round may declare:
 
-No active objective. No real task, lock or live forum thread should exist.
+`Execution mode: AUTO_CHAIN`
 
-### CHECK_IN
+When AUTO_CHAIN is active, the single round start token preauthorizes every listed task according to its written dependency graph. There is **no per-stage PRESENT/check-in and no Neureon gate between normal handoffs**.
 
-Neureon opens a round, identifies the required agents and creates the initial task/thread structure.
+Round start token:
 
-Every required agent must post a check-in message in the round's active forum thread:
+`START_ROUND — AUTO_CHAIN`
 
-```text
-PRESENT
-Readiness: READY | WAITING
-Read: role, protocol, current round, status, locks, tasks, active forum
-Initial blocker: none | description
-```
+## 4. AUTO_CHAIN execution
 
-`PRESENT` proves that the chat is alive and synchronized. `READY` means it can start its current work. `WAITING` is valid when a known dependency exists.
+Every task contains:
+- owner and branch;
+- exact dependencies;
+- owned files/subsystems;
+- prohibited scope;
+- acceptance evidence;
+- downstream handoff target.
 
-A round cannot become ACTIVE until all required agents have posted `PRESENT`.
+An agent may start immediately when:
+1. the round is ACTIVE;
+2. its task is listed in CURRENT_ROUND;
+3. every declared dependency is satisfied by a repository handoff/status with required evidence;
+4. no open blocker applies to its subsystem.
 
-When all required agents are present, only Neureon posts:
+The agent synchronizes repository state and begins. It does **not** post PRESENT and does **not** wait for Neureon to issue another token.
 
-`START_ROUND`
+When a task finishes normally:
+1. run the task's required verification;
+2. commit product work on the assigned branch;
+3. write/update the handoff with exact SHA and evidence;
+4. update task/status to HANDOFF_READY / VERIFIED as appropriate;
+5. release locks;
+6. the downstream task becomes automatically eligible.
 
-### Staged activation
+A valid green handoff is the normal progression signal. Neureon does not need to approve every step.
 
-A round may explicitly declare `Staged activation: enabled` in `CURRENT_ROUND.md` to avoid waking roles before their dependencies exist.
+Independent lanes may run in parallel when their dependencies are satisfied. AUTO_CHAIN is a dependency graph, not a rule that only one human may work at once.
 
-### Direct activation
+## 5. Deviation / escalation path
 
-Neureon may explicitly use `DIRECT_START` for a later-stage agent when all of the following are already unambiguous in repository state: role, task, branch, accepted input SHAs, ownership/locks, required evidence and prohibited scope.
+Agents must **stop the affected dependency chain and tell the user directly** when they find:
+- a reproducible regression;
+- a blocker;
+- a contract contradiction;
+- a required scope change;
+- an unsafe shared-interface change;
+- missing authoritative input;
+- evidence that a frozen design assumption is wrong.
 
-With `DIRECT_START`:
-- no separate PRESENT/check-in pulse is required;
-- the user's next pulse wakes the agent, which performs the normal synchronization checklist and immediately begins the authorized task;
-- if synchronization reveals a mismatch or blocker, the agent stops and reports it instead of editing;
-- PRESENT remains required when contracts/inputs are ambiguous, a role is being replaced, or Neureon explicitly requests check-in.
+The agent must:
+1. write a BUG / BLOCKER / DECISION_REQUEST in the active findings thread;
+2. update its task/status to BLOCKED;
+3. avoid speculative fixes outside its owned contract;
+4. tell the user what failed, evidence, affected tasks and the smallest decision needed.
 
-This optimizes pulses without weakening synchronization or stage authority.
+Do **not** automatically summon Neureon for every defect. The user decides whether to send Neureon to audit/re-plan. Downstream tasks that depend on the blocked contract do not proceed.
 
-A round may explicitly declare `Staged activation: enabled` in `CURRENT_ROUND.md` to avoid waking roles before their dependencies exist.
+A local implementation bug fully inside an already-authorized task may be repaired by its owner without user escalation if it does not alter frozen behavior, interfaces, scope or acceptance criteria.
 
-When staged activation is enabled:
-- `CURRENT_ROUND.md` lists every planned agent, ordered activation stages and the current activation gate;
-- only the agents in the current gate must post `PRESENT` before that stage can begin;
-- later-stage agents may remain `OFF_ROUND` until Neureon opens their gate;
-- before a later-stage agent performs any work, it must synchronize and post the normal `PRESENT` block;
-- Neureon records the stage transition in the active forum/status before asking the user to activate those chats;
-- a later-stage role does not block earlier safe work merely because it has not been activated yet;
-- ROUND_COMPLETE still requires every planned stage/task in the round to be satisfied or explicitly removed by a user-approved scope change.
+## 6. Activation / pulse behavior
 
-If `Staged activation` is not declared, the normal full-roster CHECK_IN rule applies.
+A user pulse such as `.` means: synchronize with repository state and continue the highest-priority eligible task already assigned to that agent.
 
-### ACTIVE
+Before product work:
+1. read PROTOCOL;
+2. read CURRENT_ROUND;
+3. read STATUS;
+4. read LOCKS;
+5. read own identity;
+6. read assigned task(s);
+7. read relevant active forum and handoffs;
+8. verify dependencies and branch/base;
+9. answer blocking team requests;
+10. start/continue immediately if eligible.
 
-Agents work, talk to each other in the forum, reserve shared files, implement assigned tasks, review each other's contracts and leave recoverable checkpoints.
+Before each commit/handoff, re-read CURRENT_ROUND, STATUS, LOCKS and relevant findings/contracts.
 
-### VALIDATION
+Chats cannot wake one another. AUTO_CHAIN means **no new authorization is needed**; the user can simply activate the next agent chat and it starts from repository state.
 
-Germinator performs adversarial QA, regression checks and balance scenarios. Implementation agents remain part of the round and must answer questions or repair issues.
+## 7. States
 
-### RELEASE
+Allowed task/agent states:
+- OFF_ROUND
+- READY
+- WORKING
+- WAITING_DEPENDENCY
+- HANDOFF_READY
+- REVIEWING
+- VERIFIED
+- BLOCKED
+- UNRESPONSIVE
 
-Gonza integrates accepted work, resolves integration conflicts, runs full verification, creates the deliverable and publishes only when the round requires publication.
+READY means its dependencies are satisfied and it may work immediately.
+WAITING_DEPENDENCY means preauthorized but not yet eligible.
+BLOCKED means normal auto-chain progression stops for affected dependents.
 
-### ROUND_COMPLETE
+## 8. Forum
 
-Only Neureon may post `ROUND_COMPLETE`.
-
-Only Neureon may declare a round complete with `ROUND_COMPLETE`.
-
-This is the sole signal that ends participation. Finishing an individual task, commit, handoff or review does **not** end an agent's obligation to the round.
-
-After `ROUND_COMPLETE`, Neureon archives the round and resets active surfaces to IDLE.
-
-### PAUSED
-
-Use when:
-- a required agent is unavailable or UNRESPONSIVE;
-- a blocking inconsistency cannot be resolved;
-- repository state is unsafe;
-- required verification cannot be completed;
-- a user decision is required.
-
-Neureon reports the exact missing requirement instead of pretending progress is complete.
-
-## 4. Per-agent states
-
-Allowed states:
-
-- `OFF_ROUND`
-- `CHECKING_IN`
-- `READY`
-- `WORKING`
-- `WAITING`
-- `WAITING_FOR_TEAM`
-- `REVIEWING`
-- `VERIFIED`
-- `BLOCKED`
-- `UNRESPONSIVE`
-
-An agent that finishes its own assignment moves to WAITING_FOR_TEAM, REVIEWING, VERIFIED or BLOCKED. It does not leave the round before ROUND_COMPLETE.
-
-## 5. Activation / pulse behavior
-
-A user pulse such as `.` means: wake up, synchronize with repository state, respond to team communication and continue the current round.
-
-On every activation, before doing new work, every required agent must:
-
-1. Read its identity file.
-2. Read this protocol.
-3. Read `CURRENT_ROUND.md`.
-4. Read `STATUS.md`.
-5. Read `LOCKS.md`.
-6. Read assigned task files.
-7. Read new forum messages mentioning the agent, its task or its owned subsystem.
-8. Answer open team requests before unrelated new work.
-9. Re-evaluate whether its previous plan is still valid.
-10. Continue only after synchronization.
-
-Before each commit or handoff, repeat steps 3–7.
-
-If the round is not ROUND_COMPLETE, an agent may not answer a pulse with only “done” or “finished.” It must first synchronize and determine whether the team still needs action, review, repair or a response.
-
-## 5A. Communication channel restriction
-
-Agents must not send the user email or use external messaging channels for round coordination.
-
-All agent-to-agent coordination stays in:
-- repository forum files under `coordination/forum/active/`;
-- task/status/lock/handoff files;
-- the agent's own ChatGPT conversation when the user activates it.
-
-Do not trigger email as a coordination mechanism. Platform-generated GitHub/ChatGPT notification emails are outside agent control and are not part of the workflow.
-
-## 6. Forum: active team conversation
-
-The forum is a **conversation mechanism** for agents to work together. It is **not a changelog** and not a progress diary.
-
-Agents use threads in `coordination/forum/active/` to:
-- ask each other questions;
-- propose values/interfaces;
-- answer requests;
-- challenge assumptions;
-- coordinate gameplay/render/UI contracts;
-- report discoveries and bugs;
-- request changes;
-- review another agent's approach;
-- resolve blockers before they become integration failures.
+Active forum is working communication, not a progress diary.
 
 Allowed message types:
+- QUESTION
+- PROPOSAL
+- ANSWER
+- REQUEST
+- DISCOVERY
+- BUG
+- BLOCKER
+- REVIEW
+- DECISION_REQUEST
+- ALERT
 
-- `QUESTION`
-- `PROPOSAL`
-- `ANSWER`
-- `REQUEST`
-- `DISCOVERY`
-- `BUG`
-- `BLOCKER`
-- `REVIEW`
-- `DECISION_REQUEST`
-- `ALERT`
+Normal green handoffs belong in task/handoff files. Use the findings thread for meaningful defects, uncertainties and cross-role decisions.
 
-Use `@Neureon`, `@Ricardo`, `@Mario`, `@Brancaforte`, `@Germinator`, `@Gonza` or `@all`.
+## 9. Locks
 
-An open request must receive an answer, explicit deferral or escalation. Do not silently ignore a teammate.
+Before materially editing a shared file, reserve it in LOCKS with path, owner, task and reason.
 
-Forum discussion is provisional. Neureon promotes durable decisions into the appropriate permanent project document.
+No other agent edits a live locked file. Requests go to the owner. Release locks at handoff unless a written follow-up requires them.
 
-## 7. Locks and overlap prevention
+## 10. Branch policy
 
-`LOCKS.md` is the coordination lock registry.
+Unless CURRENT_ROUND says otherwise:
+- live coordination under `coordination/` is authoritative on `main`;
+- product work occurs only on the assigned feature branch;
+- branches start from the exact product base recorded in CURRENT_ROUND;
+- agents never merge stale coordination from feature branches into main;
+- Gonza integrates explicit accepted SHAs/deltas, not ambiguous moving heads.
 
-Before materially editing a shared file, reserve:
-- path;
-- owner;
-- task;
-- reason.
+## 11. Task scope
 
-No other agent edits a locked file.
-
-If another role needs a change in a locked file, it posts a REQUEST to the owner in the relevant forum thread. The owner performs the interface change or coordinates a controlled transfer.
-
-Release locks after the corresponding commit/handoff unless an active follow-up explicitly requires retention.
-
-Germinator audits stale/conflicting locks. Neureon resolves ownership disputes.
-
-## 7A. Branch isolation during active rounds
-
-Unless CURRENT_ROUND explicitly says otherwise:
-
-- authoritative live coordination state under `coordination/` is read from and written to `main`;
-- implementation agents write product code only to the branch assigned by the current round/task;
-- implementation agents do not commit feature code directly to `main`;
-- coordination updates (forum, status, locks, tasks, handoffs) must be visible on `main` so other chats can synchronize;
-- before each product commit/handoff, agents re-read authoritative coordination state from `main`;
-- Gonza integrates explicit accepted commit SHAs rather than ambiguous moving branch heads;
-- integration must never overwrite newer `main` coordination state with stale copies from feature branches.
-
-If a task needs a different branch policy, Neureon must state it explicitly in CURRENT_ROUND and the task contract.
-
-## 8. Tasks and scope
-
-Every real task has a contract under `coordination/tasks/` containing:
-- task ID;
-- round;
-- owner;
+Every real task under `coordination/tasks/` defines:
+- ID / round / owner / branch / status;
+- dependency condition;
 - goal;
-- dependencies;
-- allowed files/subsystems;
+- allowed ownership;
 - prohibited scope;
-- collaborators/reviewers;
-- acceptance criteria;
-- tests/evidence;
-- status;
-- related forum threads.
+- acceptance evidence;
+- handoff target.
 
-Agents do not silently expand scope. New BUG or DISCOVERY findings go to the forum; Neureon assigns them to the current round, a follow-up round or deferred work.
+Agents may not silently broaden scope.
 
-## 9. Handoffs
+## 12. Handoffs
 
-A handoff formally transfers completed work or a contract to another agent/stage.
-
-It contains:
+A handoff contains:
 - task ID;
-- sender;
-- recipient;
-- commit SHA;
+- sender / recipient;
+- exact commit SHA;
 - files changed;
-- behavior/interface contract;
-- verification evidence;
+- interface/behavior contract;
+- tests/evidence;
 - known risks;
 - unresolved questions;
-- requested next action.
+- downstream eligibility statement.
 
-A handoff does not end the sender's participation. The sender remains available until ROUND_COMPLETE.
+If evidence is complete and no blocker is open, the downstream task may start immediately.
 
-## 10. Verification
+## 13. Validation
 
-Every agent verifies its own work before claiming its assigned work is ready.
+Germinator remains independent and may block release.
 
-### Ricardo
-- gameplay tests for changed rules;
-- deterministic behavior preserved;
-- relevant interaction/balance scenarios checked;
-- commit SHA and gameplay contract for consumers.
+A final QA APPROVE automatically satisfies the QA dependency for Gonza's release task. No extra Neureon RELEASE token is required in AUTO_CHAIN when CURRENT_ROUND already preauthorizes publication.
 
-### Mario
-- rendering compiles/runs;
-- combat truth stays outside renderer;
-- required state/animation cases checked;
-- visual smoke/screenshots when available.
+Germinator does not redefine product intent. Product/scope disputes use the deviation path and go to the user.
 
-### Brancaforte
-- input/UI behavior checked;
-- mobile landscape checked;
-- normal playfield not obstructed;
-- UI does not decide combat outcomes.
+## 14. Release
 
-### Germinator
-- regression suite;
-- adversarial and balance scenarios;
-- coordination audit;
-- explicit blocker list;
-- final QA verdict with evidence.
+Gonza may publish only when:
+- all required integration inputs are exact accepted SHAs;
+- Germinator has APPROVE, not BLOCK;
+- full tests/build/parity checks pass;
+- served artifact matches approved source;
+- CURRENT_ROUND explicitly includes a release task.
 
-### Gonza
-- expected commits integrated;
-- full test/build verification;
-- release blockers cleared;
-- published artifact matches approved integrated source when publishing is requested.
+If any condition fails, Gonza issues BLOCK_RELEASE, records evidence and tells the user.
 
-### Neureon
-- all required agents checked in;
-- all required tasks/reviews satisfied;
-- blockers closed;
-- release evidence present;
-- archive/reset completed after closure.
+## 15. Neureon
 
-## 11. Unresponsive / failed chat recovery
+Neureon owns:
+- round creation;
+- dependency graph and frozen contracts;
+- cross-role audit/re-plan when the user requests it;
+- durable decision promotion;
+- final round archive/reset.
 
-Chats cannot run continuously in the background and cannot wake each other. The repository therefore carries recoverable state.
+Neureon is **not** a per-step approval service in AUTO_CHAIN.
 
-If an agent is expected to act after user activation but leaves no meaningful forum response, checkpoint, commit, verification, handoff or blocker, Neureon may mark it `UNRESPONSIVE`.
+Only Neureon issues ROUND_COMPLETE after final evidence exists. This final closure does not imply intermediate gates.
 
-A required UNRESPONSIVE agent blocks ROUND_COMPLETE.
+## 16. Recovery
 
-If its absence prevents safe progress, Neureon changes the round to PAUSED and tells the user exactly which role must be reactivated.
+If an agent is re-opened or replaced, it reconstructs state from repository files. No role depends on one chat instance.
 
-A replacement chat can assume the identity by reading that role file plus current repository state. No role depends on one specific conversation instance.
+If an expected agent is unavailable, mark UNRESPONSIVE only when its missing work actually blocks the dependency graph. Tell the user exactly which task cannot progress.
 
-## 12. Germinator audit authority
+## 17. Runtime isolation
 
-Germinator is independent from implementation roles.
-
-Germinator may:
-- reject insufficient evidence;
-- open BUG, BLOCKER, REVIEW or ALERT messages;
-- detect duplicated/conflicting work;
-- flag lock/ownership violations;
-- challenge gameplay/UI/rendering contracts;
-- require regression coverage;
-- block progression to RELEASE while acceptance criteria remain unmet.
-
-Germinator does not redefine product intent. Scope/product disputes go to Neureon and, when necessary, the user.
-
-## 13. Gonza release authority
-
-Gonza may issue `BLOCK_RELEASE` when:
-- a required task is missing;
-- Germinator has unresolved blockers;
-- tests/build fail;
-- integration conflicts remain;
-- a published artifact would not match approved source.
-
-Neureon then returns the round to ACTIVE/VALIDATION or pauses for user input.
-
-## 14. Archive and reset
-
-At closure, Neureon writes a round archive containing:
-- goal;
-- required agents;
-- tasks;
-- key forum conclusions;
-- promoted decisions;
-- commits/handoffs;
-- QA verdict;
-- release result;
-- deferred items;
-- closure token.
-
-Old active tasks/threads/locks are removed or reset so the next round cannot mistake historical instructions for current work.
-
-## 15. Runtime isolation
-
-Everything under `coordination/` is human/agent coordination data only.
-
-Never import, bundle or execute it from `src/`, `play.html` or other game runtime code.
+Everything under `coordination/` is coordination data only. Never import, bundle or execute it from the game runtime.

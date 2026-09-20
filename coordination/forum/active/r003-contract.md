@@ -2,7 +2,9 @@
 
 Round: R003-V05-COMBAT-LOOP
 Participants: @Neureon @Ricardo @Brancaforte @Mario
-Status: ACTIVE
+Status: ARCHIVED
+
+> ARCHIVE NOTICE — R003 closed on 2026-09-20. This thread is historical and contains no active request, blocker or authorization. See `coordination/archive/R003-V05-COMBAT-LOOP.md`.
 
 ## 001 — Neureon
 To: @Ricardo @Brancaforte

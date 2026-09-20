@@ -80,3 +80,26 @@ Scope:
 Next:
 - @Gonza resynchronizes PR #27 against repaired `main`, reruns merge-ref/Z1 verification and continues publication if green.
 - If the refreshed merge-ref exposes a new product/integration failure, reopen a separate finding.
+
+
+## Z1 BLOCK_RELEASE final resolution — Gonza
+
+Status: **RESOLVED / RELEASED**
+
+The earlier coordination blocker and subsequent release-composition issues are closed.
+
+Recovery sequence:
+- Neureon repaired the authoritative coordination contract on main; CI #893 passed.
+- Gonza's first refreshed merge composition exposed missing V0.5 baseline runtime/docs because main still contained V0.4 product source. This was a Z1 integration-composition bug, not a product defect.
+- Gonza rebuilt release from the **full frozen V0.6 runtime/test tree** of `8acfc79d...` over repaired current main, while preserving main's repaired `tests/coordination-contract.test.mjs`.
+- The only remaining merge-ref failure was stale V0.2 README content; exact accepted V0.5 README was restored from the frozen candidate.
+- final merge-ref CI #900 / run `35539373697`: SUCCESS.
+
+Final release:
+- main: `60f30d4a100f3d853e2408e3eee7bbde4e2170fe`
+- gh-pages: `93d2fdd6f4b764a49fa70ad1ff6ac1f348fb85cc`
+- Pages run `35539408774`: SUCCESS
+- source/public standalone blob: `bda2d2a16a0cd640f654b3b9c7aef148b7213f38`
+- public URL: https://faustobiancotto10.github.io/Juego-pelea/
+
+No release blocker remains.

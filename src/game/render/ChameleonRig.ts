@@ -1,4 +1,5 @@
 import type { FighterSnapshot } from '../types.js';
+import type { LocomotionPose } from './LocomotionPose.js';
 import { getColetazoPresentation } from './CombatEffects.js';
 import { getAirPresentationPose, getMovePresentationPhase } from './PresentationPose.js';
 import { GROUND_Y, clamp01, ellipse, lerp, pulse, roundedLine } from './drawUtils.js';
@@ -19,7 +20,12 @@ function clawFactor(f: FighterSnapshot): number {
   return pulse(f.moveFrame, 1, 6, 14);
 }
 
-export function drawChameleon(ctx: CanvasRenderingContext2D, f: FighterSnapshot, time: number): void {
+export function drawChameleon(
+  ctx: CanvasRenderingContext2D,
+  f: FighterSnapshot,
+  locomotion: LocomotionPose,
+  time: number,
+): void {
   const feetY = GROUND_Y - f.y;
   const idle = Math.sin(time * 5.2 + f.x * 0.01) * 1.4;
   const ko = f.health <= 0 ? 1 : 0;
@@ -45,7 +51,7 @@ export function drawChameleon(ctx: CanvasRenderingContext2D, f: FighterSnapshot,
   const comboBeat = ultimateSequence;
   const airClaw = f.moveId === 'airClaw' ? Math.max(claw, movePhase.active) : 0;
   const airTilt = -motion.ascent * 0.07 + motion.descent * 0.09;
-  const landingCompression = motion.landing * 18;
+  const landingCompression = locomotion.landingAbsorption * 4;
   const forwardLean =
     tongue * 0.12
     + claw * 0.07
@@ -58,10 +64,12 @@ export function drawChameleon(ctx: CanvasRenderingContext2D, f: FighterSnapshot,
     - vanishCoil * 0.12
     + dashDrive * 0.24
     + comboBeat * 0.16
+    + locomotion.torsoLean
     + hurtLean
     - ko * 1.16;
   const bodyDrop =
-    crouch * 30
+    locomotion.pelvisDrop
+    + crouch * 30
     + lowClaw * 24
     + landingCompression
     + coletazo.windup * 7
@@ -115,19 +123,26 @@ export function drawChameleon(ctx: CanvasRenderingContext2D, f: FighterSnapshot,
   const shoulderY = -112 + bodyDrop * 0.45 + idle;
   const hipCounter = coletazo.windup * -13 + coletazo.strike * 11 + coletazo.followThrough * 7;
 
-  // Compact reptilian legs.
-  const step = f.grounded ? Math.sin(time * 10 + f.x * 0.03) * Math.min(8, Math.abs(f.vx) * 1.8) : 0;
+  // Travel-driven feet keep a support foot near its world anchor instead of
+  // oscillating from wall time / velocity while clamped.
+  const jumpTuck = locomotion.tuck * 24 + locomotion.descentBrace * 10;
+  const backFootX = locomotion.backFoot.x;
+  const frontFootX = locomotion.frontFoot.x;
+  const backFootY = -locomotion.backFoot.y - jumpTuck;
+  const frontFootY = -locomotion.frontFoot.y - jumpTuck - locomotion.extension * 3;
   const kneeBend =
     crouch * 18
     + lowClaw * 20
     + motion.airborne * (10 + motion.apex * 13)
-    + motion.landing * 24;
-  roundedLine(ctx, -13 + hipCounter * 0.18, hipY, -18 - step - hipCounter * 0.12, -24 + kneeBend, 20, '#5d9d3c');
-  roundedLine(ctx, -18 - step, -24 + kneeBend, -28 - step * 0.35, -3, 16, '#76b54d');
-  roundedLine(ctx, 12 + hipCounter * 0.2, hipY, 19 + step + hipCounter * 0.16, -26 + kneeBend, 20, '#5d9d3c');
-  roundedLine(ctx, 19 + step, -26 + kneeBend, 30 + step * 0.35, -3, 16, '#76b54d');
-  roundedLine(ctx, -31 - step * 0.35, -2, -14 - step * 0.35, -2, 6, '#adc96b');
-  roundedLine(ctx, 17 + step * 0.35, -2, 34 + step * 0.35, -2, 6, '#adc96b');
+    + locomotion.landingAbsorption * 8;
+  const backKneeX = lerp(-13, backFootX, 0.54) - 6 - hipCounter * 0.08;
+  const frontKneeX = lerp(12, frontFootX, 0.54) + 6 + hipCounter * 0.1;
+  roundedLine(ctx, -13 + hipCounter * 0.18, hipY, backKneeX, -24 + kneeBend + backFootY * 0.34, 20, '#5d9d3c');
+  roundedLine(ctx, backKneeX, -24 + kneeBend + backFootY * 0.34, backFootX, backFootY - 3, 16, '#76b54d');
+  roundedLine(ctx, 12 + hipCounter * 0.2, hipY, frontKneeX, -26 + kneeBend + frontFootY * 0.34, 20, '#5d9d3c');
+  roundedLine(ctx, frontKneeX, -26 + kneeBend + frontFootY * 0.34, frontFootX, frontFootY - 3, 16, '#76b54d');
+  roundedLine(ctx, backFootX - 8, backFootY - 2, backFootX + 10, backFootY - 2, 6, '#adc96b');
+  roundedLine(ctx, frontFootX - 8, frontFootY - 2, frontFootX + 10, frontFootY - 2, 6, '#adc96b');
 
   // Torso with a lighter belly plate.
   ellipse(ctx, 0, -84 + bodyDrop * 0.65, 31, 49 - crouch * 9, '#4f8f38', -0.05, '#274f2c', 3);

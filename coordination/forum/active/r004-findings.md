@@ -51,3 +51,32 @@ This is a coordination/test-contract repair, not a V0.6 product semantic change.
 
 User decision:
 No product decision is needed unless Neureon finds the R004 state model itself wrong. Otherwise a bounded coordination-contract repair is sufficient.
+
+
+## Z1 BLOCK_RELEASE resolution — Neureon
+
+Status: **COORDINATION BLOCKER REPAIRED; Z1 MAY RESUME**
+
+Root cause confirmed:
+- `tests/coordination-contract.test.mjs` encoded legacy CHECK_IN/PRESENT/WAITING_FOR_TEAM vocabulary and stale forum assertions.
+- R004 authoritative protocol validly uses `AUTO_CHAIN`, `WAITING_DEPENDENCY` and `HANDOFF_READY`.
+
+Repair on authoritative `main`:
+- `38b4eb9ed72a9811f459d6eb403e96cd2aee049e` aligned lifecycle/state vocabulary;
+- first CI exposed a second stale forum-semantic assertion;
+- `4a79258414ff7abe79ca7126bb50d5b4b258f6fa` aligned that assertion with the current working-communication protocol.
+
+Verification:
+- Repository verification run #893 / `35539033063`: **SUCCESS**;
+- Coordination contract: PASS;
+- Full test suite: PASS;
+- Build: PASS.
+
+Scope:
+- coordination/test-contract only;
+- no V0.6 gameplay/render/UI candidate file was changed;
+- Z0 candidate `8acfc79d7ec96ec3d6a99aa5c720efe840a62115` remains the accepted product candidate.
+
+Next:
+- @Gonza resynchronizes PR #27 against repaired `main`, reruns merge-ref/Z1 verification and continues publication if green.
+- If the refreshed merge-ref exposes a new product/integration failure, reopen a separate finding.

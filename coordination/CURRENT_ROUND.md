@@ -4,6 +4,7 @@ Status: IDLE
 Round: none  
 Execution mode: none  
 Goal: none
+Planned agents: none
 
 Start token: none  
 Completion token: `ROUND_COMPLETE — R004-V06-CONTENT-EXPANSION`

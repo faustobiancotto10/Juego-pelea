@@ -1,4 +1,5 @@
 import type { FighterSnapshot } from '../types.js';
+import type { LocomotionPose } from './LocomotionPose.js';
 import { getAirPresentationPose, getMovePresentationPhase } from './PresentationPose.js';
 import { GROUND_Y, ellipse, lerp, polygon, pulse, roundedLine } from './drawUtils.js';
 
@@ -10,7 +11,12 @@ function noseFactor(f: FighterSnapshot): number {
   return pulse(f.moveFrame, 2, 7, 17);
 }
 
-export function drawSupernariz(ctx: CanvasRenderingContext2D, f: FighterSnapshot, time: number): void {
+export function drawSupernariz(
+  ctx: CanvasRenderingContext2D,
+  f: FighterSnapshot,
+  locomotion: LocomotionPose,
+  time: number,
+): void {
   const feetY = GROUND_Y - f.y;
   const idle = Math.sin(time * 5.8 + f.x * 0.01) * 1.2;
   const crouch = f.crouching ? 1 : 0;
@@ -32,7 +38,7 @@ export function drawSupernariz(ctx: CanvasRenderingContext2D, f: FighterSnapshot
   const airNose = f.moveId === 'airNose' ? Math.max(nose, movePhase.active) : 0;
   const inhaleBrace = ultimateStartup * 0.72 + ultimateCapture;
   const airTilt = -motion.ascent * 0.06 + motion.descent * 0.1;
-  const landingCompression = motion.landing * 18;
+  const landingCompression = locomotion.landingAbsorption * 4;
   const nazazoDrive = ultimateSequence;
   const lean =
     nose * 0.16
@@ -44,10 +50,12 @@ export function drawSupernariz(ctx: CanvasRenderingContext2D, f: FighterSnapshot
     - ultimateStartup * 0.09
     - ultimateCapture * 0.16
     + ultimateSequence * 0.15
+    + locomotion.torsoLean
     + hurtLean
     - ko * 1.08;
   const bodyDrop =
-    crouch * 32
+    locomotion.pelvisDrop
+    + crouch * 32
     + lowNose * 25
     + landingCompression
     + ultimateStartup * 5
@@ -66,12 +74,16 @@ export function drawSupernariz(ctx: CanvasRenderingContext2D, f: FighterSnapshot
 
   const hipY = -60 + bodyDrop;
   const shoulderY = -126 + bodyDrop * 0.45 + idle;
-  const step = f.grounded ? Math.sin(time * 10.5 + f.x * 0.025) * Math.min(9, Math.abs(f.vx) * 1.6) : 0;
+  const jumpTuck = locomotion.tuck * 25 + locomotion.descentBrace * 10;
+  const backFootX = locomotion.backFoot.x;
+  const frontFootX = locomotion.frontFoot.x;
+  const backFootY = -locomotion.backFoot.y - jumpTuck;
+  const frontFootY = -locomotion.frontFoot.y - jumpTuck - locomotion.extension * 3;
   const knee =
     crouch * 20
     + lowNose * 21
     + motion.airborne * (10 + motion.apex * 13)
-    + motion.landing * 24;
+    + locomotion.landingAbsorption * 8;
 
   // Cape goes behind the body with a wind-responsive Bézier silhouette.
   ctx.save();
@@ -94,13 +106,15 @@ export function drawSupernariz(ctx: CanvasRenderingContext2D, f: FighterSnapshot
   ctx.stroke();
   ctx.restore();
 
-  // Legs and boots.
-  roundedLine(ctx, -12, hipY, -14 - step, -30 + knee, 19, '#2f5fb2');
-  roundedLine(ctx, -14 - step, -30 + knee, -25 - step * 0.45, -5, 15, '#376dc8');
-  roundedLine(ctx, 12, hipY, 17 + step, -29 + knee, 19, '#2f5fb2');
-  roundedLine(ctx, 17 + step, -29 + knee, 28 + step * 0.45, -5, 15, '#376dc8');
-  roundedLine(ctx, -31 - step * 0.45, -4, -13 - step * 0.45, -4, 10, '#a62b34');
-  roundedLine(ctx, 15 + step * 0.45, -4, 34 + step * 0.45, -4, 10, '#a62b34');
+  // Legs and boots follow root travel rather than a wall-time oscillator.
+  const backKneeX = lerp(-12, backFootX, 0.54) - 6;
+  const frontKneeX = lerp(12, frontFootX, 0.54) + 6;
+  roundedLine(ctx, -12, hipY, backKneeX, -30 + knee + backFootY * 0.34, 19, '#2f5fb2');
+  roundedLine(ctx, backKneeX, -30 + knee + backFootY * 0.34, backFootX, backFootY - 5, 15, '#376dc8');
+  roundedLine(ctx, 12, hipY, frontKneeX, -29 + knee + frontFootY * 0.34, 19, '#2f5fb2');
+  roundedLine(ctx, frontKneeX, -29 + knee + frontFootY * 0.34, frontFootX, frontFootY - 5, 15, '#376dc8');
+  roundedLine(ctx, backFootX - 9, backFootY - 4, backFootX + 10, backFootY - 4, 10, '#a62b34');
+  roundedLine(ctx, frontFootX - 9, frontFootY - 4, frontFootX + 11, frontFootY - 4, 10, '#a62b34');
 
   // Slim suit torso.
   ellipse(ctx, 0, -94 + bodyDrop * 0.62, 29, 51 - crouch * 8, '#2d61bd', -0.03, '#16376f', 3);

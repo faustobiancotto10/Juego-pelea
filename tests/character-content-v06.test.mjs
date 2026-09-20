@@ -17,9 +17,9 @@ import { JUANCHI_CHARACTER_ID, JUANCHI_PRESENTATION } from '../dist/game/data/ch
 import { fourthCharacterPackage, fourthPackageId } from './fixtures/v06-character-package.mjs';
 
 test('R0 extracts V0.5 values into ordered Character Packages without tuning', () => {
-  assert.deepEqual([...DEFAULT_CHARACTER_COMPOSITION.packageIds], ['chameleon', 'supernariz']);
-  assert.deepEqual([...FIGHTER_IDS], ['chameleon', 'supernariz']);
-  assert.deepEqual([...DEFAULT_COMBAT_REGISTRY.playableIds], ['chameleon', 'supernariz']);
+  assert.deepEqual([...DEFAULT_CHARACTER_COMPOSITION.packageIds], ['chameleon', 'supernariz', 'juanchi']);
+  assert.deepEqual([...FIGHTER_IDS], ['chameleon', 'supernariz', 'juanchi']);
+  assert.deepEqual([...DEFAULT_COMBAT_REGISTRY.playableIds], ['chameleon', 'supernariz', 'juanchi']);
 
   assert.equal(FIGHTERS.chameleon.maxHealth, 1000);
   assert.equal(FIGHTERS.chameleon.walkSpeed, 4.25);
@@ -38,13 +38,19 @@ test('R0 extracts V0.5 values into ordered Character Packages without tuning', (
   assert.equal(DEFAULT_FIGHTER_PRESENTATION_REGISTRY.getPresentation('supernariz').rangedAvailabilityLabel, 'CHORIZO');
 });
 
-test('R0 Juanchi module freezes presentation identity but does not release gameplay before R2', () => {
+test('R2 releases the complete Juanchi package through the default registries', () => {
   assert.equal(JUANCHI_CHARACTER_ID, 'juanchi');
   assert.equal(JUANCHI_PRESENTATION.rigKey, 'juanchi');
   assert.equal(JUANCHI_PRESENTATION.ultimateVisualKey, 'police-cap-rage');
-  assert.equal(JUANCHI_PRESENTATION.rangedAvailabilityLabel, 'RUGBY BALL');
-  assert.equal(DEFAULT_COMBAT_REGISTRY.playableIds.includes(JUANCHI_CHARACTER_ID), false);
-  assert.throws(() => DEFAULT_COMBAT_REGISTRY.getFighter(JUANCHI_CHARACTER_ID), /Unknown fighter juanchi/);
+  assert.equal(JUANCHI_PRESENTATION.rangedAvailabilityLabel, 'PELOTA');
+  assert.equal(DEFAULT_COMBAT_REGISTRY.playableIds.includes(JUANCHI_CHARACTER_ID), true);
+  assert.equal(DEFAULT_COMBAT_REGISTRY.getFighter(JUANCHI_CHARACTER_ID).walkSpeed, 4.55);
+  assert.equal(DEFAULT_COMBAT_REGISTRY.getProjectile('juanchiRugby').kind, 'returnToOwner');
+  assert.deepEqual(
+    DEFAULT_COMBAT_REGISTRY.getMove('juanchi', 'friccion').hits.map((hit) => hit.hitId),
+    ['rub-a', 'rub-b', 'palm-release'],
+  );
+  assert.equal(DEFAULT_COMBAT_REGISTRY.getUltimate('juanchiPoliceCap').kind, 'capCapture');
 });
 
 test('R0 fourth synthetic Character Package registers structurally without entering released playable roster', () => {
@@ -53,7 +59,7 @@ test('R0 fourth synthetic Character Package registers structurally without enter
   const registry = createCombatRegistry(composition);
   const presentations = createFighterPresentationRegistry(packages);
 
-  assert.deepEqual([...composition.packageIds], ['chameleon', 'supernariz', fourthPackageId]);
+  assert.deepEqual([...composition.packageIds], ['chameleon', 'supernariz', 'juanchi', fourthPackageId]);
   assert.equal(registry.getFighter(fourthPackageId).maxHealth, 840);
   assert.equal(registry.getMove(fourthPackageId, 'fourJab').hitbox.damage, 34);
   assert.equal(registry.getProjectile('fixture-four-bolt').visualKey, 'fixture-four-bolt');

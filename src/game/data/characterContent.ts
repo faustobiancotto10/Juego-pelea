@@ -6,6 +6,7 @@ import type { MoveDefinition, HitboxSpec, MoveHitWindow } from '../simulation/mo
 import type { FighterId, RegisteredFighterId } from '../types.js';
 import { CAMALEONI_CHARACTER_CONTENT } from './characters/camaleoni.js';
 import { SUPERNARIZ_CHARACTER_CONTENT } from './characters/supernariz.js';
+import { JUANCHI_CHARACTER_CONTENT } from './characters/juanchi.js';
 
 export interface FighterPresentationDefinition {
   rigKey: string;
@@ -545,9 +546,10 @@ export function createFighterPresentationRegistry(
 export const RELEASED_CHARACTER_PACKAGES: readonly CombatCharacterContent[] = Object.freeze([
   CAMALEONI_CHARACTER_CONTENT,
   SUPERNARIZ_CHARACTER_CONTENT,
+  JUANCHI_CHARACTER_CONTENT,
 ]);
 
 export const DEFAULT_CHARACTER_COMPOSITION = composeCharacterContent(
   RELEASED_CHARACTER_PACKAGES,
-  ['chameleon', 'supernariz'],
+  ['chameleon', 'supernariz', 'juanchi'],
 );

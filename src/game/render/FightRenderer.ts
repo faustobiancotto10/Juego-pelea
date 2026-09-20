@@ -15,7 +15,7 @@ import {
   drawUltimateImpact,
   getColetazoPresentation,
 } from './CombatEffects.js';
-import { drawFighter } from './FighterRenderer.js';
+import { drawFighter, resetFighterPresentation } from './FighterRenderer.js';
 import { drawStage } from './StageRenderer.js';
 import { GROUND_Y, WORLD_HEIGHT, WORLD_WIDTH, ellipse } from './drawUtils.js';
 
@@ -81,6 +81,11 @@ export class FightRenderer {
   }
 
   private consumeEvent(event: CombatEvent, snapshot: MatchSnapshot): void {
+    if (event.type === 'round-start') {
+      resetFighterPresentation();
+      return;
+    }
+
     if (event.type === 'push-guard') {
       const defender = snapshot.fighters[event.defender];
       this.pushGuardFlashes.push({
@@ -220,6 +225,7 @@ export class FightRenderer {
     this.lastSnapshot = snapshot;
     const simulationDelta = this.consumeSimulationFrameDelta(snapshot.frame);
     const simulationTimeSeconds = snapshot.frame / 60;
+    const combatTimeSeconds = snapshot.combatTick / 60;
     this.resize();
     const ctx = this.ctx;
     const dpr = Math.min(2, window.devicePixelRatio || 1);
@@ -268,20 +274,30 @@ export class FightRenderer {
 
     this.drawUltimateFields(snapshot, simulationTimeSeconds);
 
-    // Draw farther/airborne fighter first for a stable fighting-game layer order.
-    const ordered = [...snapshot.fighters].sort((a, b) => (b.y - a.y) || (a.x - b.x));
-    for (const fighter of ordered) {
+    // Draw farther/airborne fighter first while preserving stable slot identity
+    // for mirrored matchups and per-slot locomotion histories.
+    const ordered = ([0, 1] as const)
+      .map((index) => ({ index, fighter: snapshot.fighters[index] }))
+      .sort((a, b) => (b.fighter.y - a.fighter.y) || (a.fighter.x - b.fighter.x));
+    for (const { index, fighter } of ordered) {
       if (fighter.capturedBy !== null) {
         const captor = snapshot.fighters[fighter.capturedBy];
         drawCapturedLock(
           ctx,
           fighter.x,
           GROUND_Y - fighter.y,
-          captor.id === 'chameleon' ? '#9ef5a5' : '#ffd0a1',
+          captor.id === 'chameleon' ? '#9ef5a5' : captor.id === 'juanchi' ? '#d8b65c' : '#ffd0a1',
           simulationTimeSeconds,
         );
       }
-      drawFighter(ctx, fighter, simulationTimeSeconds);
+      drawFighter(
+        ctx,
+        fighter,
+        index,
+        snapshot.frame,
+        snapshot.combatTick,
+        combatTimeSeconds,
+      );
     }
 
     this.updateAndDrawTransientCombatEffects(simulationDelta);

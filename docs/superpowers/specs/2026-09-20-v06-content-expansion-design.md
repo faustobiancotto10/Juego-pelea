@@ -1,10 +1,10 @@
 # V0.6 — Three fighters, two stages, reusable content production
 
-Date: 2026-09-20 (audit begun 2026-09-19). Implementation-ready recommendation; no production changes or round activation. [Audit/evidence](2026-09-20-v06-architecture-gameplay-audit.md) defines the exact V0.5 baseline. Neureon freezes this package before specialist execution; no future Astra gate.
+Date: 2026-09-20 (audit begun 2026-09-19). **Frozen for active implementation in R004-V06-CONTENT-EXPANSION.** [Audit/evidence](2026-09-20-v06-architecture-gameplay-audit.md) defines the V0.5 baseline. CURRENT_ROUND and V06 task files now govern execution; no future Astra gate.
 
 ## Product outcome and chosen approach
 
-Ship **Juanchi as a complete third playable/CPU fighter**, a distinct second stage, physical locomotion across all three fighters and Universal Ultimate Clash. Targeted Lengua/Ultimate changes support those outcomes. Preserve procedural Canvas2D, fixed60Hz, four touch actions, keyboard fallback, current guard/Push Guard and short chains.
+Ship **Juanchi as a complete third playable/CPU fighter**, Cancha 56 as the second stage, physical locomotion across all three fighters, Universal Ultimate Clash, and a real fighting-game front end (cover → fighter/opponent select → stage select → VS → fight). Targeted Lengua/Ultimate changes support those outcomes. Preserve procedural Canvas2D, fixed60Hz, four touch actions, keyboard fallback, current guard/Push Guard and short chains. Stage detail is frozen in [Cancha 56](2026-09-20-v06-cancha56-stage-contract.md); UI flow is frozen in [front-end contract](2026-09-20-v06-fighting-game-ui-flow.md).
 
 Options considered:
 

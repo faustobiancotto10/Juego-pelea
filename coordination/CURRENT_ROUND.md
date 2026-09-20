@@ -1,102 +1,29 @@
 # Current Round
 
-Status: ACTIVE
-Round: R003-V05-COMBAT-LOOP
-Goal: Repair combat commitment/input foundations and redesign the V0.5 combat loop so active fighting is more rewarding than passive guard + Special repetition.
-Staged activation: enabled
-Planned agents: Neureon, Ricardo, Brancaforte, Germinator, Mario, Gonza
-Current activation gate: STAGE_5_INTEGRATED_EXPERIENCE
-Required at current gate: Neureon, Germinator
-Start token: START_ROUND — STAGE_5_INTEGRATED_EXPERIENCE
-Completion token: not issued
+Status: IDLE
+Round: none
+Goal: none
+Staged activation: not applicable
+Planned agents: none
+Current activation gate: none
+Required at current gate: none
+Start token: none
+Completion token: `ROUND_COMPLETE — R003-V05-COMBAT-LOOP`
 
-## Product authority
+## Last closed round
 
-External master audit:
-- `docs/superpowers/specs/2026-09-19-v05-combat-loop-master-audit.md`
+R003-V05-COMBAT-LOOP closed on 2026-09-20 by direct user instruction.
 
-Implementation plan:
-- `docs/superpowers/plans/2026-09-19-v05-combat-loop-implementation-plan.md`
+Archive:
+- `coordination/archive/R003-V05-COMBAT-LOOP.md`
 
-External handoff:
-- `coordination/forum/2026-09-19-v05-external-audit-handoff.md`
+Closure semantics:
+- V0.5 technical milestone closed.
+- Integrated V0.5 source remains `2d8c41dc994c8cddaa4c9fe2b3ee957698e94f13`.
+- Final automated QA remains `2876f3bce7d77c04c7415df89cafcf8b31f1b61c`, 206/206 + build PASS.
+- V0.5 was not promoted to the official public root.
+- Physical Safari, human comparison, readability and same-device performance evidence were not falsely marked as passed.
+- No V0.6 round is active.
+- No V0.6 START_ROUND or DIRECT_START token has been issued.
 
-Astra is not part of this round and is not required for any gate.
-
-## Selected V0.5 package
-
-- repair attack+guard commitment bug;
-- repair browser/pointer lifecycle and control selection/stuck-input bug;
-- lossless action buffering through hitstop;
-- reliable short melee routes;
-- one grounded low normal per fighter;
-- down/down-forward + SPECIAL = Coletazo/Tramontana;
-- ranged Specials remain useful but carry real commitment/counterplay;
-- repair airborne carry/facing/crossover behavior;
-- real Ultimate launch/separation;
-- delayed, seeded CPU perception instead of instant reaction;
-- targeted procedural animation/game-feel pass;
-- bounded character-kit extraction sufficient for imminent new fighters.
-
-Explicitly deferred:
-- grabs/throw-tech;
-- blanket large cooldowns;
-- new universal resources;
-- long combo system;
-- fifth action button;
-- generic scripting engine;
-- new playable fighter during this round.
-
-## Stages
-
-### STAGE_0_SCOPE — complete
-Neureon converted the Astra audit into executable contracts and round ownership.
-
-### STAGE_1_REPAIR_FOUNDATIONS — complete
-Parallel:
-- Ricardo R1: guard/commitment/contact invariants.
-- Brancaforte B1: browser-safe pointer/control lifecycle.
-
-No shared product files between them.
-
-### STAGE_2_CORE — complete
-Ricardo R2 → R3 → R4 → R5:
-content boundary, command buffer/combos/grammar, air+Ultimate exit, CPU perception.
-Freeze one exact core consumer SHA.
-
-### STAGE_3_CORE_QA — complete
-Germinator G1 independently attacks the frozen core.
-
-### STAGE_4_PRESENTATION_UX — complete
-Parallel on accepted core:
-- Mario M1 presentation/animation.
-- Brancaforte B2 final input grammar/UI responsiveness.
-
-### STAGE_5_INTEGRATED_EXPERIENCE — current
-Germinator G2 + Neureon: integrated adversarial QA and human/device playtest gate.
-
-### STAGE_6_RELEASE
-Gonza Z1 integrates accepted SHAs, regenerates standalone, verifies Pages and releases.
-
-## Branches
-
-- Ricardo: `round/r003-ricardo`
-- Brancaforte: `round/r003-brancaforte`
-- Mario: `round/r003-mario`
-- Germinator: `round/r003-germinator`
-- Gonza: `round/r003-integration`
-
-Live coordination remains on `main`. Product code stays on assigned branches. Gonza integrates accepted SHAs/deltas only.
-
-## Current gate
-
-Stage 1 accepted checkpoints:
-- R1 Ricardo: `5f6d59eb2dae2e386c55593a9af346e184d5611f`
-- B1 Brancaforte: `4eddddad0a69df0b6562e28f3e55fd66bafd4fc5`
-
-Stage 2 frozen core accepted and independently approved for presentation:
-- core: `8e74d1e7ac34ac6524d725553b01b32bb3ff33bc`
-- accepted B1: `4eddddad0a69df0b6562e28f3e55fd66bafd4fc5`
-- corrected G1 QA: `bcececf57391a673c141e755b2077cf5bba23a90`, CI #561, 186/186 + build PASS.
-
-Stage 4 is authorized. Mario M1 and Brancaforte B2 work in parallel on separate ownership surfaces. Stage 5 remains closed until both exact-SHA handoffs are accepted.
+The next round must be created explicitly by Neureon only after new user direction.

@@ -1,13 +1,11 @@
 # Active Forum Threads
 
-Current round: `R004-V06-CONTENT-EXPANSION`  
-Global state: ACTIVE  
-Execution mode: `AUTO_CHAIN`
+Current round: none  
+Global state: IDLE
 
-- [R004 frozen contract](r004-contract.md)
-- [R004 findings / blockers](r004-findings.md)
-- [R004 integration / exact-SHA assembly](r004-integration.md)
+No active implementation/forum threads.
 
-Normal green task completion is recorded in task/handoff files and automatically unlocks downstream dependencies. Do not use the forum as a progress diary.
+R004 is archived at:
+- `coordination/archive/R004-V06-CONTENT-EXPANSION.md`
 
-If a blocker, regression, contract contradiction or scope-changing requirement appears, use `r004-findings.md` and tell the user directly. Neureon audits/replans only when the user requests it.
+Next-version feedback and El Toro intake are planning inputs only. An external Astra audit may create planning documents without opening a production round.

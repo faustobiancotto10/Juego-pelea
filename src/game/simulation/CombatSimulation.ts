@@ -2220,6 +2220,7 @@ export class CombatSimulation {
     fighter.ultimatePhaseFrame = 0;
     fighter.ultimateConnected = false;
     fighter.ultimateTarget = null;
+    fighter.ultimateEffectiveTick = null;
     fighter.ultimateProbe = null;
     fighter.captureAnchorX = null;
     fighter.ultimateSequenceStartX = null;
@@ -2244,6 +2245,9 @@ export class CombatSimulation {
     fighter.ultimateConnected = false;
     fighter.ultimateTarget = null;
     fighter.ultimateEffectiveTick = null;
+    fighter.ultimateProbe = null;
+    fighter.captureAnchorX = null;
+    fighter.ultimateSequenceStartX = null;
     this.clearMove(fighter);
   }
 

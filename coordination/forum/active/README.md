@@ -1,13 +1,13 @@
 # Active Forum Threads
 
-Current round: none  
-Global state: `IDLE`.
+Current round: `R004-V06-CONTENT-EXPANSION`  
+Global state: ACTIVE  
+Execution mode: `AUTO_CHAIN`
 
-There are no active implementation/forum threads.
+- [R004 frozen contract](r004-contract.md)
+- [R004 findings / blockers](r004-findings.md)
+- [R004 integration / exact-SHA assembly](r004-integration.md)
 
-Last closed round:
-- [R003-V05-COMBAT-LOOP archive](../../archive/R003-V05-COMBAT-LOOP.md)
+Normal green task completion is recorded in task/handoff files and automatically unlocks downstream dependencies. Do not use the forum as a progress diary.
 
-Historical R003 thread files remain repository records only and are not active instructions.
-
-The existing V0.6 external design handoff and specs are planning material. They do not activate a round, assign tasks or authorize implementation.
+If a blocker, regression, contract contradiction or scope-changing requirement appears, use `r004-findings.md` and tell the user directly. Neureon audits/replans only when the user requests it.

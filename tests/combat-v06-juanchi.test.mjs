@@ -227,8 +227,7 @@ test('R2 clean hit on owner cancels an active ball before it can rescue them and
 test('R2 outbound wall contact starts the non-damaging turn early without wrapping', () => {
   const sim = new CombatSimulation('juanchi', 'chameleon', { skipIntro: true });
   sim.fighters[0].x = 1135;
-  sim.fighters[1].x = 300;
-  sim.fighters[0].facing = 1;
+  sim.fighters[1].x = 1190;
   let snap = spawnBall(sim);
   let turned = false;
   for (let n = 0; n < 18 && !turned; n += 1) {
@@ -271,21 +270,23 @@ function runCapSuccess(targetId = 'chameleon', attacker = 0) {
   return { sim, snap, hits, capture, release, defender };
 }
 
-test('R2 Police Cap Rage confirms only after the probe reaches a valid head and totals 190', () => {
+test('R2 Police Cap Rage confirms only after the probe reaches a valid head and totals 190 in both slots', () => {
   for (const targetId of ['chameleon', 'supernariz', 'juanchi']) {
-    const { hits, capture, release, defender } = runCapSuccess(targetId, 0);
-    assert.ok(capture, targetId);
-    assert.equal(capture.events.some((event) => event.type === 'hit'), false, 'capture itself deals no damage');
-    assert.equal(capture.fighters[defender].capturedBy, 0);
-    assert.equal(capture.fighters[0].ultimateProbe, null);
-    assert.notEqual(capture.fighters[0].captureAnchorX, null);
-    assert.deepEqual(hits.map((hit) => hit.damage), [15, 15, 15, 15, 130]);
-    assert.equal(hits.reduce((sum, hit) => sum + hit.damage, 0), 190);
-    assert.equal(hits.at(-1).majorImpact, true);
-    assert.ok(release);
-    assert.equal(release.fighters[defender].capturedBy, null);
-    assert.equal(release.fighters[0].captureAnchorX, null);
-    assert.equal(release.hitstopFrames, 12);
+    for (const attacker of [0, 1]) {
+      const { hits, capture, release, defender } = runCapSuccess(targetId, attacker);
+      assert.ok(capture, `${targetId} attacker=${attacker}`);
+      assert.equal(capture.events.some((event) => event.type === 'hit'), false, 'capture itself deals no damage');
+      assert.equal(capture.fighters[defender].capturedBy, attacker);
+      assert.equal(capture.fighters[attacker].ultimateProbe, null);
+      assert.notEqual(capture.fighters[attacker].captureAnchorX, null);
+      assert.deepEqual(hits.map((hit) => hit.damage), [15, 15, 15, 15, 130]);
+      assert.equal(hits.reduce((sum, hit) => sum + hit.damage, 0), 190);
+      assert.equal(hits.at(-1).majorImpact, true);
+      assert.ok(release);
+      assert.equal(release.fighters[defender].capturedBy, null);
+      assert.equal(release.fighters[attacker].captureAnchorX, null);
+      assert.equal(release.hitstopFrames, 12);
+    }
   }
 });
 

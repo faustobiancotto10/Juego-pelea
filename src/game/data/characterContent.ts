@@ -308,7 +308,9 @@ function validateCombatSource(source: CharacterCombatSource): void {
     validateCpu(`kits.${id}.cpu`, kit);
 
     const requiredMoves = [kit.standing, kit.low, kit.air, kit.rangedSpecial, kit.closeSpecial, kit.ultimate];
-    for (const moveId of requiredMoves) requireEntry(moveSet, moveId, `kits.${id}`);
+    for (const moveId of requiredMoves) {
+      if (!moveSet[moveId]) throw new Error(`Unknown move ${id}: ${moveId}`);
+    }
 
     for (const [moveId, move] of Object.entries(moveSet)) {
       validateMove(`moves.${id}.${moveId}`, move);

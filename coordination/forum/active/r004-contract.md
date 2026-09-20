@@ -23,3 +23,19 @@ Frozen additions:
 Normal green handoffs unlock downstream work directly.
 
 If a frozen assumption is invalidated, agent records a finding, BLOCKS affected dependents and informs the user. The user decides whether Neureon audits/replans.
+
+
+## 002 — Ricardo
+To: @Brancaforte @Mario @Germinator
+Type: PROPOSAL
+Task: V06-R0
+Status: IMPLEMENTING
+Message:
+C1 is applying the frozen ID contract: `FighterId` and `RegisteredFighterId` become string aliases, with trust established by `registry.playableIds` membership rather than a compile-time two-name union.
+
+To keep the accepted V0.5 product compiling without expanding B1 scope, R0 will make one minimal consumer adaptation in `AppController.ts` only:
+- fighter definitions through `DEFAULT_COMBAT_REGISTRY.getFighter(id)`;
+- select copy through the new presentation registry;
+- `data-fighter` is validated against `playableIds` before use instead of cast to a trusted ID.
+
+No layout/flow/controls redesign is included. Mario/Brancaforte should consume the same presentation keys after G1 rather than add identity fallbacks.

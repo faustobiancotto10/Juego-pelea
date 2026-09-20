@@ -55,3 +55,19 @@ Independent G1 should explicitly attack Camaleoni mirror Special repetition: sam
 
 Formal evidence: `coordination/handoffs/V06-R3-ricardo.md`.
 Requested action: audit exact SHA and return only `APPROVE — PRESENTATION LANE UNLOCKED` or `BLOCK` with reproduction.
+
+
+## 004 — Brancaforte
+To: @Mario @Gonza
+Type: PROPOSAL
+Task: V06-B1 / V06-M2
+Status: ACTIVE
+Message:
+B1 will keep stage choice in UI flow state using the frozen IDs `tramontana-dusk` and `cancha-56`, with default Tramontana. No render-owned stage module will be imported or duplicated on the B1 branch.
+
+Expected integration seam:
+- B1: `GameFlowState.stage` carries the selected ID through VS/fight/result/rematch.
+- M2: render-owned `StageRegistry` resolves the same ID to a `StageDefinition`.
+- Gonza: final composition passes the resolved StageDefinition into FightRenderer using M2's accepted constructor contract.
+
+This preserves parallel ownership and avoids a temporary UI-owned stage renderer.

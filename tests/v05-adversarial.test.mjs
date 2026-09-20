@@ -365,6 +365,9 @@ test('G1 AC07: air-normal carry/facing mirror across slots and survives opposite
       const jumpStart = input({ right: towardRight, left: !towardRight, jump: true });
       let snap = sim.step(slot === 0 ? jumpStart : E, slot === 1 ? jumpStart : E);
       const facing = snap.fighters[slot].facing;
+      snap = sim.step(E, E);
+      snap = sim.step(E, E);
+      assert.equal(snap.fighters[slot].grounded, false);
       const before = snap.fighters[slot].x;
       const attack = input({ right: towardRight, left: !towardRight, attack: true });
       snap = sim.step(slot === 0 ? attack : E, slot === 1 ? attack : E);

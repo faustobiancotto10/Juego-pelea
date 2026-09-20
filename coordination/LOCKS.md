@@ -13,3 +13,4 @@ Ownership reservations are defined in task contracts; an agent creates a live lo
 | src/game/simulation/CpuController.ts | Ricardo | V06-R2 | data-driven Juanchi tactics/resource legality |
 | src/game/simulation/ultimateArbitration.ts | Ricardo | V06-R2 | capCapture confrontation volume |
 | tests/combat-v06-juanchi.test.mjs | Ricardo | V06-R2 | Juanchi primitive acceptance matrix |
+| tests/character-content-v06.test.mjs | Ricardo | V06-R2 | update R0 pre-R2 roster assertions after Juanchi release |

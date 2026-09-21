@@ -96,3 +96,17 @@ Technical verification:
 - runtime raster/reference guard: PASS.
 
 Mario-A did **not** promote the candidate to Germinator. Direct artifact inspection plus baseline raster comparison showed the visual delta remained too incremental for the user-authorized “super-improvement” acceptance, especially in silhouette/head/body construction. V07-M3B and V07-M3C are reopened for bounded stronger structural/reference passes. V07-M3D remains green. V07-M3I, Germinator G2 and Gonza remain blocked until refreshed B+C exact-SHA handoffs are green.
+
+
+### Refreshed M3I accepted — 2026-09-21
+
+Mario-A recomposed the squad using refreshed B `cc75a56a1c56d9c6a988a3144880719a3515c4e9` and refreshed C `3131bbef6a517785722d48a255e2d8a0daf10e7b`, with A/D frozen. Final integrated candidate: `f34760948cb2024c0c83f4a02202117a8ad3bf2f`.
+
+Verification:
+- Repository verification #1326 / `35574082604`: PASS;
+- Character Pipeline V2 #54 / `35574082616`: PASS;
+- artifact ID `10626449146`, digest `sha256:bba910e35cf910693d483236bce181a5b90e968d36276c63a75eeee0983936d4`;
+- all 14 integration blobs match their accepted lane sources exactly;
+- runtime raster/reference guard: PASS.
+
+The prior M3I visual blocker is resolved. Baseline→refreshed integrated changed-pixel coverage is ~8.35% normal color, ~4.31% neutral silhouette and ~10.13% 844×390 phone landscape; direct inspection confirms materially stronger structural separation across all four fighters. V07-M3I is HANDOFF_READY and Germinator V07-G2 is READY for independent audit. Gonza remains blocked until G2 verdict.

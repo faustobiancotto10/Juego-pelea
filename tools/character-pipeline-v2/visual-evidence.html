@@ -1,0 +1,208 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>V07-M3 visual evidence</title>
+<style>
+  html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#10141b}
+  canvas{display:block;width:100vw;height:100vh}
+</style>
+</head>
+<body>
+<canvas id="board"></canvas>
+<script type="module">
+import { drawChameleon } from '/dist/game/render/ChameleonRig.js';
+import { drawSupernariz } from '/dist/game/render/SupernarizRig.js';
+import { drawJuanchi } from '/dist/game/render/JuanchiRig.js';
+import { drawElToro } from '/dist/game/render/ElToroRig.js';
+
+const params = new URLSearchParams(location.search);
+const mode = params.get('mode') || 'color';
+const canvas = document.querySelector('#board');
+const phone = mode === 'phone';
+canvas.width = phone ? 844 : 1280;
+canvas.height = phone ? 390 : 720;
+const ctx = canvas.getContext('2d');
+
+const names = {
+  chameleon: 'CAMALEONI',
+  supernariz: 'SUPERNARIZ',
+  juanchi: 'JUANCHI',
+  'el-toro': 'EL TORO',
+};
+
+function fighter(id, x, overrides = {}) {
+  return {
+    id,
+    x,
+    y: 0,
+    vx: 0,
+    vy: 0,
+    facing: 1,
+    health: 100,
+    maxHealth: 100,
+    guard: 100,
+    maxGuard: 100,
+    guardRegenDelay: 0,
+    guardBreakFrames: 0,
+    grounded: true,
+    jumpStartupFrames: 0,
+    airborneTicks: 0,
+    crouching: false,
+    blocking: false,
+    stunFrames: 0,
+    blockstunFrames: 0,
+    moveId: null,
+    moveFrame: 0,
+    comboCount: 0,
+    moveContact: 'none',
+    chilledFrames: 0,
+    projectileCooldown: 0,
+    projectileCooldownMax: 0,
+    rangedAvailability: 'ready',
+    rangedRecoveryFrames: 0,
+    dashKind: null,
+    dashFrame: 0,
+    landingRecoveryFrames: 0,
+    pushGuardRecoveryFrames: 0,
+    superMeter: 0,
+    maxSuper: 100,
+    superReady: false,
+    ultimatePhase: 'idle',
+    ultimatePhaseFrame: 0,
+    ultimateConnected: false,
+    ultimateTarget: null,
+    ultimateEffectiveTick: null,
+    ultimateProbe: null,
+    captureAnchorX: null,
+    clashRecoveryFrames: 0,
+    capturedBy: null,
+    roundWins: 0,
+    ...overrides,
+  };
+}
+
+function locomotion(overrides = {}) {
+  return {
+    phase: 0,
+    frontFoot: { x: 16, y: 0 },
+    backFoot: { x: -16, y: 0 },
+    pelvisDrop: 0,
+    torsoLean: 0,
+    preparation: 0,
+    extension: 0,
+    tuck: 0,
+    descentBrace: 0,
+    landingAbsorption: 0,
+    movementBlend: 0,
+    dashCompression: 0,
+    dashDrive: 0,
+    clashBrace: 0,
+    clashRecoil: 0,
+    travelIntent: 'idle',
+    actualTravel: 0,
+    hipCounterRotation: 0,
+    chestCounterRotation: 0,
+    freeArmSwing: 0,
+    weightTransfer: 0,
+    ...overrides,
+  };
+}
+
+function drawOne(target, id, x, fOverrides = {}, lOverrides = {}) {
+  const f = fighter(id, x, fOverrides);
+  const l = locomotion(lOverrides);
+  if (id === 'chameleon') drawChameleon(target, f, l, 0);
+  if (id === 'supernariz') drawSupernariz(target, f, l, 0);
+  if (id === 'juanchi') drawJuanchi(target, f, l, 0);
+  if (id === 'el-toro') drawElToro(target, f, l, 0);
+}
+
+function title(text, sub = '') {
+  ctx.fillStyle = '#f5f7fb';
+  ctx.font = '900 30px system-ui,sans-serif';
+  ctx.textAlign = 'left';
+  ctx.fillText(text, 34, 46);
+  if (sub) {
+    ctx.fillStyle = '#aeb8c9';
+    ctx.font = '600 15px system-ui,sans-serif';
+    ctx.fillText(sub, 35, 70);
+  }
+}
+
+function labels(xs, y, scale = 1) {
+  ctx.save();
+  ctx.fillStyle = mode === 'silhouette' ? '#101216' : '#e9edf5';
+  ctx.font = `${Math.round(17 * scale)}px system-ui,sans-serif`;
+  ctx.textAlign = 'center';
+  ['chameleon','supernariz','juanchi','el-toro'].forEach((id,i)=>ctx.fillText(names[id], xs[i], y));
+  ctx.restore();
+}
+
+function roster(target) {
+  const xs = [160, 480, 800, 1120];
+  for (let i = 0; i < xs.length; i += 1) {
+    drawOne(target, ['chameleon','supernariz','juanchi','el-toro'][i], xs[i]);
+  }
+  return xs;
+}
+
+if (mode === 'silhouette') {
+  ctx.fillStyle = '#f7f7f2';
+  ctx.fillRect(0,0,canvas.width,canvas.height);
+  const off = document.createElement('canvas');
+  off.width = canvas.width; off.height = canvas.height;
+  const ox = off.getContext('2d');
+  roster(ox);
+  ox.globalCompositeOperation = 'source-in';
+  ox.fillStyle = '#090a0c';
+  ox.fillRect(0,0,off.width,off.height);
+  ctx.drawImage(off,0,0);
+  ctx.fillStyle = '#111318';
+  ctx.font = '900 28px system-ui,sans-serif';
+  ctx.textAlign = 'left';
+  ctx.fillText('V07-M3 — NEUTRAL SILHOUETTES', 34, 46);
+  labels([160,480,800,1120], 684);
+} else if (mode === 'duel') {
+  ctx.fillStyle = '#111722'; ctx.fillRect(0,0,canvas.width,canvas.height);
+  ctx.fillStyle = '#263143'; ctx.fillRect(0,565,canvas.width,155);
+  title('JUANCHI vs EL TORO — SAME GAMEPLAY SCALE','Structural identity only: anatomy and stance share the runtime renderer.');
+  ctx.strokeStyle = '#5d6878'; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(640,100); ctx.lineTo(640,650); ctx.stroke();
+  drawOne(ctx,'juanchi',430);
+  drawOne(ctx,'el-toro',850);
+  ctx.fillStyle='#eef2f8';ctx.font='800 22px system-ui,sans-serif';ctx.textAlign='center';
+  ctx.fillText('JUANCHI',430,680);ctx.fillText('EL TORO',850,680);
+} else if (mode === 'actions') {
+  ctx.fillStyle = '#111722'; ctx.fillRect(0,0,canvas.width,canvas.height);
+  ctx.fillStyle = '#263143'; ctx.fillRect(0,565,canvas.width,155);
+  title('EL TORO — BODY-POSE READABILITY','Neutral / normal / Special / Ultimate state rendered from the same procedural rig.');
+  const cols=[185,485,785,1085];
+  drawOne(ctx,'el-toro',cols[0]);
+  drawOne(ctx,'el-toro',cols[1],{moveId:'toroShoulder',moveFrame:9});
+  drawOne(ctx,'el-toro',cols[2],{moveId:'topete',moveFrame:13});
+  drawOne(ctx,'el-toro',cols[3],{moveId:'superEructo',moveFrame:0,ultimatePhase:'startup',ultimatePhaseFrame:22});
+  ctx.fillStyle='#eef2f8';ctx.font='800 16px system-ui,sans-serif';ctx.textAlign='center';
+  ['NEUTRAL','NORMAL','TOPETE','ULTIMATE STARTUP'].forEach((s,i)=>ctx.fillText(s,cols[i],684));
+} else if (mode === 'phone') {
+  ctx.fillStyle = '#111722'; ctx.fillRect(0,0,canvas.width,canvas.height);
+  ctx.fillStyle = '#263143'; ctx.fillRect(0,350,canvas.width,40);
+  ctx.save();
+  ctx.scale(0.62,0.62);
+  const xs=[175,485,795,1105];
+  ['chameleon','supernariz','juanchi','el-toro'].forEach((id,i)=>drawOne(ctx,id,xs[i]));
+  ctx.restore();
+  ctx.fillStyle='#eef2f8';ctx.font='800 12px system-ui,sans-serif';ctx.textAlign='center';
+  ['CAMALEONI','SUPERNARIZ','JUANCHI','EL TORO'].forEach((s,i)=>ctx.fillText(s,[110,302,497,688][i],382));
+  ctx.fillStyle='#e7ebf2';ctx.font='900 16px system-ui,sans-serif';ctx.textAlign='left';ctx.fillText('844×390 PHONE-LANDSCAPE RIG READABILITY',14,23);
+} else {
+  ctx.fillStyle = '#111722'; ctx.fillRect(0,0,canvas.width,canvas.height);
+  ctx.fillStyle = '#263143'; ctx.fillRect(0,565,canvas.width,155);
+  title('V07-M3 — FOUR-FIGHTER NORMAL-COLOR COMPARISON','Same neutral state, same gameplay coordinate system, procedural Canvas2D runtime rigs.');
+  const xs=roster(ctx);
+  labels(xs,684);
+}
+document.documentElement.dataset.rendered = 'true';
+</script>
+</body>
+</html>

@@ -79,9 +79,13 @@ Mandatory gates:
 
 ## Active lane claims
 
+- Mario-B — V07-M3B — CLAIMED — branch `round/r005-mario-squad-toro-juanchi` — initial lock scope: `src/game/render/ElToroRig.ts`, `src/game/render/JuanchiRig.ts`; fighter-specific reconstruction only, with shared architecture/motion files left to A/D.
+
 - Mario-A — V07-M3A — CLAIMED — branch `round/r005-mario-squad-architect` — initial lock scope: `src/game/render/CharacterStructure.ts`, `src/game/render/ReferenceDetailPrimitives.ts`, `src/game/render/RigAnchors.ts`, plus visual-quality harness files after concrete inspection. Instance activated by user on 2026-09-21.
 
 ## Cross-instance requests
+
+- **2026-09-21 — CLAIM — Mario-B / V07-M3B**: this instance claims the next unclaimed lane after Mario-A. Branch `round/r005-mario-squad-toro-juanchi`; intended live locks are `src/game/render/ElToroRig.ts` and `src/game/render/JuanchiRig.ts`. I will not edit A-owned shared structure or D-owned motion/FX files; interface needs will be posted here.
 
 - **2026-09-21 — CLAIM — Mario-A / V07-M3A**: this chat instance claims the first unclaimed authorized lane per protocol. Branch `round/r005-mario-squad-architect`; verified branch head is still identical to visual base `032b1bb28c5dd4421e5772cc40ab007f42e4d462`. Intended initial live-lock scope: `src/game/render/CharacterStructure.ts`, `src/game/render/ReferenceDetailPrimitives.ts`, and `src/game/render/RigAnchors.ts`. Work starts with shared structure/reference-fidelity audit and quality-gate architecture; fighter-specific B/C files and D motion/FX files remain untouched.
 

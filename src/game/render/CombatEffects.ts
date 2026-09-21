@@ -527,3 +527,215 @@ export function drawClashOpposingTrails(
 
   ctx.restore();
 }
+
+
+export function drawAttackMotionAccent(
+  ctx: CanvasRenderingContext2D,
+  x: number,
+  y: number,
+  facing: -1 | 1,
+  trailKey: string,
+  intensity: number,
+  phase: number,
+): void {
+  const t = clamp01(intensity);
+  if (t <= 0.01 || trailKey === 'none') return;
+  const beat = 0.35 + 0.65 * Math.sin(clamp01(phase) * Math.PI);
+
+  ctx.save();
+  ctx.translate(x, y);
+  ctx.scale(facing, 1);
+  ctx.lineCap = 'round';
+
+  if (trailKey === 'diagnostic-missing') {
+    ctx.globalAlpha = 0.7 * t;
+    ctx.strokeStyle = '#ff3bd4';
+    ctx.lineWidth = 3;
+    ctx.setLineDash([7, 5]);
+    ctx.beginPath();
+    ctx.arc(0, -105, 58, -1.1, 1.1);
+    ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.restore();
+    return;
+  }
+
+  if (trailKey === 'claw-green') {
+    for (let i = 0; i < 3; i += 1) {
+      ctx.globalAlpha = t * beat * (0.42 - i * 0.07);
+      ctx.strokeStyle = i === 0 ? '#e6ffd5' : '#72dc70';
+      ctx.lineWidth = 5 - i;
+      ctx.beginPath();
+      ctx.arc(32 + i * 4, -112 + i * 9, 34 + i * 7, -1.05, 0.42);
+      ctx.stroke();
+    }
+  } else if (trailKey === 'tongue-snap') {
+    // Deliberately short: presentation must never imply more reach than simulation.
+    for (let i = 0; i < 3; i += 1) {
+      ctx.globalAlpha = t * beat * (0.35 - i * 0.07);
+      ctx.strokeStyle = i === 0 ? '#ff9eb3' : '#8ce68e';
+      ctx.lineWidth = 5 - i;
+      ctx.beginPath();
+      ctx.moveTo(34, -118 + i * 5);
+      ctx.quadraticCurveTo(60, -122 + i * 4, 78 - i * 5, -113 + i * 7);
+      ctx.stroke();
+    }
+  } else if (trailKey === 'tail-mass') {
+    ctx.globalAlpha = 0.22 + t * beat * 0.34;
+    ctx.strokeStyle = '#d9f58f';
+    ctx.lineWidth = 10;
+    ctx.beginPath();
+    ctx.arc(-12, -82, 104, -2.7, -0.58);
+    ctx.stroke();
+  } else if (trailKey === 'nose-curve') {
+    for (let i = 0; i < 2; i += 1) {
+      ctx.globalAlpha = t * beat * (0.46 - i * 0.13);
+      ctx.strokeStyle = i === 0 ? '#fff0d9' : '#ffb27c';
+      ctx.lineWidth = 6 - i * 2;
+      ctx.beginPath();
+      ctx.arc(24, -132, 42 + i * 10, -1.22, 0.38);
+      ctx.stroke();
+    }
+  } else if (trailKey === 'chorizo-spice') {
+    ctx.globalAlpha = t * beat * 0.56;
+    ctx.strokeStyle = '#ff9b48';
+    ctx.lineWidth = 4;
+    for (let i = 0; i < 3; i += 1) {
+      ctx.beginPath();
+      ctx.moveTo(26 - i * 8, -118 + i * 10);
+      ctx.lineTo(70 - i * 7, -123 + i * 7);
+      ctx.stroke();
+    }
+  } else if (trailKey === 'wind-lanes') {
+    ctx.globalAlpha = 0.18 + t * beat * 0.3;
+    ctx.strokeStyle = '#dff5ff';
+    for (let i = 0; i < 4; i += 1) {
+      ctx.lineWidth = 4 - i * 0.55;
+      ctx.beginPath();
+      ctx.moveTo(28, -142 + i * 24);
+      ctx.bezierCurveTo(70, -158 + i * 17, 116, -116 + i * 18, 166 - i * 8, -128 + i * 18);
+      ctx.stroke();
+    }
+  } else if (trailKey === 'juanchi-gold') {
+    ctx.globalAlpha = t * beat * 0.55;
+    ctx.strokeStyle = '#f4d77c';
+    for (let i = 0; i < 3; i += 1) {
+      ctx.lineWidth = 5 - i;
+      ctx.beginPath();
+      ctx.moveTo(12 - i * 5, -126 + i * 14);
+      ctx.quadraticCurveTo(54, -142 + i * 9, 90 - i * 4, -116 + i * 8);
+      ctx.stroke();
+    }
+  } else if (trailKey === 'friccion-sparks') {
+    ctx.globalAlpha = 0.34 + t * beat * 0.42;
+    ctx.strokeStyle = '#ffd17c';
+    ctx.lineWidth = 2.5;
+    for (let i = 0; i < 5; i += 1) {
+      const sx = 10 + i * 7;
+      ctx.beginPath();
+      ctx.moveTo(sx, -116);
+      ctx.lineTo(sx + 5 + (i % 2) * 4, -142 - i * 4);
+      ctx.stroke();
+    }
+  } else if (trailKey === 'camaleoni-veil') {
+    ctx.globalAlpha = t * beat * 0.22;
+    ctx.strokeStyle = '#bfffb8';
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    ctx.ellipse(-12, -104, 48, 82, -0.1, 0, Math.PI * 2);
+    ctx.stroke();
+  }
+
+  ctx.restore();
+}
+
+export function drawAttackContactBurst(
+  ctx: CanvasRenderingContext2D,
+  x: number,
+  y: number,
+  facing: -1 | 1,
+  contactBurstKey: string,
+  intensity: number,
+  progress: number,
+): void {
+  const t = clamp01(intensity);
+  const p = clamp01(progress);
+  if (t <= 0.01 || contactBurstKey === 'none') return;
+
+  ctx.save();
+  ctx.translate(x, y);
+  ctx.scale(facing, 1);
+  ctx.lineCap = 'round';
+
+  if (contactBurstKey === 'diagnostic-missing') {
+    ctx.globalAlpha = (1 - p) * 0.85;
+    ctx.strokeStyle = '#ff3bd4';
+    ctx.lineWidth = 4;
+    ctx.beginPath();
+    ctx.moveTo(-18, -18);
+    ctx.lineTo(18, 18);
+    ctx.moveTo(18, -18);
+    ctx.lineTo(-18, 18);
+    ctx.stroke();
+    ctx.restore();
+    return;
+  }
+
+  const radius = lerp(12, contactBurstKey === 'major-impact' ? 82 : 46, p);
+  const alpha = (1 - p) * (0.45 + t * 0.45);
+  ctx.globalAlpha = alpha;
+
+  if (contactBurstKey === 'claw-green' || contactBurstKey === 'tail-mass') {
+    ctx.strokeStyle = '#cfff9b';
+  } else if (contactBurstKey === 'nose-curve') {
+    ctx.strokeStyle = '#ffd4b2';
+  } else if (contactBurstKey === 'chorizo-spice') {
+    ctx.strokeStyle = '#ff9b48';
+  } else if (contactBurstKey === 'wind-lanes') {
+    ctx.strokeStyle = '#dff5ff';
+  } else if (contactBurstKey === 'juanchi-gold' || contactBurstKey === 'friccion-sparks') {
+    ctx.strokeStyle = '#f4d77c';
+  } else if (contactBurstKey === 'tongue-snap') {
+    ctx.strokeStyle = '#ff9eb3';
+  } else {
+    ctx.strokeStyle = '#fff2ba';
+  }
+
+  ctx.lineWidth = contactBurstKey === 'major-impact' ? 7 : 4;
+  ctx.beginPath();
+  ctx.arc(0, 0, radius, -0.95, 0.95);
+  ctx.stroke();
+
+  const rays = contactBurstKey === 'major-impact' ? 8 : contactBurstKey === 'chorizo-spice' ? 6 : 4;
+  for (let i = 0; i < rays; i += 1) {
+    const angle = -0.9 + (1.8 * i) / Math.max(1, rays - 1);
+    const reach = radius + 18 + (i % 2) * 9;
+    ctx.beginPath();
+    ctx.moveTo(Math.cos(angle) * radius * 0.65, Math.sin(angle) * radius * 0.65);
+    ctx.lineTo(Math.cos(angle) * reach, Math.sin(angle) * reach);
+    ctx.stroke();
+  }
+
+  ctx.restore();
+}
+
+export function drawRugbyCatchAccent(
+  ctx: CanvasRenderingContext2D,
+  x: number,
+  y: number,
+  intensity: number,
+): void {
+  const t = clamp01(intensity);
+  if (t <= 0.01) return;
+  ctx.save();
+  ctx.translate(x, y);
+  ctx.globalAlpha = t * 0.7;
+  ctx.strokeStyle = '#f4d77c';
+  ctx.lineWidth = 3;
+  for (let i = 0; i < 2; i += 1) {
+    ctx.beginPath();
+    ctx.arc(0, 0, 14 + (1 - t) * 22 + i * 9, -0.8, 2.4);
+    ctx.stroke();
+  }
+  ctx.restore();
+}

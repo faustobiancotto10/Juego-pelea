@@ -61,3 +61,19 @@ test('V07-B1 portrait cards expose renderer-owned keyed canvas surfaces without 
   assert.doesNotMatch(css, /fighter-portrait-v07\[data-portrait-key=/);
   assert.doesNotMatch(css, /portrait-body|portrait-head|portrait-detail/);
 });
+
+
+test('V07-B1 AppController consumes Mario PortraitRenderer on roster and VS surfaces', () => {
+  const controller = readFileSync(new URL('../src/game/ui/AppController.ts', import.meta.url), 'utf8');
+  assert.match(controller, /import \{ mountFighterPortraits \} from '\.\.\/render\/PortraitRenderer\.js';/);
+  const calls = controller.match(/mountFighterPortraits\(this\.root\)/g) ?? [];
+  assert.ok(calls.length >= 2, 'portrait renderer must mount after roster and VS markup is created');
+  assert.match(controller, /data-fighter-portrait/);
+  assert.match(controller, /data-portrait-key=/);
+});
+
+test('V07-B1 rendered portrait state suppresses the mark fallback without fighter-specific art', () => {
+  const css = readFileSync(new URL('../src/styles.css', import.meta.url), 'utf8');
+  assert.match(css, /data-portrait-rendered="true"/);
+  assert.doesNotMatch(css, /fighter-portrait-v07\[data-portrait-key=/);
+});

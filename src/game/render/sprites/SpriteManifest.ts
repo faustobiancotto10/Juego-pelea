@@ -24,7 +24,9 @@ export interface SpriteAnimationDefinition {
 export interface SpriteAnimationSetDefinition {
   version: 1;
   atlas: string;
+  mirrorSafe: boolean;
   animations: Readonly<Record<string, SpriteAnimationDefinition>>;
+  leftAnimations?: Readonly<Record<string, SpriteAnimationDefinition>>;
 }
 
 type UnknownRecord = Record<string, unknown>;
@@ -67,21 +69,17 @@ function duration(path: string, value: unknown): number {
   return value;
 }
 
-export function validateSpriteAnimationSet(
+function validateAnimations(
   value: unknown,
-  path = 'spriteManifest',
-): SpriteAnimationSetDefinition {
-  const manifest = record(path, value);
-  if (manifest.version !== 1) fail(`${path}.version`, 'must equal 1');
-  nonEmpty(`${path}.atlas`, manifest.atlas);
-
-  const animations = record(`${path}.animations`, manifest.animations);
+  path: string,
+): UnknownRecord {
+  const animations = record(path, value);
   const animationEntries = Object.entries(animations);
-  if (animationEntries.length === 0) fail(`${path}.animations`, 'must contain at least one animation');
+  if (animationEntries.length === 0) fail(path, 'must contain at least one animation');
 
   for (const [animationKey, rawAnimation] of animationEntries) {
-    nonEmpty(`${path}.animations animation key`, animationKey);
-    const animationPath = `${path}.animations.${animationKey}`;
+    nonEmpty(`${path} animation key`, animationKey);
+    const animationPath = `${path}.${animationKey}`;
     const animation = record(animationPath, rawAnimation);
     if (typeof animation.loop !== 'boolean') fail(`${animationPath}.loop`, 'must be boolean');
     if (!Array.isArray(animation.frames) || animation.frames.length === 0) {
@@ -110,6 +108,43 @@ export function validateSpriteAnimationSet(
         }
       }
     }
+  }
+
+  return animations;
+}
+
+function sortedKeys(recordValue: UnknownRecord): string[] {
+  return Object.keys(recordValue).sort();
+}
+
+export function validateSpriteAnimationSet(
+  value: unknown,
+  path = 'spriteManifest',
+): SpriteAnimationSetDefinition {
+  const manifest = record(path, value);
+  if (manifest.version !== 1) fail(`${path}.version`, 'must equal 1');
+  nonEmpty(`${path}.atlas`, manifest.atlas);
+  if (typeof manifest.mirrorSafe !== 'boolean') {
+    fail(`${path}.mirrorSafe`, 'must be an explicit boolean');
+  }
+
+  const animations = validateAnimations(manifest.animations, `${path}.animations`);
+
+  if (manifest.mirrorSafe === false) {
+    if (manifest.leftAnimations === undefined) {
+      fail(`${path}.leftAnimations`, 'is required when mirrorSafe is false');
+    }
+    const leftAnimations = validateAnimations(manifest.leftAnimations, `${path}.leftAnimations`);
+    const rightKeys = sortedKeys(animations);
+    const leftKeys = sortedKeys(leftAnimations);
+    if (
+      rightKeys.length !== leftKeys.length
+      || rightKeys.some((key, index) => key !== leftKeys[index])
+    ) {
+      fail(`${path}.leftAnimations`, 'animation keys must exactly match animations');
+    }
+  } else if (manifest.leftAnimations !== undefined) {
+    validateAnimations(manifest.leftAnimations, `${path}.leftAnimations`);
   }
 
   return value as SpriteAnimationSetDefinition;

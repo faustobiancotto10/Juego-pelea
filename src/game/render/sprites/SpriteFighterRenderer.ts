@@ -5,7 +5,10 @@ import { resolveSpriteAnimation } from './AnimationResolver.js';
 import type { SpriteAssetStore } from './SpriteAssetStore.js';
 import { sampleSpriteAnchor } from './SpriteAnchorSampler.js';
 import { sampleSpriteFrame } from './SpriteFrameSampler.js';
-import type { SpriteFrameDefinition } from './SpriteManifest.js';
+import type {
+  SpriteAnimationSetDefinition,
+  SpriteFrameDefinition,
+} from './SpriteManifest.js';
 
 export interface SpriteDrawPlacement {
   translateX: number;
@@ -18,11 +21,12 @@ export interface SpriteDrawPlacement {
 export function computeSpriteDrawPlacement(
   fighter: FighterSnapshot,
   frame: SpriteFrameDefinition,
+  mirrorHorizontal: boolean,
 ): SpriteDrawPlacement {
   return {
     translateX: fighter.x,
     translateY: GROUND_Y - fighter.y,
-    scaleX: fighter.facing,
+    scaleX: mirrorHorizontal ? fighter.facing : 1,
     source: {
       x: frame.x,
       y: frame.y,
@@ -38,6 +42,39 @@ export function computeSpriteDrawPlacement(
   };
 }
 
+interface ResolvedSpriteFrame {
+  image: CanvasImageSource;
+  frame: SpriteFrameDefinition;
+  authoredLeft: boolean;
+  mirrorHorizontal: boolean;
+}
+
+function selectAnimationMap(
+  manifest: SpriteAnimationSetDefinition,
+  fighter: FighterSnapshot,
+): {
+  animations: SpriteAnimationSetDefinition['animations'];
+  authoredLeft: boolean;
+  mirrorHorizontal: boolean;
+} {
+  if (fighter.facing < 0 && manifest.mirrorSafe === false) {
+    if (!manifest.leftAnimations) {
+      throw new Error('Sprite manifest requires leftAnimations for non-mirror-safe LEFT rendering');
+    }
+    return {
+      animations: manifest.leftAnimations,
+      authoredLeft: true,
+      mirrorHorizontal: false,
+    };
+  }
+
+  return {
+    animations: manifest.animations,
+    authoredLeft: false,
+    mirrorHorizontal: manifest.mirrorSafe,
+  };
+}
+
 export class SpriteFighterRenderer {
   constructor(private readonly store: Pick<SpriteAssetStore, 'get'>) {}
 
@@ -48,8 +85,12 @@ export class SpriteFighterRenderer {
     combatTick: number,
     alpha = 1,
   ): void {
-    const { image, frame } = this.resolveFrame(fighter, packageKey, combatTick);
-    const placement = computeSpriteDrawPlacement(fighter, frame);
+    const { image, frame, mirrorHorizontal } = this.resolveFrame(
+      fighter,
+      packageKey,
+      combatTick,
+    );
+    const placement = computeSpriteDrawPlacement(fighter, frame, mirrorHorizontal);
 
     ctx.save();
     ctx.translate(placement.translateX, placement.translateY);
@@ -75,11 +116,13 @@ export class SpriteFighterRenderer {
     combatTick: number,
     name: string,
   ): Point2 | null {
-    const { frame } = this.resolveFrame(fighter, packageKey, combatTick);
+    const { frame, authoredLeft } = this.resolveFrame(fighter, packageKey, combatTick);
     const anchor = sampleSpriteAnchor(frame, name);
     if (!anchor) return null;
+
+    const imageLocalX = anchor.x - frame.pivotX;
     return {
-      x: anchor.x - frame.pivotX,
+      x: authoredLeft ? -imageLocalX : imageLocalX,
       y: frame.pivotY - anchor.y,
     };
   }
@@ -88,18 +131,23 @@ export class SpriteFighterRenderer {
     fighter: FighterSnapshot,
     packageKey: string,
     combatTick: number,
-  ): { image: CanvasImageSource; frame: SpriteFrameDefinition } {
+  ): ResolvedSpriteFrame {
     const loaded = this.store.get(packageKey);
     const resolved = resolveSpriteAnimation(fighter, combatTick);
-    const animation = loaded.manifest.animations[resolved.key];
+    const selection = selectAnimationMap(loaded.manifest, fighter);
+    const animation = selection.animations[resolved.key];
     if (!animation) {
+      const facingLabel = selection.authoredLeft ? 'LEFT' : 'RIGHT';
       throw new Error(
-        `Missing sprite animation "${resolved.key}" for fighter "${fighter.id}" in package "${packageKey}"`,
+        `Missing sprite animation "${resolved.key}" for fighter "${fighter.id}" in package "${packageKey}" (${facingLabel})`,
       );
     }
+
     return {
       image: loaded.image,
       frame: sampleSpriteFrame(animation, resolved.tick).frame,
+      authoredLeft: selection.authoredLeft,
+      mirrorHorizontal: selection.mirrorHorizontal,
     };
   }
 }

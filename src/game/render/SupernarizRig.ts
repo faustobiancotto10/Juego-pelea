@@ -81,8 +81,8 @@ export function drawSupernariz(
   ellipse(ctx, 0, f.y, 46, 10, '#05070a');
   ctx.restore();
 
-  const hipY = -60 + bodyDrop;
-  const shoulderY = -126 - (body.torsoLength - 1) * 46 + bodyDrop * 0.45 + idle;
+  const hipY = -72 + bodyDrop;
+  const shoulderY = -151 - (body.torsoLength - 1) * 46 + bodyDrop * 0.45 + idle;
   const hipSpan = 12 * body.hipWidth * stance.width;
   const jumpTuck = locomotion.tuck * 25 + locomotion.descentBrace * 10;
   const backFootX = locomotion.backFoot.x;
@@ -129,18 +129,18 @@ export function drawSupernariz(
   roundedLine(ctx, frontFootX - 9, frontFootY - 4, frontFootX + 11, frontFootY - 4, 10, '#a62b34');
 
   // Slim textured superhero suit from the supplied master.
-  ellipse(ctx, 0, -94 + bodyDrop * 0.62, 29 * body.torsoWidth, (51 - crouch * 8) * body.torsoLength, '#2d61bd', -0.03, '#16376f', 3);
-  drawFabricGrain(ctx, 0, -94 + bodyDrop * 0.62, 52 * body.torsoWidth, 90 * body.torsoLength, '#8fb1ef', 0.10, 9);
+  ellipse(ctx, 0, -112 + bodyDrop * 0.62, 29 * body.torsoWidth, (55 - crouch * 8) * body.torsoLength, '#2d61bd', -0.03, '#16376f', 3);
+  drawFabricGrain(ctx, 0, -112 + bodyDrop * 0.62, 52 * body.torsoWidth, 98 * body.torsoLength, '#8fb1ef', 0.10, 9);
   // Chest nose emblem: deliberately reads as a bulbous nose, not a generic oval.
   ctx.save();
   ctx.fillStyle = '#d29a77';
   ctx.strokeStyle = '#754638';
   ctx.lineWidth = 1.7;
   ctx.beginPath();
-  ctx.moveTo(6, -119 + bodyDrop * 0.58);
-  ctx.bezierCurveTo(-5, -111 + bodyDrop * 0.58, -8, -93 + bodyDrop * 0.58, 4, -90 + bodyDrop * 0.58);
-  ctx.bezierCurveTo(18, -89 + bodyDrop * 0.58, 24, -101 + bodyDrop * 0.58, 17, -110 + bodyDrop * 0.58);
-  ctx.bezierCurveTo(14, -116 + bodyDrop * 0.58, 11, -120 + bodyDrop * 0.58, 6, -119 + bodyDrop * 0.58);
+  ctx.moveTo(6, -137 + bodyDrop * 0.58);
+  ctx.bezierCurveTo(-5, -111 + bodyDrop * 0.58, -8, -111 + bodyDrop * 0.58, 4, -108 + bodyDrop * 0.58);
+  ctx.bezierCurveTo(18, -89 + bodyDrop * 0.58, 24, -119 + bodyDrop * 0.58, 17, -128 + bodyDrop * 0.58);
+  ctx.bezierCurveTo(14, -134 + bodyDrop * 0.58, 11, -138 + bodyDrop * 0.58, 6, -137 + bodyDrop * 0.58);
   ctx.closePath();
   ctx.fill();
   ctx.stroke();
@@ -151,11 +151,11 @@ export function drawSupernariz(
   drawStitchLine(ctx, -22, -75 + bodyDrop * 0.65, 22, -75 + bodyDrop * 0.65, '#cf6f75', 0.9, [4, 4], 0.45);
 
   // Belt buckle and hanging sausage props from the master.
-  ellipse(ctx, 0, -65 + bodyDrop * 0.65, 11, 8, '#d8b45a', 0, '#6f5122', 1.5);
-  roundedLine(ctx, -18, -65 + bodyDrop * 0.65, 18, -65 + bodyDrop * 0.65, 5, '#6e4a2c');
+  ellipse(ctx, 0, -74 + bodyDrop * 0.65, 11, 8, '#d8b45a', 0, '#6f5122', 1.5);
+  roundedLine(ctx, -18, -74 + bodyDrop * 0.65, 18, -74 + bodyDrop * 0.65, 5, '#6e4a2c');
   for (const bx of [17, 26]) {
-    ellipse(ctx, bx, -55 + bodyDrop * 0.65, 5, 10, '#c46d42', 0.18, '#7a3e2c', 1);
-    roundedLine(ctx, bx - 3, -58 + bodyDrop * 0.65, bx + 3, -55 + bodyDrop * 0.65, 1.4, '#f0b17f');
+    ellipse(ctx, bx, -64 + bodyDrop * 0.65, 5, 10, '#c46d42', 0.18, '#7a3e2c', 1);
+    roundedLine(ctx, bx - 3, -67 + bodyDrop * 0.65, bx + 3, -64 + bodyDrop * 0.65, 1.4, '#f0b17f');
   }
 
   // Arms. Throwing arm swings forward for the chorizo special.
@@ -185,7 +185,7 @@ export function drawSupernariz(
   // Stylized head and hair.
   const headX = 4 + nose * 8 - inhaleBrace * 8 + nazazoDrive * 8;
   const headY =
-    -170
+    -205
     + bodyDrop * 0.42
     + idle
     - motion.ascent * 5

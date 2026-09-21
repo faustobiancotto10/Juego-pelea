@@ -73,3 +73,12 @@ After all four lanes are green, Mario-A integrates them in V07-M3I. Germinator V
 All visual squad lanes begin from `032b1bb28c5dd4421e5772cc40ab007f42e4d462`.
 
 Game Development Studio visual-debugging / asset-production workflows are authorized as bounded authoring and evidence support. Runtime and gameplay contracts remain unchanged unless a separately reported blocker requires user/Neureon re-planning.
+
+
+### Current squad checkpoint — 2026-09-21
+
+- **Mario-A / V07-M3A:** GREEN / HANDOFF_READY at exact SHA `d6d1e074526cd1674af4e6103995eda19ab5a46b`. Shared identity-layer architecture, anatomy-derived anchors and inspectable visual gates are in place. Repository verification #1252 and Character Pipeline V2 #45 passed. All five deterministic visual captures remain byte-identical to the squad baseline, confirming no accidental raster regression from the architecture-only lane.
+- **Mario-C / V07-M3C:** HANDOFF_READY at exact SHA `d0b28a34ae2221adccd04c483bbb0c5561b512f2`.
+- **Mario-B / V07-M3B:** READY to revalidate its El Toro + Juanchi reconstruction after consuming Mario-A's test-only shared gate repair. The obsolete Juanchi tied-jacket assertion was removed in favor of the authoritative `La 56` / cargo package cues.
+- **Mario-D / V07-M3D:** WORKING on locomotion, presentation and FX.
+- **V07-M3I:** still blocked until B and D also produce green exact-SHA handoffs; Germinator and Gonza remain downstream.

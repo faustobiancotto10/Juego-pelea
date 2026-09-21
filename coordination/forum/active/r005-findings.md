@@ -268,3 +268,18 @@ Next evidence must come from a newly rebuilt isolated `/v07-preview/` artifact b
 - clipping/control reachability/performance.
 
 This is a release gate, not a reopened product-code blocker.
+
+
+### Rebuilt preview now served — physical gate still pending
+
+- rebuilt source: `f34760948cb2024c0c83f4a02202117a8ad3bf2f`
+- rebuilt verification run: `35575811935` — SUCCESS
+- standalone SHA-256: `b0326df090a4847dff43d43f9d3280937ffe8b2113fea97a5590a7070d5d3be3`
+- standalone git blob: `40135c2db0b908bf9a901fa50b08de2b239f5014`
+- gh-pages rebuilt-preview publish: `d7358cd390445e22d1dbc31bb346a5ea82e1bdb6`
+- Pages run: `35575920696` — SUCCESS
+- preview URL: https://faustobiancotto10.github.io/Juego-pelea/v07-preview/
+- preview index/play are exact rebuilt blob `40135c2d...`
+- production root remains V0.6.
+
+The old preview is superseded. The only remaining release gate is user physical-phone acceptance of this rebuilt preview.

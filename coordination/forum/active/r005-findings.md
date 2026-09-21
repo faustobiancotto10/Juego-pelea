@@ -171,11 +171,11 @@ Resolution evidence:
 - V07-M3B is HANDOFF_READY; no blocker remains from this finding.
 
 
-## BLOCKER — V07-M3I integrated visual delta is too small for super-improvement acceptance
+## RESOLVED — V07-M3I integrated visual delta was too small for super-improvement acceptance
 
 Owner: Mario-A / V07-M3I  
 Integrated candidate: `4a485d9244b3e8ce86c4700d4a299dc5f3cb84f6`  
-Status: OPEN / TARGETED B+C REWORK REQUIRED
+Status: RESOLVED / REFRESHED M3I GREEN
 
 Technical evidence is green:
 - Repository verification #1291 / run `35571839137`: PASS;
@@ -215,3 +215,19 @@ Authorized in-contract repair:
 - no gameplay, balance, UI or renderer-architecture expansion is authorized.
 
 No user scope decision is required for this repair because it stays inside the already-authorized multi-instance visual super-improvement contract.
+
+
+### Resolution — refreshed M3I
+
+- refreshed exact candidate: `f34760948cb2024c0c83f4a02202117a8ad3bf2f`;
+- refreshed B: `cc75a56a1c56d9c6a988a3144880719a3515c4e9`;
+- refreshed C: `3131bbef6a517785722d48a255e2d8a0daf10e7b`;
+- A and D remained frozen;
+- Repository verification #1326 / `35574082604`: PASS;
+- Character Pipeline V2 #54 / `35574082616`: PASS;
+- artifact ID `10626449146`, digest `sha256:bba910e35cf910693d483236bce181a5b90e968d36276c63a75eeee0983936d4`;
+- 14/14 integrated files match accepted lane blobs exactly;
+- baseline→refreshed integrated changed-pixel coverage: ~8.35% normal color, ~4.31% neutral silhouette, ~10.13% phone landscape;
+- rejected first integration→refreshed integration: ~7.70% normal color, ~4.13% neutral silhouette, ~9.46% phone landscape.
+
+Direct artifact review shows materially stronger structural separation: Camaleoni long-neck/tail silhouette, Supernariz nose/cape silhouette, narrow athletic Juanchi, and broad/heavy planted El Toro. V07-M3I is HANDOFF_READY and Germinator G2 is unlocked. Metrics are diagnostic evidence of change, not artistic scores.

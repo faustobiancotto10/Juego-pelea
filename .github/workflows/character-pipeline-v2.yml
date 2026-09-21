@@ -30,7 +30,8 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y synfig inkscape ffmpeg imagemagick
-          synfig --version
+          # Synfig 1.5.1 on Ubuntu 24.04 prints its version successfully but exits 3.
+          synfig --version || { code=$?; [ "$code" -eq 3 ]; }
           inkscape --version
           ffmpeg -version | head -n 1
           convert -version | head -n 1

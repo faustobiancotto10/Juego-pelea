@@ -375,8 +375,7 @@ export function drawJuanchi(
   ellipse(ctx, 0, fighter.y, 49, 10, '#030407');
   ctx.restore();
 
-  drawJuanchiRageAura(
-    ctx,
+  drawJuanchiRageAura(ctx,
     action.rage,
     action.rush,
     action.finisher,

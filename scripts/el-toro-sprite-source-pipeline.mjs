@@ -3,7 +3,8 @@ import { existsSync, mkdirSync, readFileSync, readdirSync, writeFileSync } from 
 import { join, relative, resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { SHEETS, REJECTED_ALTERNATE } from './sprite-source-config.mjs';
-import { gridRect, parseRgbaPng, scanAlpha } from './sprite-png-alpha.mjs';
+import { parseRgbaPng } from './sprite-png-alpha.mjs';
+import { extractFramesByComponents } from './sprite-component-extractor.mjs';
 import { buildNormalization, normalizedTransform } from './sprite-normalize-contract.mjs';
 import { renderNormalizedPreview } from './sprite-preview-svg.mjs';
 
@@ -32,23 +33,20 @@ export function generateSpriteSourceEvidence({sourceDir,outDir}) {
       continue;
     }
 
-    let visible=0,transparent=0,extractedFrames=0;
-    for (let row=0;row<spec.rows;row+=1) {
-      for (let col=0;col<spec.cols;col+=1) {
-        const slot=row*spec.cols+col+1;
-        const rect=gridRect(image,spec.rows,spec.cols,row,col);
-        const alpha=scanAlpha(image,rect);
-        visible+=alpha.visiblePixels; transparent+=alpha.transparentPixels;
-        const frameId=spec.id+'__f'+String(slot).padStart(2,'0');
-        if (!alpha.bbox) { emptyFrames.push(frameId); continue; }
-        extractedFrames+=1;
-        if (alpha.touchesCanvasEdge) canvasEdgeClipping.push(frameId);
-        if (alpha.touchesCellEdge) cellBoundaryTouches.push(frameId);
-        frames.push({
-          frameId,sheetId:spec.id,kind:spec.kind==='fx'?'fx':'body',
-          sourceRect:rect,bbox:alpha.bbox,
-        });
-      }
+    const extraction=extractFramesByComponents(image,spec.rows,spec.cols,{contentAlpha:32,clipAlpha:128});
+    let extractedFrames=0;
+    if (extraction.hardCanvasEdge.length>0) canvasEdgeClipping.push(spec.id+'__sheet-edge');
+
+    for (const extracted of extraction.frames) {
+      const frameId=spec.id+'__f'+String(extracted.slot).padStart(2,'0');
+      if (!extracted.bbox) { emptyFrames.push(frameId); continue; }
+      extractedFrames+=1;
+      if (extracted.crossesNominal) cellBoundaryTouches.push(frameId);
+      frames.push({
+        frameId,sheetId:spec.id,kind:spec.kind==='fx'?'fx':'body',
+        sourceRect:extracted.nominal,bbox:extracted.bbox,
+        extraction:{method:'alpha-components',contentAlpha:32,components:extracted.components,crossesNominal:extracted.crossesNominal},
+      });
     }
 
     sheets.push({
@@ -57,8 +55,9 @@ export function generateSpriteSourceEvidence({sourceDir,outDir}) {
       expectedHash:spec.hash,actualHash,
       width:image.width,height:image.height,bitDepth:image.bitDepth,colorType:image.colorType,
       grid:{rows:spec.rows,cols:spec.cols},
+      extraction:{method:'alpha-components',contentAlpha:32,clipAlpha:128},
       expectedFrames:spec.expectedFrames,extractedFrames,
-      hasVisiblePixels:visible>0,hasTransparentPixels:transparent>0,
+      hasVisiblePixels:extraction.visiblePixels>0,hasTransparentPixels:extraction.transparentPixels>0,
     });
   }
 

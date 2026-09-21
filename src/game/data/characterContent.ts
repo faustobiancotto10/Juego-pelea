@@ -10,6 +10,7 @@ import { JUANCHI_CHARACTER_CONTENT } from './characters/juanchi.js';
 
 export interface FighterPresentationDefinition {
   rigKey: string;
+  portraitKey: string;
   ultimateVisualKey: string;
   accent: string;
   effectAccent: string;
@@ -56,7 +57,7 @@ export interface FighterPresentationRegistry {
 const MOVE_CATEGORIES = new Set(['normal', 'special', 'projectile', 'ultimate']);
 const BINDING_ROLES = new Set(['standing', 'low', 'chain', 'air', 'rangedSpecial', 'closeSpecial', 'ultimate']);
 const ATTACK_LEVELS = new Set(['mid', 'low', 'overhead']);
-const ULTIMATE_KINDS = new Set(['dashCapture', 'suctionCapture', 'capCapture']);
+const ULTIMATE_KINDS = new Set(['dashCapture', 'suctionCapture', 'capCapture', 'forwardBlast']);
 
 function fail(path: string, message: string): never {
   throw new Error(`${path}: ${message}`);
@@ -133,6 +134,16 @@ function validateMove(path: string, move: MoveDefinition): void {
   if (!MOVE_CATEGORIES.has(move.category)) fail(`${path}.category`, `unknown category ${String(move.category)}`);
   if (!BINDING_ROLES.has(move.bindingRole)) fail(`${path}.bindingRole`, `unknown role ${String(move.bindingRole)}`);
   const total = integer(`${path}.totalFrames`, move.totalFrames, 1);
+
+  if (move.movement !== undefined) {
+    if (move.category !== 'special') fail(`${path}.movement`, 'is only supported for special moves');
+    const start = integer(`${path}.movement.start`, move.movement.start);
+    const end = integer(`${path}.movement.end`, move.movement.end);
+    if (end < start || end >= total) fail(`${path}.movement`, 'window must be ordered and inside totalFrames');
+    finite(`${path}.movement.speed`, move.movement.speed, 0.000001);
+    if (move.movement.kind !== 'forward') fail(`${path}.movement.kind`, 'only forward movement is supported');
+    if (move.movement.stopAtWall !== true) fail(`${path}.movement.stopAtWall`, 'must be true');
+  }
 
   if (move.hitbox !== undefined && move.hits !== undefined) fail(path, 'hitbox and hits are mutually exclusive');
   if (move.hitbox !== undefined) validateHitbox(`${path}.hitbox`, move.hitbox, total);
@@ -340,7 +351,7 @@ function validateUltimate(path: string, ultimate: UltimateDefinition): void {
     finite(`${path}.suctionRange`, ultimate.suctionRange, 0);
     finite(`${path}.suctionSpeed`, ultimate.suctionSpeed, 0);
     finite(`${path}.captureDistance`, ultimate.captureDistance, 0);
-  } else {
+  } else if (ultimate.kind === 'capCapture') {
     finite(`${path}.probeSpawnOffsetX`, ultimate.probeSpawnOffsetX, 0);
     finite(`${path}.probeSpeed`, ultimate.probeSpeed, 0.000001);
     finite(`${path}.probeHalfWidth`, ultimate.probeHalfWidth, 0.000001);
@@ -352,6 +363,13 @@ function validateUltimate(path: string, ultimate: UltimateDefinition): void {
       finite(`${path}.sequenceApproach.standOff`, ultimate.sequenceApproach.standOff, 0);
       if (end < start || end > ultimate.sequenceFrames) fail(`${path}.sequenceApproach`, 'must be ordered within sequenceFrames');
     }
+  } else {
+    const blastFrames = integer(`${path}.blastFrames`, ultimate.blastFrames, 1);
+    finite(`${path}.blastRange`, ultimate.blastRange, 0.000001);
+    const bottom = finite(`${path}.blastBottom`, ultimate.blastBottom, 0);
+    const top = finite(`${path}.blastTop`, ultimate.blastTop, 0.000001);
+    if (top <= bottom) fail(`${path}.blastTop`, 'must be greater than blastBottom');
+    if (ultimate.captureFrames !== blastFrames) fail(`${path}.captureFrames`, 'must match blastFrames for forwardBlast');
   }
 
   const seenFrames = new Set<number>();
@@ -365,6 +383,15 @@ function validateUltimate(path: string, ultimate: UltimateDefinition): void {
     seenFrames.add(frame);
     finite(`${beatPath}.damage`, beat.damage, 0);
     finite(`${beatPath}.knockback`, beat.knockback, 0);
+    if (ultimate.kind === 'forwardBlast') {
+      if (frame >= (ultimate.blastFrames ?? 0)) fail(beatPath, 'frame must be inside blastFrames');
+      finite(`${beatPath}.chipDamage`, beat.chipDamage, 0);
+      finite(`${beatPath}.guardDamage`, beat.guardDamage, 0);
+      integer(`${beatPath}.hitstun`, beat.hitstun);
+      integer(`${beatPath}.blockstun`, beat.blockstun);
+      finite(`${beatPath}.blockKnockback`, beat.blockKnockback, 0);
+      integer(`${beatPath}.hitstop`, beat.hitstop);
+    }
     if (frame > finalFrame) {
       finalFrame = frame;
       finalDamage = beat.damage;
@@ -375,6 +402,7 @@ function validateUltimate(path: string, ultimate: UltimateDefinition): void {
 
 function validatePresentation(path: string, presentation: FighterPresentationDefinition): void {
   nonEmpty(`${path}.rigKey`, presentation.rigKey);
+  nonEmpty(`${path}.portraitKey`, presentation.portraitKey);
   nonEmpty(`${path}.ultimateVisualKey`, presentation.ultimateVisualKey);
   nonEmpty(`${path}.accent`, presentation.accent);
   nonEmpty(`${path}.effectAccent`, presentation.effectAccent);

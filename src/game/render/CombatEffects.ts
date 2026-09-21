@@ -1,4 +1,4 @@
-import { clamp01, ellipse, lerp } from './drawUtils.js';
+import { clamp01, ellipse, lerp, roundedLine } from './drawUtils.js';
 
 export function drawPushGuardBurst(
   ctx: CanvasRenderingContext2D,

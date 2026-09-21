@@ -126,6 +126,7 @@ function validateHitbox(path: string, hitbox: HitboxSpec, totalFrames: number): 
   finite(`${path}.knockback`, hitbox.knockback, 0);
   integer(`${path}.hitstop`, hitbox.hitstop);
   finite(`${path}.guardDamage`, hitbox.guardDamage, 0);
+  if (hitbox.blockKnockback !== undefined) finite(`${path}.blockKnockback`, hitbox.blockKnockback, 0);
   if (!ATTACK_LEVELS.has(hitbox.level)) fail(`${path}.level`, `unknown attack level ${String(hitbox.level)}`);
   if (typeof hitbox.strong !== 'boolean') fail(`${path}.strong`, 'must be boolean');
 }

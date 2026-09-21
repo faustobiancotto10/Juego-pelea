@@ -2,10 +2,7 @@
 
 | Path | Owner | Task | Reason |
 | --- | --- | --- | --- |
-| `src/game/types.ts` | Ricardo | V07-R0 | Add CpuDifficulty contract. |
-| `src/game/simulation/moves.ts` | Ricardo | V07-R0 | Add bounded committed-forward movement schema. |
-| `src/game/data/ultimates.ts` | Ricardo | V07-R0 | Add bounded forwardBlast schema. |
-| `src/game/data/characterContent.ts` | Ricardo | V07-R0 | Validate portrait/movement/forwardBlast contracts. |
-| `src/game/simulation/CombatSimulation.ts` | Ricardo | V07-R0 | Minimal forwardBlast schema compatibility; runtime remains deferred to R2. |
+| `src/game/data/characters/camaleoni.ts` | Ricardo | V07-R1 | Frozen Lengua candidate and evidence-driven bounded calibration. |
+| `src/game/simulation/CpuController.ts` | Ricardo | V07-R1 | Easy/Normal/Hard effective delayed-policy layer. |
 
-R005 locks are live only while the owner materially edits the listed shared files; release at green handoff.
+R005 locks are live only while the owner materially edits the listed shared files; release or rotate at green handoff.

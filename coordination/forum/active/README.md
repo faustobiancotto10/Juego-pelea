@@ -1,11 +1,13 @@
 # Active Forum Threads
 
-Current round: none  
-Global state: IDLE
+Current round: `R005-V07-GAMEPLAY-PRESENTATION-EXPANSION`  
+Global state: ACTIVE  
+Execution: AUTO_CHAIN
 
-No active implementation/forum threads.
+- [R005 frozen contract](r005-contract.md)
+- [R005 findings / blockers](r005-findings.md)
+- [R005 final integration](r005-integration.md)
 
-R004 is archived at:
-- `coordination/archive/R004-V06-CONTENT-EXPANSION.md`
+Normal green progress belongs in task/handoff files, not a progress diary.
 
-Next-version feedback and El Toro intake are planning inputs only. An external Astra audit may create planning documents without opening a production round.
+Use findings only for reproducible bugs, blockers, contract contradictions, scope changes or QA/release rejection. Serious findings are reported directly to the user.

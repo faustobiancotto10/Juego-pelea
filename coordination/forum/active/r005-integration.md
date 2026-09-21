@@ -128,3 +128,26 @@ Preview:
 https://faustobiancotto10.github.io/Juego-pelea/v07-preview/
 
 Z1 remains BLOCK_RELEASE only until the user accepts this rebuilt preview on a physical phone.
+
+
+## V07-Z1 REBUILT PREVIEW READY — Gonza
+
+The user-rejected historical preview has been replaced by the exact G2-approved repaired visual candidate.
+
+Source:
+- `f34760948cb2024c0c83f4a02202117a8ad3bf2f`
+
+Rebuild verification:
+- run `35575811935`: SUCCESS;
+- standalone SHA-256 `b0326df090a4847dff43d43f9d3280937ffe8b2113fea97a5590a7070d5d3be3`;
+- 844x390 preview smoke + full suite/typecheck/build + runtime raster guard: PASS.
+
+Served preview:
+- https://faustobiancotto10.github.io/Juego-pelea/v07-preview/
+- gh-pages SHA `3b58ff4c416e1a98b6b27414bb16723e97594fff`;
+- Pages run `35576000562`: SUCCESS;
+- served index/play blob `40135c2db0b908bf9a901fa50b08de2b239f5014` equals rebuilt standalone.
+
+Production root remains V0.6.
+
+Z1 is now BLOCKED only on the required user physical-phone acceptance of this rebuilt preview.

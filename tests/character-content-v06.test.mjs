@@ -23,8 +23,8 @@ test('R0 extracts V0.5 values into ordered Character Packages without tuning', (
 
   assert.equal(FIGHTERS.chameleon.maxHealth, 1000);
   assert.equal(FIGHTERS.chameleon.walkSpeed, 4.25);
-  assert.equal(MOVE_SETS.chameleon.tongueStraight.totalFrames, 46);
-  assert.equal(MOVE_SETS.chameleon.tongueStraight.hitbox.knockback, 4.8);
+  assert.equal(MOVE_SETS.chameleon.tongueStraight.totalFrames, 54);
+  assert.equal(MOVE_SETS.chameleon.tongueStraight.hitbox.knockback, 3.2);
   assert.equal(MOVE_SETS.chameleon.coletazo.hitbox.damage, 52);
   assert.equal(FIGHTER_KITS.supernariz.rangedSpecial, 'chorizoThrow');
   assert.equal(PROJECTILES.chorizo.speed, 9.2);

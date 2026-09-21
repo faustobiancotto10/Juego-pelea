@@ -4,6 +4,7 @@ import {
   SpriteFighterRenderer,
   computeSpriteDrawPlacement,
 } from '../dist/game/render/sprites/SpriteFighterRenderer.js';
+import { GROUND_Y } from '../dist/game/render/drawUtils.js';
 
 function fighter(overrides = {}) {
   return {
@@ -74,7 +75,7 @@ test('sprite draw placement preserves source rect and anchors trimmed frame pivo
   const placement = computeSpriteDrawPlacement(fighter(), frame());
   assert.deepEqual(placement, {
     translateX: 500,
-    translateY: 630,
+    translateY: GROUND_Y - 20,
     scaleX: 1,
     source: { x: 7, y: 11, width: 80, height: 100 },
     dest: { x: -23, y: -94, width: 80, height: 100 },
@@ -99,7 +100,7 @@ test('different trimmed crouch/lunge frames remain pivot-anchored', () => {
     pivotY: 67,
   }));
   assert.equal(crouch.translateX, 500);
-  assert.equal(crouch.translateY, 630);
+  assert.equal(crouch.translateY, GROUND_Y - 20);
   assert.deepEqual(crouch.dest, { x: -54, y: -67, width: 112, height: 72 });
 });
 
@@ -132,7 +133,7 @@ test('sprite renderer resolves animation from snapshot, samples frame and draws 
   const renderer = new SpriteFighterRenderer(store);
   renderer.draw(ctx, fighter(), 'pkg', 12, 0.5);
 
-  assert.deepEqual(calls[1], ['translate', 500, 630]);
+  assert.deepEqual(calls[1], ['translate', 500, GROUND_Y - 20]);
   assert.deepEqual(calls[2], ['scale', 1, 1]);
   assert.deepEqual(
     calls[3],

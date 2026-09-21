@@ -218,11 +218,80 @@ try {
   await shot(cdp, 'el-toro-topete-phone');
   await sleep(650);
 
-  // Neutral SPECIAL launches Shawarmazo. Capture after authored spawn frame.
-  await tap(cdp, 'KeyK', 'k', 40);
-  await sleep(270);
+  // Render the real Shawarmazo presentation at visible spacing. The live
+  // Topete leaves fighters too close for a stable projectile screenshot, so
+  // this evidence uses the same FightRenderer and an authoritative-style
+  // projectile snapshot without changing product runtime state.
+  const shawarmaOk = await evaluate(cdp, `(async () => {
+    const [{ CombatSimulation }, { FightRenderer }, stageRegistry] = await Promise.all([
+      import('/game/simulation/CombatSimulation.js'),
+      import('/game/render/FightRenderer.js'),
+      import('/game/render/StageRegistry.js'),
+    ]);
+    document.querySelector('#v07-m2-evidence-canvas')?.remove();
+    const canvas = document.createElement('canvas');
+    canvas.id = 'v07-m2-evidence-canvas';
+    canvas.style.cssText = 'position:fixed;inset:0;width:844px;height:390px;z-index:99999;background:#07090e';
+    document.body.appendChild(canvas);
+
+    const sim = new CombatSimulation('el-toro', 'juanchi', { skipIntro: true });
+    const base = sim.getSnapshot();
+    const toro = {
+      ...base.fighters[0],
+      x: 300,
+      facing: 1,
+      grounded: true,
+      y: 0,
+      vx: 0,
+      vy: 0,
+      moveId: 'shawarmazoThrow',
+      moveFrame: 15,
+      blocking: false,
+      crouching: false,
+      stunFrames: 0,
+      blockstunFrames: 0,
+      guardBreakFrames: 0,
+      clashRecoveryFrames: 0,
+    };
+    const target = {
+      ...base.fighters[1],
+      x: 760,
+      facing: -1,
+      capturedBy: null,
+      stunFrames: 0,
+      blockstunFrames: 0,
+      guardBreakFrames: 0,
+    };
+    const snapshot = {
+      ...base,
+      frame: 90,
+      combatTick: 90,
+      phase: 'fight',
+      fighters: [toro, target],
+      events: [],
+      projectiles: [{
+        id: 99,
+        owner: 0,
+        kind: 'linear',
+        visualKey: 'shawarma',
+        x: 510,
+        y: 70,
+        vx: 7.6,
+        vy: 0,
+        active: true,
+        phase: 'outbound',
+        phaseTick: 4,
+        age: 7,
+      }],
+      clash: null,
+    };
+    const renderer = new FightRenderer(canvas, stageRegistry.DEFAULT_STAGE_REGISTRY.get('cancha-56'));
+    renderer.render(snapshot, 1.5);
+    return canvas.width > 0 && canvas.height > 0;
+  })()`);
+  if (!shawarmaOk) throw new Error('Shawarmazo presentation proof failed');
+  await sleep(80);
   await shot(cdp, 'el-toro-shawarmazo-phone');
-  await sleep(300);
 
   // Authoritative presentation snapshot through the real FightRenderer for Super Eructo.
   // Use a dedicated overlay canvas so the live AppController RAF cannot overwrite
@@ -291,7 +360,102 @@ try {
   await sleep(80);
   await shot(cdp, 'el-toro-super-eructo-phone');
 
-  console.log('Captured V07-M2 phone evidence.');
+  // Final M1 visual debt: live Juanchi forward/backward gait at the same
+  // phone-landscape viewport, followed by a procedural rage-aura proof.
+  await cdp.send('Page.navigate', { url: `${ORIGIN}/` });
+  await selector(cdp, '[data-game-phase="title"]');
+  await click(cdp, '[data-start]');
+  await selector(cdp, '[data-game-phase="select-player"]');
+  await click(cdp, '[data-fighter="juanchi"]');
+  await click(cdp, '[data-fighter-confirm]');
+  await selector(cdp, '[data-game-phase="select-cpu"]');
+  await click(cdp, '[data-fighter="supernariz"]');
+  const easy = await evaluate(cdp, `Boolean(document.querySelector('[data-difficulty="easy"]'))`);
+  if (easy) await click(cdp, '[data-difficulty="easy"]');
+  await click(cdp, '[data-fighter-confirm]');
+  await selector(cdp, '[data-game-phase="select-stage"]');
+  await click(cdp, '[data-stage="cancha-56"]');
+  await click(cdp, '[data-stage-confirm]');
+  await selector(cdp, '[data-game-phase="fight"]', 12000);
+  await sleep(1750);
+
+  await key(cdp, 'KeyD', 'd', true);
+  await sleep(420);
+  await shot(cdp, 'juanchi-forward-walk-phone');
+  await key(cdp, 'KeyD', 'd', false);
+  await sleep(220);
+
+  await key(cdp, 'KeyA', 'a', true);
+  await sleep(420);
+  await shot(cdp, 'juanchi-backwalk-phone');
+  await key(cdp, 'KeyA', 'a', false);
+  await sleep(180);
+
+  const auraOk = await evaluate(cdp, `(async () => {
+    const [{ CombatSimulation }, { FightRenderer }, stageRegistry] = await Promise.all([
+      import('/game/simulation/CombatSimulation.js'),
+      import('/game/render/FightRenderer.js'),
+      import('/game/render/StageRegistry.js'),
+    ]);
+    document.querySelector('#v07-m2-evidence-canvas')?.remove();
+    const canvas = document.createElement('canvas');
+    canvas.id = 'v07-m2-evidence-canvas';
+    canvas.style.cssText = 'position:fixed;inset:0;width:844px;height:390px;z-index:99999;background:#07090e';
+    document.body.appendChild(canvas);
+
+    const sim = new CombatSimulation('juanchi', 'supernariz', { skipIntro: true });
+    const base = sim.getSnapshot();
+    const juanchi = {
+      ...base.fighters[0],
+      x: 390,
+      facing: 1,
+      grounded: true,
+      y: 0,
+      vx: 0,
+      vy: 0,
+      moveId: 'policeCapRage',
+      moveFrame: 30,
+      ultimatePhase: 'sequence',
+      ultimatePhaseFrame: 10,
+      ultimateConnected: true,
+      ultimateTarget: 1,
+      ultimateEffectiveTick: base.combatTick,
+      capturedBy: null,
+      blocking: false,
+      crouching: false,
+      stunFrames: 0,
+      blockstunFrames: 0,
+      guardBreakFrames: 0,
+      clashRecoveryFrames: 0,
+    };
+    const target = {
+      ...base.fighters[1],
+      x: 660,
+      facing: -1,
+      capturedBy: 0,
+      stunFrames: 0,
+      blockstunFrames: 0,
+      guardBreakFrames: 0,
+    };
+    const snapshot = {
+      ...base,
+      frame: 120,
+      combatTick: 120,
+      phase: 'fight',
+      fighters: [juanchi, target],
+      events: [],
+      projectiles: [],
+      clash: null,
+    };
+    const renderer = new FightRenderer(canvas, stageRegistry.DEFAULT_STAGE_REGISTRY.get('cancha-56'));
+    renderer.render(snapshot, 2);
+    return canvas.width > 0 && canvas.height > 0;
+  })()`);
+  if (!auraOk) throw new Error('Juanchi rage aura presentation proof failed');
+  await sleep(80);
+  await shot(cdp, 'juanchi-red-rage-aura-phone');
+
+  console.log('Captured V07-M2 + deferred M1 phone evidence.');
   socket.close();
 } catch (error) {
   console.error(chromeLog.slice(-3500));

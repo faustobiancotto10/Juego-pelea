@@ -3,7 +3,9 @@
 | Path / subsystem | Owner | Task | Reason |
 | --- | --- | --- | --- |
 
-V07-M3 exact candidate `e053e0b187acff3b4555ce8d537e9fd9ca616303` is GREEN at Repository verification #1171 and Character Pipeline V2 run #15 (335/335 + build + visual artifact + raster guard). Mario released all M3 locks; Germinator V07-G2 is eligible.\n\nV07-M1 exact candidate `d55cce8ce7f03a60168697a5a5bbe1c8b5833a24` is GREEN at verification run #1079 (305/305 + build).
+V07-M3 exact candidate `e053e0b187acff3b4555ce8d537e9fd9ca616303` is GREEN at Repository verification #1171 and Character Pipeline V2 run #15 (335/335 + build + visual artifact + raster guard). Mario released all M3 locks; Germinator V07-G2 is eligible.
+
+V07-M1 exact candidate `d55cce8ce7f03a60168697a5a5bbe1c8b5833a24` is GREEN at verification run #1079 (305/305 + build).
 
 V07-M2 exact candidate `a47326093ae004c602e00112ac2ed2226cf738c8` is GREEN at verification run #1113 (314/314 + build). Mario released all M2 locks after restoring the normal verification workflow.
 

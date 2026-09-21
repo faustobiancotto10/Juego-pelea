@@ -2,7 +2,7 @@
 
 Round: R005-V07-GAMEPLAY-PRESENTATION-EXPANSION  
 Owner: Ricardo  
-Status: READY
+Status: HANDOFF_READY
 
 ## Execution branch
 
@@ -40,11 +40,19 @@ Implement the generic, presentation-only sprite runtime foundation from `docs/su
 
 ## Acceptance criteria
 
-- [ ] Snapshot/event-driven animation resolution only.
-- [ ] Integer/tick deterministic frame sampling.
-- [ ] Fight-scoped selected-fighter loading only.
-- [ ] Missing/malformed package diagnostics are visible and tested.
-- [ ] Sprite body rendering cannot decide hit/damage/stun/legality.
-- [ ] Existing test suite/typecheck/build green.
-- [ ] Exact-SHA handoff to Mario integrator and Germinator.
-- [ ] Identity Learning Receipt recorded.
+- [x] Snapshot/event-driven animation resolution only.
+- [x] Integer/tick deterministic frame sampling.
+- [x] Fight-scoped selected-fighter loading only.
+- [x] Missing/malformed package diagnostics are visible and tested.
+- [x] Sprite body rendering cannot decide hit/damage/stun/legality.
+- [x] Existing test suite/typecheck/build green.
+- [x] Exact-SHA handoff to Mario integrator and Germinator.
+- [x] Identity Learning Receipt recorded.
+
+## Completion receipt
+
+- exact candidate: `d07cba1231fbb571dfe5d344487251f88dec797c`
+- final verification: run `35669435920` / job `106562356524` — 306/306 full-suite PASS + build PASS
+- handoff: `coordination/handoffs/V07-SPR-R1-ricardo.md`
+- authored-facing amendment: explicit `mirrorSafe`; non-mirror-safe packages require matching `leftAnimations`
+- Identity Learning Review: UPDATED

@@ -164,3 +164,19 @@ test('M2 runtime fighter art has no El Toro reference-raster path', () => {
     assert.doesNotMatch(source, /docs\/characters\/el-toro\/references|identity-master-reference|action-sheet-reference|drawImage\(|new Image\(/i);
   }
 });
+
+
+test('Shawarmazo contact burst resolves from authoritative projectile identity after throw recovery', () => {
+  const fight = readFileSync('src/game/render/FightRenderer.ts', 'utf8');
+  assert.match(fight, /event\.projectileId[\s\S]{0,500}snapshot\.projectiles\.find/);
+  assert.match(fight, /visualKey === 'shawarma'[\s\S]{0,240}'shawarma-debris'/);
+});
+
+test('Topete turf impact is contact-event driven and never emitted by move-frame timing alone', () => {
+  const fight = readFileSync('src/game/render/FightRenderer.ts', 'utf8');
+  assert.match(fight, /burst\.key === 'topete-drive'[\s\S]{0,360}drawToroGroundImpact/);
+  assert.doesNotMatch(
+    fight,
+    /fighter\.moveFrame >= 10[\s\S]{0,360}drawToroGroundImpact/,
+  );
+});

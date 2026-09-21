@@ -11,5 +11,6 @@
 | `src/game/render/CombatEffects.ts` | Mario | V07-M2 | Topete/Shawarmazo/Super Eructo presentation |
 | `src/game/render/FightRenderer.ts` | Mario | V07-M2 | authoritative El Toro effect dispatch |
 | `tests/v07-m2-render.test.mjs` | Mario | V07-M2 | RED→GREEN render/portrait diagnostics |
+| `.github/workflows/repository-verification.yml` | Mario | V07-M2 TEMP QA | Temporary headless phone visual artifact; restore before handoff |
 
 V07-M1 exact candidate `d55cce8ce7f03a60168697a5a5bbe1c8b5833a24` is GREEN at verification run #1079 (305/305 + build).

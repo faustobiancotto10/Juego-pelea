@@ -137,3 +137,6 @@ When A/B/C/D each leave a green exact-SHA handoff, Mario-A switches to V07-M3I a
 
 
 - **2026-09-21 — REWORK START — Mario-C / V07-M3C**: accepted M3I visual rejection. Reopened C for a structural pass only: Camaleoni neck/head/body/tail silhouette and Supernariz nose/cape/head/body proportions. Micro-detail is secondary; no shared-system/gameplay/raster expansion. Locks reacquired on the two C rigs.
+
+
+- **2026-09-21 — STRUCTURAL PASS CANDIDATE — Mario-C / V07-M3C**: second-pass candidate at exact SHA `85c349937e41f8bad0a2c2141012673714e94580`. Relative to prior C handoff it changes only `ChameleonRig.ts` (+81/-34) and `SupernarizRig.ts` (+35/-24). Camaleoni now has an S-curved long neck, higher/larger human head, longer/thicker neutral tail + larger spiral, stronger dorsal crest and narrower reptile torso. Supernariz now has a much longer neutral/bulbous nose, larger cape wedge, taller head placement, broader shoulder V-taper and wider arm silhouette. CI/evidence pending; not yet handoff-ready.

@@ -88,3 +88,13 @@ Run the task's required verification, leave an exact-SHA handoff, release locks 
 ## Release authority
 
 Issue `BLOCK_RELEASE` when a required task is missing, QA blockers remain, verification fails, integration conflicts are unresolved or the published artifact would not match approved source.
+
+## Durable role learnings
+
+This section is Gonza's bounded persistent operating memory.
+
+After meaningful integration/release work, review whether a stable release-engineering lesson would help a replacement Gonza integrate future rounds more safely. If so, update only this section under the protocol's durable-role-memory rules.
+
+Good Gonza learnings include recurring stale-branch/coordination hazards, parity verification techniques, packaging/test-discovery pitfalls, release smoke patterns, or ways to prove that the served artifact matches approved source.
+
+Do not store current release SHAs, temporary Pages state or task-specific blockers here.

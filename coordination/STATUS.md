@@ -12,7 +12,7 @@ Execution: AUTO_CHAIN / MULTI-INSTANCE MARIO SQUAD
 | ↳ Mario-A | Temporary lane — Visual Architect / Lead | V07-M3A→M3I | WORKING | V07-M3A claimed; auditing shared structure/primitives and visual-quality gates on `round/r005-mario-squad-architect`. |
 | ↳ Mario-B | Temporary lane — El Toro + Juanchi | V07-M3B | WORKING | Branch `round/r005-mario-squad-toro-juanchi`. |
 | ↳ Mario-C | Temporary lane — Camaleoni + Supernariz | V07-M3C | WORKING | Claimed; reconstructing Camaleoni + Supernariz on `round/r005-mario-squad-camaleoni-supernariz`. |
-| ↳ Mario-D | Temporary lane — Motion / Presentation / FX | V07-M3D | READY | Branch `round/r005-mario-squad-motion-fx`. |
+| ↳ Mario-D | Temporary lane — Motion / Presentation / FX | V07-M3D | WORKING | Lane claimed after duplicate-A collision; improving locomotion/body language/FX on `round/r005-mario-squad-motion-fx`. |
 | Germinator | Auditor / QA | V07-G1→G2 | WAITING_DEPENDENCY | Audit only the integrated V07-M3I squad candidate after A+B+C+D are green and M3I is composed. |
 | Brancaforte | UI / Input / UX Engineer | V07-B1 | VERIFIED | Existing UI lane remains frozen; available only if squad finds a real portrait/UI contract blocker. |
 | Gonza | Integration / Release | V07-Z0→Z1 | BLOCKED | Do not rebuild/publish until Germinator G2 approves the integrated Mario squad candidate. |

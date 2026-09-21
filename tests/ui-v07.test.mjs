@@ -1,5 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
 import {
   beginSelection,
   chooseCpuDifficulty,
@@ -47,4 +48,16 @@ test('V07-B1 released roster exposes four registered portrait keys and scales fi
   }
   assert.equal(rosterDensity(5), 'compact');
   assert.equal(rosterDensity(10), 'dense');
+});
+
+
+test('V07-B1 portrait cards expose renderer-owned keyed canvas surfaces without fighter-specific CSS art', () => {
+  const controller = readFileSync(new URL('../src/game/ui/AppController.ts', import.meta.url), 'utf8');
+  const css = readFileSync(new URL('../src/styles.css', import.meta.url), 'utf8');
+  assert.match(controller, /data-fighter-portrait/);
+  assert.match(controller, /data-portrait-key=/);
+  assert.match(controller, /fighter-portrait-canvas/);
+  assert.match(controller, /fighter-portrait-fallback/);
+  assert.doesNotMatch(css, /fighter-portrait-v07\[data-portrait-key=/);
+  assert.doesNotMatch(css, /portrait-body|portrait-head|portrait-detail/);
 });

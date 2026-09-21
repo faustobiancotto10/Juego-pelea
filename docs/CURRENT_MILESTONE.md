@@ -1,49 +1,33 @@
 # Current Milestone
 
 **Official published version:** V0.6  
-**Active development target:** V0.7  
-**Live round:** `R005-V07-GAMEPLAY-PRESENTATION-EXPANSION`  
-**Execution:** AUTO_CHAIN
+**Current development target:** V0.7  
+**Live round:** `R005-V07-GAMEPLAY-PRESENTATION-EXPANSION` — ACTIVE / AUTO_CHAIN  
+**Frozen R005 base:** `378a991d55bed03e6237a03fdf6dfe96653fae72`
 
-Official V0.6 release evidence remains archived at:
-- `coordination/archive/R004-V06-CONTENT-EXPANSION.md`
+Official V0.6 release evidence remains:
+- product merge `60f30d4a100f3d853e2408e3eee7bbde4e2170fe`
+- GitHub Pages publish `93d2fdd6f4b764a49fa70ad1ff6ac1f348fb85cc`
+- public standalone blob `bda2d2a16a0cd640f654b3b9c7aef148b7213f38`
+- public URL: https://faustobiancotto10.github.io/Juego-pelea/
 
-## R005 frozen base
+## V0.7 goal
 
-`378a991d55bed03e6237a03fdf6dfe96653fae72`
+V0.7 directly answers the post-release human feedback:
 
-Branches:
-- `round/r005-ricardo`
-- `round/r005-germinator`
-- `round/r005-mario`
-- `round/r005-brancaforte`
-- `round/r005-integration`
-
-## V0.7 scope
-
-V0.7 directly addresses post-release V0.6 human feedback:
-
-- Camaleoni Lengua remains too dominant/spammable;
-- CPU needs explicit fair difficulty levels;
-- Juanchi locomotion needs visual repair;
-- attack animation/effects need stronger game-feel;
-- Juanchi needs a genuine red rage aura;
-- El Toro becomes fighter four;
-- every fighter card receives a procedural in-game portrait/icon.
-
-CPU levels:
-- FÁCIL
-- NORMAL (default)
-- DIFÍCIL
-
-El Toro:
-- Topete
-- Shawarmazo
-- Super Eructo
+1. Camaleoni Lengua must stop being a low-skill dominant spam loop while remaining his defining zoning tool.
+2. CPU gains fair **Easy / Normal / Hard** difficulty, with Normal default and no raw-input/future-state cheating.
+3. Juanchi locomotion, especially walk/backwalk, gets a visual repair without changing simulation movement truth.
+4. Attack presentation receives a reusable procedural quality pass; Juanchi gets a genuine red rage aura.
+5. **El Toro** becomes fighter four:
+   - Topete;
+   - Shawarmazo;
+   - Super Eructo.
+6. Every fighter-select card receives a recognizable **procedural in-game portrait/icon**, never a source/reference photo.
 
 No new stage is planned for V0.7.
 
-## Authoritative design
+## Authoritative planning package
 
 - `docs/superpowers/specs/2026-09-20-v07-post-v06-master-audit.md`
 - `docs/superpowers/specs/2026-09-20-v07-lengua-balance-contract.md`
@@ -55,9 +39,10 @@ No new stage is planned for V0.7.
 - `docs/characters/el-toro/PACKAGE.md`
 
 El Toro authoring references are persisted under:
-- `docs/characters/el-toro/references/`
+- `docs/characters/el-toro/references/identity-master-reference.webp`
+- `docs/characters/el-toro/references/action-sheet-reference.webp`
 
-They are never runtime assets.
+They are authoring-only and prohibited from runtime.
 
 ## Execution
 
@@ -65,4 +50,9 @@ Canonical sequence:
 
 **Ricardo → Germinator → Mario + Brancaforte → Gonza**
 
-Ricardo V07-R0 is the only implementation task immediately eligible. Green handoffs advance the AUTO_CHAIN without a new Neureon token.
+Current first eligible task:
+- `V07-R0` — Ricardo.
+
+AUTO_CHAIN is active. Green handoffs unlock downstream tasks automatically; no per-step Neureon authorization is required.
+
+If a frozen contract is contradicted by evidence, the affected agent stops its dependency chain, records the blocker and tells the user.

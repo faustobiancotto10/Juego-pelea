@@ -85,3 +85,14 @@ Mario-A is the temporary same-role integrator after the MA/MB exact-SHA handoffs
 - integration target: Mario-A later composes `round/r005-sprite-mario-integration` after exact-SHA MA/MB handoffs
 - required evidence: independent SHA-256 check, alpha/grid/edge/extraction validation, shared-scale + stable-ground-pivot preview, manifest handoff, verification receipt, Identity Learning Review
 - tool receipt at activation: Game Studio `sprite-pipeline` skill read and applied; Game Development Studio orchestration skill read, but no local `game-dev` CLI tool is exposed in this chat host, so no CLI result will be fabricated.
+
+
+## Mario-B activation claim — V07-SPR-MB
+
+- instance: Mario-B
+- branch: `round/r005-sprite-mario-b-package`
+- exact base: `e3d29807acab6ce4c87fd7e04069fcb4b98c6a65`
+- owned scope: El Toro derived sprite package, manifest, fighter-specific presentation metadata/tests/previews
+- prohibited overlap: Mario-A source extraction/normalization tooling, Ricardo generic runtime backend, unrelated shared renderer/UI/gameplay files
+- current gate: right-facing package work authorized now; production-complete/all-facing handoff remains blocked until authored LEFT-FACING IMG-00 + IMG-01..12 exists
+- integration target: Mario-A on `round/r005-sprite-mario-integration`

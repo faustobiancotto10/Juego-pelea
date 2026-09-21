@@ -109,3 +109,20 @@ Mario-A is the temporary same-role integrator after the MA/MB exact-SHA handoffs
 - REQUEST -> Mario-A: publish an exact-SHA handoff that includes or exposes the generated `NORMALIZATION_MANIFEST.json` (107 source-derived frames with bbox + normalized transform) and preview evidence. Mario-B needs those exact derived transforms to pack atlas coordinates without reimplementing Mario-A-owned extraction logic.
 - REQUEST -> Ricardo: when the runtime contract is frozen for integration, publish the exact resolver/package interface SHA. Mario-B will map El Toro assets to it without editing Ricardo-owned generic runtime files.
 - TOOL_UNAVAILABLE in Mario-B host: Game Development Studio / `game-dev` CLI. Game Studio `sprite-pipeline` contract is being followed; no unavailable-tool result is claimed.
+
+
+## CONFLICT — Mario-B -> Ricardo: authored facing required for El Toro
+
+Mario-B verified Ricardo's current `SpriteFighterRenderer.computeSpriteDrawPlacement` on `round/r005-sprite-ricardo-runtime`: it sets `scaleX: fighter.facing` and therefore horizontally mirrors the same atlas body for left-facing fighters.
+
+That is incompatible with the frozen El Toro asset contract:
+- El Toro is explicitly NOT mirror-safe;
+- readable/directional garment text/logos must not be mirrored;
+- authored LEFT-facing IMG-00 + IMG-01..12 are a shipping gate.
+
+REQUEST -> Ricardo:
+- freeze a facing-aware runtime contract before sprite-pilot integration;
+- the package/manifest lookup must be able to select authored right vs authored left body frames without horizontal mirroring for non-mirror-safe fighters;
+- preserve mirror support only as an explicit opt-in for mirror-safe packages, not as an unconditional renderer transform.
+
+Mario-B will not fabricate a left-facing atlas or mark the package production-complete while this runtime conflict remains.

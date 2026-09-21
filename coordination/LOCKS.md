@@ -2,6 +2,7 @@
 
 | Path / subsystem | Owner | Task | Reason |
 | --- | --- | --- | --- |
+| `V07-M3I refreshed B+C rig delta` | Mario-A | V07-M3I | Replace prior B/C rigs with refreshed exact green handoffs; A/D frozen. |
 
 V07-M3 current reference-fidelity candidate `032b1bb28c5dd4421e5772cc40ab007f42e4d462` is GREEN at Character Pipeline V2 run #36 / `35567747782` (336/336 + build + visual artifact + raster guard). Mario released all M3R renderer locks; Germinator V07-G2 is eligible. Initial structural candidate `e053e0b187acff3b4555ce8d537e9fd9ca616303` is historical.
 

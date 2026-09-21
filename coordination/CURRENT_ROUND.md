@@ -105,16 +105,50 @@ Local bugs inside the authorized contract are repaired by the owner without cere
 Only after Z1 publication/parity evidence does Neureon archive R005 and issue ROUND_COMPLETE.
 
 
-## User-rejected preview repair
+## User-rejected preview repair — multi-instance super-improvement
 
-The physical/user-facing V0.7 preview check failed on character visual identity. Production-root promotion remains blocked.
+The physical/user-facing V0.7 preview failed on character visual identity. The first single-Mario repair improved structure/reference fidelity but the user has explicitly authorized a stronger multi-instance Mario squad experiment before Germinator/Gonza proceed.
 
-Repair branch:
-- `repair/v07-character-pipeline-v2`
-- starts from rejected Z0 product candidate `65bbb4122be526b0b878c214137192c7243db3ab`
-- contains the Character Pipeline V2 authoring/tooling bootstrap.
+Authoritative visual base for all squad lanes:
+`032b1bb28c5dd4421e5772cc40ab007f42e4d462`
 
-Repair sequence:
-**Mario V07-M3 → Germinator V07-G2 → Gonza rebuild/re-publish preview → user physical-phone acceptance → Z1**
+This is the latest green single-Mario reference-fidelity candidate and is now the baseline to beat, not the final visual candidate.
 
-Mario V07-M3 is immediately eligible. Existing V0.7 gameplay contracts remain frozen; this repair is visual/rendering-only unless a blocker is explicitly raised.
+### Authorized Mario squad
+
+- V07-M3A — Mario-A — Visual Architecture / Lead
+  - branch: `round/r005-mario-squad-architect`
+- V07-M3B — Mario-B — El Toro + Juanchi Reconstruction
+  - branch: `round/r005-mario-squad-toro-juanchi`
+- V07-M3C — Mario-C — Camaleoni + Supernariz Reconstruction
+  - branch: `round/r005-mario-squad-camaleoni-supernariz`
+- V07-M3D — Mario-D — Motion / Presentation / FX
+  - branch: `round/r005-mario-squad-motion-fx`
+- V07-M3I — Mario-A temporary squad integrator
+  - branch: `round/r005-mario-squad-integration`
+  - waits for M3A+B+C+D green exact-SHA handoffs.
+
+All five branches start from exact base:
+`032b1bb28c5dd4421e5772cc40ab007f42e4d462`
+
+### Procedure
+
+**REFERENCE ANALYSIS → STRUCTURE → LIKENESS → MOTION → EFFECTS → PHONE-SCALE VALIDATION**
+
+Mandatory visual gates:
+1. silhouette gate;
+2. identity/reference-fidelity gate;
+3. gameplay-scale gate;
+4. effects-off action-readability gate.
+
+The squad uses isolated branches and explicit file/subsystem ownership. Same-file concurrent editing is prohibited unless the round is amended. Cross-instance requests go through `coordination/forum/active/r005-mario-squad.md`.
+
+`@Game Development Studio` is authorized as bounded authoring/evidence support for visual debugging, deterministic captures and asset-production inspection when available. Its measurements do not replace human artistic acceptance.
+
+### Active repair sequence
+
+**Mario-A + Mario-B + Mario-C + Mario-D (parallel) → Mario-A V07-M3I integration → Germinator V07-G2 → Gonza rebuilt preview → user physical-phone acceptance → Z1**
+
+Germinator V07-G2 is no longer eligible from the previous M3 candidate; it waits for M3I. Gonza remains blocked.
+
+Existing V0.7 gameplay contracts remain frozen. No Mario instance may change gameplay/balance or silently migrate the renderer/runtime architecture.

@@ -2,15 +2,20 @@
 
 Round: `R005-V07-GAMEPLAY-PRESENTATION-EXPANSION`  
 Global state: ACTIVE  
-Execution: AUTO_CHAIN
+Execution: AUTO_CHAIN / MULTI-INSTANCE MARIO SQUAD
 
-| Agent | Role | Tasks | State | Next |
+| Agent / Instance | Role | Tasks | State | Next |
 | --- | --- | --- | --- | --- |
-| Neureon | Lead / Coordinator | V07-N0 | VERIFIED | Round formed/frozen. No per-step gate. |
-| Ricardo | Gameplay Engineer | V07-R0→R1→R2→R3 | VERIFIED | Complete gameplay/core candidate 94ee2489 green; available for targeted repairs only. |
-| Germinator | Auditor / QA | V07-G1→G2 | READY | V07-G2 is unblocked by Mario's superseding reference-fidelity candidate `032b1bb28c5dd4421e5772cc40ab007f42e4d462`; independently audit visual likeness, roster differentiation and runtime boundaries. |
-| Mario | Character / Rendering Engineer | V07-M1→M2→M3 | VERIFIED | User-directed M3 reference-fidelity repair green at `032b1bb28c5dd4421e5772cc40ab007f42e4d462`; 336/336 + build + visual artifact + raster guard PASS; handoff superseded for Germinator G2. |
-| Brancaforte | UI / Input / UX Engineer | V07-B1 | VERIFIED | Green exact SHA 9688764c; Mario M2 a4732609 is an ancestor; run #1127 success. Available for targeted repairs. |
-| Gonza | Integration / Release | V07-Z0→Z1 | BLOCKED | Current preview rejected on character visual identity. Wait for M3 + G2 before rebuilding preview; production root stays V0.6. |
+| Neureon | Lead / Coordinator | V07-N0 | VERIFIED | Multi-instance Mario squad authorized and frozen; no per-lane stage gate. |
+| Ricardo | Gameplay Engineer | V07-R0→R1→R2→R3 | VERIFIED | Gameplay/core frozen; available only for requested renderer-facing contract repairs. |
+| Mario-A | Character / Rendering Engineer — temporary Visual Architect / Lead | V07-M3A → V07-M3I | READY | Start M3A on `round/r005-mario-squad-architect`; coordinate shared visual architecture and later integrate green squad lanes. |
+| Mario-B | Character / Rendering Engineer — El Toro + Juanchi | V07-M3B | READY | Start M3B on `round/r005-mario-squad-toro-juanchi`. |
+| Mario-C | Character / Rendering Engineer — Camaleoni + Supernariz | V07-M3C | READY | Start M3C on `round/r005-mario-squad-camaleoni-supernariz`. |
+| Mario-D | Character / Rendering Engineer — Motion / Presentation / FX | V07-M3D | READY | Start M3D on `round/r005-mario-squad-motion-fx`. |
+| Germinator | Auditor / QA | V07-G1→G2 | WAITING_DEPENDENCY | Audit only the integrated V07-M3I squad candidate after A+B+C+D are green and M3I is composed. |
+| Brancaforte | UI / Input / UX Engineer | V07-B1 | VERIFIED | Existing UI lane remains frozen; available only if squad finds a real portrait/UI contract blocker. |
+| Gonza | Integration / Release | V07-Z0→Z1 | BLOCKED | Do not rebuild/publish until Germinator G2 approves the integrated Mario squad candidate. |
 
-Original canonical order completed through preview. Active repair order: **Mario V07-M3 → Germinator V07-G2 → Gonza rebuilt preview → user phone acceptance → Z1**.
+Active repair order: **Mario-A + Mario-B + Mario-C + Mario-D (parallel) → Mario-A/M3I → Germinator G2 → Gonza rebuilt preview → user phone acceptance → Z1**.
+
+Visual squad base: `032b1bb28c5dd4421e5772cc40ab007f42e4d462`.

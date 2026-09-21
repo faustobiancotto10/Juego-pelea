@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no" />
     <meta name="theme-color" content="#0c1018" />
-    <title>Juego Pelea V0.6</title>
+    <title>Juego Pelea V0.7</title>
     <style>
 :root {
   font-family: "Arial Narrow", "Roboto Condensed", Impact, system-ui, sans-serif;
@@ -725,6 +725,56 @@ button:focus-visible {
   .stage-tile { transition:none; }
 }
 
+
+/* V0.7 fighter-select portrait mounts + CPU difficulty */
+.fighter-portrait-v07 {
+  position:relative;
+  display:block;
+  width:min(100%,150px);
+  aspect-ratio:1.15;
+  margin:4px auto 8px;
+  overflow:hidden;
+  border-radius:10px;
+  background:
+    radial-gradient(circle at 50% 35%,color-mix(in srgb,var(--fighter-accent,var(--accent,#777)) 20%,#fff),transparent 42%),
+    rgba(7,9,14,.95);
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,.12);
+}
+.fighter-portrait-canvas {
+  position:absolute;
+  inset:0;
+  z-index:1;
+  width:100%;
+  height:100%;
+  display:block;
+}
+.fighter-portrait-fallback {
+  position:absolute;
+  inset:0;
+  display:grid;
+  place-items:center;
+  color:var(--fighter-accent,var(--accent,#777));
+  opacity:.22;
+  font:900 clamp(54px,8vw,92px)/1 Impact,'Arial Black',sans-serif;
+  pointer-events:none;
+}
+.fighter-portrait-v07[data-portrait-rendered="true"] .fighter-portrait-fallback { opacity:0; }
+.roster-tile-portrait { width:100%; max-width:128px; }
+.fighter-info-portrait { width:min(14vw,145px); margin:0 0 6px; }
+.roster-tile-mark--accent,.fighter-info-mark--accent { position:absolute; opacity:.16; pointer-events:none; }
+.vs-portrait { width:min(18vw,190px); margin:8px 0; }
+.difficulty-selector { border:0; padding:0; margin:10px 0 12px; min-width:0; }
+.difficulty-selector legend { margin-bottom:6px; color:#aeb4c0; font:800 10px/1 system-ui,sans-serif; letter-spacing:.14em; }
+.difficulty-selector > div { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:5px; }
+.difficulty-selector button { min-height:34px; border:1px solid rgba(255,255,255,.18); border-radius:4px; background:rgba(0,0,0,.24); color:#cdd0d6; font-size:10px; font-weight:900; letter-spacing:.08em; cursor:pointer; }
+.difficulty-selector button.is-selected,.difficulty-selector button:focus-visible { border-color:var(--fighter-accent,var(--gold)); background:color-mix(in srgb,var(--fighter-accent,var(--gold)) 22%,#0b0d12); color:#fff; outline:none; }
+@media (max-height:520px) {
+  .fighter-portrait-v07 { max-height:92px; width:105px; }
+  .fighter-info-portrait { width:92px; }
+  .difficulty-selector { margin:5px 0 7px; }
+  .difficulty-selector button { min-height:30px; }
+}
+
 </style>
   </head>
   <body>
@@ -819,10 +869,10 @@ button:focus-visible {
         id: "tongueStraight",
         category: "special",
         bindingRole: "rangedSpecial",
-        totalFrames: 46,
-        cpuThreatRange: 405,
+        totalFrames: 54,
+        cpuThreatRange: 365,
         cpuReactionFrame: 7,
-        hitbox: { start: 12, end: 14, offsetX: 34, width: 340, bottom: 50, top: 95, damage: 80, chipDamage: 4, hitstun: 18, blockstun: 12, knockback: 4.8, hitstop: 6, level: "mid", strong: true, guardDamage: 14 }
+        hitbox: { start: 12, end: 14, offsetX: 34, width: 300, bottom: 50, top: 95, damage: 72, chipDamage: 3, hitstun: 16, blockstun: 8, knockback: 3.2, hitstop: 6, level: "mid", strong: true, guardDamage: 10 }
       },
       coletazo: {
         id: "coletazo",
@@ -878,6 +928,7 @@ button:focus-visible {
     },
     presentation: {
       rigKey: "chameleon",
+      portraitKey: "chameleon",
       ultimateVisualKey: "camaleoni",
       accent: "#7abf43",
       effectAccent: "#9fe870",
@@ -1070,6 +1121,7 @@ button:focus-visible {
     },
     presentation: {
       rigKey: "supernariz",
+      portraitKey: "supernariz",
       ultimateVisualKey: "supernariz",
       accent: "#2f6bd7",
       effectAccent: "#6ea1ff",
@@ -1087,6 +1139,7 @@ button:focus-visible {
   var JUANCHI_CHARACTER_ID = "juanchi";
   var JUANCHI_PRESENTATION = {
     rigKey: "juanchi",
+    portraitKey: "juanchi",
     ultimateVisualKey: "police-cap-rage",
     accent: "#d8b65c",
     effectAccent: "#f1cd62",
@@ -1413,11 +1466,275 @@ button:focus-visible {
     presentation: JUANCHI_PRESENTATION
   };
 
+  // dist/game/data/characters/elToro.js
+  var EL_TORO_CHARACTER_ID = "el-toro";
+  var EL_TORO_PRESENTATION = {
+    rigKey: "el-toro",
+    portraitKey: "el-toro",
+    ultimateVisualKey: "super-eructo",
+    accent: "#3d7edb",
+    effectAccent: "#f1c75b",
+    select: {
+      kicker: "FUERZA Y EMPUJE",
+      role: "Bruiser",
+      moves: "Combo \xB7 Low \xB7 Shawarmazo / Topete",
+      mark: "T"
+    },
+    rangedAvailabilityLabel: "SHAWARMA"
+  };
+  var EL_TORO_CHARACTER_CONTENT = {
+    fighter: {
+      id: EL_TORO_CHARACTER_ID,
+      displayName: "EL TORO",
+      fullName: "El Toro",
+      role: "Bruiser",
+      maxHealth: 1100,
+      walkSpeed: 3.9,
+      jumpSpeed: 11.5,
+      gravity: 0.78,
+      width: 64,
+      height: 124,
+      captureHead: { standY: 208, crouchY: 192, halfWidth: 28, halfHeight: 23 },
+      accent: "#3d7edb"
+    },
+    kit: {
+      standing: "toroJab",
+      low: "toroLow",
+      air: "toroAir",
+      rangedSpecial: "shawarmazoThrow",
+      closeSpecial: "topete",
+      ultimate: "superEructo",
+      cpu: {
+        preferredRange: [125, 215],
+        pressureRange: 115,
+        reactionTicks: 12,
+        decisionTicks: 8,
+        commitmentTicks: [14, 20],
+        missChance: 0.25,
+        confirmChance: 0.72,
+        archetype: "pressure",
+        tactics: {
+          ultimateRange: [105, 370],
+          rangedRange: [210, 390],
+          rangedChance: 0.28,
+          closeWeights: {
+            standing: 0.38,
+            low: 0.18,
+            closeSpecial: 0.27,
+            jump: 0.05,
+            retreat: 0.12
+          },
+          advanceBehindReturningProjectile: 0,
+          retreatAtPreferredRange: 0.08
+        }
+      }
+    },
+    moves: {
+      toroJab: {
+        id: "toroJab",
+        category: "normal",
+        bindingRole: "standing",
+        totalFrames: 22,
+        cancelStart: 10,
+        cancelEnd: 13,
+        nextAttack: "toroShoulder",
+        cpuThreatRange: 190,
+        cpuReactionFrame: 8,
+        hitbox: {
+          start: 6,
+          end: 8,
+          offsetX: 24,
+          width: 74,
+          bottom: 30,
+          top: 96,
+          damage: 50,
+          chipDamage: 3,
+          guardDamage: 10,
+          hitstun: 17,
+          blockstun: 8,
+          knockback: 3.2,
+          hitstop: 5,
+          level: "mid",
+          strong: false
+        }
+      },
+      toroShoulder: {
+        id: "toroShoulder",
+        category: "normal",
+        bindingRole: "chain",
+        totalFrames: 28,
+        cpuThreatRange: 205,
+        cpuReactionFrame: 8,
+        hitbox: {
+          start: 7,
+          end: 10,
+          offsetX: 28,
+          width: 88,
+          bottom: 24,
+          top: 104,
+          damage: 70,
+          chipDamage: 4,
+          guardDamage: 16,
+          hitstun: 18,
+          blockstun: 9,
+          knockback: 7.2,
+          hitstop: 6,
+          level: "mid",
+          strong: true
+        }
+      },
+      toroLow: {
+        id: "toroLow",
+        category: "normal",
+        bindingRole: "low",
+        totalFrames: 28,
+        cpuThreatRange: 160,
+        cpuReactionFrame: 9,
+        hitbox: {
+          start: 8,
+          end: 10,
+          offsetX: 22,
+          width: 72,
+          bottom: 8,
+          top: 36,
+          damage: 42,
+          chipDamage: 2,
+          guardDamage: 10,
+          hitstun: 14,
+          blockstun: 8,
+          knockback: 4,
+          hitstop: 4,
+          level: "low",
+          strong: false
+        }
+      },
+      toroAir: {
+        id: "toroAir",
+        category: "normal",
+        bindingRole: "air",
+        totalFrames: 26,
+        hitbox: {
+          start: 6,
+          end: 10,
+          offsetX: 26,
+          width: 86,
+          bottom: -42,
+          top: 48,
+          damage: 68,
+          chipDamage: 4,
+          guardDamage: 14,
+          hitstun: 15,
+          blockstun: 9,
+          knockback: 6,
+          hitstop: 5,
+          level: "overhead",
+          strong: true
+        }
+      },
+      shawarmazoThrow: {
+        id: "shawarmazoThrow",
+        category: "projectile",
+        bindingRole: "rangedSpecial",
+        totalFrames: 41,
+        spawnProjectileFrame: 13,
+        projectileKey: "toroShawarma"
+      },
+      topete: {
+        id: "topete",
+        category: "special",
+        bindingRole: "closeSpecial",
+        totalFrames: 42,
+        cpuThreatRange: 220,
+        cpuReactionFrame: 7,
+        movement: { start: 8, end: 16, speed: 11, kind: "forward", stopAtWall: true },
+        hitbox: {
+          start: 10,
+          end: 16,
+          offsetX: 30,
+          width: 100,
+          bottom: 20,
+          top: 104,
+          damage: 88,
+          chipDamage: 5,
+          guardDamage: 18,
+          hitstun: 18,
+          blockstun: 10,
+          knockback: 10.5,
+          hitstop: 7,
+          level: "mid",
+          strong: true,
+          blockKnockback: 3
+        }
+      },
+      superEructo: {
+        id: "superEructo",
+        category: "ultimate",
+        bindingRole: "ultimate",
+        totalFrames: 74,
+        ultimate: true,
+        ultimateKey: "toroSuperEructo"
+      }
+    },
+    projectiles: {
+      toroShawarma: {
+        key: "toroShawarma",
+        kind: "linear",
+        visualKey: "shawarma",
+        spawnOffsetX: 62,
+        spawnOffsetY: 70,
+        speed: 7.6,
+        ttl: 64,
+        collisionHalfWidth: 20,
+        collisionHalfHeight: 12,
+        damage: 62,
+        chipDamage: 4,
+        guardDamage: 13,
+        hitstun: 16,
+        blockstun: 9,
+        knockback: 8,
+        blockKnockback: 2.4,
+        cornerTransferKnockback: 6,
+        hitstop: 5,
+        cooldown: 96,
+        strong: true
+      }
+    },
+    ultimates: {
+      toroSuperEructo: {
+        key: "toroSuperEructo",
+        kind: "forwardBlast",
+        startupFrames: 26,
+        captureFrames: 18,
+        recoveryFrames: 30,
+        captureReach: 390,
+        captureVertical: 145,
+        blastFrames: 18,
+        blastRange: 390,
+        blastBottom: 20,
+        blastTop: 145,
+        sequenceFrames: 18,
+        sequenceOffsetX: 0,
+        sequenceHits: [
+          { frame: 2, damage: 45, knockback: 3, chipDamage: 3, guardDamage: 10, hitstun: 10, blockstun: 6, blockKnockback: 1.5, hitstop: 4 },
+          { frame: 8, damage: 45, knockback: 4, chipDamage: 3, guardDamage: 10, hitstun: 12, blockstun: 6, blockKnockback: 1.8, hitstop: 4 },
+          { frame: 14, damage: 90, knockback: 15, chipDamage: 5, guardDamage: 20, hitstun: 28, blockstun: 10, blockKnockback: 3, hitstop: 10 }
+        ],
+        releaseKnockback: 15,
+        releaseVx: 15,
+        releaseVy: 5,
+        releaseHitstun: 28,
+        finalHitstop: 10,
+        visualKey: "super-eructo"
+      }
+    },
+    presentation: EL_TORO_PRESENTATION
+  };
+
   // dist/game/data/characterContent.js
   var MOVE_CATEGORIES = /* @__PURE__ */ new Set(["normal", "special", "projectile", "ultimate"]);
   var BINDING_ROLES = /* @__PURE__ */ new Set(["standing", "low", "chain", "air", "rangedSpecial", "closeSpecial", "ultimate"]);
   var ATTACK_LEVELS = /* @__PURE__ */ new Set(["mid", "low", "overhead"]);
-  var ULTIMATE_KINDS = /* @__PURE__ */ new Set(["dashCapture", "suctionCapture", "capCapture"]);
+  var ULTIMATE_KINDS = /* @__PURE__ */ new Set(["dashCapture", "suctionCapture", "capCapture", "forwardBlast"]);
   function fail(path, message) {
     throw new Error(`${path}: ${message}`);
   }
@@ -1486,6 +1803,8 @@ button:focus-visible {
     finite(`${path}.knockback`, hitbox.knockback, 0);
     integer(`${path}.hitstop`, hitbox.hitstop);
     finite(`${path}.guardDamage`, hitbox.guardDamage, 0);
+    if (hitbox.blockKnockback !== void 0)
+      finite(`${path}.blockKnockback`, hitbox.blockKnockback, 0);
     if (!ATTACK_LEVELS.has(hitbox.level))
       fail(`${path}.level`, `unknown attack level ${String(hitbox.level)}`);
     if (typeof hitbox.strong !== "boolean")
@@ -1498,6 +1817,19 @@ button:focus-visible {
     if (!BINDING_ROLES.has(move.bindingRole))
       fail(`${path}.bindingRole`, `unknown role ${String(move.bindingRole)}`);
     const total = integer(`${path}.totalFrames`, move.totalFrames, 1);
+    if (move.movement !== void 0) {
+      if (move.category !== "special")
+        fail(`${path}.movement`, "is only supported for special moves");
+      const start = integer(`${path}.movement.start`, move.movement.start);
+      const end = integer(`${path}.movement.end`, move.movement.end);
+      if (end < start || end >= total)
+        fail(`${path}.movement`, "window must be ordered and inside totalFrames");
+      finite(`${path}.movement.speed`, move.movement.speed, 1e-6);
+      if (move.movement.kind !== "forward")
+        fail(`${path}.movement.kind`, "only forward movement is supported");
+      if (move.movement.stopAtWall !== true)
+        fail(`${path}.movement.stopAtWall`, "must be true");
+    }
     if (move.hitbox !== void 0 && move.hits !== void 0)
       fail(path, "hitbox and hits are mutually exclusive");
     if (move.hitbox !== void 0)
@@ -1720,7 +2052,7 @@ button:focus-visible {
       finite(`${path}.suctionRange`, ultimate.suctionRange, 0);
       finite(`${path}.suctionSpeed`, ultimate.suctionSpeed, 0);
       finite(`${path}.captureDistance`, ultimate.captureDistance, 0);
-    } else {
+    } else if (ultimate.kind === "capCapture") {
       finite(`${path}.probeSpawnOffsetX`, ultimate.probeSpawnOffsetX, 0);
       finite(`${path}.probeSpeed`, ultimate.probeSpeed, 1e-6);
       finite(`${path}.probeHalfWidth`, ultimate.probeHalfWidth, 1e-6);
@@ -1733,6 +2065,15 @@ button:focus-visible {
         if (end < start || end > ultimate.sequenceFrames)
           fail(`${path}.sequenceApproach`, "must be ordered within sequenceFrames");
       }
+    } else {
+      const blastFrames = integer(`${path}.blastFrames`, ultimate.blastFrames, 1);
+      finite(`${path}.blastRange`, ultimate.blastRange, 1e-6);
+      const bottom = finite(`${path}.blastBottom`, ultimate.blastBottom, 0);
+      const top = finite(`${path}.blastTop`, ultimate.blastTop, 1e-6);
+      if (top <= bottom)
+        fail(`${path}.blastTop`, "must be greater than blastBottom");
+      if (ultimate.captureFrames !== blastFrames)
+        fail(`${path}.captureFrames`, "must match blastFrames for forwardBlast");
     }
     const seenFrames = /* @__PURE__ */ new Set();
     let finalFrame = -1;
@@ -1747,6 +2088,16 @@ button:focus-visible {
       seenFrames.add(frame);
       finite(`${beatPath}.damage`, beat.damage, 0);
       finite(`${beatPath}.knockback`, beat.knockback, 0);
+      if (ultimate.kind === "forwardBlast") {
+        if (frame >= (ultimate.blastFrames ?? 0))
+          fail(beatPath, "frame must be inside blastFrames");
+        finite(`${beatPath}.chipDamage`, beat.chipDamage, 0);
+        finite(`${beatPath}.guardDamage`, beat.guardDamage, 0);
+        integer(`${beatPath}.hitstun`, beat.hitstun);
+        integer(`${beatPath}.blockstun`, beat.blockstun);
+        finite(`${beatPath}.blockKnockback`, beat.blockKnockback, 0);
+        integer(`${beatPath}.hitstop`, beat.hitstop);
+      }
       if (frame > finalFrame) {
         finalFrame = frame;
         finalDamage = beat.damage;
@@ -1757,6 +2108,7 @@ button:focus-visible {
   }
   function validatePresentation(path, presentation) {
     nonEmpty(`${path}.rigKey`, presentation.rigKey);
+    nonEmpty(`${path}.portraitKey`, presentation.portraitKey);
     nonEmpty(`${path}.ultimateVisualKey`, presentation.ultimateVisualKey);
     nonEmpty(`${path}.accent`, presentation.accent);
     nonEmpty(`${path}.effectAccent`, presentation.effectAccent);
@@ -1918,9 +2270,10 @@ button:focus-visible {
   var RELEASED_CHARACTER_PACKAGES = Object.freeze([
     CAMALEONI_CHARACTER_CONTENT,
     SUPERNARIZ_CHARACTER_CONTENT,
-    JUANCHI_CHARACTER_CONTENT
+    JUANCHI_CHARACTER_CONTENT,
+    EL_TORO_CHARACTER_CONTENT
   ]);
-  var DEFAULT_CHARACTER_COMPOSITION = composeCharacterContent(RELEASED_CHARACTER_PACKAGES, ["chameleon", "supernariz", "juanchi"]);
+  var DEFAULT_CHARACTER_COMPOSITION = composeCharacterContent(RELEASED_CHARACTER_PACKAGES, ["chameleon", "supernariz", "juanchi", "el-toro"]);
 
   // dist/game/data/combatRegistry.js
   function requireEntry2(map, key, label) {
@@ -2373,6 +2726,66 @@ button:focus-visible {
     }
   };
 
+  // dist/game/data/ultimates.js
+  var ULTIMATES = DEFAULT_CHARACTER_COMPOSITION.ultimates;
+
+  // dist/game/render/AttackPresentation.js
+  function profile(telegraphKey, trailKey, contactBurstKey, auraKey, groundImpactKey, intensity) {
+    return Object.freeze({
+      telegraphKey,
+      trailKey,
+      contactBurstKey,
+      auraKey,
+      groundImpactKey,
+      intensity
+    });
+  }
+  var DIAGNOSTIC_MISSING_PROFILE = Object.freeze({
+    telegraphKey: "diagnostic-missing",
+    trailKey: "diagnostic-missing",
+    contactBurstKey: "diagnostic-missing",
+    auraKey: "diagnostic-missing",
+    groundImpactKey: "diagnostic-missing",
+    intensity: 0.35,
+    diagnostic: true
+  });
+  var ATTACK_PRESENTATION_PROFILES = Object.freeze({
+    "chameleon:claw1": profile("claw-ready", "claw-green", "claw-green", "none", "none", 0.52),
+    "chameleon:claw2": profile("claw-ready", "claw-green", "claw-green", "none", "none", 0.62),
+    "chameleon:clawLow": profile("claw-low", "claw-green", "claw-green", "none", "none", 0.58),
+    "chameleon:airClaw": profile("claw-air", "claw-green", "claw-green", "none", "none", 0.66),
+    "chameleon:tongueStraight": profile("tongue-load", "tongue-snap", "tongue-snap", "none", "none", 0.78),
+    "chameleon:coletazo": profile("tail-load", "tail-mass", "tail-mass", "none", "tail-mass", 0.9),
+    "chameleon:ultimateCamaleoni": profile("camaleoni-veil", "camaleoni-veil", "major-impact", "camaleoni-veil", "major-impact", 1),
+    "supernariz:nose1": profile("nose-ready", "nose-curve", "nose-curve", "none", "none", 0.5),
+    "supernariz:nose2": profile("nose-ready", "nose-curve", "nose-curve", "none", "none", 0.58),
+    "supernariz:nose3": profile("nose-load", "nose-curve", "nose-curve", "none", "none", 0.7),
+    "supernariz:noseLow": profile("nose-low", "nose-curve", "nose-curve", "none", "none", 0.58),
+    "supernariz:airNose": profile("nose-air", "nose-curve", "nose-curve", "none", "none", 0.64),
+    "supernariz:chorizoThrow": profile("throw-load", "chorizo-spice", "chorizo-spice", "none", "none", 0.72),
+    "supernariz:tramontana": profile("wind-load", "wind-lanes", "wind-lanes", "wind-lanes", "none", 0.82),
+    "supernariz:ultimateSupernariz": profile("suction-load", "wind-lanes", "major-impact", "wind-lanes", "major-impact", 1),
+    "juanchi:juanchiJab": profile("juanchi-ready", "juanchi-gold", "juanchi-gold", "none", "none", 0.48),
+    "juanchi:juanchiShoulder": profile("shoulder-load", "juanchi-gold", "juanchi-gold", "none", "none", 0.68),
+    "juanchi:juanchiLow": profile("juanchi-low", "juanchi-gold", "juanchi-gold", "none", "none", 0.6),
+    "juanchi:juanchiAir": profile("juanchi-air", "juanchi-gold", "juanchi-gold", "none", "none", 0.64),
+    "juanchi:rugbyBoomerangThrow": profile("throw-load", "juanchi-gold", "juanchi-gold", "none", "none", 0.72),
+    "juanchi:friccion": profile("friccion-load", "friccion-sparks", "friccion-sparks", "none", "none", 0.86),
+    "juanchi:policeCapRage": profile("rage-load", "juanchi-gold", "major-impact", "rage-red", "major-impact", 1),
+    "el-toro:toroJab": profile("toro-heavy-ready", "toro-blue", "toro-blue", "none", "none", 0.58),
+    "el-toro:toroShoulder": profile("toro-heavy-load", "toro-blue", "toro-blue", "none", "turf-heavy", 0.78),
+    "el-toro:toroLow": profile("toro-low-load", "toro-blue", "toro-blue", "none", "none", 0.64),
+    "el-toro:toroAir": profile("toro-air-load", "toro-blue", "toro-blue", "none", "turf-heavy", 0.72),
+    "el-toro:shawarmazoThrow": profile("shawarma-load", "shawarma-warm", "shawarma-debris", "none", "none", 0.82),
+    "el-toro:topete": profile("topete-load", "topete-drive", "topete-drive", "none", "turf-heavy", 0.96),
+    "el-toro:superEructo": profile("eructo-load", "super-eructo-gas", "major-impact", "super-eructo-gas", "turf-heavy", 1)
+  });
+  function resolveAttackPresentationProfile(fighterId, moveId) {
+    if (!moveId)
+      return DIAGNOSTIC_MISSING_PROFILE;
+    return ATTACK_PRESENTATION_PROFILES[`${fighterId}:${moveId}`] ?? DIAGNOSTIC_MISSING_PROFILE;
+  }
+
   // dist/game/render/drawUtils.js
   var WORLD_WIDTH = 1280;
   var WORLD_HEIGHT = 720;
@@ -2796,9 +3209,329 @@ button:focus-visible {
     }
     ctx.restore();
   }
-
-  // dist/game/data/ultimates.js
-  var ULTIMATES = DEFAULT_CHARACTER_COMPOSITION.ultimates;
+  function drawAttackMotionAccent(ctx, x, y, facing, trailKey, intensity, phase) {
+    const t = clamp01(intensity);
+    if (t <= 0.01 || trailKey === "none")
+      return;
+    const beat = 0.35 + 0.65 * Math.sin(clamp01(phase) * Math.PI);
+    ctx.save();
+    ctx.translate(x, y);
+    ctx.scale(facing, 1);
+    ctx.lineCap = "round";
+    if (trailKey === "diagnostic-missing") {
+      ctx.globalAlpha = 0.7 * t;
+      ctx.strokeStyle = "#ff3bd4";
+      ctx.lineWidth = 3;
+      ctx.setLineDash([7, 5]);
+      ctx.beginPath();
+      ctx.arc(0, -105, 58, -1.1, 1.1);
+      ctx.stroke();
+      ctx.setLineDash([]);
+      ctx.restore();
+      return;
+    }
+    if (trailKey === "claw-green") {
+      for (let i = 0; i < 3; i += 1) {
+        ctx.globalAlpha = t * beat * (0.42 - i * 0.07);
+        ctx.strokeStyle = i === 0 ? "#e6ffd5" : "#72dc70";
+        ctx.lineWidth = 5 - i;
+        ctx.beginPath();
+        ctx.arc(32 + i * 4, -112 + i * 9, 34 + i * 7, -1.05, 0.42);
+        ctx.stroke();
+      }
+    } else if (trailKey === "tongue-snap") {
+      for (let i = 0; i < 3; i += 1) {
+        ctx.globalAlpha = t * beat * (0.35 - i * 0.07);
+        ctx.strokeStyle = i === 0 ? "#ff9eb3" : "#8ce68e";
+        ctx.lineWidth = 5 - i;
+        ctx.beginPath();
+        ctx.moveTo(34, -118 + i * 5);
+        ctx.quadraticCurveTo(60, -122 + i * 4, 78 - i * 5, -113 + i * 7);
+        ctx.stroke();
+      }
+    } else if (trailKey === "tail-mass") {
+      ctx.globalAlpha = 0.22 + t * beat * 0.34;
+      ctx.strokeStyle = "#d9f58f";
+      ctx.lineWidth = 10;
+      ctx.beginPath();
+      ctx.arc(-12, -82, 104, -2.7, -0.58);
+      ctx.stroke();
+    } else if (trailKey === "nose-curve") {
+      for (let i = 0; i < 2; i += 1) {
+        ctx.globalAlpha = t * beat * (0.46 - i * 0.13);
+        ctx.strokeStyle = i === 0 ? "#fff0d9" : "#ffb27c";
+        ctx.lineWidth = 6 - i * 2;
+        ctx.beginPath();
+        ctx.arc(24, -132, 42 + i * 10, -1.22, 0.38);
+        ctx.stroke();
+      }
+    } else if (trailKey === "chorizo-spice") {
+      ctx.globalAlpha = t * beat * 0.56;
+      ctx.strokeStyle = "#ff9b48";
+      ctx.lineWidth = 4;
+      for (let i = 0; i < 3; i += 1) {
+        ctx.beginPath();
+        ctx.moveTo(26 - i * 8, -118 + i * 10);
+        ctx.lineTo(70 - i * 7, -123 + i * 7);
+        ctx.stroke();
+      }
+    } else if (trailKey === "wind-lanes") {
+      ctx.globalAlpha = 0.18 + t * beat * 0.3;
+      ctx.strokeStyle = "#dff5ff";
+      for (let i = 0; i < 4; i += 1) {
+        ctx.lineWidth = 4 - i * 0.55;
+        ctx.beginPath();
+        ctx.moveTo(28, -142 + i * 24);
+        ctx.bezierCurveTo(70, -158 + i * 17, 116, -116 + i * 18, 166 - i * 8, -128 + i * 18);
+        ctx.stroke();
+      }
+    } else if (trailKey === "juanchi-gold") {
+      ctx.globalAlpha = t * beat * 0.55;
+      ctx.strokeStyle = "#f4d77c";
+      for (let i = 0; i < 3; i += 1) {
+        ctx.lineWidth = 5 - i;
+        ctx.beginPath();
+        ctx.moveTo(12 - i * 5, -126 + i * 14);
+        ctx.quadraticCurveTo(54, -142 + i * 9, 90 - i * 4, -116 + i * 8);
+        ctx.stroke();
+      }
+    } else if (trailKey === "friccion-sparks") {
+      ctx.globalAlpha = 0.34 + t * beat * 0.42;
+      ctx.strokeStyle = "#ffd17c";
+      ctx.lineWidth = 2.5;
+      for (let i = 0; i < 5; i += 1) {
+        const sx = 10 + i * 7;
+        ctx.beginPath();
+        ctx.moveTo(sx, -116);
+        ctx.lineTo(sx + 5 + i % 2 * 4, -142 - i * 4);
+        ctx.stroke();
+      }
+    } else if (trailKey === "camaleoni-veil") {
+      ctx.globalAlpha = t * beat * 0.22;
+      ctx.strokeStyle = "#bfffb8";
+      ctx.lineWidth = 3;
+      ctx.beginPath();
+      ctx.ellipse(-12, -104, 48, 82, -0.1, 0, Math.PI * 2);
+      ctx.stroke();
+    } else if (trailKey === "toro-blue") {
+      ctx.globalAlpha = t * beat * 0.5;
+      ctx.strokeStyle = "#79b6ff";
+      ctx.lineWidth = 6;
+      ctx.beginPath();
+      ctx.arc(20, -105, 48, -1.05, 0.38);
+      ctx.stroke();
+    } else if (trailKey === "topete-drive") {
+      ctx.globalAlpha = 0.18 + t * beat * 0.34;
+      ctx.strokeStyle = "#5ca7ff";
+      for (let i = 0; i < 4; i += 1) {
+        ctx.lineWidth = 7 - i;
+        ctx.beginPath();
+        ctx.moveTo(-22 - i * 9, -128 + i * 25);
+        ctx.lineTo(-110 - i * 16, -116 + i * 24);
+        ctx.stroke();
+      }
+    } else if (trailKey === "shawarma-spice") {
+      ctx.globalAlpha = t * beat * 0.5;
+      ctx.strokeStyle = "#ff9d4c";
+      ctx.lineWidth = 4;
+      for (let i = 0; i < 3; i += 1) {
+        ctx.beginPath();
+        ctx.moveTo(18 - i * 7, -116 + i * 9);
+        ctx.lineTo(72 - i * 6, -124 + i * 7);
+        ctx.stroke();
+      }
+    } else if (trailKey === "super-eructo-gas") {
+      ctx.globalAlpha = 0.12 + t * beat * 0.2;
+      ctx.strokeStyle = "#9bd86e";
+      for (let i = 0; i < 3; i += 1) {
+        ctx.lineWidth = 6 - i;
+        ctx.beginPath();
+        ctx.ellipse(54 + i * 28, -105 + i * 9, 36 + i * 12, 25 + i * 8, 0, -0.9, 0.9);
+        ctx.stroke();
+      }
+    }
+    ctx.restore();
+  }
+  function drawAttackContactBurst(ctx, x, y, facing, contactBurstKey, intensity, progress) {
+    const t = clamp01(intensity);
+    const p = clamp01(progress);
+    if (t <= 0.01 || contactBurstKey === "none")
+      return;
+    ctx.save();
+    ctx.translate(x, y);
+    ctx.scale(facing, 1);
+    ctx.lineCap = "round";
+    if (contactBurstKey === "diagnostic-missing") {
+      ctx.globalAlpha = (1 - p) * 0.85;
+      ctx.strokeStyle = "#ff3bd4";
+      ctx.lineWidth = 4;
+      ctx.beginPath();
+      ctx.moveTo(-18, -18);
+      ctx.lineTo(18, 18);
+      ctx.moveTo(18, -18);
+      ctx.lineTo(-18, 18);
+      ctx.stroke();
+      ctx.restore();
+      return;
+    }
+    const radius = lerp(12, contactBurstKey === "major-impact" ? 82 : 46, p);
+    const alpha = (1 - p) * (0.45 + t * 0.45);
+    ctx.globalAlpha = alpha;
+    if (contactBurstKey === "claw-green" || contactBurstKey === "tail-mass") {
+      ctx.strokeStyle = "#cfff9b";
+    } else if (contactBurstKey === "nose-curve") {
+      ctx.strokeStyle = "#ffd4b2";
+    } else if (contactBurstKey === "chorizo-spice") {
+      ctx.strokeStyle = "#ff9b48";
+    } else if (contactBurstKey === "wind-lanes") {
+      ctx.strokeStyle = "#dff5ff";
+    } else if (contactBurstKey === "juanchi-gold" || contactBurstKey === "friccion-sparks") {
+      ctx.strokeStyle = "#f4d77c";
+    } else if (contactBurstKey === "tongue-snap") {
+      ctx.strokeStyle = "#ff9eb3";
+    } else if (contactBurstKey === "toro-blue" || contactBurstKey === "topete-drive") {
+      ctx.strokeStyle = "#79b6ff";
+    } else if (contactBurstKey === "shawarma-debris") {
+      ctx.strokeStyle = "#ff9d4c";
+    } else if (contactBurstKey === "super-eructo-gas") {
+      ctx.strokeStyle = "#a7db76";
+    } else {
+      ctx.strokeStyle = "#fff2ba";
+    }
+    ctx.lineWidth = contactBurstKey === "major-impact" ? 7 : 4;
+    ctx.beginPath();
+    ctx.arc(0, 0, radius, -0.95, 0.95);
+    ctx.stroke();
+    const rays = contactBurstKey === "major-impact" ? 8 : contactBurstKey === "chorizo-spice" ? 6 : 4;
+    for (let i = 0; i < rays; i += 1) {
+      const angle = -0.9 + 1.8 * i / Math.max(1, rays - 1);
+      const reach = radius + 18 + i % 2 * 9;
+      ctx.beginPath();
+      ctx.moveTo(Math.cos(angle) * radius * 0.65, Math.sin(angle) * radius * 0.65);
+      ctx.lineTo(Math.cos(angle) * reach, Math.sin(angle) * reach);
+      ctx.stroke();
+    }
+    ctx.restore();
+  }
+  function drawRugbyCatchAccent(ctx, x, y, intensity) {
+    const t = clamp01(intensity);
+    if (t <= 0.01)
+      return;
+    ctx.save();
+    ctx.translate(x, y);
+    ctx.globalAlpha = t * 0.7;
+    ctx.strokeStyle = "#f4d77c";
+    ctx.lineWidth = 3;
+    for (let i = 0; i < 2; i += 1) {
+      ctx.beginPath();
+      ctx.arc(0, 0, 14 + (1 - t) * 22 + i * 9, -0.8, 2.4);
+      ctx.stroke();
+    }
+    ctx.restore();
+  }
+  function drawTopeteDrive(ctx, x, y, facing, intensity) {
+    const t = clamp01(intensity);
+    if (t <= 0.01)
+      return;
+    ctx.save();
+    ctx.translate(x, y);
+    ctx.scale(facing, 1);
+    ctx.lineCap = "round";
+    for (let i = 0; i < 4; i += 1) {
+      ctx.globalAlpha = (0.16 + t * 0.28) * (1 - i * 0.12);
+      ctx.strokeStyle = i < 2 ? "#77b8ff" : "#326fae";
+      ctx.lineWidth = 8 - i * 1.2;
+      ctx.beginPath();
+      ctx.moveTo(-20 - i * 10, -126 + i * 28);
+      ctx.quadraticCurveTo(-72 - i * 12, -132 + i * 27, -142 - i * 14, -115 + i * 26);
+      ctx.stroke();
+    }
+    ctx.restore();
+  }
+  function drawToroGroundImpact(ctx, x, y, facing, intensity) {
+    const t = clamp01(intensity);
+    if (t <= 0.01)
+      return;
+    ctx.save();
+    ctx.translate(x, y);
+    ctx.scale(facing, 1);
+    for (let i = 0; i < 8; i += 1) {
+      const angle = -2.75 + i * 0.23;
+      const reach = 18 + i * 5 * t;
+      ctx.globalAlpha = (0.5 - i * 0.04) * t;
+      ctx.strokeStyle = i % 2 === 0 ? "#71874f" : "#b59c67";
+      ctx.lineWidth = 3;
+      ctx.beginPath();
+      ctx.moveTo(34, -3);
+      ctx.lineTo(34 + Math.cos(angle) * reach, -3 + Math.sin(angle) * reach);
+      ctx.stroke();
+    }
+    ctx.restore();
+  }
+  function drawShawarmaProjectile(ctx, x, y, vx, age) {
+    ctx.save();
+    ctx.translate(x, y);
+    ctx.rotate((vx >= 0 ? 1 : -1) * age * 0.16);
+    ctx.fillStyle = "#d8a45f";
+    ctx.strokeStyle = "#5f3c24";
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(-16, -10);
+    ctx.lineTo(16, -7);
+    ctx.lineTo(11, 11);
+    ctx.lineTo(-13, 9);
+    ctx.closePath();
+    ctx.fill();
+    ctx.stroke();
+    roundedLine(ctx, -9, -3, 8, 2, 3, "#7e3b2c");
+    roundedLine(ctx, -7, 3, 7, 6, 2.2, "#5c9a45");
+    ctx.restore();
+  }
+  function drawShawarmaImpact(ctx, x, y, facing, intensity) {
+    const t = clamp01(intensity);
+    if (t <= 0.01)
+      return;
+    ctx.save();
+    ctx.translate(x, y);
+    ctx.scale(facing, 1);
+    for (let i = 0; i < 10; i += 1) {
+      const angle = -1.35 + i * 0.29;
+      const reach = 18 + i % 4 * 8;
+      ctx.globalAlpha = (0.22 + t * 0.48) * (1 - i * 0.045);
+      ctx.strokeStyle = i % 3 === 0 ? "#83b85c" : i % 2 === 0 ? "#ffb259" : "#9c5131";
+      ctx.lineWidth = 3.5;
+      ctx.beginPath();
+      ctx.moveTo(0, 0);
+      ctx.lineTo(Math.cos(angle) * reach, Math.sin(angle) * reach);
+      ctx.stroke();
+    }
+    ctx.restore();
+  }
+  function drawSuperEructoBlast(ctx, x, y, facing, progress, range = 390) {
+    const t = clamp01(progress);
+    if (t <= 0.01)
+      return;
+    ctx.save();
+    ctx.translate(x, y);
+    ctx.scale(facing, 1);
+    for (let i = 0; i < 5; i += 1) {
+      const lane = i - 2;
+      const reach = Math.min(range, lerp(70 + i * 8, range - i * 18, t));
+      ctx.globalAlpha = (0.08 + t * 0.11) * (1 - Math.abs(lane) * 0.08);
+      ctx.fillStyle = i % 2 === 0 ? "#7fbd59" : "#abd978";
+      ctx.beginPath();
+      ctx.ellipse(reach * 0.55, -104 + lane * 21, reach * 0.5, 30 + (2 - Math.abs(lane)) * 6, 0, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.globalAlpha = 0.16 + t * 0.14;
+      ctx.strokeStyle = i % 2 === 0 ? "#bce897" : "#77b553";
+      ctx.lineWidth = 3.5;
+      ctx.beginPath();
+      ctx.moveTo(30, -104 + lane * 18);
+      ctx.bezierCurveTo(reach * 0.28, -132 + lane * 16, reach * 0.72, -74 + lane * 19, reach, -103 + lane * 17);
+      ctx.stroke();
+    }
+    ctx.restore();
+  }
 
   // dist/game/data/fighterKits.js
   var FIGHTER_KITS = DEFAULT_CHARACTER_COMPOSITION.kits;
@@ -3094,17 +3827,24 @@ button:focus-visible {
       frontHand: { x: 31, y: 111 },
       backHand: { x: -30, y: 109 },
       belt: { x: -17, y: 72 }
+    },
+    "el-toro": {
+      head: { x: 5, y: 174 },
+      chest: { x: 0, y: 114 },
+      frontHand: { x: 34, y: 106 },
+      backHand: { x: -30, y: 104 },
+      belt: { x: 0, y: 66 }
     }
   });
   function sampleBaseRigAnchors(rigKey, pose) {
-    const profile = PROFILES[rigKey] ?? PROFILES.juanchi;
+    const profile2 = PROFILES[rigKey] ?? PROFILES.juanchi;
     const drop = pose.pelvisDrop;
     return {
-      head: { x: profile.head.x, y: profile.head.y - drop * 0.34 },
-      chest: { x: profile.chest.x, y: profile.chest.y - drop * 0.55 },
-      frontHand: { x: profile.frontHand.x, y: profile.frontHand.y - drop * 0.48 },
-      backHand: { x: profile.backHand.x, y: profile.backHand.y - drop * 0.48 },
-      belt: { x: profile.belt.x, y: profile.belt.y - drop * 0.8 },
+      head: { x: profile2.head.x, y: profile2.head.y - drop * 0.34 },
+      chest: { x: profile2.chest.x, y: profile2.chest.y - drop * 0.55 },
+      frontHand: { x: profile2.frontHand.x, y: profile2.frontHand.y - drop * 0.48 },
+      backHand: { x: profile2.backHand.x, y: profile2.backHand.y - drop * 0.48 },
+      belt: { x: profile2.belt.x, y: profile2.belt.y - drop * 0.8 },
       frontFoot: pose.frontFoot,
       backFoot: pose.backFoot
     };
@@ -3139,8 +3879,233 @@ button:focus-visible {
     ctx.restore();
   }
 
-  // dist/game/render/JuanchiRig.js
+  // dist/game/render/ElToroRig.js
   function movePulse(fighter, id, start, peak, end) {
+    return fighter.moveId === id ? pulse(fighter.moveFrame, start, peak, end) : 0;
+  }
+  function computeToroPose(fighter, locomotion) {
+    const jab = movePulse(fighter, "toroJab", 1, 7, 18);
+    const shoulder = movePulse(fighter, "toroShoulder", 1, 9, 24);
+    const low = movePulse(fighter, "toroLow", 1, 9, 24);
+    const air = movePulse(fighter, "toroAir", 1, 8, 22);
+    const topete = movePulse(fighter, "topete", 1, 13, 34);
+    const shawarmaThrow = movePulse(fighter, "shawarmazoThrow", 1, 13, 34);
+    let eructoCharge = 0;
+    let eructoRelease = 0;
+    if (fighter.moveId === "superEructo" || fighter.ultimatePhase !== "idle") {
+      if (fighter.ultimatePhase === "startup") {
+        eructoCharge = clamp01(fighter.ultimatePhaseFrame / 26);
+      } else if (fighter.ultimatePhase === "sequence") {
+        eructoCharge = Math.max(0.18, 1 - fighter.ultimatePhaseFrame / 18);
+        eructoRelease = clamp01(fighter.ultimatePhaseFrame / 5);
+      } else if (fighter.ultimatePhase === "recovery") {
+        eructoRelease = Math.max(0, 1 - fighter.ultimatePhaseFrame / 16);
+      }
+    }
+    const baseFront = { x: 34, y: 106 };
+    const baseBack = { x: -30, y: 104 };
+    const frontHand = {
+      x: baseFront.x + jab * 52 + shoulder * 42 + low * 35 + topete * 30 + shawarmaThrow * 54 + eructoRelease * 18,
+      y: baseFront.y + jab * 3 + shoulder * 3 - low * 42 - topete * 10 + shawarmaThrow * 30 + eructoCharge * 18
+    };
+    const backHand = {
+      x: baseBack.x + shoulder * 28 + topete * 46 + shawarmaThrow * 38 + eructoCharge * 32,
+      y: baseBack.y + shoulder * 4 - low * 10 - topete * 8 + shawarmaThrow * 18 + eructoCharge * 24
+    };
+    const airLift = locomotion.tuck * 25 + locomotion.descentBrace * 8;
+    const frontFoot = {
+      x: locomotion.frontFoot.x + low * 48 + air * 34,
+      y: locomotion.frontFoot.y + airLift + air * 19
+    };
+    const backFoot = {
+      x: locomotion.backFoot.x - low * 8 - air * 14,
+      y: locomotion.backFoot.y + airLift + air * 10
+    };
+    return {
+      lean: locomotion.torsoLean + locomotion.chestCounterRotation + jab * 0.055 + shoulder * 0.13 + low * 0.07 + topete * 0.24 + shawarmaThrow * 0.1 - eructoCharge * 0.08 + eructoRelease * 0.1 - (fighter.stunFrames > 0 ? 0.12 : 0) - (fighter.health <= 0 ? 0.95 : 0),
+      drop: locomotion.pelvisDrop + (fighter.crouching ? 27 : 0) + low * 21 + topete * 20 + eructoCharge * 7 + (fighter.health <= 0 ? 40 : 0),
+      frontHand,
+      backHand,
+      frontFoot,
+      backFoot,
+      jab,
+      shoulder,
+      low,
+      air,
+      topete,
+      shawarmaThrow,
+      eructoCharge,
+      eructoRelease
+    };
+  }
+  function sampleElToroAnchors(fighter, locomotion) {
+    const pose = computeToroPose(fighter, locomotion);
+    const base = sampleBaseRigAnchors("el-toro", locomotion);
+    return {
+      ...base,
+      head: { x: 5 + pose.shoulder * 7 + pose.topete * 10, y: 174 - pose.drop * 0.32 },
+      chest: { x: pose.shoulder * 7 + pose.topete * 12, y: 114 - pose.drop * 0.54 },
+      frontHand: pose.frontHand,
+      backHand: pose.backHand,
+      belt: { x: 0, y: 66 - pose.drop * 0.8 },
+      frontFoot: pose.frontFoot,
+      backFoot: pose.backFoot
+    };
+  }
+  function drawShawarmaProp(ctx, x, y, angle = 0) {
+    ctx.save();
+    ctx.translate(x, y);
+    ctx.rotate(angle);
+    ctx.fillStyle = "#d8a45f";
+    ctx.strokeStyle = "#5f3c24";
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(-13, -9);
+    ctx.lineTo(14, -7);
+    ctx.lineTo(10, 10);
+    ctx.lineTo(-11, 9);
+    ctx.closePath();
+    ctx.fill();
+    ctx.stroke();
+    roundedLine(ctx, -7, -3, 8, 2, 3, "#7e3b2c");
+    roundedLine(ctx, -5, 3, 7, 5, 2, "#5c9a45");
+    ctx.restore();
+  }
+  function drawElToro(ctx, fighter, locomotion, combatTimeSeconds) {
+    const feetY = GROUND_Y - fighter.y;
+    const pose = computeToroPose(fighter, locomotion);
+    const anchors = sampleElToroAnchors(fighter, locomotion);
+    const idle = Math.sin(combatTimeSeconds * 3.8 + fighter.x * 3e-3) * 0.8;
+    ctx.save();
+    ctx.translate(fighter.x, feetY);
+    ctx.scale(fighter.facing, 1);
+    ctx.rotate(pose.lean);
+    ctx.save();
+    ctx.rotate(-pose.lean);
+    ctx.globalAlpha = 0.25 * (1 - Math.min(0.7, fighter.y / 260));
+    ellipse(ctx, 0, fighter.y, 56, 11, "#030407");
+    ctx.restore();
+    const hipTwist = locomotion.hipCounterRotation * 36;
+    const chestTwist = locomotion.chestCounterRotation * 34;
+    const frontHip = { x: 16 + hipTwist, y: 67 - pose.drop };
+    const backHip = { x: -16 - hipTwist, y: 67 - pose.drop };
+    const frontKnee = solveTwoBoneLeg(frontHip, pose.frontFoot, 39, 42, 1);
+    const backKnee = solveTwoBoneLeg(backHip, pose.backFoot, 39, 42, -1);
+    roundedLine(ctx, frontHip.x, -frontHip.y, frontKnee.x, -frontKnee.y, 27, "#16191d");
+    roundedLine(ctx, frontKnee.x, -frontKnee.y, pose.frontFoot.x, -pose.frontFoot.y, 22, "#101317");
+    roundedLine(ctx, backHip.x, -backHip.y, backKnee.x, -backKnee.y, 27, "#121519");
+    roundedLine(ctx, backKnee.x, -backKnee.y, pose.backFoot.x, -pose.backFoot.y, 22, "#0c0f13");
+    ctx.fillStyle = "#252a30";
+    ctx.fillRect(frontKnee.x - 14, -frontKnee.y - 10, 19, 15);
+    ctx.fillRect(backKnee.x - 6, -backKnee.y - 10, 19, 15);
+    ellipse(ctx, pose.frontFoot.x + 6, -pose.frontFoot.y + 1, 21, 8, "#f2f3f4", 0.03, "#090b0d", 2);
+    roundedLine(ctx, pose.frontFoot.x - 8, -pose.frontFoot.y - 2, pose.frontFoot.x + 13, -pose.frontFoot.y - 1, 2.3, "#377bc9");
+    ellipse(ctx, pose.backFoot.x + 6, -pose.backFoot.y + 1, 21, 8, "#eceeef", 0.03, "#090b0d", 2);
+    roundedLine(ctx, pose.backFoot.x - 8, -pose.backFoot.y - 2, pose.backFoot.x + 13, -pose.backFoot.y - 1, 2.3, "#2f69ad");
+    const torsoY = -115 + pose.drop * 0.56 + idle;
+    const torsoX = chestTwist + pose.topete * 4;
+    ctx.save();
+    ctx.translate(torsoX, 0);
+    ctx.fillStyle = "#f0efe8";
+    ctx.strokeStyle = "#2a2d31";
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    ctx.moveTo(-43, torsoY - 36);
+    ctx.quadraticCurveTo(-57, torsoY - 18, -49, torsoY + 40);
+    ctx.quadraticCurveTo(0, torsoY + 51, 52, torsoY + 38);
+    ctx.quadraticCurveTo(58, torsoY - 18, 42, torsoY - 37);
+    ctx.quadraticCurveTo(0, torsoY - 53, -43, torsoY - 36);
+    ctx.closePath();
+    ctx.fill();
+    ctx.stroke();
+    ctx.restore();
+    const scarfSway = Math.sin(combatTimeSeconds * 5.2) * 4 + locomotion.actualTravel * 0.22;
+    ctx.save();
+    ctx.translate(torsoX, 0);
+    roundedLine(ctx, -25, torsoY - 35, 29, torsoY - 33, 11, "#2d67ad");
+    roundedLine(ctx, -22, torsoY - 35, 26, torsoY - 33, 3, "#f5f7f8");
+    roundedLine(ctx, -18, torsoY - 28, -31 - scarfSway, torsoY + 29, 10, "#2d67ad");
+    roundedLine(ctx, -18, torsoY - 18, -31 - scarfSway, torsoY + 23, 2.5, "#f5f7f8");
+    ctx.restore();
+    ctx.save();
+    ctx.fillStyle = "#101317";
+    ctx.font = "900 12px system-ui, sans-serif";
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    drawFacingReadableText(ctx, fighter.facing, torsoX + 4, torsoY + 2, "TE VOY A CHOCAR");
+    ctx.restore();
+    ellipse(ctx, torsoX + 30, torsoY + 22, 8, 5, "#17764a", -0.12, "#d9b64b", 1.2);
+    drawShawarmaProp(ctx, anchors.belt.x - 17, -anchors.belt.y + 5, -0.25);
+    const shoulderY = torsoY - 23;
+    const frontElbow = {
+      x: lerp(torsoX + 30, pose.frontHand.x, 0.52),
+      y: lerp(126 - pose.drop * 0.45, pose.frontHand.y, 0.52)
+    };
+    const backElbow = {
+      x: lerp(torsoX - 30, pose.backHand.x, 0.52),
+      y: lerp(124 - pose.drop * 0.45, pose.backHand.y, 0.52)
+    };
+    roundedLine(ctx, torsoX + 32, shoulderY, frontElbow.x, -frontElbow.y, 20, "#eeeDE7");
+    roundedLine(ctx, frontElbow.x, -frontElbow.y, pose.frontHand.x, -pose.frontHand.y, 15, "#bf805f");
+    roundedLine(ctx, torsoX - 32, shoulderY + 2, backElbow.x, -backElbow.y, 20, "#e7e6df");
+    roundedLine(ctx, backElbow.x, -backElbow.y, pose.backHand.x, -pose.backHand.y, 15, "#b97858");
+    roundedLine(ctx, pose.frontHand.x - 6, -pose.frontHand.y, pose.frontHand.x + 4, -pose.frontHand.y, 10, "#2f74c7");
+    roundedLine(ctx, pose.backHand.x - 6, -pose.backHand.y, pose.backHand.x + 4, -pose.backHand.y, 10, "#285f9f");
+    ellipse(ctx, pose.frontHand.x + 6, -pose.frontHand.y, 8, 7, "#c88b67");
+    ellipse(ctx, pose.backHand.x + 6, -pose.backHand.y, 8, 7, "#c08160");
+    const headX = anchors.head.x + torsoX * 0.14;
+    const headY = -anchors.head.y + idle;
+    ellipse(ctx, headX, headY, 37, 40, "#c88a66", -0.02, "#57382c", 2.4);
+    ctx.save();
+    ctx.fillStyle = "#2b211d";
+    const locks = [
+      [-29, -31, 10],
+      [-17, -42, 11],
+      [-3, -46, 12],
+      [12, -44, 12],
+      [27, -35, 11],
+      [-32, -20, 9],
+      [-18, -27, 10],
+      [-2, -31, 11],
+      [14, -29, 10],
+      [31, -22, 9]
+    ];
+    for (const [dx, dy, r] of locks) {
+      ctx.beginPath();
+      ctx.arc(headX + dx, headY + dy, r, 0, Math.PI * 2);
+      ctx.fill();
+    }
+    ctx.restore();
+    roundedLine(ctx, headX + 4, headY - 7, headX + 19, headY - 8, 3, "#4a3027");
+    ellipse(ctx, headX + 16, headY - 1, 2.6, 2.2, "#0b0d10");
+    if (pose.eructoCharge > 0.05 || pose.eructoRelease > 0.05) {
+      const open = Math.max(pose.eructoCharge * 0.65, pose.eructoRelease);
+      ellipse(ctx, headX + 22, headY + 18, 7 + open * 3, 5 + open * 5, "#4c1917", 0.04, "#1a0909", 1.5);
+      ctx.save();
+      ctx.globalAlpha = 0.16 + open * 0.2;
+      ellipse(ctx, headX + 31, headY + 17, 13 + open * 8, 7 + open * 4, "#86c95b");
+      ctx.restore();
+    } else {
+      roundedLine(ctx, headX + 8, headY + 21, headX + 23, headY + 21, 2.5, "#5a302b");
+    }
+    if (fighter.moveId === "shawarmazoThrow" && fighter.moveFrame <= 13) {
+      drawShawarmaProp(ctx, pose.frontHand.x + 4, -pose.frontHand.y - 5, -0.25 + pose.shawarmaThrow * 0.7);
+    }
+    if (fighter.blocking) {
+      ctx.save();
+      ctx.globalAlpha = 0.28;
+      ctx.strokeStyle = "#8fc0ff";
+      ctx.lineWidth = 4;
+      ctx.beginPath();
+      ctx.arc(18, torsoY - 2, 54, -1.08, 1.05);
+      ctx.stroke();
+      ctx.restore();
+    }
+    ctx.restore();
+  }
+
+  // dist/game/render/JuanchiRig.js
+  function movePulse2(fighter, id, start, peak, end) {
     return fighter.moveId === id ? pulse(fighter.moveFrame, start, peak, end) : 0;
   }
   function frictionFactors(frame) {
@@ -3157,16 +4122,27 @@ button:focus-visible {
       return { rub: 0, load: 0, release: clamp01(1 - (frame - 16) / 5) };
     return { rub: 0, load: 0, release: 0 };
   }
+  function getJuanchiRageAuraIntensity(phase, frame) {
+    if (phase !== "sequence" || frame <= 4 || frame >= 40)
+      return 0;
+    if (frame <= 11)
+      return clamp01((frame - 4) / 7);
+    if (frame <= 23)
+      return 1;
+    if (frame <= 33)
+      return lerp(1, 0.82, (frame - 23) / 10);
+    return 0.82 * clamp01(1 - (frame - 33) / 7);
+  }
   function ultimateFactors(fighter) {
     if (fighter.ultimatePhase === "startup") {
       const retrieve = clamp01(fighter.ultimatePhaseFrame / 12);
-      return { retrieve, rage: 0, rush: 0, barrageA: 0, barrageB: 0, finisher: 0 };
+      return { retrieve, rage: 0, rush: 0, barrageA: 0, barrageB: 0, finisher: 0, aura: 0 };
     }
     if (fighter.ultimatePhase === "capture") {
-      return { retrieve: 1, rage: 0, rush: 0, barrageA: 0, barrageB: 0, finisher: 0 };
+      return { retrieve: 1, rage: 0, rush: 0, barrageA: 0, barrageB: 0, finisher: 0, aura: 0 };
     }
     if (fighter.ultimatePhase !== "sequence") {
-      return { retrieve: 0, rage: 0, rush: 0, barrageA: 0, barrageB: 0, finisher: 0 };
+      return { retrieve: 0, rage: 0, rush: 0, barrageA: 0, barrageB: 0, finisher: 0, aura: 0 };
     }
     const frame = fighter.ultimatePhaseFrame;
     const rage = frame >= 4 && frame <= 17 ? frame <= 11 ? clamp01((frame - 4) / 4) : clamp01(1 - (frame - 11) / 7) : 0;
@@ -3174,7 +4150,8 @@ button:focus-visible {
     const barrageA = Math.max(pulse(frame, 22, 24, 26), pulse(frame, 28, 30, 32));
     const barrageB = Math.max(pulse(frame, 25, 27, 29), pulse(frame, 31, 33, 35));
     const finisher = frame >= 34 ? pulse(frame, 33, 40, 43) : 0;
-    return { retrieve: 0, rage, rush, barrageA, barrageB, finisher };
+    const aura = getJuanchiRageAuraIntensity(fighter.ultimatePhase, frame);
+    return { retrieve: 0, rage, rush, barrageA, barrageB, finisher, aura };
   }
   function withAirLegPose(base, side, pose, airStrike) {
     const airborneLift = pose.preparation * -2 + pose.extension * 4 + pose.tuck * 28 + pose.descentBrace * 10;
@@ -3184,18 +4161,27 @@ button:focus-visible {
     };
   }
   function computeActionPose(fighter, locomotion) {
-    const jab = movePulse(fighter, "juanchiJab", 1, 6, 15);
-    const shoulder = movePulse(fighter, "juanchiShoulder", 1, 7, 18);
-    const low = movePulse(fighter, "juanchiLow", 1, 8, 18);
-    const air = movePulse(fighter, "juanchiAir", 1, 7, 16);
-    const throwPose = movePulse(fighter, "rugbyBoomerangThrow", 1, 12, 25);
+    const jab = movePulse2(fighter, "juanchiJab", 1, 6, 15);
+    const shoulder = movePulse2(fighter, "juanchiShoulder", 1, 7, 18);
+    const low = movePulse2(fighter, "juanchiLow", 1, 8, 18);
+    const air = movePulse2(fighter, "juanchiAir", 1, 7, 16);
+    const throwPose = movePulse2(fighter, "rugbyBoomerangThrow", 1, 12, 25);
     const friction = fighter.moveId === "friccion" ? frictionFactors(fighter.moveFrame) : { rub: 0, load: 0, release: 0 };
     const ultimate = ultimateFactors(fighter);
     const block = fighter.blocking ? 1 : 0;
     const hurt = fighter.stunFrames > 0 ? 1 : 0;
     const ko = fighter.health <= 0 ? 1 : 0;
-    let frontHand = { x: 31, y: 111 };
-    let backHand = { x: -30, y: 109 };
+    const ordinaryTravel = fighter.moveId === null && fighter.ultimatePhase === "idle" && !fighter.blocking && fighter.stunFrames === 0 && fighter.blockstunFrames === 0;
+    const gaitSwing = ordinaryTravel ? locomotion.freeArmSwing : 0;
+    const ballArmConstrained = fighter.rangedAvailability === "ready";
+    let frontHand = {
+      x: 31 + gaitSwing,
+      y: 111 + Math.abs(gaitSwing) * 0.12
+    };
+    let backHand = {
+      x: -30 - gaitSwing * (ballArmConstrained ? 0.16 : 0.72),
+      y: 109 - Math.abs(gaitSwing) * (ballArmConstrained ? 0.03 : 0.1)
+    };
     frontHand = {
       x: frontHand.x + jab * 54 + shoulder * 18 + low * 50 + throwPose * 55 + ultimate.rush * 30 + ultimate.barrageA * 58 + ultimate.finisher * 72 - block * 10,
       y: frontHand.y + jab * 4 + shoulder * 4 - low * 49 + throwPose * 23 + ultimate.rage * 27 + ultimate.barrageA * 7 + ultimate.finisher * 12 + block * 30
@@ -3243,6 +4229,8 @@ button:focus-visible {
       backFoot,
       shoulderDrive: shoulder,
       rage: ultimate.rage,
+      rageAura: ultimate.aura,
+      rush: ultimate.rush,
       finisher: ultimate.finisher,
       rub: friction.rub,
       palmRelease: friction.release,
@@ -3294,6 +4282,43 @@ button:focus-visible {
     ellipse(ctx, 0, -2, 2.4, 2.4, "#d8b65c");
     ctx.restore();
   }
+  function drawJuanchiRageAura(ctx, intensity, rush, finisher, frame) {
+    const raw = clamp01(Math.max(intensity, rush * 0.82));
+    const collapse = clamp01(1 - finisher * 0.78);
+    const aura = raw * collapse;
+    if (aura <= 0.02)
+      return;
+    ctx.save();
+    ctx.save();
+    ctx.globalAlpha = 0.08 + aura * 0.16;
+    ctx.scale(1 + rush * 0.38, 1);
+    ellipse(ctx, -4, 2, 58 + aura * 26, 10 + aura * 5, "#b51f31");
+    ctx.restore();
+    ctx.lineCap = "round";
+    const pulseBeat = 0.78 + 0.22 * Math.sin(frame * 0.82);
+    for (let i = 0; i < 6; i += 1) {
+      const side = i % 2 === 0 ? -1 : 1;
+      const tier = Math.floor(i / 2);
+      const baseX = side * (33 + tier * 7);
+      const baseY = -74 - tier * 22;
+      const stretch = 1 + rush * 0.8;
+      const wispLean = side * (10 + tier * 4) - rush * 20;
+      ctx.globalAlpha = aura * pulseBeat * (0.28 - tier * 0.035);
+      ctx.strokeStyle = tier === 0 ? "#ef334d" : tier === 1 ? "#d11b31" : "#8e1627";
+      ctx.lineWidth = 5 - tier * 0.8;
+      ctx.beginPath();
+      ctx.moveTo(baseX, baseY);
+      ctx.bezierCurveTo(baseX + wispLean * 0.35 * stretch, baseY - 20, baseX - wispLean * 0.2 * stretch, baseY - 43 - aura * 9, baseX + wispLean * stretch, baseY - 62 - aura * 14);
+      ctx.stroke();
+    }
+    ctx.globalAlpha = aura * 0.18;
+    ctx.strokeStyle = "#ff5266";
+    ctx.lineWidth = 2.5;
+    ctx.beginPath();
+    ctx.ellipse(-2 - rush * 16, -116, 50 + rush * 20, 82, -0.08, 0, Math.PI * 2);
+    ctx.stroke();
+    ctx.restore();
+  }
   function drawJuanchi(ctx, fighter, locomotion, combatTimeSeconds) {
     const feetY = GROUND_Y - fighter.y;
     const action = computeActionPose(fighter, locomotion);
@@ -3308,8 +4333,10 @@ button:focus-visible {
     ctx.globalAlpha = 0.23 * (1 - Math.min(0.68, fighter.y / 260));
     ellipse(ctx, 0, fighter.y, 49, 10, "#030407");
     ctx.restore();
-    const frontHip = { x: 13, y: 72 - action.drop };
-    const backHip = { x: -12, y: 72 - action.drop };
+    drawJuanchiRageAura(ctx, action.rageAura, action.rush, action.finisher, fighter.ultimatePhaseFrame);
+    const hipTwist = locomotion.hipCounterRotation * 42;
+    const frontHip = { x: 13 + hipTwist, y: 72 - action.drop };
+    const backHip = { x: -12 - hipTwist, y: 72 - action.drop };
     const frontKnee = solveTwoBoneLeg(frontHip, action.frontFoot, 39, 41, 1);
     const backKnee = solveTwoBoneLeg(backHip, action.backFoot, 39, 41, -1);
     roundedLine(ctx, frontHip.x, -frontHip.y, frontKnee.x, -frontKnee.y, 22, "#171a1e");
@@ -3325,6 +4352,10 @@ button:focus-visible {
     ellipse(ctx, action.backFoot.x + 5, -action.backFoot.y + 1, 19, 7, "#f4f5f2", 0.03, "#090b0e", 2);
     ellipse(ctx, action.backFoot.x + 1, -action.backFoot.y - 2, 14, 5, "#15181d", 0.02);
     roundedLine(ctx, action.backFoot.x - 7, -action.backFoot.y - 3, action.backFoot.x + 9, -action.backFoot.y - 1, 2, "#c6a553");
+    ctx.save();
+    ctx.translate(locomotion.weightTransfer * 1.55, -94);
+    ctx.rotate(locomotion.chestCounterRotation);
+    ctx.translate(0, 94);
     const torsoY = -119 + action.drop * 0.58 + idle;
     ctx.save();
     ctx.fillStyle = "#101318";
@@ -3374,8 +4405,21 @@ button:focus-visible {
       const hx = (action.frontHand.x + action.backHand.x) * 0.5;
       const hy = -(action.frontHand.y + action.backHand.y) * 0.5;
       ctx.save();
-      ctx.globalAlpha = 0.25 + action.rub * 0.35;
-      ellipse(ctx, hx, hy, 10 + action.rub * 6, 7 + action.rub * 4, "#ffb24d");
+      ctx.globalAlpha = 0.18 + action.rub * 0.26;
+      ellipse(ctx, hx, hy, 9 + action.rub * 5, 6 + action.rub * 3, "#ffb24d");
+      ctx.strokeStyle = "#ffd27a";
+      ctx.lineWidth = 2;
+      ctx.lineCap = "round";
+      for (let i = 0; i < 6; i += 1) {
+        const sparkPhase = combatTimeSeconds * 17 + fighter.moveFrame * 0.63 + i * 1.17;
+        const sx = hx + Math.sin(sparkPhase) * (4 + i * 0.7);
+        const sy = hy - 3 - i * 3.4;
+        ctx.globalAlpha = action.rub * (0.32 + i % 3 * 0.1);
+        ctx.beginPath();
+        ctx.moveTo(sx, sy);
+        ctx.lineTo(sx + Math.cos(sparkPhase) * 5, sy - 7 - i % 2 * 3);
+        ctx.stroke();
+      }
       ctx.restore();
     }
     if (action.palmRelease > 0.05) {
@@ -3430,8 +4474,8 @@ button:focus-visible {
     ctx.restore();
     if (action.rage > 0.12) {
       ctx.save();
-      ctx.globalAlpha = 0.22 + action.rage * 0.35;
-      ellipse(ctx, headX + 5, headY - 2, 42, 47, "#a22f24");
+      ctx.globalAlpha = 0.08 + action.rage * 0.16;
+      ellipse(ctx, headX + 5, headY - 2, 40, 45, "#a22f24");
       ctx.restore();
       ellipse(ctx, headX + 20, headY + 19, 7, 9, "#451615", 0.05, "#1c0909", 1.5);
     } else {
@@ -3442,6 +4486,7 @@ button:focus-visible {
       const ballHand = fighter.moveId === "rugbyBoomerangThrow" ? action.frontHand : action.backHand;
       drawRugbyBallProp(ctx, ballHand.x + (fighter.moveId === "rugbyBoomerangThrow" ? 5 : -1), -ballHand.y - 2, -0.34 + action.throwPose * 0.72);
     }
+    ctx.restore();
     const beltCapVisible = fighter.ultimatePhase === "idle" || fighter.ultimatePhase === "recovery" && fighter.ultimatePhaseFrame >= 8;
     if (beltCapVisible) {
       drawPoliceCapProp(ctx, anchors.belt.x - 6, -anchors.belt.y + 7, -0.42);
@@ -3474,35 +4519,78 @@ button:focus-visible {
   }
 
   // dist/game/render/LocomotionPose.js
-  var STRIDE_BY_FIGHTER = Object.freeze({
-    chameleon: 58,
-    supernariz: 70,
-    juanchi: 66
+  var DEFAULT_LOCOMOTION_STYLE = Object.freeze({
+    stride: 64,
+    backStrideMultiplier: 0.82,
+    stanceFraction: 0.55,
+    swingFootLift: 8,
+    pelvisBobAmplitude: 2.1,
+    forwardTorsoLean: 0.045,
+    backwardTorsoLean: -0.07,
+    hipCounterRotationAmplitude: 0,
+    chestCounterRotationAmplitude: 0,
+    freeArmSwingAmplitude: 0,
+    weightTransferScale: 0
   });
+  var LOCOMOTION_STYLES = Object.freeze({
+    chameleon: Object.freeze({
+      ...DEFAULT_LOCOMOTION_STYLE,
+      stride: 58
+    }),
+    supernariz: Object.freeze({
+      ...DEFAULT_LOCOMOTION_STYLE,
+      stride: 70
+    }),
+    juanchi: Object.freeze({
+      stride: 54,
+      backStrideMultiplier: 0.8,
+      stanceFraction: 0.62,
+      swingFootLift: 6,
+      pelvisBobAmplitude: 1.3,
+      forwardTorsoLean: 0.035,
+      backwardTorsoLean: -0.055,
+      hipCounterRotationAmplitude: 0.032,
+      chestCounterRotationAmplitude: 0.046,
+      freeArmSwingAmplitude: 12,
+      weightTransferScale: 8
+    }),
+    "el-toro": Object.freeze({
+      stride: 48,
+      backStrideMultiplier: 0.76,
+      stanceFraction: 0.68,
+      swingFootLift: 4.8,
+      pelvisBobAmplitude: 0.85,
+      forwardTorsoLean: 0.048,
+      backwardTorsoLean: -0.038,
+      hipCounterRotationAmplitude: 0.022,
+      chestCounterRotationAmplitude: 0.032,
+      freeArmSwingAmplitude: 8,
+      weightTransferScale: 10
+    })
+  });
+  function getLocomotionStyle(fighterId) {
+    return LOCOMOTION_STYLES[fighterId] ?? DEFAULT_LOCOMOTION_STYLE;
+  }
   var NEUTRAL_FRONT_X = 16;
   var NEUTRAL_BACK_X = -16;
-  var STANCE_FRACTION = 0.55;
   function mod1(value) {
     return (value % 1 + 1) % 1;
   }
-  function baseStride(fighterId) {
-    return STRIDE_BY_FIGHTER[fighterId] ?? 64;
-  }
-  function footForCycle(phase, offset, stride, travelSign, movementBlend, neutralX) {
+  function footForCycle(phase, offset, stride, travelSign, movementBlend, neutralX, stanceFraction, swingFootLift) {
     if (travelSign === 0 || movementBlend <= 1e-4)
       return { x: neutralX, y: 0 };
     const u = mod1(phase + offset);
-    const stanceTravel = stride * STANCE_FRACTION;
+    const stanceTravel = stride * stanceFraction;
     const halfTravel = stanceTravel * 0.5;
     let x;
     let y = 0;
-    if (u < STANCE_FRACTION) {
-      const t = u / STANCE_FRACTION;
+    if (u < stanceFraction) {
+      const t = u / stanceFraction;
       x = travelSign * lerp(halfTravel, -halfTravel, t);
     } else {
-      const t = (u - STANCE_FRACTION) / (1 - STANCE_FRACTION);
+      const t = (u - stanceFraction) / (1 - stanceFraction);
       x = travelSign * lerp(-halfTravel, halfTravel, t);
-      y = Math.sin(Math.PI * t) * 8;
+      y = Math.sin(Math.PI * t) * swingFootLift;
     }
     return {
       x: lerp(neutralX, x, movementBlend),
@@ -3535,7 +4623,11 @@ button:focus-visible {
       clashBrace,
       clashRecoil,
       travelIntent: "idle",
-      actualTravel: 0
+      actualTravel: 0,
+      hipCounterRotation: 0,
+      chestCounterRotation: 0,
+      freeArmSwing: 0,
+      weightTransfer: 0
     };
   }
   function isOrdinaryGroundTravel(fighter) {
@@ -3577,9 +4669,11 @@ button:focus-visible {
       const ordinaryTravel = isOrdinaryGroundTravel(fighter) && plausibleTravel;
       const localTravel = dx * fighter.facing;
       const moving = ordinaryTravel && travel > 0.025;
+      const style = getLocomotionStyle(fighter.id);
+      const previousBlend = state.movementBlend;
       if (moving) {
         state.travelSign = localTravel >= 0 ? 1 : -1;
-        const effectiveStride2 = baseStride(fighter.id) * (state.travelSign < 0 ? 0.82 : 1);
+        const effectiveStride2 = style.stride * (state.travelSign < 0 ? style.backStrideMultiplier : 1);
         state.gaitCycles += travel / effectiveStride2;
         state.movementBlend = clamp01(state.movementBlend + advancingTicks / 3);
       } else {
@@ -3587,10 +4681,11 @@ button:focus-visible {
         if (state.movementBlend <= 1e-3)
           state.travelSign = 0;
       }
+      const blendDelta = state.movementBlend - previousBlend;
       const phase = mod1(state.gaitCycles);
-      const effectiveStride = baseStride(fighter.id) * (state.travelSign < 0 ? 0.82 : 1);
-      const frontFoot = footForCycle(phase, 0, effectiveStride, state.travelSign, state.movementBlend, NEUTRAL_FRONT_X);
-      const backFoot = footForCycle(phase, 0.5, effectiveStride, state.travelSign, state.movementBlend, NEUTRAL_BACK_X);
+      const effectiveStride = style.stride * (state.travelSign < 0 ? style.backStrideMultiplier : 1);
+      const frontFoot = footForCycle(phase, 0, effectiveStride, state.travelSign, state.movementBlend, NEUTRAL_FRONT_X, style.stanceFraction, style.swingFootLift);
+      const backFoot = footForCycle(phase, 0.5, effectiveStride, state.travelSign, state.movementBlend, NEUTRAL_BACK_X, style.stanceFraction, style.swingFootLift);
       const clashBrace = fighter.clashRecoveryFrames > 0 && fighter.y <= 1e-3 ? 1 : 0;
       const clashRecoil = fighter.clashRecoveryFrames > 0 && fighter.y > 1e-3 ? 1 : 0;
       const preparation = !clashBrace && fighter.grounded && fighter.jumpStartupFrames > 0 ? fighter.jumpStartupFrames >= 2 ? 0.55 : 1 : 0;
@@ -3603,15 +4698,20 @@ button:focus-visible {
       const descentBrace = airborne && fighter.vy < 0 ? clamp01(-fighter.vy / 12.5) : 0;
       const dashCompression = fighter.dashKind === null ? 0 : clamp01(1 - Math.abs(fighter.dashFrame - 3) / 4);
       const dashDrive = fighter.dashKind === null ? 0 : clamp01(fighter.dashFrame / 6);
-      const walkBob = state.movementBlend * Math.sin(phase * Math.PI * 4) * 2.1;
-      const travelLean = state.movementBlend * (state.travelSign > 0 ? 0.045 : state.travelSign < 0 ? -0.07 : 0);
+      const walkBob = state.movementBlend * Math.sin(phase * Math.PI * 4) * style.pelvisBobAmplitude;
+      const travelLean = state.movementBlend * (state.travelSign > 0 ? style.forwardTorsoLean : state.travelSign < 0 ? style.backwardTorsoLean : 0);
+      const gaitWave = Math.sin(phase * Math.PI * 2) * state.movementBlend;
+      const hipCounterRotation = gaitWave * style.hipCounterRotationAmplitude;
+      const chestCounterRotation = -gaitWave * style.chestCounterRotationAmplitude;
+      const freeArmSwing = -gaitWave * style.freeArmSwingAmplitude;
+      const weightTransfer = blendDelta * style.weightTransferScale * (state.travelSign || 1);
       const dashLean = fighter.dashKind === "forward" ? 0.16 * dashDrive : fighter.dashKind === "back" ? -0.13 * dashDrive : 0;
       const pose = {
         phase,
         frontFoot,
         backFoot,
         pelvisDrop: walkBob + preparation * 18 + landingAbsorption * 20 + tuck * 5 + dashCompression * 10 + clashBrace * 11,
-        torsoLean: travelLean + dashLean + clashBrace * 0.13 - clashRecoil * 0.11 - preparation * 0.035 + extension * 0.045 + descentBrace * 0.04,
+        torsoLean: travelLean + dashLean + clashBrace * 0.13 - clashRecoil * 0.11 - preparation * 0.035 + extension * 0.045 + descentBrace * 0.04 + weightTransfer * 6e-3,
         preparation,
         extension,
         tuck,
@@ -3623,7 +4723,11 @@ button:focus-visible {
         clashBrace,
         clashRecoil,
         travelIntent: state.travelSign > 0 ? "forward" : state.travelSign < 0 ? "back" : "idle",
-        actualTravel: moving ? travel : 0
+        actualTravel: moving ? travel : 0,
+        hipCounterRotation,
+        chestCounterRotation,
+        freeArmSwing,
+        weightTransfer
       };
       state.lastFrame = frame;
       state.lastCombatTick = combatTick;
@@ -3810,7 +4914,8 @@ button:focus-visible {
   var RIGS = Object.freeze({
     chameleon: drawChameleon,
     supernariz: drawSupernariz,
-    juanchi: drawJuanchi
+    juanchi: drawJuanchi,
+    "el-toro": drawElToro
   });
   var locomotionTracker = new LocomotionPoseTracker();
   var missingRigWarnings = /* @__PURE__ */ new Set();
@@ -3881,6 +4986,8 @@ button:focus-visible {
     const locomotion = sampleFighterLocomotion(slot, fighter, frame, combatTick);
     if (rigKey === "juanchi")
       return sampleJuanchiAnchors(fighter, locomotion);
+    if (rigKey === "el-toro")
+      return sampleElToroAnchors(fighter, locomotion);
     if (!RIGS[rigKey])
       return null;
     return sampleBaseRigAnchors(rigKey, locomotion);
@@ -4247,6 +5354,9 @@ button:focus-visible {
       __publicField(this, "ultimateFlashes", []);
       __publicField(this, "ultimateReleaseTrails", []);
       __publicField(this, "clashFlashes", []);
+      __publicField(this, "attackBursts", []);
+      __publicField(this, "rugbyCatchFlashes", []);
+      __publicField(this, "projectileVisualKeys", /* @__PURE__ */ new Map());
       __publicField(this, "stageReactionTicks", 0);
       __publicField(this, "shakeFrames", 0);
       __publicField(this, "shakeStrength", 0);
@@ -4277,8 +5387,23 @@ button:focus-visible {
       if (event.type === "round-start") {
         resetFighterPresentation();
         this.clashFlashes = [];
+        this.attackBursts = [];
+        this.rugbyCatchFlashes = [];
+        this.projectileVisualKeys.clear();
         this.stageReactionTicks = 0;
         this.lastRenderedCombatTick = null;
+        return;
+      }
+      if (event.type === "projectile") {
+        const projectile = snapshot.projectiles.find((candidate) => candidate.id === event.projectileId);
+        if (projectile) {
+          this.projectileVisualKeys.set(event.projectileId, projectile.visualKey);
+          if (this.projectileVisualKeys.size > 32) {
+            const oldestId = this.projectileVisualKeys.keys().next().value;
+            if (oldestId !== void 0)
+              this.projectileVisualKeys.delete(oldestId);
+          }
+        }
         return;
       }
       if (event.type === "ultimate-clash") {
@@ -4347,6 +5472,21 @@ button:focus-visible {
         this.stageReactionTicks = Math.max(this.stageReactionTicks, 18);
         return;
       }
+      if (event.type === "projectile-catch") {
+        const owner = snapshot.fighters[event.owner];
+        const anchors = sampleFighterAnchors(event.owner, owner, snapshot.frame, snapshot.combatTick);
+        const hand = anchors ? localAnchorToWorld(owner, anchors.backHand) : { x: owner.x + owner.facing * 24, y: owner.y + 108 };
+        this.rugbyCatchFlashes.push({
+          x: hand.x,
+          y: GROUND_Y - hand.y,
+          life: 14,
+          maxLife: 14
+        });
+        if (this.rugbyCatchFlashes.length > 6) {
+          this.rugbyCatchFlashes.splice(0, this.rugbyCatchFlashes.length - 6);
+        }
+        return;
+      }
       if (event.type === "guard-break") {
         const defender2 = snapshot.fighters[event.defender];
         const centerX2 = defender2.x;
@@ -4381,6 +5521,22 @@ button:focus-visible {
       const ultimateFinisher = ultimateHit && event.finisher;
       const majorImpact = ultimateHit && event.majorImpact === true;
       const peakImpact = majorImpact || ultimateFinisher;
+      const projectileVisualKey = event.projectileId === void 0 ? null : snapshot.projectiles.find((projectile) => projectile.id === event.projectileId)?.visualKey ?? this.projectileVisualKeys.get(event.projectileId) ?? null;
+      const presentationMoveId = projectileVisualKey === "shawarma" ? "shawarmazoThrow" : event.moveId ?? attacker.moveId;
+      const presentation = resolveAttackPresentationProfile(attacker.id, presentationMoveId);
+      const contactBurstKey = peakImpact ? "major-impact" : projectileVisualKey === "shawarma" ? "shawarma-debris" : presentation.contactBurstKey;
+      this.attackBursts.push({
+        x: centerX,
+        y: centerY,
+        facing: attacker.facing,
+        key: contactBurstKey,
+        intensity: presentation.intensity * (event.blocked ? 0.55 : event.strong ? 1 : 0.82),
+        life: peakImpact ? 18 : 12,
+        maxLife: peakImpact ? 18 : 12
+      });
+      if (this.attackBursts.length > 18) {
+        this.attackBursts.splice(0, this.attackBursts.length - 18);
+      }
       const tone = event.blocked ? "block" : ultimateHit ? "ultimate" : attacker.moveId === "tramontana" ? "cold" : attacker.moveId === "coletazo" ? "tail" : "warm";
       const count = peakImpact ? 28 : event.strong ? 18 : 10;
       for (let i = 0; i < count; i += 1) {
@@ -4471,6 +5627,19 @@ button:focus-visible {
       for (const projectile of snapshot.projectiles)
         this.drawProjectile(projectile);
       for (const fighter of snapshot.fighters) {
+        if (fighter.moveId === null)
+          continue;
+        const presentation = resolveAttackPresentationProfile(fighter.id, fighter.moveId);
+        const presentationPhase = Math.min(1, Math.max(0, fighter.moveFrame / 14));
+        drawAttackMotionAccent(ctx, fighter.x, GROUND_Y - fighter.y, fighter.facing, presentation.trailKey, presentation.intensity, presentationPhase);
+      }
+      for (const fighter of snapshot.fighters) {
+        if (fighter.id !== "el-toro" || fighter.moveId !== "topete")
+          continue;
+        const topeteBeat = Math.max(0, 1 - Math.abs(fighter.moveFrame - 13) / 9);
+        drawTopeteDrive(ctx, fighter.x, GROUND_Y - fighter.y, fighter.facing, topeteBeat);
+      }
+      for (const fighter of snapshot.fighters) {
         if (fighter.moveId !== "coletazo")
           continue;
         drawColetazoTrail(ctx, fighter.x, GROUND_Y - fighter.y, fighter.facing, getColetazoPresentation(fighter.moveFrame));
@@ -4533,10 +5702,26 @@ button:focus-visible {
         const fighter = snapshot.fighters[attackerIndex];
         if (fighter.ultimatePhase === "idle")
           continue;
-        if (fighter.id !== "chameleon" && fighter.id !== "supernariz" && fighter.id !== "juanchi")
+        if (fighter.id !== "chameleon" && fighter.id !== "supernariz" && fighter.id !== "juanchi" && fighter.id !== "el-toro")
           continue;
         const feetY = GROUND_Y - fighter.y;
         const accent = this.accentForFighter(fighter.id);
+        if (fighter.id === "el-toro") {
+          const toroDefinition = ULTIMATES.toroSuperEructo;
+          const blastRange = toroDefinition?.blastRange ?? 390;
+          if (fighter.ultimatePhase === "startup") {
+            const charge = Math.min(1, fighter.ultimatePhaseFrame / Math.max(1, toroDefinition?.startupFrames ?? 26));
+            drawSuperEructoBlast(ctx, fighter.x + fighter.facing * 18, feetY, fighter.facing, charge * 0.22, blastRange);
+          } else if (fighter.ultimatePhase === "sequence") {
+            const blastFrames = Math.max(1, toroDefinition?.blastFrames ?? 18);
+            const progress = Math.min(1, (fighter.ultimatePhaseFrame + 1) / blastFrames);
+            drawSuperEructoBlast(ctx, fighter.x + fighter.facing * 18, feetY, fighter.facing, progress, blastRange);
+          } else if (fighter.ultimatePhase === "recovery") {
+            const fade = Math.max(0, 1 - fighter.ultimatePhaseFrame / 10);
+            drawSuperEructoBlast(ctx, fighter.x + fighter.facing * 18, feetY, fighter.facing, fade * 0.28, blastRange);
+          }
+          continue;
+        }
         const target = fighter.ultimateTarget === null ? null : snapshot.fighters[fighter.ultimateTarget];
         const targetIsAuthoritativelyCaptured = target !== null && target.capturedBy === attackerIndex;
         if (fighter.ultimatePhase === "startup") {
@@ -4644,6 +5829,32 @@ button:focus-visible {
         drawUltimateClashEffect(ctx, flash.x, flash.y, flash.life / flash.maxLife);
       }
       this.clashFlashes = clashKept;
+      const burstKept = [];
+      for (const burst of this.attackBursts) {
+        burst.life -= simulationDelta;
+        if (burst.life <= 0)
+          continue;
+        burstKept.push(burst);
+        const progress = 1 - burst.life / burst.maxLife;
+        if (burst.key === "shawarma-debris") {
+          drawShawarmaImpact(ctx, burst.x, burst.y, burst.facing, (1 - progress) * burst.intensity);
+        } else if (burst.key === "topete-drive") {
+          drawAttackContactBurst(ctx, burst.x, burst.y, burst.facing, burst.key, burst.intensity, progress);
+          drawToroGroundImpact(ctx, burst.x, GROUND_Y, burst.facing, (1 - progress) * burst.intensity);
+        } else {
+          drawAttackContactBurst(ctx, burst.x, burst.y, burst.facing, burst.key, burst.intensity, progress);
+        }
+      }
+      this.attackBursts = burstKept;
+      const catchKept = [];
+      for (const flash of this.rugbyCatchFlashes) {
+        flash.life -= simulationDelta;
+        if (flash.life <= 0)
+          continue;
+        catchKept.push(flash);
+        drawRugbyCatchAccent(ctx, flash.x, flash.y, flash.life / flash.maxLife);
+      }
+      this.rugbyCatchFlashes = catchKept;
       const releaseKept = [];
       for (const trail of this.ultimateReleaseTrails) {
         trail.life -= simulationDelta;
@@ -4660,9 +5871,40 @@ button:focus-visible {
     }
     drawProjectile(projectile) {
       const y = GROUND_Y - projectile.y;
+      if (projectile.visualKey === "shawarma") {
+        const ctx2 = this.ctx;
+        ctx2.save();
+        ctx2.globalAlpha = 0.24;
+        ctx2.strokeStyle = "#ff9d4c";
+        ctx2.lineWidth = 3.5;
+        ctx2.lineCap = "round";
+        const direction = projectile.vx >= 0 ? -1 : 1;
+        for (let i = 1; i <= 3; i += 1) {
+          ctx2.beginPath();
+          ctx2.moveTo(projectile.x + direction * i * 11, y + i * 2);
+          ctx2.lineTo(projectile.x + direction * i * 25, y + i * 4);
+          ctx2.stroke();
+        }
+        ctx2.restore();
+        drawShawarmaProjectile(ctx2, projectile.x, y, projectile.vx, projectile.age);
+        return;
+      }
       if (projectile.visualKey === "rugby-ball") {
         const ctx2 = this.ctx;
-        if (projectile.phase === "return") {
+        if (projectile.phase === "outbound") {
+          ctx2.save();
+          ctx2.globalAlpha = 0.3;
+          ctx2.strokeStyle = "#f4d77c";
+          ctx2.lineWidth = 3.5;
+          ctx2.lineCap = "round";
+          for (let i = 1; i <= 3; i += 1) {
+            ctx2.beginPath();
+            ctx2.moveTo(projectile.x - projectile.vx * i * 1.6, y + i * 1.5);
+            ctx2.lineTo(projectile.x - projectile.vx * i * 4.4, y + i * 2.4);
+            ctx2.stroke();
+          }
+          ctx2.restore();
+        } else if (projectile.phase === "return") {
           ctx2.save();
           ctx2.globalAlpha = 0.24;
           ctx2.strokeStyle = "#d8b65c";
@@ -4696,6 +5938,19 @@ button:focus-visible {
         return;
       }
       const ctx = this.ctx;
+      ctx.save();
+      ctx.globalAlpha = 0.28;
+      ctx.strokeStyle = "#ff9b48";
+      ctx.lineWidth = 3;
+      ctx.lineCap = "round";
+      const trailDirection = projectile.vx >= 0 ? -1 : 1;
+      for (let i = 1; i <= 3; i += 1) {
+        ctx.beginPath();
+        ctx.moveTo(projectile.x + trailDirection * i * 10, y - 4 + i * 3);
+        ctx.lineTo(projectile.x + trailDirection * i * 22, y - 1 + i * 2);
+        ctx.stroke();
+      }
+      ctx.restore();
       ctx.save();
       ctx.translate(projectile.x, y);
       ctx.rotate(projectile.vx >= 0 ? -0.08 : Math.PI + 0.08);
@@ -4779,6 +6034,205 @@ button:focus-visible {
     }
   };
 
+  // dist/game/render/PortraitRenderer.js
+  function portraitFrame(ctx, width, height, accent, drawSubject) {
+    ctx.save();
+    ctx.clearRect(0, 0, width, height);
+    const gradient = ctx.createLinearGradient(0, 0, width, height);
+    gradient.addColorStop(0, "#10141b");
+    gradient.addColorStop(1, accent);
+    ctx.fillStyle = gradient;
+    ctx.fillRect(0, 0, width, height);
+    ctx.globalAlpha = 0.16;
+    ctx.fillStyle = "#ffffff";
+    ctx.beginPath();
+    ctx.arc(width * 0.82, height * 0.12, width * 0.34, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.globalAlpha = 1;
+    ctx.translate(width * 0.5, height * 0.96);
+    const scale = Math.min(width / 190, height / 165);
+    ctx.scale(scale, scale);
+    drawSubject();
+    ctx.restore();
+  }
+  function drawCamaleoniPortrait(ctx, width, height) {
+    portraitFrame(ctx, width, height, "#326d45", () => {
+      ctx.fillStyle = "#2e864d";
+      ctx.strokeStyle = "#123d26";
+      ctx.lineWidth = 3;
+      ctx.beginPath();
+      ctx.moveTo(-47, -8);
+      ctx.quadraticCurveTo(-55, -75, -27, -112);
+      ctx.quadraticCurveTo(4, -134, 41, -108);
+      ctx.quadraticCurveTo(56, -64, 48, -8);
+      ctx.closePath();
+      ctx.fill();
+      ctx.stroke();
+      ellipse(ctx, 2, -119, 34, 36, "#54a768", -0.03, "#173c24", 2.4);
+      ctx.fillStyle = "#204d31";
+      ctx.beginPath();
+      ctx.moveTo(-17, -151);
+      ctx.lineTo(-4, -166);
+      ctx.lineTo(5, -150);
+      ctx.lineTo(18, -164);
+      ctx.lineTo(23, -145);
+      ctx.fill();
+      ellipse(ctx, 17, -124, 5, 4, "#f4dd63", 0, "#132319", 1.5);
+      roundedLine(ctx, -33, -67, -59, -34, 12, "#3d9858");
+      roundedLine(ctx, -58, -34, -73, -55, 4, "#b9e684");
+      roundedLine(ctx, -58, -34, -78, -35, 4, "#b9e684");
+      roundedLine(ctx, -58, -34, -72, -17, 4, "#b9e684");
+    });
+  }
+  function drawSupernarizPortrait(ctx, width, height) {
+    portraitFrame(ctx, width, height, "#8a4c32", () => {
+      ctx.fillStyle = "#e4b28d";
+      ctx.strokeStyle = "#714733";
+      ctx.lineWidth = 3;
+      ctx.beginPath();
+      ctx.moveTo(-48, -5);
+      ctx.quadraticCurveTo(-49, -72, -30, -108);
+      ctx.quadraticCurveTo(4, -128, 39, -106);
+      ctx.quadraticCurveTo(52, -67, 47, -5);
+      ctx.closePath();
+      ctx.fill();
+      ctx.stroke();
+      ellipse(ctx, 2, -123, 33, 38, "#d7a17e", -0.02, "#704936", 2.2);
+      ctx.fillStyle = "#c88968";
+      ctx.beginPath();
+      ctx.moveTo(15, -133);
+      ctx.quadraticCurveTo(68, -127, 80, -113);
+      ctx.quadraticCurveTo(62, -101, 18, -109);
+      ctx.closePath();
+      ctx.fill();
+      ctx.stroke();
+      ellipse(ctx, 12, -132, 3, 2.5, "#191615");
+      roundedLine(ctx, -24, -160, 26, -158, 9, "#412b24");
+    });
+  }
+  function drawJuanchiPortrait(ctx, width, height) {
+    portraitFrame(ctx, width, height, "#5b4b22", () => {
+      ctx.fillStyle = "#101318";
+      ctx.strokeStyle = "#05070a";
+      ctx.lineWidth = 3;
+      ctx.beginPath();
+      ctx.moveTo(-49, -4);
+      ctx.quadraticCurveTo(-54, -70, -37, -110);
+      ctx.quadraticCurveTo(2, -128, 44, -108);
+      ctx.quadraticCurveTo(54, -66, 49, -4);
+      ctx.closePath();
+      ctx.fill();
+      ctx.stroke();
+      ctx.fillStyle = "#f1f1e9";
+      ctx.font = "900 16px system-ui, sans-serif";
+      ctx.textAlign = "center";
+      ctx.fillText("La 56", 5, -64);
+      ellipse(ctx, 2, -126, 34, 39, "#c88c68", -0.03, "#5c382a", 2.3);
+      ctx.fillStyle = "#171819";
+      for (const [x, y, r] of [[-23, -153, 10], [-9, -165, 11], [5, -168, 12], [20, -161, 11], [29, -149, 9]]) {
+        ctx.beginPath();
+        ctx.arc(x, y, r, 0, Math.PI * 2);
+        ctx.fill();
+      }
+      roundedLine(ctx, -38, -46, -62, -25, 12, "#111419");
+      ellipse(ctx, -67, -22, 13, 8, "#9b5d31", -0.25, "#3e2417", 1.5);
+    });
+  }
+  function drawElToroPortrait(ctx, width, height) {
+    portraitFrame(ctx, width, height, "#315b91", () => {
+      ctx.fillStyle = "#f0efe8";
+      ctx.strokeStyle = "#2a2d31";
+      ctx.lineWidth = 3;
+      ctx.beginPath();
+      ctx.moveTo(-58, -3);
+      ctx.quadraticCurveTo(-64, -72, -44, -110);
+      ctx.quadraticCurveTo(3, -132, 54, -108);
+      ctx.quadraticCurveTo(65, -68, 58, -3);
+      ctx.closePath();
+      ctx.fill();
+      ctx.stroke();
+      roundedLine(ctx, -34, -105, 35, -101, 12, "#2d67ad");
+      roundedLine(ctx, -30, -105, 32, -102, 3, "#ffffff");
+      roundedLine(ctx, -24, -96, -38, -44, 10, "#2d67ad");
+      roundedLine(ctx, -24, -88, -38, -48, 2.5, "#ffffff");
+      ctx.fillStyle = "#111317";
+      ctx.font = "900 11px system-ui, sans-serif";
+      ctx.textAlign = "center";
+      ctx.fillText("TE VOY A CHOCAR", 5, -58);
+      ellipse(ctx, 3, -132, 37, 40, "#c88a66", -0.02, "#57382c", 2.4);
+      ctx.fillStyle = "#2b211d";
+      for (const [x, y, r] of [[-28, -158, 10], [-15, -170, 11], [0, -176, 12], [17, -171, 12], [30, -159, 11]]) {
+        ctx.beginPath();
+        ctx.arc(x, y, r, 0, Math.PI * 2);
+        ctx.fill();
+      }
+      ellipse(ctx, 17, -134, 2.7, 2.3, "#0b0d10");
+      roundedLine(ctx, 42, -39, 67, -28, 11, "#2f74c7");
+      ctx.fillStyle = "#d8a45f";
+      ctx.strokeStyle = "#5f3c24";
+      ctx.beginPath();
+      ctx.moveTo(-28, -20);
+      ctx.lineTo(-10, -17);
+      ctx.lineTo(-13, -2);
+      ctx.lineTo(-29, -4);
+      ctx.closePath();
+      ctx.fill();
+      ctx.stroke();
+    });
+  }
+  var PORTRAIT_KEYS = Object.freeze(["chameleon", "supernariz", "juanchi", "el-toro"]);
+  var PORTRAIT_RENDERERS = Object.freeze({
+    chameleon: drawCamaleoniPortrait,
+    supernariz: drawSupernarizPortrait,
+    juanchi: drawJuanchiPortrait,
+    "el-toro": drawElToroPortrait
+  });
+  function hasFighterPortrait(portraitKey) {
+    return PORTRAIT_RENDERERS[portraitKey] !== void 0;
+  }
+  function drawMissingPortrait(ctx, portraitKey, width, height) {
+    ctx.save();
+    ctx.clearRect(0, 0, width, height);
+    ctx.fillStyle = "#22141b";
+    ctx.fillRect(0, 0, width, height);
+    ctx.strokeStyle = "#ff365f";
+    ctx.lineWidth = 4;
+    ctx.strokeRect(5, 5, width - 10, height - 10);
+    ctx.fillStyle = "#ffffff";
+    ctx.font = "800 13px system-ui, sans-serif";
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.fillText("MISSING PORTRAIT", width / 2, height / 2 - 8);
+    ctx.font = "600 10px system-ui, sans-serif";
+    ctx.fillText(portraitKey, width / 2, height / 2 + 12);
+    ctx.restore();
+  }
+  function drawFighterPortrait(ctx, portraitKey, width = ctx.canvas.width, height = ctx.canvas.height) {
+    const renderer = PORTRAIT_RENDERERS[portraitKey];
+    if (!renderer) {
+      drawMissingPortrait(ctx, portraitKey, width, height);
+      return false;
+    }
+    renderer(ctx, width, height);
+    return true;
+  }
+  function mountFighterPortraits(root = document) {
+    let mounted = 0;
+    for (const host of root.querySelectorAll("[data-fighter-portrait][data-portrait-key]")) {
+      const portraitKey = host.dataset.portraitKey;
+      const canvas = host.querySelector(".fighter-portrait-canvas");
+      if (!portraitKey || !canvas)
+        continue;
+      const ctx = canvas.getContext("2d");
+      if (!ctx)
+        continue;
+      drawFighterPortrait(ctx, portraitKey, canvas.width, canvas.height);
+      host.dataset.portraitRendered = hasFighterPortrait(portraitKey) ? "true" : "missing";
+      mounted += 1;
+    }
+    return mounted;
+  }
+
   // dist/game/simulation/ultimateArbitration.js
   function buildUltimateConfrontationVolume(definition, currentX, plannedX, y, facing, capProbe = null) {
     if (definition.kind === "dashCapture") {
@@ -4789,6 +6243,12 @@ button:focus-visible {
     if (definition.kind === "suctionCapture") {
       const range = definition.suctionRange ?? 0;
       return facing === 1 ? { minX: currentX, maxX: currentX + range, minY: y, maxY: y + definition.captureVertical } : { minX: currentX - range, maxX: currentX, minY: y, maxY: y + definition.captureVertical };
+    }
+    if (definition.kind === "forwardBlast") {
+      const range = definition.blastRange ?? definition.captureReach;
+      const bottom = definition.blastBottom ?? 0;
+      const top = definition.blastTop ?? definition.captureVertical;
+      return facing === 1 ? { minX: currentX, maxX: currentX + range, minY: y + bottom, maxY: y + top } : { minX: currentX - range, maxX: currentX, minY: y + bottom, maxY: y + top };
     }
     if (!capProbe)
       throw new Error("capCapture confrontation requires a cap probe plan");
@@ -5150,6 +6610,8 @@ button:focus-visible {
       this.updateProjectiles(inputs);
       this.cancelInterruptedMoves();
       this.resolveUltimateArbitration();
+      this.resolveForwardBlastContacts(inputs);
+      this.cancelInterruptedMoves();
       if (this.phase === "fight") {
         this.roundTimerFrames = Math.max(0, this.roundTimerFrames - 1);
         const roundShouldEnd = this.fighters[0].health <= 0 || this.fighters[1].health <= 0 || this.roundTimerFrames <= 0;
@@ -5380,6 +6842,10 @@ button:focus-visible {
           return;
         }
         fighter.moveFrame += 1;
+        if (current.movement && fighter.grounded && fighter.moveContact === "none" && fighter.moveFrame >= current.movement.start && fighter.moveFrame <= current.movement.end) {
+          fighter.x += fighter.facing * current.movement.speed;
+          this.clampFighter(fighter);
+        }
         this.triggerMoveEffect(index, fighter);
         if (fighter.moveFrame >= current.totalFrames) {
           this.clearMove(fighter);
@@ -6268,7 +7734,7 @@ button:focus-visible {
         const definition = this.activeUltimateDefinition(fighter);
         if (definition.kind === "dashCapture") {
           plannedCenters[index] = this.boundedX(fighter.x + fighter.ultimateFacing * (definition.dashSpeed ?? 0));
-        } else if (definition.kind !== "suctionCapture" && definition.kind !== "capCapture") {
+        } else if (definition.kind !== "suctionCapture" && definition.kind !== "capCapture" && definition.kind !== "forwardBlast") {
           const exhaustive = definition.kind;
           throw new Error(`Unsupported Ultimate proposal kind ${String(exhaustive)}`);
         }
@@ -6314,6 +7780,8 @@ button:focus-visible {
           const headY = target.y + (target.crouching ? head.crouchY : head.standY);
           const contactT = this.segmentAabbEntryT(capProbe.previousX, capProbe.y, capProbe.nextX, capProbe.y, target.x - head.halfWidth - capProbe.halfWidth, target.x + head.halfWidth + capProbe.halfWidth, headY - head.halfHeight - capProbe.halfHeight, headY + head.halfHeight + capProbe.halfHeight);
           wouldCapture = front && contactT !== null;
+        } else if (definition.kind === "forwardBlast") {
+          wouldCapture = false;
         } else {
           const exhaustive = definition.kind;
           throw new Error(`Unsupported Ultimate proposal kind ${String(exhaustive)}`);
@@ -6658,6 +8126,89 @@ button:focus-visible {
         attacker.ultimatePhaseFrame = 0;
       }
     }
+    resolveForwardBlastContacts(inputs) {
+      const contacts = [];
+      for (const attackerIndex of [0, 1]) {
+        const attacker = this.fighters[attackerIndex];
+        if (attacker.ultimatePhase !== "capture" || attacker.health <= 0)
+          continue;
+        const definition = this.activeUltimateDefinition(attacker);
+        if (definition.kind !== "forwardBlast")
+          continue;
+        const beat = definition.sequenceHits.find((candidate) => candidate.frame === attacker.ultimatePhaseFrame);
+        if (!beat)
+          continue;
+        const defenderIndex = attackerIndex === 0 ? 1 : 0;
+        const defender = this.fighters[defenderIndex];
+        if (defender.health <= 0 || defender.capturedBy !== null)
+          continue;
+        const range = definition.blastRange ?? definition.captureReach;
+        const bottom = attacker.y + (definition.blastBottom ?? 0);
+        const top = attacker.y + (definition.blastTop ?? definition.captureVertical);
+        const defenderDefinition = this.registry.getFighter(defender.id);
+        const halfWidth = defenderDefinition.width * 0.5;
+        const hurtMinX = defender.x - halfWidth;
+        const hurtMaxX = defender.x + halfWidth;
+        const hurtBottom = defender.y;
+        const hurtTop = defender.y + (defender.crouching ? defenderDefinition.height * 0.66 : defenderDefinition.height);
+        const blastMinX = attacker.ultimateFacing === 1 ? attacker.x : attacker.x - range;
+        const blastMaxX = attacker.ultimateFacing === 1 ? attacker.x + range : attacker.x;
+        const signedCenterDistance = (defender.x - attacker.x) * attacker.ultimateFacing;
+        if (signedCenterDistance < 0)
+          continue;
+        if (!intervalsOverlap(blastMinX, blastMaxX, hurtMinX, hurtMaxX))
+          continue;
+        if (!intervalsOverlap(bottom, top, hurtBottom, hurtTop))
+          continue;
+        contacts.push({
+          attacker: attackerIndex,
+          defender: defenderIndex,
+          definition,
+          beat,
+          blocked: this.canBlock(defender, inputs[defenderIndex], "mid"),
+          finalBeat: definition.sequenceHits[definition.sequenceHits.length - 1] === beat
+        });
+      }
+      for (const contact of contacts) {
+        const attacker = this.fighters[contact.attacker];
+        const defender = this.fighters[contact.defender];
+        const { beat, definition } = contact;
+        attacker.ultimateConnected = true;
+        let actualDamage = 0;
+        if (contact.blocked) {
+          actualDamage = this.applyDamage(contact.attacker, contact.defender, beat.chipDamage ?? 0, "ultimate", true);
+          defender.blockstunFrames = beat.blockstun ?? 0;
+          defender.blocking = true;
+          defender.vx = attacker.ultimateFacing * (beat.blockKnockback ?? 0);
+          this.applyCornerBlockTransfer(contact.attacker, contact.defender, beat.knockback);
+          this.damageGuard(contact.defender, beat.guardDamage ?? 0);
+        } else {
+          actualDamage = this.applyDamage(contact.attacker, contact.defender, beat.damage, "ultimate", false);
+          this.cancelJumpPreparation(defender);
+          defender.stunFrames = beat.hitstun ?? 0;
+          defender.blocking = false;
+          defender.vx = attacker.ultimateFacing * (contact.finalBeat ? definition.releaseVx ?? beat.knockback : beat.knockback);
+          if (contact.finalBeat && (definition.releaseVy ?? 0) > 0) {
+            defender.vy = definition.releaseVy ?? 0;
+            defender.grounded = false;
+            defender.ultimateReleaseSource = contact.attacker;
+          }
+        }
+        this.hitstopFrames = Math.max(this.hitstopFrames, beat.hitstop ?? (contact.finalBeat ? definition.finalHitstop ?? 7 : 7));
+        this.events.push({
+          type: "hit",
+          attacker: contact.attacker,
+          defender: contact.defender,
+          blocked: contact.blocked,
+          damage: actualDamage,
+          strong: true,
+          source: "ultimate",
+          finisher: defender.health <= 0,
+          majorImpact: contact.finalBeat,
+          ...attacker.moveId !== null ? { moveId: attacker.moveId } : {}
+        });
+      }
+    }
     applyPendingUltimateReleases() {
       if (this.pendingUltimateReleases.length === 0)
         return;
@@ -6892,12 +8443,14 @@ button:focus-visible {
       __publicField(this, "cpuIndex");
       __publicField(this, "registry");
       __publicField(this, "initialSeed");
+      __publicField(this, "difficulty");
       __publicField(this, "rngState");
       __publicField(this, "intent", "neutral");
       __publicField(this, "intentUntilTick", -1);
       __publicField(this, "nextDecisionTick", -1);
       __publicField(this, "pendingThreat", null);
       __publicField(this, "observationHistory", []);
+      __publicField(this, "delayedMoveHistory", []);
       __publicField(this, "processedObservationTick", -1);
       __publicField(this, "handledCueKeys", /* @__PURE__ */ new Set());
       __publicField(this, "seenProjectileCueKeys", /* @__PURE__ */ new Set());
@@ -6916,6 +8469,7 @@ button:focus-visible {
       __publicField(this, "lastRound", null);
       this.cpuIndex = cpuIndex;
       this.registry = options.registry ?? DEFAULT_COMBAT_REGISTRY;
+      this.difficulty = options.difficulty ?? "normal";
       this.initialSeed = (options.seed ?? 1374772829 ^ (cpuIndex + 1) * 2654435769) >>> 0;
       this.rngState = this.initialSeed;
     }
@@ -6926,6 +8480,7 @@ button:focus-visible {
       this.nextDecisionTick = -1;
       this.pendingThreat = null;
       this.observationHistory = [];
+      this.delayedMoveHistory = [];
       this.processedObservationTick = -1;
       this.handledCueKeys.clear();
       this.seenProjectileCueKeys.clear();
@@ -6959,13 +8514,14 @@ button:focus-visible {
       this.lastCombatTick = snapshot.combatTick;
       const self = snapshot.fighters[this.cpuIndex];
       const otherIndex = this.cpuIndex === 0 ? 1 : 0;
-      const profile = this.registry.getKit(self.id).cpu;
+      const profile2 = this.registry.getKit(self.id).cpu;
+      const policy = this.effectivePolicy(profile2);
       const observation = this.projectObservation(snapshot, otherIndex);
       this.observationHistory.push(observation);
       if (this.observationHistory.length > 96)
         this.observationHistory.shift();
-      this.processDelayedObservations(snapshot.combatTick, profile);
-      const delayed = this.latestDelayedObservation(snapshot.combatTick, profile.reactionTicks);
+      this.processDelayedObservations(snapshot.combatTick, policy);
+      const delayed = this.latestDelayedObservation(snapshot.combatTick, policy.reactionTicks);
       const out = { ...EMPTY_INPUT };
       if (self.health <= 0 || self.stunFrames > 0 || self.guardBreakFrames > 0 || self.capturedBy !== null) {
         return this.rememberOutput(out);
@@ -6975,7 +8531,7 @@ button:focus-visible {
           Object.assign(out, away(self.x, delayed.foeX));
         else
           Object.assign(out, awayFromFacing(self.facing));
-        if (self.guard >= 34 && this.isDecisionTick(snapshot.combatTick, profile) && this.nextRandom() < 0.22) {
+        if (self.guard >= 34 && this.isDecisionTick(snapshot.combatTick, policy.decisionTicks) && this.nextRandom() < policy.pushGuardAttemptChance) {
           out.pushGuard = true;
         }
         return this.rememberOutput(out);
@@ -6986,7 +8542,7 @@ button:focus-visible {
         if (self.moveContact === "hit" && move.nextAttack && move.cancelStart !== void 0 && move.cancelEnd !== void 0) {
           if (this.confirmSerial !== this.selfMoveSerial) {
             this.confirmSerial = this.selfMoveSerial;
-            this.confirmChosen = this.nextRandom() < profile.confirmChance;
+            this.confirmChosen = this.nextRandom() < policy.confirmChance;
             this.confirmEmitted = false;
           }
           if (this.confirmChosen && !this.confirmEmitted && self.moveFrame >= move.cancelStart && self.moveFrame <= move.cancelEnd) {
@@ -7001,7 +8557,7 @@ button:focus-visible {
         return this.rememberOutput(out);
       }
       if (!self.grounded) {
-        if (this.isDecisionTick(snapshot.combatTick, profile) && delayed) {
+        if (this.isDecisionTick(snapshot.combatTick, policy.decisionTicks) && delayed) {
           const distance = Math.abs(delayed.foeX - self.x);
           if (distance < 125 && this.nextRandom() < 0.45)
             out.attack = true;
@@ -7013,12 +8569,12 @@ button:focus-visible {
         return this.rememberOutput(out);
       }
       this.intent = "neutral";
-      if (!this.isDecisionTick(snapshot.combatTick, profile))
+      if (!this.isDecisionTick(snapshot.combatTick, policy.decisionTicks))
         return this.rememberOutput(out);
       if (this.pendingThreat && this.pendingThreat.expiresTick >= snapshot.combatTick) {
         const threat = this.pendingThreat;
         this.pendingThreat = null;
-        this.respondToThreat(out, self.x, threat.cue, snapshot.combatTick, profile);
+        this.respondToThreat(out, self.x, threat.cue, threat.repeatCount, snapshot.combatTick, profile2, policy);
         return this.rememberOutput(out);
       }
       if (this.pendingThreat && this.pendingThreat.expiresTick < snapshot.combatTick)
@@ -7026,7 +8582,7 @@ button:focus-visible {
       if (!delayed)
         return this.rememberOutput(out);
       const ownReturningProjectile = snapshot.projectiles.some((projectile) => projectile.owner === this.cpuIndex && projectile.phase === "return");
-      this.chooseNeutralPlan(out, self, delayed, snapshot.combatTick, profile, ownReturningProjectile);
+      this.chooseNeutralPlan(out, self, delayed, snapshot.combatTick, profile2, policy, ownReturningProjectile);
       return this.rememberOutput(out);
     }
     clearRoundState(round) {
@@ -7035,6 +8591,7 @@ button:focus-visible {
       this.nextDecisionTick = -1;
       this.pendingThreat = null;
       this.observationHistory = [];
+      this.delayedMoveHistory = [];
       this.processedObservationTick = -1;
       this.handledCueKeys.clear();
       this.seenProjectileCueKeys.clear();
@@ -7052,6 +8609,42 @@ button:focus-visible {
       this.cachedOutput = { ...EMPTY_INPUT };
       this.lastRound = round;
       this.rngState = (this.initialSeed ^ Math.imul(round, 2246822507)) >>> 0;
+    }
+    effectivePolicy(profile2) {
+      if (this.difficulty === "easy") {
+        return {
+          reactionTicks: Math.max(profile2.reactionTicks, 18),
+          decisionTicks: Math.max(profile2.decisionTicks, 12),
+          missChance: Math.min(1, profile2.missChance + 0.2),
+          confirmChance: Math.max(0, Math.min(1, profile2.confirmChance * 0.65)),
+          ultimateAttemptChance: 0.18,
+          pushGuardAttemptChance: 0.12,
+          suboptimalNeutralChance: 0.18,
+          repetitionCounterChance: 0
+        };
+      }
+      if (this.difficulty === "hard") {
+        return {
+          reactionTicks: Math.max(8, profile2.reactionTicks - 4),
+          decisionTicks: Math.max(5, profile2.decisionTicks - 3),
+          missChance: Math.max(0.08, profile2.missChance - 0.15),
+          confirmChance: Math.min(0.95, profile2.confirmChance + 0.1),
+          ultimateAttemptChance: 0.36,
+          pushGuardAttemptChance: 0.3,
+          suboptimalNeutralChance: 0,
+          repetitionCounterChance: 0.68
+        };
+      }
+      return {
+        reactionTicks: profile2.reactionTicks,
+        decisionTicks: profile2.decisionTicks,
+        missChance: profile2.missChance,
+        confirmChance: profile2.confirmChance,
+        ultimateAttemptChance: 0.28,
+        pushGuardAttemptChance: 0.22,
+        suboptimalNeutralChance: 0,
+        repetitionCounterChance: 0
+      };
     }
     rememberOutput(out) {
       this.cachedOutput = cloneInput(out);
@@ -7078,7 +8671,8 @@ button:focus-visible {
             kind: airborne ? "air" : "strike",
             level: move.hitbox?.level ?? (airborne ? "overhead" : "mid"),
             foeX: foe.x,
-            threatRange: move.cpuThreatRange ?? (airborne ? 260 : 220)
+            threatRange: move.cpuThreatRange ?? (airborne ? 260 : 220),
+            moveId: move.id
           });
         }
       }
@@ -7122,8 +8716,8 @@ button:focus-visible {
         cues
       };
     }
-    processDelayedObservations(currentTick, profile) {
-      const targetTick = currentTick - profile.reactionTicks;
+    processDelayedObservations(currentTick, policy) {
+      const targetTick = currentTick - policy.reactionTicks;
       if (targetTick < 0)
         return;
       for (const observation of this.observationHistory) {
@@ -7134,13 +8728,26 @@ button:focus-visible {
           if (this.handledCueKeys.has(cue.key))
             continue;
           this.handledCueKeys.add(cue.key);
-          const recognized = this.nextRandom() >= profile.missChance;
+          let repeatCount = 1;
+          if (cue.moveId) {
+            this.delayedMoveHistory.push(cue.moveId);
+            if (this.delayedMoveHistory.length > 6)
+              this.delayedMoveHistory.shift();
+            repeatCount = 0;
+            for (let i = this.delayedMoveHistory.length - 1; i >= 0; i -= 1) {
+              if (this.delayedMoveHistory[i] !== cue.moveId)
+                break;
+              repeatCount += 1;
+            }
+          }
+          const recognized = this.nextRandom() >= policy.missChance;
           if (!recognized)
             continue;
           this.pendingThreat = {
             cue,
             observedTick: currentTick,
-            expiresTick: currentTick + 24
+            expiresTick: currentTick + 24,
+            repeatCount
           };
         }
       }
@@ -7154,12 +8761,12 @@ button:focus-visible {
       }
       return null;
     }
-    isDecisionTick(tick, profile) {
+    isDecisionTick(tick, decisionTicks) {
       if (this.nextDecisionTick < 0)
         this.nextDecisionTick = tick;
       if (tick < this.nextDecisionTick)
         return false;
-      this.nextDecisionTick = tick + profile.decisionTicks;
+      this.nextDecisionTick = tick + decisionTicks;
       return true;
     }
     updateSelfMoveSerial(moveId, moveFrame) {
@@ -7172,7 +8779,7 @@ button:focus-visible {
       this.lastSelfMoveId = moveId;
       this.lastSelfMoveFrame = moveFrame;
     }
-    respondToThreat(out, selfX, cue, tick, profile) {
+    respondToThreat(out, selfX, cue, repeatCount, tick, profile2, policy) {
       const distance = Math.abs(cue.foeX - selfX);
       if (distance > cue.threatRange)
         return;
@@ -7184,72 +8791,83 @@ button:focus-visible {
         }
         return;
       }
+      if (cue.kind === "strike" && cue.threatRange >= 280 && repeatCount >= 2 && policy.repetitionCounterChance > 0 && this.nextRandom() < policy.repetitionCounterChance) {
+        out.jump = true;
+        return;
+      }
       if (cue.kind === "air") {
         Object.assign(out, away(selfX, cue.foeX));
-        this.commitIntent("guard", tick, profile);
+        this.commitIntent("guard", tick, profile2);
         return;
       }
       if (cue.kind === "projectile") {
         Object.assign(out, away(selfX, cue.foeX));
-        this.commitIntent("guard", tick, profile);
+        this.commitIntent("guard", tick, profile2);
         return;
       }
       const intent = cue.level === "low" ? "guard-low" : "guard";
       this.intent = intent;
-      this.intentUntilTick = tick + Math.min(12, profile.commitmentTicks[0]);
+      this.intentUntilTick = tick + Math.min(12, profile2.commitmentTicks[0]);
       this.applyIntent(out, selfX, cue.foeX);
     }
-    chooseNeutralPlan(out, self, observed, tick, profile, ownReturningProjectile) {
+    chooseNeutralPlan(out, self, observed, tick, profile2, policy, ownReturningProjectile) {
       const distance = Math.abs(observed.foeX - self.x);
       const kit = this.registry.getKit(self.id);
-      const tactics = profile.tactics;
+      const tactics = profile2.tactics;
+      if (policy.suboptimalNeutralChance > 0 && this.nextRandom() < policy.suboptimalNeutralChance) {
+        if (distance < profile2.pressureRange) {
+          this.commitIntent("retreat", tick, profile2);
+          this.applyIntent(out, self.x, observed.foeX);
+        }
+        return;
+      }
       if (tactics) {
-        if (self.superReady && distance >= tactics.ultimateRange[0] && distance <= tactics.ultimateRange[1] && this.nextRandom() < 0.28) {
+        if (self.superReady && distance >= tactics.ultimateRange[0] && distance <= tactics.ultimateRange[1] && this.nextRandom() < policy.ultimateAttemptChance) {
           out.ultimate = true;
           return;
         }
-        if (ownReturningProjectile && distance > profile.pressureRange && this.nextRandom() < tactics.advanceBehindReturningProjectile) {
-          this.commitIntent("approach", tick, profile);
+        if (ownReturningProjectile && distance > profile2.pressureRange && this.nextRandom() < tactics.advanceBehindReturningProjectile) {
+          this.commitIntent("approach", tick, profile2);
           this.applyIntent(out, self.x, observed.foeX);
           return;
         }
-        if (distance < profile.pressureRange) {
-          this.chooseWeightedCloseAction(out, self.x, observed.foeX, tick, profile);
+        if (distance < profile2.pressureRange) {
+          this.chooseWeightedCloseAction(out, self.x, observed.foeX, tick, profile2);
           return;
         }
         if (self.rangedAvailability === "ready" && distance >= tactics.rangedRange[0] && distance <= tactics.rangedRange[1] && this.nextRandom() < tactics.rangedChance) {
           out.special = true;
           return;
         }
-        if (distance >= profile.preferredRange[0] && distance <= profile.preferredRange[1]) {
+        if (distance >= profile2.preferredRange[0] && distance <= profile2.preferredRange[1]) {
           if (this.nextRandom() < tactics.retreatAtPreferredRange) {
-            this.commitIntent("retreat", tick, profile);
+            this.commitIntent("retreat", tick, profile2);
             this.applyIntent(out, self.x, observed.foeX);
-          } else if (profile.archetype === "pressure") {
-            this.commitIntent("approach", tick, profile);
+          } else if (profile2.archetype === "pressure") {
+            this.commitIntent("approach", tick, profile2);
             this.applyIntent(out, self.x, observed.foeX);
           }
           return;
         }
-        if (distance > profile.preferredRange[1]) {
-          this.commitIntent("approach", tick, profile);
+        if (distance > profile2.preferredRange[1]) {
+          this.commitIntent("approach", tick, profile2);
           this.applyIntent(out, self.x, observed.foeX);
           return;
         }
-        if (profile.archetype === "pressure") {
-          this.commitIntent("approach", tick, profile);
+        if (profile2.archetype === "pressure") {
+          this.commitIntent("approach", tick, profile2);
           this.applyIntent(out, self.x, observed.foeX);
         } else {
-          this.chooseWeightedCloseAction(out, self.x, observed.foeX, tick, profile);
+          this.chooseWeightedCloseAction(out, self.x, observed.foeX, tick, profile2);
         }
         return;
       }
-      if (self.superReady && distance >= 105 && distance <= 300 && this.nextRandom() < 0.28) {
+      if (self.superReady && distance >= 105 && distance <= 300 && this.nextRandom() < policy.ultimateAttemptChance) {
         out.ultimate = true;
         return;
       }
-      if (profile.archetype === "pressure") {
-        if (distance < profile.pressureRange) {
+      if (profile2.archetype === "pressure") {
+        if (distance < profile2.pressureRange) {
           const choice = this.nextRandom();
           if (choice < 0.62)
             out.attack = true;
@@ -7269,14 +8887,14 @@ button:focus-visible {
           if (out.special)
             return;
         }
-        this.commitIntent("approach", tick, profile);
+        this.commitIntent("approach", tick, profile2);
         this.applyIntent(out, self.x, observed.foeX);
         return;
       }
       if (distance < 145) {
         const choice = this.nextRandom();
         if (choice < 0.42) {
-          this.commitIntent("retreat", tick, profile);
+          this.commitIntent("retreat", tick, profile2);
           this.applyIntent(out, self.x, observed.foeX);
         } else if (choice < 0.67) {
           out.attack = true;
@@ -7288,30 +8906,30 @@ button:focus-visible {
         }
         return;
       }
-      if (distance >= profile.preferredRange[0] && distance <= profile.preferredRange[1]) {
+      if (distance >= profile2.preferredRange[0] && distance <= profile2.preferredRange[1]) {
         const choice = this.nextRandom();
         if (choice < 0.55)
           out.special = true;
         else if (choice < 0.72) {
-          this.commitIntent("retreat", tick, profile);
+          this.commitIntent("retreat", tick, profile2);
           this.applyIntent(out, self.x, observed.foeX);
         }
         return;
       }
-      if (distance > profile.preferredRange[1]) {
-        this.commitIntent("approach", tick, profile);
+      if (distance > profile2.preferredRange[1]) {
+        this.commitIntent("approach", tick, profile2);
         this.applyIntent(out, self.x, observed.foeX);
         return;
       }
       if (this.nextRandom() < 0.45) {
-        this.commitIntent("retreat", tick, profile);
+        this.commitIntent("retreat", tick, profile2);
         this.applyIntent(out, self.x, observed.foeX);
       } else {
         out.attack = true;
       }
     }
-    chooseWeightedCloseAction(out, selfX, foeX, tick, profile) {
-      const weights = profile.tactics?.closeWeights;
+    chooseWeightedCloseAction(out, selfX, foeX, tick, profile2) {
+      const weights = profile2.tactics?.closeWeights;
       if (!weights)
         return;
       const entries = [
@@ -7342,12 +8960,12 @@ button:focus-visible {
       } else if (choice === "jump")
         out.jump = true;
       else {
-        this.commitIntent("retreat", tick, profile);
+        this.commitIntent("retreat", tick, profile2);
         this.applyIntent(out, selfX, foeX);
       }
     }
-    commitIntent(intent, tick, profile) {
-      const [minTicks, maxTicks] = profile.commitmentTicks;
+    commitIntent(intent, tick, profile2) {
+      const [minTicks, maxTicks] = profile2.commitmentTicks;
       const span = Math.max(0, maxTicks - minTicks);
       const duration = minTicks + Math.floor(this.nextRandom() * (span + 1));
       this.intent = intent;
@@ -7366,8 +8984,9 @@ button:focus-visible {
 
   // dist/game/ui/flow.js
   var DEFAULT_STAGE = "tramontana-dusk";
+  var DEFAULT_CPU_DIFFICULTY = "normal";
   function initialFlowState(stage = DEFAULT_STAGE) {
-    return { phase: "title", player: null, cpu: null, stage, winner: null };
+    return { phase: "title", player: null, cpu: null, stage, winner: null, cpuDifficulty: DEFAULT_CPU_DIFFICULTY };
   }
   function beginSelection(state) {
     if (state.phase !== "title")
@@ -7382,6 +9001,11 @@ button:focus-visible {
       return { ...state, phase: "select-stage", cpu: fighter, winner: null };
     }
     return state;
+  }
+  function chooseCpuDifficulty(state, cpuDifficulty) {
+    if (state.phase !== "select-cpu")
+      return state;
+    return { ...state, cpuDifficulty };
   }
   function chooseStage(state, stage) {
     if (state.phase !== "select-stage" || !state.player || !state.cpu)
@@ -7409,7 +9033,8 @@ button:focus-visible {
       player: null,
       cpu: null,
       stage: state.stage,
-      winner: null
+      winner: null,
+      cpuDifficulty: state.cpuDifficulty
     };
   }
   function changeStage(state) {
@@ -7527,7 +9152,8 @@ button:focus-visible {
           player: "chameleon",
           cpu: "supernariz",
           stage: DEFAULT_STAGE,
-          winner: null
+          winner: null,
+          cpuDifficulty: "normal"
         };
         this.autoplayPlayer = true;
         this.showVs(250);
@@ -7546,7 +9172,7 @@ button:focus-visible {
           <span class="cover-sigil cover-sigil--right">J</span>
         </div>
         <section class="cover-copy">
-          <span class="cover-kicker">V0.6 \xB7 TRES LUCHADORES \xB7 DOS ESCENARIOS</span>
+          <span class="cover-kicker">V0.7 \xB7 CUATRO LUCHADORES \xB7 DOS ESCENARIOS</span>
           <h1><span>JUEGO</span><strong>PELEA</strong></h1>
           <p>Eleg\xED luchador, rival y escenario. Despu\xE9s resolvelo en la cancha.</p>
           <div class="cover-actions">
@@ -7581,6 +9207,7 @@ button:focus-visible {
       const selectedId = this.pendingFighter;
       const selected = fighterDefinition(selectedId);
       const selectedPresentation = fighterPresentation(selectedId).select;
+      const difficulty = this.flow.cpuDifficulty;
       this.root.innerHTML = `
       <main class="roster-screen" data-game-phase="${selectingCpu ? "select-cpu" : "select-player"}">
         <header class="fight-menu-header">
@@ -7594,10 +9221,12 @@ button:focus-visible {
           </div>
           <aside class="fighter-info" style="--fighter-accent:${fighterPresentation(selectedId).accent}">
             <span class="fighter-info-kicker">${selectedPresentation.kicker}</span>
-            <div class="fighter-info-mark" aria-hidden="true">${selectedPresentation.mark}</div>
+            ${this.fighterPortrait(selectedId, "fighter-info-portrait")}
+            <div class="fighter-info-mark fighter-info-mark--accent" aria-hidden="true">${selectedPresentation.mark}</div>
             <h2>${selected.displayName}</h2>
             <strong>${selectedPresentation.role}</strong>
             <p>${selectedPresentation.moves}</p>
+            ${selectingCpu ? this.difficultySelector(difficulty) : ""}
             <div class="fighter-info-actions">
               <button class="primary-button" data-fighter-confirm data-primary type="button">
                 ${selectingCpu ? "CONFIRMAR RIVAL" : "CONFIRMAR LUCHADOR"}
@@ -7614,12 +9243,22 @@ button:focus-visible {
       ${this.controlsPanel()}
       ${this.orientationPrompt()}
     `;
+      mountFighterPortraits(this.root);
       for (const button of this.root.querySelectorAll("[data-fighter]")) {
         button.addEventListener("click", () => {
           const id = playableFighterId(button.dataset.fighter);
           if (!id)
             throw new Error(`Unknown playable fighter ${String(button.dataset.fighter)}`);
           this.pendingFighter = id;
+          this.showRosterSelect();
+        });
+      }
+      for (const button of this.root.querySelectorAll("[data-difficulty]")) {
+        button.addEventListener("click", () => {
+          const difficulty2 = button.dataset.difficulty;
+          if (difficulty2 !== "easy" && difficulty2 !== "normal" && difficulty2 !== "hard")
+            return;
+          this.flow = chooseCpuDifficulty(this.flow, difficulty2);
           this.showRosterSelect();
         });
       }
@@ -7655,11 +9294,30 @@ button:focus-visible {
         style="--fighter-accent:${info.accent}"
       >
         <span class="roster-tile-kicker">${info.select.kicker}</span>
-        <span class="roster-tile-mark" aria-hidden="true">${info.select.mark}</span>
+        ${this.fighterPortrait(id, "roster-tile-portrait")}
+        <span class="roster-tile-mark roster-tile-mark--accent" aria-hidden="true">${info.select.mark}</span>
         <strong>${fighterDefinition(id).displayName}</strong>
         <span>${info.select.role}</span>
       </button>
     `;
+    }
+    fighterPortrait(id, extraClass) {
+      const presentation = fighterPresentation(id);
+      return `
+      <span
+        class="fighter-portrait-v07 ${extraClass}"
+        data-fighter-portrait
+        data-portrait-key="${presentation.portraitKey}"
+        aria-hidden="true"
+      >
+        <span class="fighter-portrait-fallback">${presentation.select.mark}</span>
+        <canvas class="fighter-portrait-canvas" width="192" height="168"></canvas>
+      </span>
+    `;
+    }
+    difficultySelector(selected) {
+      const options = [["easy", "F\xC1CIL"], ["normal", "NORMAL"], ["hard", "DIF\xCDCIL"]];
+      return `<fieldset class="difficulty-selector" aria-label="Dificultad CPU"><legend>DIFICULTAD CPU</legend><div>${options.map(([value, label]) => `<button type="button" data-difficulty="${value}" class="${value === selected ? "is-selected" : ""}" aria-pressed="${value === selected}">${label}</button>`).join("")}</div></fieldset>`;
     }
     showStageSelect() {
       this.cleanupFight();
@@ -7736,13 +9394,15 @@ button:focus-visible {
         <div class="vs-stage" data-stage-name>${stage.label}</div>
         <div class="vs-side vs-side--left fighter-card--${p1}">
           <span class="vs-label">JUGADOR</span>
+          ${this.fighterPortrait(p1, "vs-portrait")}
           <span class="vs-portrait-mark" aria-hidden="true">${fighterPresentation(p1).select.mark}</span>
           <strong>${fighterDefinition(p1).displayName}</strong>
           <span>${fighterPresentation(p1).select.role}</span>
         </div>
         <div class="vs-mark">VS</div>
         <div class="vs-side vs-side--right fighter-card--${p2}">
-          <span class="vs-label">CPU</span>
+          <span class="vs-label">CPU \xB7 ${this.flow.cpuDifficulty.toUpperCase()}</span>
+          ${this.fighterPortrait(p2, "vs-portrait")}
           <span class="vs-portrait-mark" aria-hidden="true">${fighterPresentation(p2).select.mark}</span>
           <strong>${fighterDefinition(p2).displayName}</strong>
           <span>${fighterPresentation(p2).select.role}</span>
@@ -7750,6 +9410,7 @@ button:focus-visible {
       </main>
       ${this.orientationPrompt()}
     `;
+      mountFighterPortraits(this.root);
       clearTimeout(this.vsTimer);
       this.vsTimer = window.setTimeout(() => {
         this.flow = startFight(this.flow);
@@ -7801,7 +9462,7 @@ button:focus-visible {
         throw new Error("Fight UI failed to mount");
       const simulation = new CombatSimulation(this.flow.player, this.flow.cpu);
       const renderer = new FightRenderer(canvas, DEFAULT_STAGE_REGISTRY.get(this.flow.stage));
-      const cpu = new CpuController(1);
+      const cpu = new CpuController(1, { difficulty: this.flow.cpuDifficulty });
       const playerCpu = this.autoplayPlayer ? new CpuController(0) : null;
       this.input = new GameInput(touchRoot, {
         onReset: () => simulation.resetInputState()
@@ -8024,7 +9685,7 @@ button:focus-visible {
           <div class="controls-heading"><span>GU\xCDA R\xC1PIDA</span><strong>CONTROLES</strong><button data-controls-close type="button" aria-label="Cerrar controles">\xD7</button></div>
           <div class="controls-grid">
             <section><h3>MOVIMIENTO</h3><p><b>D-pad</b><span>Moverse</span></p><p><b>Atr\xE1s</b><span>Retroceder / bloquear</span></p><p><b>Abajo + atr\xE1s</b><span>Bloqueo bajo</span></p><p><b>Doble adelante</b><span>Dash</span></p><p><b>Doble atr\xE1s</b><span>Backdash / esquiva</span></p></section>
-            <section><h3>ACCIONES</h3><p><b>JUMP</b><span>Saltar / ataque a\xE9reo con ATTACK</span></p><p><b>ATTACK</b><span>Ataque normal / cadena corta</span></p><p><b>Abajo + ATTACK</b><span>Low normal en el suelo</span></p><p><b>SPECIAL sin direcci\xF3n</b><span>Especial a distancia: Lengua / Chorizo / Rugby B\xFAmeran</span></p><p><b>Abajo + SPECIAL</b><span>Especial cercano: Coletazo / Tramontana / Fricci\xF3n</span></p><p><b>SPECIAL bloqueando</b><span>Push Guard: pide separaci\xF3n usando GUARD</span></p><p><b>ULTIMATE (Touch)</b><span>Intento de Ultimate; requiere SUPER READY</span></p><p><b>L (teclado)</b><span>Ultimate dedicado en desktop</span></p></section>
+            <section><h3>ACCIONES</h3><p><b>JUMP</b><span>Saltar / ataque a\xE9reo con ATTACK</span></p><p><b>ATTACK</b><span>Ataque normal / cadena corta</span></p><p><b>Abajo + ATTACK</b><span>Low normal en el suelo</span></p><p><b>SPECIAL sin direcci\xF3n</b><span>Especial a distancia seg\xFAn luchador</span></p><p><b>Abajo + SPECIAL</b><span>Especial cercano seg\xFAn luchador</span></p><p><b>SPECIAL bloqueando</b><span>Push Guard: pide separaci\xF3n usando GUARD</span></p><p><b>ULTIMATE (Touch)</b><span>Intento de Ultimate; requiere SUPER READY</span></p><p><b>L (teclado)</b><span>Ultimate dedicado en desktop</span></p></section>
           </div>
           <div class="controls-tips"><strong>COMBATE</strong><span>Bloquear consume GUARD \xB7 El low vence guardia alta \xB7 Saltar evita lows \xB7 SPECIAL neutro controla distancia \xB7 Abajo + SPECIAL es la opci\xF3n cercana \xB7 La disponibilidad del proyectil se muestra en HUD cuando aplica \xB7 Touch: ULTIMATE \xB7 Teclado: L</span></div>
         </div>

@@ -51,6 +51,12 @@ export function drawSupernariz(
   const airTilt = -motion.ascent * 0.06 + motion.descent * 0.1;
   const landingCompression = locomotion.landingAbsorption * 4;
   const nazazoDrive = ultimateSequence;
+  // Consume only pre-existing render-only gait channels so Supernariz's cape,
+  // hips and free arm inherit the authored locomotion signature.
+  const hipTwist = locomotion.hipCounterRotation * 125;
+  const chestTwist = locomotion.chestCounterRotation;
+  const freeArmSwing = locomotion.freeArmSwing;
+  const weightShift = locomotion.weightTransfer;
   const lean =
     nose * 0.16
     + airNose * 0.12
@@ -62,6 +68,7 @@ export function drawSupernariz(
     - ultimateCapture * 0.16
     + ultimateSequence * 0.15
     + locomotion.torsoLean
+    + chestTwist * 0.20
     + stance.forwardLean * 0.16
     + hurtLean
     - ko * 1.08;
@@ -106,11 +113,11 @@ export function drawSupernariz(
   ctx.beginPath();
   ctx.moveTo(-18, shoulderY + 5);
   ctx.bezierCurveTo(
-    -52 - Math.abs(f.vx) * 2 - inhaleBrace * 24,
-    shoulderY + 18 - inhaleBrace * 10,
-    -65 - Math.sin(time * 3) * 10 - inhaleBrace * 34 + nazazoDrive * 16,
-    -62 + bodyDrop * 0.4 - inhaleBrace * 12,
-    -35 - inhaleBrace * 18 + nazazoDrive * 12,
+    -52 - Math.abs(f.vx) * 2 - inhaleBrace * 24 - freeArmSwing * 0.22,
+    shoulderY + 18 - inhaleBrace * 10 - weightShift * 0.18,
+    -65 - Math.sin(time * 3) * 10 - inhaleBrace * 34 + nazazoDrive * 16 - freeArmSwing * 0.48,
+    -62 + bodyDrop * 0.4 - inhaleBrace * 12 - weightShift * 0.30,
+    -35 - inhaleBrace * 18 + nazazoDrive * 12 - freeArmSwing * 0.20,
     -34 + bodyDrop * 0.5,
   );
   ctx.lineTo(-8, -72 + bodyDrop * 0.45);
@@ -134,11 +141,13 @@ export function drawSupernariz(
   ctx.restore();
 
   // Legs and boots follow root travel rather than a wall-time oscillator.
-  const backKneeX = lerp(-hipSpan, backFootX, 0.54) - 6;
-  const frontKneeX = lerp(hipSpan, frontFootX, 0.54) + 6;
-  roundedLine(ctx, -hipSpan, hipY, backKneeX, -30 + knee + backFootY * 0.34, 19 * body.legThickness, '#2f5fb2');
+  const rearHipX = -hipSpan - hipTwist + weightShift * 0.18;
+  const frontHipX = hipSpan - hipTwist + weightShift * 0.22;
+  const backKneeX = lerp(rearHipX, backFootX, 0.54) - 6;
+  const frontKneeX = lerp(frontHipX, frontFootX, 0.54) + 6;
+  roundedLine(ctx, rearHipX, hipY, backKneeX, -30 + knee + backFootY * 0.34, 19 * body.legThickness, '#2f5fb2');
   roundedLine(ctx, backKneeX, -30 + knee + backFootY * 0.34, backFootX, backFootY - 5, 15 * body.legThickness, '#376dc8');
-  roundedLine(ctx, hipSpan, hipY, frontKneeX, -29 + knee + frontFootY * 0.34, 19 * body.legThickness, '#2f5fb2');
+  roundedLine(ctx, frontHipX, hipY, frontKneeX, -29 + knee + frontFootY * 0.34, 19 * body.legThickness, '#2f5fb2');
   roundedLine(ctx, frontKneeX, -29 + knee + frontFootY * 0.34, frontFootX, frontFootY - 5, 15 * body.legThickness, '#376dc8');
   // Red boot shafts break up the long blue legs and strengthen the superhero silhouette.
   roundedLine(ctx, backFootX - 1, backFootY - 18, backFootX, backFootY - 5, 13, '#a62b34');
@@ -206,7 +215,8 @@ export function drawSupernariz(
     + lowNose * 22
     - inhaleBrace * 20
     + nazazoDrive * 46
-    + block * -2;
+    + block * -2
+    + freeArmSwing * 0.24;
   const frontHandY =
     shoulderY
     + 20
@@ -219,11 +229,19 @@ export function drawSupernariz(
   const shoulderSpan = 17 * body.shoulderWidth;
   roundedLine(ctx, shoulderSpan, shoulderY + 3, frontHandX, frontHandY, 13 * body.armThickness, '#2e65c3');
   ellipse(ctx, frontHandX + 2, frontHandY, 8, 8, '#a92d37');
-  roundedLine(ctx, -shoulderSpan, shoulderY + 6, -30 + block * 23, shoulderY + 26 - block * 30, 13 * body.armThickness, '#285aa9');
-  ellipse(ctx, -31 + block * 23, shoulderY + 26 - block * 30, 8, 8, '#a52b35');
+  const rearHandX = -30 + block * 23 - freeArmSwing * 0.42;
+  const rearHandY = shoulderY + 26 - block * 30 + Math.abs(freeArmSwing) * 0.08;
+  roundedLine(ctx, -shoulderSpan, shoulderY + 6, rearHandX, rearHandY, 13 * body.armThickness, '#285aa9');
+  ellipse(ctx, rearHandX - 1, rearHandY, 8, 8, '#a52b35');
 
   // Stylized head and hair.
-  const headX = 4 + nose * 8 - inhaleBrace * 8 + nazazoDrive * 8;
+  const headX =
+    4
+    + nose * 8
+    - inhaleBrace * 8
+    + nazazoDrive * 8
+    + chestTwist * 44
+    + weightShift * 0.18;
   const headY =
     -205
     + bodyDrop * 0.42

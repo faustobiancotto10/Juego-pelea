@@ -84,3 +84,13 @@ Use this section for QUESTION / REQUEST / ANSWER / DISCOVERY messages that affec
 ## Integration
 
 When A/B/C/D each leave a green exact-SHA handoff, Mario-A switches to V07-M3I and composes the integration branch. Germinator audits only the integrated candidate.
+
+
+## CLAIM — Mario-A
+
+- Type: REQUEST / REGISTRATION
+- Temporary label: Mario-A
+- Task: `V07-M3A`
+- Branch: `round/r005-mario-squad-architect`
+- Intended lock scope: shared character-structure/anatomy/silhouette primitives and visual-quality harnesses.
+- State: WORKING — lane claimed under the unlabeled activation protocol; concrete live locks will be written before material file edits.

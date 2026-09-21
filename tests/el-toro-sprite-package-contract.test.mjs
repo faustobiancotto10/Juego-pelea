@@ -119,7 +119,9 @@ test('El Toro package maps resolver states and kit roles without hardcoding unkn
   });
   assert.deepEqual(pkg.resolverMap.moveRoleToSemantic, {
     standing: 'basic-attack',
+    chain: 'topete',
     low: 'low-attack',
+    air: 'jump',
     closeSpecial: 'topete',
     rangedSpecial: 'shawarmazo',
     ultimate: 'super-eructo',

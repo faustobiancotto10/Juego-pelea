@@ -9,9 +9,12 @@ import {
 import { getCharacterStructure } from './CharacterStructure.js';
 import {
   drawCargoPocket,
+  drawClothFold,
   drawFabricGrain,
+  drawFacePlanes,
   drawHairStrands,
   drawScarfFringe,
+  drawShadedEllipse,
   drawStitchLine,
 } from './ReferenceDetailPrimitives.js';
 import { GROUND_Y, clamp01, ellipse, lerp, pulse, roundedLine } from './drawUtils.js';
@@ -233,7 +236,11 @@ export function drawElToro(
   // Oversized white shirt; text is drawn facing-readable below.
   ctx.save();
   ctx.translate(torsoX, 0);
-  ctx.fillStyle = '#f0efe8';
+  const shirtGradient = ctx.createLinearGradient(-62, torsoY - 50, 58, torsoY + 45);
+  shirtGradient.addColorStop(0, '#ffffff');
+  shirtGradient.addColorStop(0.46, '#f0efe8');
+  shirtGradient.addColorStop(1, '#c9c7c1');
+  ctx.fillStyle = shirtGradient;
   ctx.strokeStyle = '#2a2d31';
   ctx.lineWidth = 3;
   ctx.beginPath();
@@ -249,6 +256,8 @@ export function drawElToro(
   drawFabricGrain(ctx, torsoX, torsoY + 1, 98 * body.torsoWidth, 80 * body.torsoLength, '#9d978d', 0.10, 12);
   drawStitchLine(ctx, torsoX - 31, torsoY - 16, torsoX - 37, torsoY + 31, '#c7c3bb', 1, [5, 4], 0.45);
   drawStitchLine(ctx, torsoX + 31, torsoY - 16, torsoX + 38, torsoY + 31, '#c7c3bb', 1, [5, 4], 0.45);
+  drawClothFold(ctx, torsoX - 12, torsoY - 22, torsoX - 18, torsoY + 3, torsoX - 10, torsoY + 31, '#ffffff', '#9f9c96', 0.25);
+  drawClothFold(ctx, torsoX + 20, torsoY - 13, torsoX + 11, torsoY + 8, torsoX + 19, torsoY + 34, '#ffffff', '#aaa79f', 0.23);
 
   // Scotland scarf: blue/white saltire bands, fringe and two loose tails with secondary sway.
   const scarfSway = Math.sin(combatTimeSeconds * 5.2) * 4 + locomotion.actualTravel * 0.22;
@@ -309,7 +318,9 @@ export function drawElToro(
 
   const headX = anchors.head.x + torsoX * 0.14;
   const headY = -anchors.head.y + idle;
-  ellipse(ctx, headX, headY, 37 * body.headWidth, 40 * body.headHeight, '#c88a66', -0.02, '#57382c', 2.4);
+  drawShadedEllipse(ctx, headX, headY, 37 * body.headWidth, 40 * body.headHeight, '#c98b67', '#efb08b', '#8d5b47', -0.02, '#57382c', 2.4);
+  drawFacePlanes(ctx, headX, headY, body.headWidth, '#ffd0ae', '#7e493b');
+  ellipse(ctx, headX - 29 * body.headWidth, headY + 2, 5.5, 8.5, '#b97959', -0.1, '#664034', 1.2);
 
   // Reference mullet: heavy crown plus longer rear locks down the neck.
   ctx.save();
@@ -336,8 +347,20 @@ export function drawElToro(
     [headX - 31, headY + 2, headX - 27, headY + 31],
   ], '#8a6657', 0.28);
   ctx.restore();
-  roundedLine(ctx, headX + 4, headY - 7, headX + 19, headY - 8, 3, '#4a3027');
-  ellipse(ctx, headX + 16, headY - 1, 2.6, 2.2, '#0b0d10');
+  roundedLine(ctx, headX + 3, headY - 8, headX + 18, headY - 9, 2.6, '#4a3027');
+  ellipse(ctx, headX + 15, headY - 2, 2.4, 2.0, '#0b0d10');
+  ctx.save();
+  ctx.strokeStyle = '#754a3b';
+  ctx.lineWidth = 1.6;
+  ctx.beginPath();
+  ctx.moveTo(headX + 14, headY + 3);
+  ctx.quadraticCurveTo(headX + 22, headY + 7, headX + 20, headY + 13);
+  ctx.stroke();
+  ctx.beginPath();
+  ctx.moveTo(headX + 8, headY + 21);
+  ctx.quadraticCurveTo(headX + 16, headY + 24, headX + 23, headY + 20);
+  ctx.stroke();
+  ctx.restore();
   // Warm cheek/nose treatment from the master art.
   ctx.save();
   ctx.globalAlpha = 0.18;

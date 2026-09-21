@@ -112,7 +112,7 @@ Run the exact isolated preview on a physical phone and report whether the listed
 
 Owner: Mario / V07-M3  
 Rejected candidate: `65bbb4122be526b0b878c214137192c7243db3ab`  
-Status: M3 GREEN / G2 AUDIT REQUIRED
+Status: M3 REFERENCE-FIDELITY GREEN / G2 AUDIT REQUIRED
 
 Physical/user-facing evidence:
 - El Toro reads as a near-reskin of Juanchi rather than a distinct fighter;
@@ -136,12 +136,14 @@ Authorized in-contract repair:
 - free authoring toolchain bootstrap is present under `tools/character-pipeline-v2/`;
 - Germinator V07-G2 independently audits the repair before Gonza rebuilds the preview.
 
-M3 resolution evidence:
-- exact candidate: `e053e0b187acff3b4555ce8d537e9fd9ca616303`;
-- Repository verification #1171: full suite + build PASS;
-- Character Pipeline V2 run #15: 335/335 + build + visual captures + runtime raster guard PASS;
-- visual artifact `v07-m3-visual-evidence`, ID `10624062826`, includes neutral silhouettes, normal color, Juanchi-vs-El-Toro, action poses and 844×390 evidence;
+M3 resolution evidence (superseded by user-directed reference-fidelity pass):
+- latest exact candidate: `032b1bb28c5dd4421e5772cc40ab007f42e4d462`;
+- the user supplied authoritative identity/action references for El Toro, Juanchi, Supernariz and Camaleoni; Mario re-authored proportions, canonical clothing/props, material texture cues, facial/hair treatment and portraits against those references while preserving procedural Canvas2D runtime;
+- Character Pipeline V2 run #36 / `35567747782`: **336/336 PASS** + build + visual captures + runtime raster guard PASS;
+- visual artifact `v07-m3-visual-evidence`, ID `10625370497`, SHA-256 `cbf9628b612e04acfe23ad4dcfc9b988b81b9f5c49612d325be40fe360e437f3`;
+- artifact contains neutral silhouettes, normal color, Juanchi-vs-El-Toro, effects-light El Toro action poses and 844×390 phone-landscape evidence;
 - Mario handoff: `coordination/handoffs/V07-M3-mario.md`.
+- initial structural candidate `e053e0b187acff3b4555ce8d537e9fd9ca616303` is historical and must not be audited as the current candidate.
 
 Smallest current action:
 Activate Germinator V07-G2 for independent audit. Gonza remains blocked until G2 approves and a rebuilt preview is produced.

@@ -94,12 +94,14 @@ function computeToroPose(fighter: FighterSnapshot, locomotion: LocomotionPose): 
   };
 
   const airLift = locomotion.tuck * 25 + locomotion.descentBrace * 8;
+  // El Toro owns a visibly planted render stance even at neutral. This is
+  // presentation-only: simulation/world travel remains untouched.
   const frontFoot = {
-    x: locomotion.frontFoot.x + low * 48 + air * 34,
+    x: locomotion.frontFoot.x + 10 + low * 48 + air * 34,
     y: locomotion.frontFoot.y + airLift + air * 19,
   };
   const backFoot = {
-    x: locomotion.backFoot.x - low * 8 - air * 14,
+    x: locomotion.backFoot.x - 10 - low * 8 - air * 14,
     y: locomotion.backFoot.y + airLift + air * 10,
   };
 
@@ -202,25 +204,25 @@ export function drawElToro(
   ctx.save();
   ctx.rotate(-pose.lean);
   ctx.globalAlpha = 0.25 * (1 - Math.min(0.7, fighter.y / 260));
-  ellipse(ctx, 0, fighter.y, 56, 11, '#030407');
+  ellipse(ctx, 0, fighter.y, 66, 12, '#030407');
   ctx.restore();
 
   const hipTwist = locomotion.hipCounterRotation * 36;
   const chestTwist = locomotion.chestCounterRotation * 34;
-  const hipSpan = 16 * body.hipWidth * stance.width;
+  const hipSpan = 20 * body.hipWidth * stance.width;
   const frontHip: Point2 = { x: hipSpan + hipTwist, y: 79 - pose.drop };
   const backHip: Point2 = { x: -hipSpan - hipTwist, y: 79 - pose.drop };
   const frontKnee = solveTwoBoneLeg(frontHip, pose.frontFoot, 39 * body.legLength, 42 * body.legLength, 1);
   const backKnee = solveTwoBoneLeg(backHip, pose.backFoot, 39 * body.legLength, 42 * body.legLength, -1);
 
   // Loose black cargo pants: broad thighs and oversized pockets sell the heavy silhouette.
-  roundedLine(ctx, frontHip.x, -frontHip.y, frontKnee.x, -frontKnee.y, 27 * body.legThickness, '#16191d');
-  roundedLine(ctx, frontKnee.x, -frontKnee.y, pose.frontFoot.x, -pose.frontFoot.y, 22 * body.legThickness, '#101317');
-  roundedLine(ctx, backHip.x, -backHip.y, backKnee.x, -backKnee.y, 27 * body.legThickness, '#121519');
-  roundedLine(ctx, backKnee.x, -backKnee.y, pose.backFoot.x, -pose.backFoot.y, 22 * body.legThickness, '#0c0f13');
+  roundedLine(ctx, frontHip.x, -frontHip.y, frontKnee.x, -frontKnee.y, 32 * body.legThickness, '#16191d');
+  roundedLine(ctx, frontKnee.x, -frontKnee.y, pose.frontFoot.x, -pose.frontFoot.y, 25 * body.legThickness, '#101317');
+  roundedLine(ctx, backHip.x, -backHip.y, backKnee.x, -backKnee.y, 32 * body.legThickness, '#121519');
+  roundedLine(ctx, backKnee.x, -backKnee.y, pose.backFoot.x, -pose.backFoot.y, 25 * body.legThickness, '#0c0f13');
   // Reference cargo silhouette: oversized flap pockets, zips and stitched seams.
-  drawCargoPocket(ctx, frontKnee.x - 4, -frontKnee.y - 5, 24, 19, '#24282e', '#090b0e', '#d5a64d');
-  drawCargoPocket(ctx, backKnee.x + 4, -backKnee.y - 5, 24, 19, '#20242a', '#090b0e', '#c99a43');
+  drawCargoPocket(ctx, frontKnee.x - 5, -frontKnee.y - 5, 28, 21, '#24282e', '#090b0e', '#d5a64d');
+  drawCargoPocket(ctx, backKnee.x + 5, -backKnee.y - 5, 28, 21, '#20242a', '#090b0e', '#c99a43');
   drawStitchLine(ctx, frontHip.x - 3, -frontHip.y + 2, frontKnee.x - 1, -frontKnee.y + 7, '#5c6269', 0.9, [3, 4], 0.34);
   drawStitchLine(ctx, backHip.x + 3, -backHip.y + 2, backKnee.x + 1, -backKnee.y + 7, '#555b62', 0.9, [3, 4], 0.32);
   roundedLine(ctx, frontKnee.x - 12, -frontKnee.y + 13, frontKnee.x + 12, -frontKnee.y + 13, 3.2, '#2c3137');
@@ -230,13 +232,13 @@ export function drawElToro(
 
   // Black/white sneakers with blue trim. Layer sole, upper, heel and lace panel so
   // the footwear reads as a real character-specific sneaker instead of a white oval.
-  roundedLine(ctx, pose.frontFoot.x - 13, -pose.frontFoot.y + 4, pose.frontFoot.x + 23, -pose.frontFoot.y + 4, 6, '#090b0d');
-  ellipse(ctx, pose.frontFoot.x + 6, -pose.frontFoot.y + 0.5, 21, 8, '#f2f3f4', 0.03, '#090b0d', 2);
+  roundedLine(ctx, pose.frontFoot.x - 16, -pose.frontFoot.y + 5, pose.frontFoot.x + 27, -pose.frontFoot.y + 5, 7, '#090b0d');
+  ellipse(ctx, pose.frontFoot.x + 6, -pose.frontFoot.y + 0.5, 24, 9, '#f2f3f4', 0.03, '#090b0d', 2);
   ellipse(ctx, pose.frontFoot.x - 8, -pose.frontFoot.y - 1, 7, 6, '#1a1d22', -0.08);
   roundedLine(ctx, pose.frontFoot.x - 5, -pose.frontFoot.y - 3, pose.frontFoot.x + 12, -pose.frontFoot.y - 1, 3.1, '#377bc9');
   roundedLine(ctx, pose.frontFoot.x + 1, -pose.frontFoot.y - 4, pose.frontFoot.x + 9, -pose.frontFoot.y - 3, 1.2, '#dce8f7');
-  roundedLine(ctx, pose.backFoot.x - 13, -pose.backFoot.y + 4, pose.backFoot.x + 23, -pose.backFoot.y + 4, 6, '#090b0d');
-  ellipse(ctx, pose.backFoot.x + 6, -pose.backFoot.y + 0.5, 21, 8, '#eceeef', 0.03, '#090b0d', 2);
+  roundedLine(ctx, pose.backFoot.x - 16, -pose.backFoot.y + 5, pose.backFoot.x + 27, -pose.backFoot.y + 5, 7, '#090b0d');
+  ellipse(ctx, pose.backFoot.x + 6, -pose.backFoot.y + 0.5, 24, 9, '#eceeef', 0.03, '#090b0d', 2);
   ellipse(ctx, pose.backFoot.x - 8, -pose.backFoot.y - 1, 7, 6, '#171a1f', -0.08);
   roundedLine(ctx, pose.backFoot.x - 5, -pose.backFoot.y - 3, pose.backFoot.x + 12, -pose.backFoot.y - 1, 3.1, '#2f69ad');
   roundedLine(ctx, pose.backFoot.x + 1, -pose.backFoot.y - 4, pose.backFoot.x + 9, -pose.backFoot.y - 3, 1.2, '#dce8f7');
@@ -255,18 +257,18 @@ export function drawElToro(
   ctx.strokeStyle = '#2a2d31';
   ctx.lineWidth = 3;
   ctx.beginPath();
-  ctx.moveTo(-42 * body.shoulderWidth, torsoY - 35 * body.torsoLength);
-  ctx.quadraticCurveTo(-56 * body.torsoWidth, torsoY - 24 * body.torsoLength, -58 * body.torsoWidth, torsoY + 5 * body.torsoLength);
-  ctx.quadraticCurveTo(-57 * body.torsoWidth, torsoY + 30 * body.torsoLength, -47 * body.torsoWidth, torsoY + 42 * body.torsoLength);
-  ctx.quadraticCurveTo(0, torsoY + 51 * body.torsoLength, 49 * body.torsoWidth, torsoY + 41 * body.torsoLength);
-  ctx.quadraticCurveTo(58 * body.torsoWidth, torsoY + 25 * body.torsoLength, 57 * body.torsoWidth, torsoY - 6 * body.torsoLength);
-  ctx.quadraticCurveTo(55 * body.torsoWidth, torsoY - 25 * body.torsoLength, 41 * body.shoulderWidth, torsoY - 36 * body.torsoLength);
-  ctx.quadraticCurveTo(0, torsoY - 50 * body.torsoLength, -42 * body.shoulderWidth, torsoY - 35 * body.torsoLength);
+  ctx.moveTo(-49 * body.shoulderWidth, torsoY - 36 * body.torsoLength);
+  ctx.quadraticCurveTo(-65 * body.torsoWidth, torsoY - 27 * body.torsoLength, -69 * body.torsoWidth, torsoY + 2 * body.torsoLength);
+  ctx.quadraticCurveTo(-70 * body.torsoWidth, torsoY + 31 * body.torsoLength, -59 * body.torsoWidth, torsoY + 47 * body.torsoLength);
+  ctx.quadraticCurveTo(0, torsoY + 58 * body.torsoLength, 61 * body.torsoWidth, torsoY + 46 * body.torsoLength);
+  ctx.quadraticCurveTo(70 * body.torsoWidth, torsoY + 28 * body.torsoLength, 68 * body.torsoWidth, torsoY - 4 * body.torsoLength);
+  ctx.quadraticCurveTo(65 * body.torsoWidth, torsoY - 27 * body.torsoLength, 48 * body.shoulderWidth, torsoY - 37 * body.torsoLength);
+  ctx.quadraticCurveTo(0, torsoY - 53 * body.torsoLength, -49 * body.shoulderWidth, torsoY - 36 * body.torsoLength);
   ctx.closePath();
   ctx.fill();
   ctx.stroke();
   ctx.restore();
-  drawFabricGrain(ctx, torsoX, torsoY + 1, 98 * body.torsoWidth, 80 * body.torsoLength, '#9d978d', 0.10, 12);
+  drawFabricGrain(ctx, torsoX, torsoY + 4, 116 * body.torsoWidth, 91 * body.torsoLength, '#9d978d', 0.10, 14);
   drawStitchLine(ctx, torsoX - 31, torsoY - 16, torsoX - 37, torsoY + 31, '#c7c3bb', 1, [5, 4], 0.45);
   drawStitchLine(ctx, torsoX + 31, torsoY - 16, torsoX + 38, torsoY + 31, '#c7c3bb', 1, [5, 4], 0.45);
   drawClothFold(ctx, torsoX - 12, torsoY - 22, torsoX - 18, torsoY + 3, torsoX - 10, torsoY + 31, '#ffffff', '#9f9c96', 0.25);
@@ -277,31 +279,31 @@ export function drawElToro(
   ctx.strokeStyle = '#8f8c86';
   ctx.lineWidth = 1.6;
   ctx.beginPath();
-  ctx.moveTo(torsoX - 42 * body.torsoWidth, torsoY + 37 * body.torsoLength);
-  ctx.quadraticCurveTo(torsoX, torsoY + 47 * body.torsoLength, torsoX + 44 * body.torsoWidth, torsoY + 36 * body.torsoLength);
+  ctx.moveTo(torsoX - 54 * body.torsoWidth, torsoY + 43 * body.torsoLength);
+  ctx.quadraticCurveTo(torsoX, torsoY + 55 * body.torsoLength, torsoX + 56 * body.torsoWidth, torsoY + 42 * body.torsoLength);
   ctx.stroke();
   ctx.restore();
 
   // Thick neck + trapezius bridge: the old head floated over the shirt at phone scale.
-  drawShadedEllipse(ctx, torsoX + 1, torsoY - 44, 18 * body.neckWidth, 19, '#bb7c5b', '#e3a17d', '#81513f', 0, '#5b382e', 1.4);
-  roundedLine(ctx, torsoX - 24, torsoY - 34, torsoX + 25, torsoY - 34, 8, '#d8d7d1');
+  drawShadedEllipse(ctx, torsoX + 1, torsoY - 45, 21 * body.neckWidth, 21, '#bb7c5b', '#e3a17d', '#81513f', 0, '#5b382e', 1.4);
+  roundedLine(ctx, torsoX - 31, torsoY - 34, torsoX + 32, torsoY - 34, 10, '#d8d7d1');
 
   // Scotland scarf: blue/white saltire bands, fringe and two loose tails with secondary sway.
   const scarfSway = Math.sin(combatTimeSeconds * 5.2) * 4 + locomotion.actualTravel * 0.22;
   ctx.save();
   ctx.translate(torsoX, 0);
-  roundedLine(ctx, -27, torsoY - 36, 30, torsoY - 34, 12, '#2d67ad');
-  roundedLine(ctx, -23, torsoY - 36, 27, torsoY - 34, 3.2, '#f5f7f8');
-  ellipse(ctx, -12, torsoY - 29, 8.5, 7.5, '#275b99', -0.08, '#173759', 1.2);
-  roundedLine(ctx, -15, torsoY - 25, -33 - scarfSway, torsoY + 30, 11, '#2d67ad');
-  roundedLine(ctx, -14, torsoY - 20, -31 - scarfSway, torsoY + 24, 2.8, '#f5f7f8');
-  roundedLine(ctx, -2, torsoY - 25, 10 + scarfSway * 0.45, torsoY + 20, 9, '#24588f');
+  roundedLine(ctx, -32, torsoY - 38, 35, torsoY - 35, 14, '#2d67ad');
+  roundedLine(ctx, -27, torsoY - 38, 31, torsoY - 35, 3.6, '#f5f7f8');
+  ellipse(ctx, -13, torsoY - 29, 10, 8.5, '#275b99', -0.08, '#173759', 1.2);
+  roundedLine(ctx, -16, torsoY - 25, -40 - scarfSway, torsoY + 36, 13, '#2d67ad');
+  roundedLine(ctx, -15, torsoY - 20, -37 - scarfSway, torsoY + 29, 3.1, '#f5f7f8');
+  roundedLine(ctx, -1, torsoY - 25, 14 + scarfSway * 0.45, torsoY + 25, 11, '#24588f');
   roundedLine(ctx, 0, torsoY - 20, 9 + scarfSway * 0.45, torsoY + 14, 2.4, '#f5f7f8');
   // Small crossing white strokes evoke the Saltire at gameplay scale.
   roundedLine(ctx, -28, torsoY + 2, -18, torsoY + 14, 2.3, '#f5f7f8');
   roundedLine(ctx, -19, torsoY + 2, -29, torsoY + 14, 2.3, '#f5f7f8');
-  drawScarfFringe(ctx, -38 - scarfSway, torsoY + 29, -1, '#f5f7f8');
-  drawScarfFringe(ctx, 8 + scarfSway * 0.45, torsoY + 20, 1, '#f5f7f8');
+  drawScarfFringe(ctx, -45 - scarfSway, torsoY + 36, -1, '#f5f7f8');
+  drawScarfFringe(ctx, 14 + scarfSway * 0.45, torsoY + 25, 1, '#f5f7f8');
   ctx.restore();
 
   ctx.save();
@@ -329,17 +331,17 @@ export function drawElToro(
 
   const shoulderY = torsoY - 27;
   const frontElbow = {
-    x: lerp(torsoX + 30 * body.shoulderWidth, pose.frontHand.x, 0.52),
+    x: lerp(torsoX + 36 * body.shoulderWidth, pose.frontHand.x, 0.52),
     y: lerp(126 - pose.drop * 0.45, pose.frontHand.y, 0.52),
   };
   const backElbow = {
-    x: lerp(torsoX - 30 * body.shoulderWidth, pose.backHand.x, 0.52),
+    x: lerp(torsoX - 36 * body.shoulderWidth, pose.backHand.x, 0.52),
     y: lerp(124 - pose.drop * 0.45, pose.backHand.y, 0.52),
   };
-  roundedLine(ctx, torsoX + 32 * body.shoulderWidth, shoulderY, frontElbow.x, -frontElbow.y, 20 * body.armThickness, '#eeeDE7');
-  roundedLine(ctx, frontElbow.x, -frontElbow.y, pose.frontHand.x, -pose.frontHand.y, 15 * body.forearmThickness, '#bf805f');
-  roundedLine(ctx, torsoX - 32 * body.shoulderWidth, shoulderY + 2, backElbow.x, -backElbow.y, 20 * body.armThickness, '#e7e6df');
-  roundedLine(ctx, backElbow.x, -backElbow.y, pose.backHand.x, -pose.backHand.y, 15 * body.forearmThickness, '#b97858');
+  roundedLine(ctx, torsoX + 38 * body.shoulderWidth, shoulderY, frontElbow.x, -frontElbow.y, 23 * body.armThickness, '#eeeDE7');
+  roundedLine(ctx, frontElbow.x, -frontElbow.y, pose.frontHand.x, -pose.frontHand.y, 18 * body.forearmThickness, '#bf805f');
+  roundedLine(ctx, torsoX - 38 * body.shoulderWidth, shoulderY + 2, backElbow.x, -backElbow.y, 23 * body.armThickness, '#e7e6df');
+  roundedLine(ctx, backElbow.x, -backElbow.y, pose.backHand.x, -pose.backHand.y, 18 * body.forearmThickness, '#b97858');
 
   // Blue hand/wrist wraps with visible layered banding.
   roundedLine(ctx, pose.frontHand.x - 7, -pose.frontHand.y, pose.frontHand.x + 4, -pose.frontHand.y, 11, '#2f74c7');
@@ -352,7 +354,7 @@ export function drawElToro(
 
   const headX = anchors.head.x + torsoX * 0.14;
   const headY = -anchors.head.y + idle;
-  drawShadedEllipse(ctx, headX, headY, 37 * body.headWidth, 40 * body.headHeight, '#c98b67', '#efb08b', '#8d5b47', -0.02, '#57382c', 2.4);
+  drawShadedEllipse(ctx, headX - 2, headY + 1, 41 * body.headWidth, 42 * body.headHeight, '#c98b67', '#efb08b', '#8d5b47', -0.02, '#57382c', 2.6);
   drawFacePlanes(ctx, headX, headY, body.headWidth, '#ffd0ae', '#7e493b');
   ellipse(ctx, headX - 29 * body.headWidth, headY + 2, 5.5, 8.5, '#b97959', -0.1, '#664034', 1.2);
 
@@ -360,14 +362,14 @@ export function drawElToro(
   ctx.save();
   ctx.fillStyle = '#2b211d';
   ctx.beginPath();
-  ctx.moveTo(headX - 31, headY - 9);
-  ctx.quadraticCurveTo(headX - 43, headY + 17, headX - 29, headY + 42);
-  ctx.quadraticCurveTo(headX - 17, headY + 34, headX - 13, headY + 8);
+  ctx.moveTo(headX - 35, headY - 12);
+  ctx.quadraticCurveTo(headX - 50, headY + 18, headX - 34, headY + 52);
+  ctx.quadraticCurveTo(headX - 18, headY + 43, headX - 12, headY + 8);
   ctx.closePath();
   ctx.fill();
   const locks: readonly [number, number, number][] = [
-    [-29,-31,10],[-17,-42,11],[-3,-46,12],[12,-44,12],[27,-35,11],
-    [-32,-20,9],[-18,-27,10],[-2,-31,11],[14,-29,10],[31,-22,9],
+    [-34,-34,12],[-20,-46,13],[-4,-51,14],[13,-48,14],[30,-38,12],
+    [-38,-21,11],[-21,-30,12],[-3,-34,13],[15,-32,12],[33,-23,10],
   ];
   for (const [dx,dy,r] of locks) {
     ctx.beginPath();
@@ -378,8 +380,8 @@ export function drawElToro(
     [headX - 25, headY - 35, headX - 17, headY - 15],
     [headX - 8, headY - 43, headX - 3, headY - 20],
     [headX + 10, headY - 41, headX + 17, headY - 18],
-    [headX - 31, headY + 2, headX - 27, headY + 31],
-    [headX - 24, headY + 4, headX - 20, headY + 39],
+    [headX - 36, headY + 1, headX - 31, headY + 39],
+    [headX - 28, headY + 5, headX - 23, headY + 49],
   ], '#8a6657', 0.30);
   ctx.restore();
   // Stronger jaw/sideburn contour keeps the face broad without reading as a circle.

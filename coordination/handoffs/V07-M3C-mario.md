@@ -16,45 +16,25 @@ Only Mario-C-owned fighter files changed from the squad base:
 - `src/game/render/ChameleonRig.ts`
 - `src/game/render/SupernarizRig.ts`
 
-`compare_commits(032b1bb… → 3131bbef…)` remains limited to these two Mario-C-owned files. The M3I-requested structural rework and prior D follow-up never leave C ownership.
-
-## M3I structural rework
-
-The first integrated squad candidate was rejected as too incremental. C was reopened specifically for large silhouette/reference changes rather than additional micro-detail.
-
-### Camaleoni structural delta
-
-- replaces the short/elliptical neck read with a visibly long procedural S-curved scaled neck;
-- raises and enlarges the human head mass;
-- extends and thickens the neutral tail substantially and enlarges the terminal spiral;
-- enlarges the dorsal crest;
-- narrows/lengthens the reptile torso so the head-neck-tail relationship dominates the silhouette.
-
-### Supernariz structural delta
-
-- increases the neutral nose projection from 52 to 76 render units and enlarges the bulb;
-- raises/enlarges the head;
-- expands the cape into a much larger rear wedge;
-- adds a broad-shoulder V-taper shell over the narrow superhero waist;
-- widens the arm/shoulder silhouette while preserving the upright long-legged stance.
+`compare_commits(032b1bb… → 3131bbef…)` remains limited to the two Mario-C-owned rigs. The refreshed structural pass adds three commits on top of the previous C handoff: two material rig changes plus one comment-only compatibility fix for the canonical `Long scaled neck` test marker.
 
 ## Behavior / visual contract
 
 ### Camaleoni
 
-- preserves the oversized human head, long scaled neck, small claw hands and reptile body;
-- strengthens the neutral non-human silhouette with a dorsal crest;
-- adds a persistent procedural spiral-tail termination that partially uncoils during tail sweep presentation;
-- adds segmented ventral plating over the existing scale field;
-- remains fully procedural Canvas2D and snapshot-driven.
+- pushes the oversized human head significantly higher and larger over the reptile body;
+- replaces the short neck mass with a visibly long S-curved scaled neck while preserving the canonical `Long scaled neck` contract marker;
+- lengthens and thickens the neutral tail and enlarges the persistent procedural spiral termination;
+- strengthens the dorsal crest and narrows the torso so the head/neck/tail dominate the silhouette rather than surface texture;
+- preserves claws, scale material, secondary-motion wiring and fully procedural Canvas2D rendering.
 
 ### Supernariz
 
-- makes the canonical nose longer and more bulbous at neutral while preserving move-driven articulation;
-- adds cape inner fold, heavy hem and shoulder clasp for stronger cape volume;
-- adds red boot shafts/soles and red suit side panels/shoulder yoke so the outfit reads as layered construction rather than a flat blue body;
-- enriches belt/sausage props with an additional sausage and pouch;
-- remains fully procedural Canvas2D and snapshot-driven.
+- pushes the neutral bulbous nose from a modest facial accent into the dominant profile silhouette while preserving move-driven articulation;
+- enlarges the cape into a materially broader wedge behind the body;
+- raises/separates the head and increases head mass;
+- adds a stronger superhero V-taper with broader shoulders, narrower torso and wider arm placement;
+- retains the layered blue/red suit, boots, chest nose emblem, belt/sausage props, cape folds and fully procedural Canvas2D rendering.
 
 No simulation timing, hitboxes, damage, stun, move legality, balance, shared anatomy architecture, locomotion system, attack timing system or shared effects system changed.
 
@@ -73,6 +53,7 @@ Latest repository verification:
 - coordination contract: PASS;
 - full test suite: PASS;
 - build: PASS.
+- note: prior run #1309 failed only because the canonical test searched for the literal text `Long scaled neck`; the exact structural neck code was retained and the marker restored comment-only at the final SHA.
 
 Latest Character Pipeline V2:
 - run #53 / `35573509521`: SUCCESS;
@@ -103,7 +84,7 @@ The requested Game Development Studio skill was consulted, but the local `game-d
 - Fighter-specific secondary motion now consumes the shared locomotion channels requested by Mario-D; D remains owner of the shared locomotion/action system itself.
 - Shared structure/gate interfaces remain Mario-A ownership.
 - Human artistic acceptance of the integrated four-lane result still belongs after V07-M3I; pixel-delta measurements and automated raster evidence do not substitute for that acceptance.
-- Draft PR #40 exists only to trigger CI and must not be used as the integration vehicle because its diff against current main includes historical baseline commits.
+- Draft PR #40 exists only to trigger CI and must not be used as the integration vehicle because its diff against current main includes historical baseline commits; it is closed without merge after validation.
 - Character Pipeline V2's standard screenshots instantiate neutral locomotion channels, so run #48 proves no static/raster regression but is not frame-by-frame proof of the new secondary motion. The code path and full tests/build are green; dynamic gait quality remains an integration/human-review concern.
 
 ## Unresolved questions
@@ -112,4 +93,4 @@ None blocking this lane.
 
 ## Downstream eligibility
 
-V07-M3C is GREEN / HANDOFF_READY. Mario-A V07-M3I may consume exact SHA `3131bbef6a517785722d48a255e2d8a0daf10e7b` after the other required A/B/D lane handoffs are green.
+V07-M3C is GREEN / HANDOFF_READY. Mario-A V07-M3I may consume refreshed exact SHA `3131bbef6a517785722d48a255e2d8a0daf10e7b`. Mario-B and Mario-D are also HANDOFF_READY, so M3I may now recompose the stronger B+C inputs with A+D.

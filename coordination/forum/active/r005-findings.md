@@ -13,7 +13,7 @@ For each future finding record:
 6. whether an in-contract repair exists;
 7. smallest user decision needed if not.
 
-## DECISION_REQUEST — V07-B1 portrait ownership/dependency contradiction
+## RESOLVED — V07-B1 portrait ownership/dependency contradiction
 
 Owner: Brancaforte  
 Detected against B1 candidate: `b851ae8a2119020100879a78dedb645397dcda3b`
@@ -32,6 +32,8 @@ Affected dependency: Gonza V07-Z0 must not integrate B1 candidate `b851ae8a...` 
 In-contract repair available now: remove Brancaforte-authored fighter art, retain a keyed portrait mount/fallback surface and keep difficulty flow green. Final portrait wiring still needs Mario M2 output or an explicit cross-lane interface.
 
 Smallest decision: treat Mario M2 portrait renderer as the final input B1 consumes before B1 returns GREEN, or have Neureon amend the dependency/interface contract.
+
+Resolution: Mario V07-M2 is GREEN at exact SHA `a47326093ae004c602e00112ac2ed2226cf738c8` (run #1113, 314/314 + build). The stable `PortraitRenderer` seam is published in `r005-contract.md`. Brancaforte remains owner of card DOM/layout and is now eligible to wire its existing canvas hosts without inventing fighter art. No user/Neureon scope decision is required.
 
 
 ## ALERT — Mario same-branch collision (resolved locally)

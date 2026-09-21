@@ -17,6 +17,7 @@ interface JuanchiActionPose {
   backFoot: Point2;
   shoulderDrive: number;
   rage: number;
+  rageAura: number;
   rush: number;
   finisher: number;
   rub: number;
@@ -49,6 +50,17 @@ function frictionFactors(frame: number): { rub: number; load: number; release: n
   return { rub: 0, load: 0, release: 0 };
 }
 
+export function getJuanchiRageAuraIntensity(
+  phase: FighterSnapshot['ultimatePhase'],
+  frame: number,
+): number {
+  if (phase !== 'sequence' || frame <= 4 || frame >= 40) return 0;
+  if (frame <= 11) return clamp01((frame - 4) / 7);
+  if (frame <= 23) return 1;
+  if (frame <= 33) return lerp(1, 0.82, (frame - 23) / 10);
+  return 0.82 * clamp01(1 - (frame - 33) / 7);
+}
+
 function ultimateFactors(fighter: FighterSnapshot): {
   retrieve: number;
   rage: number;
@@ -56,16 +68,17 @@ function ultimateFactors(fighter: FighterSnapshot): {
   barrageA: number;
   barrageB: number;
   finisher: number;
+  aura: number;
 } {
   if (fighter.ultimatePhase === 'startup') {
     const retrieve = clamp01(fighter.ultimatePhaseFrame / 12);
-    return { retrieve, rage: 0, rush: 0, barrageA: 0, barrageB: 0, finisher: 0 };
+    return { retrieve, rage: 0, rush: 0, barrageA: 0, barrageB: 0, finisher: 0, aura: 0 };
   }
   if (fighter.ultimatePhase === 'capture') {
-    return { retrieve: 1, rage: 0, rush: 0, barrageA: 0, barrageB: 0, finisher: 0 };
+    return { retrieve: 1, rage: 0, rush: 0, barrageA: 0, barrageB: 0, finisher: 0, aura: 0 };
   }
   if (fighter.ultimatePhase !== 'sequence') {
-    return { retrieve: 0, rage: 0, rush: 0, barrageA: 0, barrageB: 0, finisher: 0 };
+    return { retrieve: 0, rage: 0, rush: 0, barrageA: 0, barrageB: 0, finisher: 0, aura: 0 };
   }
 
   const frame = fighter.ultimatePhaseFrame;
@@ -76,7 +89,8 @@ function ultimateFactors(fighter: FighterSnapshot): {
   const barrageA = Math.max(pulse(frame, 22, 24, 26), pulse(frame, 28, 30, 32));
   const barrageB = Math.max(pulse(frame, 25, 27, 29), pulse(frame, 31, 33, 35));
   const finisher = frame >= 34 ? pulse(frame, 33, 40, 43) : 0;
-  return { retrieve: 0, rage, rush, barrageA, barrageB, finisher };
+  const aura = getJuanchiRageAuraIntensity(fighter.ultimatePhase, frame);
+  return { retrieve: 0, rage, rush, barrageA, barrageB, finisher, aura };
 }
 
 function withAirLegPose(
@@ -228,6 +242,7 @@ function computeActionPose(fighter: FighterSnapshot, locomotion: LocomotionPose)
     backFoot,
     shoulderDrive: shoulder,
     rage: ultimate.rage,
+    rageAura: ultimate.aura,
     rush: ultimate.rush,
     finisher: ultimate.finisher,
     rub: friction.rub,
@@ -376,7 +391,7 @@ export function drawJuanchi(
   ctx.restore();
 
   drawJuanchiRageAura(ctx,
-    action.rage,
+    action.rageAura,
     action.rush,
     action.finisher,
     fighter.ultimatePhaseFrame,

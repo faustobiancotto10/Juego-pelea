@@ -1,7 +1,5 @@
 # Active Locks
 
-| Path | Owner | Task | Reason |
-| --- | --- | --- | --- |
-| `tests/v07-g1-adversarial.test.mjs` | Germinator | V07-G1 | Independent adversarial QA probes only; no production edits. |
+No active file locks.
 
-Ricardo V07-R0→R3 is green at exact candidate `94ee24898855f55787e8e077c64f259e2d7a4972`. Germinator V07-G1 is actively auditing that exact candidate.
+V07-G1 is VERIFIED. Germinator released `tests/v07-g1-adversarial.test.mjs` after QA evidence SHA `3959c52969811f9d6bf6b2261c2680cfc374cb3d` passed repository verification run #1041.

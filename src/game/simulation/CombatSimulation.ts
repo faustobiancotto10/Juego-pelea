@@ -2343,7 +2343,7 @@ export class CombatSimulation {
         source: 'ultimate',
         finisher: defender.health <= 0,
         majorImpact: contact.finalBeat,
-        moveId: attacker.moveId ?? undefined,
+        ...(attacker.moveId !== null ? { moveId: attacker.moveId } : {}),
       });
     }
   }

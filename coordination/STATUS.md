@@ -10,7 +10,7 @@ Canonical continuation pulse: `.`
 | Neureon | Lead / Coordinator | V07-SPR-N0 | VERIFIED | Intake, contract and dependency graph established; remain coordinator. |
 | Ricardo | Gameplay / runtime engineer | V07-SPR-R1 | READY | Work on `round/r005-sprite-ricardo-runtime` from exact SHA `e3d29807...`; implement presentation-only sprite backend without changing combat truth. |
 | Mario | Character / Rendering Engineer | V07-SPR-MA + V07-SPR-MB | READY | Run two isolated sprite-pilot lanes and converge through one Mario integration point. |
-| ↳ Mario-A | Sprite source / pipeline lead | V07-SPR-MA | READY | Work on `round/r005-sprite-mario-a-source-import` from exact SHA `e3d29807...`; re-verify, extract and normalize. |
+| ↳ Mario-A | Sprite source / pipeline lead | V07-SPR-MA | WORKING | Claimed source/pipeline lane on `round/r005-sprite-mario-a-source-import`; re-verifying hashes, alpha/grid/extraction and normalized preview contract. |
 | ↳ Mario-B | El Toro sprite package | V07-SPR-MB | READY | Work on `round/r005-sprite-mario-b-package` from exact SHA `e3d29807...`; build right-facing package while LEFT-facing remains a shipping blocker. |
 | Brancaforte | UI / Input / UX | standby | OFF_ROUND | Activate only if a real loading/menu/HUD/input contract changes. |
 | Germinator | Independent QA | V07-SPR-G1 | WAITING_DEPENDENCY | Wait for one integrated El Toro sprite-pilot candidate. |

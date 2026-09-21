@@ -1,49 +1,68 @@
 # Current Milestone
 
 **Official published version:** V0.6  
-**Product merge:** `60f30d4a100f3d853e2408e3eee7bbde4e2170fe`  
-**GitHub Pages publish:** `93d2fdd6f4b764a49fa70ad1ff6ac1f348fb85cc`  
-**Public standalone blob:** `bda2d2a16a0cd640f654b3b9c7aef148b7213f38`  
-**Live round:** none / IDLE
+**Active development target:** V0.7  
+**Live round:** `R005-V07-GAMEPLAY-PRESENTATION-EXPANSION`  
+**Execution:** AUTO_CHAIN
 
-Public build:
-https://faustobiancotto10.github.io/Juego-pelea/
-
-## V0.6 closure
-
-R004 is closed:
+Official V0.6 release evidence remains archived at:
 - `coordination/archive/R004-V06-CONTENT-EXPANSION.md`
 
-V0.6 delivered:
-- Juanchi;
-- Rugby Boomerang / Fricción / Police Cap Rage;
-- Universal Ultimate Clash;
-- content/presentation package architecture;
-- physical animation pass;
-- Cancha 56;
-- fighting-game front-end flow;
-- final deterministic integration and release verification.
+## R005 frozen base
 
-## Post-release findings
+`378a991d55bed03e6237a03fdf6dfe96653fae72`
 
-The user's published-build playtest is preserved at:
-- `docs/feedback/2026-09-20-v06-post-release-playtest.md`
+Branches:
+- `round/r005-ricardo`
+- `round/r005-germinator`
+- `round/r005-mario`
+- `round/r005-brancaforte`
+- `round/r005-integration`
 
-Primary next-version concerns:
-- Lengua still too dominant/spammable;
-- CPU too easy; explicit difficulties requested;
-- Juanchi walk still looks wrong;
-- attack animations/effects do not reach character-design quality; Juanchi red aura is notably missing;
-- new fighter requested: El Toro.
+## V0.7 scope
 
-El Toro intake:
+V0.7 directly addresses post-release V0.6 human feedback:
+
+- Camaleoni Lengua remains too dominant/spammable;
+- CPU needs explicit fair difficulty levels;
+- Juanchi locomotion needs visual repair;
+- attack animation/effects need stronger game-feel;
+- Juanchi needs a genuine red rage aura;
+- El Toro becomes fighter four;
+- every fighter card receives a procedural in-game portrait/icon.
+
+CPU levels:
+- FÁCIL
+- NORMAL (default)
+- DIFÍCIL
+
+El Toro:
+- Topete
+- Shawarmazo
+- Super Eructo
+
+No new stage is planned for V0.7.
+
+## Authoritative design
+
+- `docs/superpowers/specs/2026-09-20-v07-post-v06-master-audit.md`
+- `docs/superpowers/specs/2026-09-20-v07-lengua-balance-contract.md`
+- `docs/superpowers/specs/2026-09-20-v07-cpu-difficulty-contract.md`
+- `docs/superpowers/specs/2026-09-20-v07-animation-effects-quality-contract.md`
+- `docs/superpowers/specs/2026-09-20-v07-el-toro-character-contract.md`
+- `docs/superpowers/specs/2026-09-20-v07-content-design.md`
+- `docs/superpowers/plans/2026-09-20-v07-implementation-plan.md`
 - `docs/characters/el-toro/PACKAGE.md`
 
-## Next action
+El Toro authoring references are persisted under:
+- `docs/characters/el-toro/references/`
 
-No V0.7 implementation round exists yet.
+They are never runtime assets.
 
-The requested external Astra audit prompt is now in the repository:
-- `docs/superpowers/prompts/2026-09-20-astra-v07-post-v06-audit.md`
+## Execution
 
-Astra should audit the released V0.6 code/build against the post-release user findings, define the bounded V0.7 candidate and write implementation-ready documents back to the repository. Production agents remain OFF_ROUND until Neureon later forms a new round from that audit.
+Canonical sequence:
+
+**Ricardo → Germinator → Mario + Brancaforte → Gonza**
+
+Ricardo V07-R0 is the only implementation task immediately eligible. Green handoffs advance the AUTO_CHAIN without a new Neureon token.

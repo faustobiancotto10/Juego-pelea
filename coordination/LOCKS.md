@@ -2,6 +2,14 @@
 
 | Path / subsystem | Owner | Task | Reason |
 | --- | --- | --- | --- |
+| `src/game/render/CharacterStructure.ts` | Mario | V07-M3 | structural rig/profile authority |
+| `src/game/render/ChameleonRig.ts` | Mario | V07-M3 | re-author Camaleoni anatomy/silhouette |
+| `src/game/render/SupernarizRig.ts` | Mario | V07-M3 | re-author Supernariz anatomy/silhouette |
+| `src/game/render/JuanchiRig.ts` | Mario | V07-M3 | re-author Juanchi anatomy/silhouette |
+| `src/game/render/ElToroRig.ts` | Mario | V07-M3 | re-author El Toro anatomy/silhouette |
+| `src/game/render/PortraitRenderer.ts` | Mario | V07-M3 | derive portraits from structural profiles |
+| `src/game/render/LocomotionPose.ts` | Mario | V07-M3 | identity-specific mass/posture locomotion |
+| `tests/v07-m3-character-pipeline.test.mjs` | Mario | V07-M3 | structural differentiation acceptance |
 
 V07-M1 exact candidate `d55cce8ce7f03a60168697a5a5bbe1c8b5833a24` is GREEN at verification run #1079 (305/305 + build).
 

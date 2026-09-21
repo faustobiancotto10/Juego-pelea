@@ -2,14 +2,8 @@
 
 | Path / subsystem | Owner | Task | Reason |
 | --- | --- | --- | --- |
-| `src/game/render/CharacterStructure.ts` | Mario | V07-M3R | User-directed reference fidelity repair |
-| `src/game/render/ElToroRig.ts` | Mario | V07-M3R | Re-author against supplied El Toro master/sheet |
-| `src/game/render/JuanchiRig.ts` | Mario | V07-M3R | Re-author against supplied Juanchi master/sheet |
-| `src/game/render/SupernarizRig.ts` | Mario | V07-M3R | Re-author against supplied Supernariz master/sheet |
-| `src/game/render/ChameleonRig.ts` | Mario | V07-M3R | Re-author against supplied Camaleoni master/sheet |
-| `src/game/render/PortraitRenderer.ts` | Mario | V07-M3R | Keep portrait identity aligned with runtime rigs |
 
-V07-M3 exact candidate `e053e0b187acff3b4555ce8d537e9fd9ca616303` is GREEN at Repository verification #1171 and Character Pipeline V2 run #15 (335/335 + build + visual artifact + raster guard). Mario released all M3 locks; Germinator V07-G2 is eligible.
+V07-M3 current reference-fidelity candidate `032b1bb28c5dd4421e5772cc40ab007f42e4d462` is GREEN at Character Pipeline V2 run #36 / `35567747782` (336/336 + build + visual artifact + raster guard). Mario released all M3R renderer locks; Germinator V07-G2 is eligible. Initial structural candidate `e053e0b187acff3b4555ce8d537e9fd9ca616303` is historical.
 
 V07-M1 exact candidate `d55cce8ce7f03a60168697a5a5bbe1c8b5833a24` is GREEN at verification run #1079 (305/305 + build).
 

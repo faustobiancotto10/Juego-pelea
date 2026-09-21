@@ -30,6 +30,8 @@ export interface LocomotionPose {
   chestCounterRotation: number;
   freeArmSwing: number;
   weightTransfer: number;
+  startDrive: number;
+  stopSettle: number;
 }
 
 interface TrackerState {
@@ -224,6 +226,8 @@ function neutralPose(fighter: FighterSnapshot): LocomotionPose {
     chestCounterRotation: 0,
     freeArmSwing: 0,
     weightTransfer: 0,
+    startDrive: 0,
+    stopSettle: 0,
   };
 }
 
@@ -363,8 +367,11 @@ export class LocomotionPoseTracker {
     const gaitWave = Math.sin(phase * Math.PI * 2) * state.movementBlend;
     const hipCounterRotation = gaitWave * style.hipCounterRotationAmplitude;
     const chestCounterRotation = -gaitWave * style.chestCounterRotationAmplitude;
-    const freeArmSwing = -gaitWave * style.freeArmSwingAmplitude;
+    const backwardArmRestraint = state.travelSign < 0 ? 0.68 : 1;
+    const freeArmSwing = -gaitWave * style.freeArmSwingAmplitude * backwardArmRestraint;
     const weightTransfer = blendDelta * style.weightTransferScale * (state.travelSign || 1);
+    const startDrive = clamp01(Math.max(0, blendDelta) * 3);
+    const stopSettle = clamp01(Math.max(0, -blendDelta) * 4);
     const dashLean = fighter.dashKind === 'forward'
       ? 0.16 * dashDrive
       : fighter.dashKind === 'back'
@@ -381,7 +388,9 @@ export class LocomotionPoseTracker {
         + landingAbsorption * 20
         + tuck * 5
         + dashCompression * 10
-        + clashBrace * 11,
+        + clashBrace * 11
+        + startDrive * style.weightTransferScale * 0.32
+        + stopSettle * style.weightTransferScale * 0.42,
       torsoLean:
         travelLean
         + dashLean
@@ -390,7 +399,7 @@ export class LocomotionPoseTracker {
         - preparation * 0.035
         + extension * 0.045
         + descentBrace * 0.04
-        + weightTransfer * 0.006,
+        + weightTransfer * 0.012,
       preparation,
       extension,
       tuck,
@@ -408,6 +417,8 @@ export class LocomotionPoseTracker {
       chestCounterRotation,
       freeArmSwing,
       weightTransfer,
+      startDrive,
+      stopSettle,
     };
 
     state.lastFrame = frame;

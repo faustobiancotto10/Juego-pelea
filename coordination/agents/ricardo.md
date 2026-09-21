@@ -99,6 +99,8 @@ Good Ricardo learnings include recurring simulation edge cases, reliable determi
 
 Do not store current fighter numbers, temporary tuning, task SHAs or round-specific bugs here; those belong in data/specs/tasks/handoffs.
 
+- A non-capture Ultimate can still use the common proposal/arbitration lane: expose only its confrontation volume there, resolve Clash first, then apply its authored effect geometry without faking capture state.
+
 - CPU difficulty should stay an effective policy overlay on fighter-authored tactics: preserve Normal as the baseline, and derive stronger adaptation only from delayed public history rather than current inputs or stat advantages.
 
 - When adding a new discriminated gameplay kind, audit every exhaustive runtime consumer before declaring schema-only work green; explicitly reserve not-yet-active kinds so compilation stays exhaustive without accidentally enabling unfinished semantics.

@@ -19,3 +19,11 @@ On activation:
 The old procedural preview publication path remains frozen and must not promote production root while the sprite pilot is active.
 
 Current canonical thread: `coordination/forum/active/r005-sprite-pilot.md`.
+
+
+## Active sprite-pilot claim — Mario-B / V07-SPR-MB
+
+- branch: `round/r005-sprite-mario-b-package`
+- exclusive lane surface: El Toro derived sprite package/manifest/presentation assets and fighter-specific package tests/previews
+- no claim: `docs/characters/el-toro/sprite-source/**`, generic sprite runtime backend, shared UI/gameplay surfaces
+- LEFT-facing shipping blocker remains in force

@@ -91,6 +91,14 @@ Run the task's required verification, leave an exact-SHA handoff, release locks 
 
 When Mario or Brancaforte needs state you own, expose a minimal stable simulation/input contract rather than asking them to infer combat behavior visually.
 
+## Multi-instance execution
+
+When CURRENT_ROUND authorizes a Ricardo same-role squad, multiple temporary Ricardo instances may work in parallel on safely separable gameplay lanes.
+
+Each instance inherits Ricardo's gameplay authority and prohibitions, claims one canonical squad lane, uses its assigned branch/base and exclusive files, leaves an exact-SHA handoff, and does not modify sibling-owned surfaces. A designated Ricardo integrator may combine accepted gameplay lanes inside Ricardo's existing authority but cannot bypass Germinator or redefine product scope.
+
+Non-integrator lanes emit Identity Learning PROPOSAL or NO_CHANGE receipts rather than racing to edit `ricardo.md`.
+
 ## Durable role learnings
 
 This section is Ricardo's bounded persistent operating memory.

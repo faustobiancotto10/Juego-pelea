@@ -32,3 +32,13 @@ Affected dependency: Gonza V07-Z0 must not integrate B1 candidate `b851ae8a...` 
 In-contract repair available now: remove Brancaforte-authored fighter art, retain a keyed portrait mount/fallback surface and keep difficulty flow green. Final portrait wiring still needs Mario M2 output or an explicit cross-lane interface.
 
 Smallest decision: treat Mario M2 portrait renderer as the final input B1 consumes before B1 returns GREEN, or have Neureon amend the dependency/interface contract.
+
+
+## ALERT — Mario same-branch collision (resolved locally)
+
+- Task/owner: V07-M1 / Mario.
+- Evidence: branch `round/r005-mario` received overlapping edits to locked `src/game/render/JuanchiRig.ts`; verification run #1074 failed with `TS2393 Duplicate function implementation`.
+- Root cause: two Mario execution instances modified the same owned file on the same branch while the V07-M1 lock was active.
+- Resolution: duplicate aura implementation and double gait application were reconciled; run #1076 passed full suite + build.
+- Dependency impact: no frozen contract change and no downstream blocker.
+- Durable coordination lesson: parallel instances of one identity must partition files/subtasks or use distinct branches; shared identity/context alone does not make same-file writes safe.

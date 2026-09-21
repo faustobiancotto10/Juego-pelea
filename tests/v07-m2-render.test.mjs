@@ -166,9 +166,12 @@ test('M2 runtime fighter art has no El Toro reference-raster path', () => {
 });
 
 
-test('Shawarmazo contact burst resolves from authoritative projectile identity after throw recovery', () => {
+test('Shawarmazo contact burst preserves authoritative projectile visual identity after linear despawn', () => {
   const fight = readFileSync('src/game/render/FightRenderer.ts', 'utf8');
-  assert.match(fight, /event\.projectileId[\s\S]{0,500}snapshot\.projectiles\.find/);
+  assert.match(fight, /projectileVisualKeys/);
+  assert.match(fight, /event\.type === 'projectile'[\s\S]{0,520}snapshot\.projectiles\.find/);
+  assert.match(fight, /projectileVisualKeys\.set/);
+  assert.match(fight, /event\.projectileId[\s\S]{0,360}projectileVisualKeys\.get/);
   assert.match(fight, /visualKey === 'shawarma'[\s\S]{0,240}'shawarma-debris'/);
 });
 

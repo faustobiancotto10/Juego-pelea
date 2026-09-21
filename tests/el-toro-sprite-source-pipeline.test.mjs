@@ -4,6 +4,8 @@ import { existsSync, mkdtempSync, readFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
+import { SHEETS } from '../scripts/sprite-source-config.mjs';
+import { parseRgbaPng } from '../scripts/sprite-png-alpha.mjs';
 
 const sourceDir = resolve('docs/characters/el-toro/sprite-source/right');
 const scriptPath = resolve('scripts/el-toro-sprite-source-pipeline.mjs');
@@ -24,6 +26,28 @@ test('V07-SPR-MA validates and normalizes the admitted El Toro right-facing sour
   assert.equal(report.totalPreviewFrames, 107);
 
   console.log('V07-SPR-MA diagnostics', JSON.stringify({ canvasEdgeClipping: report.canvasEdgeClipping, cellBoundaryTouches: report.cellBoundaryTouches, sheets: report.sheets.map(({ id, width, height, expectedFrames, extractedFrames }) => ({ id, width, height, expectedFrames, extractedFrames })) }));
+  const edgeAlpha = SHEETS.map((spec) => {
+    const image = parseRgbaPng(readFileSync(join(sourceDir, spec.file)));
+    const values = [];
+    for (let x = 0; x < image.width; x += 1) {
+      values.push(image.rgba[x * 4 + 3]);
+      values.push(image.rgba[((image.height - 1) * image.width + x) * 4 + 3]);
+    }
+    for (let y = 1; y < image.height - 1; y += 1) {
+      values.push(image.rgba[(y * image.width) * 4 + 3]);
+      values.push(image.rgba[(y * image.width + image.width - 1) * 4 + 3]);
+    }
+    return {
+      id: spec.id,
+      max: Math.max(...values),
+      nonzero: values.filter((v) => v > 0).length,
+      gt8: values.filter((v) => v > 8).length,
+      gt32: values.filter((v) => v > 32).length,
+      gt128: values.filter((v) => v > 128).length,
+      total: values.length,
+    };
+  });
+  console.log('V07-SPR-MA edge-alpha', JSON.stringify(edgeAlpha));
 
   assert.deepEqual(report.hashMismatches, []);
   assert.equal(report.rejectedAlternatePresent, false);

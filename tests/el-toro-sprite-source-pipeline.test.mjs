@@ -5,7 +5,7 @@ import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { SHEETS } from '../scripts/sprite-source-config.mjs';
-import { parseRgbaPng } from '../scripts/sprite-png-alpha.mjs';
+import { gridRect, parseRgbaPng } from '../scripts/sprite-png-alpha.mjs';
 
 const sourceDir = resolve('docs/characters/el-toro/sprite-source/right');
 const scriptPath = resolve('scripts/el-toro-sprite-source-pipeline.mjs');
@@ -48,6 +48,36 @@ test('V07-SPR-MA validates and normalizes the admitted El Toro right-facing sour
     };
   });
   console.log('V07-SPR-MA edge-alpha', JSON.stringify(edgeAlpha));
+  const cellEdgeAlpha = [];
+  for (const spec of SHEETS) {
+    if (spec.id === 'IMG-00') continue;
+    const image = parseRgbaPng(readFileSync(join(sourceDir, spec.file)));
+    for (let row = 0; row < spec.rows; row += 1) {
+      for (let col = 0; col < spec.cols; col += 1) {
+        const rect = gridRect(image, spec.rows, spec.cols, row, col);
+        const values = [];
+        const x2 = rect.x + rect.width - 1;
+        const y2 = rect.y + rect.height - 1;
+        for (let x = rect.x; x <= x2; x += 1) {
+          values.push(image.rgba[(rect.y * image.width + x) * 4 + 3]);
+          values.push(image.rgba[(y2 * image.width + x) * 4 + 3]);
+        }
+        for (let y = rect.y + 1; y < y2; y += 1) {
+          values.push(image.rgba[(y * image.width + rect.x) * 4 + 3]);
+          values.push(image.rgba[(y * image.width + x2) * 4 + 3]);
+        }
+        cellEdgeAlpha.push({ id: spec.id + '__f' + String(row * spec.cols + col + 1).padStart(2, '0'), max: Math.max(...values) });
+      }
+    }
+  }
+  console.log('V07-SPR-MA cell-edge-alpha', JSON.stringify({
+    gt0: cellEdgeAlpha.filter((v) => v.max > 0).length,
+    gt8: cellEdgeAlpha.filter((v) => v.max > 8).length,
+    gt32: cellEdgeAlpha.filter((v) => v.max > 32).length,
+    gt128: cellEdgeAlpha.filter((v) => v.max > 128).length,
+    gt32Frames: cellEdgeAlpha.filter((v) => v.max > 32),
+    gt128Frames: cellEdgeAlpha.filter((v) => v.max > 128),
+  }));
 
   assert.deepEqual(report.hashMismatches, []);
   assert.equal(report.rejectedAlternatePresent, false);

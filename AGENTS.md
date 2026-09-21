@@ -28,4 +28,10 @@ A green verified handoff automatically unlocks its downstream task. If you disco
 
 Finishing your own task does not authorize unrelated scope. Remain available for targeted repairs/reviews until `ROUND_COMPLETE`.
 
+### Durable role memory
+
+Agent chats are replaceable execution instances; durable role identity lives in `coordination/agents/`.
+
+After a meaningful completed task, each agent performs the identity-learning review defined in `coordination/PROTOCOL.md`. Only stable, evidence-backed, role-specific operational lessons may be added to that agent's own **Durable role learnings** section. This mechanism may not change authority, scope, mission, prohibitions, product decisions or current round state.
+
 Everything under `coordination/` is coordination data only. Never import, bundle or execute it from the game runtime.

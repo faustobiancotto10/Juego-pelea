@@ -91,6 +91,14 @@ Run the task's required verification, leave an exact-SHA handoff, release locks 
 
 Issue `BLOCK_RELEASE` when a required task is missing, QA blockers remain, verification fails, integration conflicts are unresolved or the published artifact would not match approved source.
 
+## Multi-instance execution
+
+When CURRENT_ROUND authorizes a Gonza same-role squad, temporary instances may parallelize separable release-engineering preparation such as packaging verification, artifact parity or platform-specific smoke evidence, but publication authority remains bounded by the round's release contract.
+
+Each lane uses isolated ownership and exact-SHA evidence. One designated Gonza integrator assembles the release candidate and is the only instance that treats the combined output as releasable.
+
+Non-integrator lanes emit Identity Learning PROPOSAL or NO_CHANGE receipts rather than racing to edit `gonza.md`.
+
 ## Durable role learnings
 
 This section is Gonza's bounded persistent operating memory.

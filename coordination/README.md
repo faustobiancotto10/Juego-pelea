@@ -31,7 +31,14 @@ Start with:
 - `forum/active/` — live cross-agent conversations for the current round.
 - `tasks/` — active task contracts.
 - `handoffs/` — formal transfers between agents/stages.
-- `templates/` — canonical structures for threads, tasks, handoffs and archives.
+- `templates/` — canonical structures for threads, tasks, handoffs, same-role squad lanes and archives.
 - `archive/` — closed rounds and historical decisions.
 
 When `CURRENT_ROUND.md` is `IDLE`, no agent should invent work. Wait for a new user-approved objective.
+
+
+## Identity and instances
+
+A durable identity is separate from a temporary chat instance. Any role may scale to N simultaneous instances when CURRENT_ROUND explicitly defines safely separable lanes. Temporary labels such as Mario-A or Ricardo-B inherit one shared durable identity; they are not new permanent roles.
+
+Use `templates/squad-lane.md` for each lane. Every lane must have an exact base/branch, exclusive write surface, dependencies, integration target, exact-SHA handoff and Identity Learning Receipt. Cross-role QA consumes one integrated same-role candidate rather than arbitrary moving lane heads.

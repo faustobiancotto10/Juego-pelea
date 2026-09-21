@@ -387,6 +387,8 @@ export class CombatSimulation {
     this.cancelInterruptedMoves();
 
     this.resolveUltimateArbitration();
+    this.resolveForwardBlastContacts(inputs);
+    this.cancelInterruptedMoves();
 
     if (this.phase === 'fight') {
       this.roundTimerFrames = Math.max(0, this.roundTimerFrames - 1);
@@ -650,6 +652,16 @@ export class CombatSimulation {
       }
 
       fighter.moveFrame += 1;
+      if (
+        current.movement
+        && fighter.grounded
+        && fighter.moveContact === 'none'
+        && fighter.moveFrame >= current.movement.start
+        && fighter.moveFrame <= current.movement.end
+      ) {
+        fighter.x += fighter.facing * current.movement.speed;
+        this.clampFighter(fighter);
+      }
       this.triggerMoveEffect(index, fighter);
       if (fighter.moveFrame >= current.totalFrames) {
         this.clearMove(fighter);
@@ -1801,10 +1813,13 @@ export class CombatSimulation {
           headY + head.halfHeight + capProbe!.halfHeight,
         );
         wouldCapture = front && contactT !== null;
+      } else if (definition.kind === 'forwardBlast') {
+        // forwardBlast never captures. Its proposal exists only for common
+        // Ultimate Clash arbitration; authored blast beats resolve afterward.
+        wouldCapture = false;
       } else {
-        // forwardBlast is schema-authorized in R0 but has no runtime proposal
-        // until V07-R2 implements Super Eructo.
-        throw new Error('forwardBlast runtime is not active before V07-R2');
+        const exhaustive: never = definition.kind;
+        throw new Error(`Unsupported Ultimate proposal kind ${String(exhaustive)}`);
       }
 
       return {
@@ -2211,6 +2226,125 @@ export class CombatSimulation {
       attacker.ultimateTarget = null;
       attacker.ultimatePhase = 'recovery';
       attacker.ultimatePhaseFrame = 0;
+    }
+  }
+
+
+  private resolveForwardBlastContacts(inputs: readonly [InputFrame, InputFrame]): void {
+    type BlastContact = {
+      attacker: FighterIndex;
+      defender: FighterIndex;
+      definition: UltimateDefinition;
+      beat: UltimateDefinition['sequenceHits'][number];
+      blocked: boolean;
+      finalBeat: boolean;
+    };
+
+    const contacts: BlastContact[] = [];
+
+    for (const attackerIndex of [0, 1] as const) {
+      const attacker = this.fighters[attackerIndex];
+      if (attacker.ultimatePhase !== 'capture' || attacker.health <= 0) continue;
+      const definition = this.activeUltimateDefinition(attacker);
+      if (definition.kind !== 'forwardBlast') continue;
+
+      const beat = definition.sequenceHits.find(
+        (candidate) => candidate.frame === attacker.ultimatePhaseFrame,
+      );
+      if (!beat) continue;
+
+      const defenderIndex: FighterIndex = attackerIndex === 0 ? 1 : 0;
+      const defender = this.fighters[defenderIndex];
+      if (defender.health <= 0 || defender.capturedBy !== null) continue;
+
+      const range = definition.blastRange ?? definition.captureReach;
+      const bottom = attacker.y + (definition.blastBottom ?? 0);
+      const top = attacker.y + (definition.blastTop ?? definition.captureVertical);
+      const defenderDefinition = this.registry.getFighter(defender.id);
+      const halfWidth = defenderDefinition.width * 0.5;
+      const hurtMinX = defender.x - halfWidth;
+      const hurtMaxX = defender.x + halfWidth;
+      const hurtBottom = defender.y;
+      const hurtTop = defender.y + (defender.crouching
+        ? defenderDefinition.height * 0.66
+        : defenderDefinition.height);
+
+      const blastMinX = attacker.ultimateFacing === 1 ? attacker.x : attacker.x - range;
+      const blastMaxX = attacker.ultimateFacing === 1 ? attacker.x + range : attacker.x;
+      const signedCenterDistance = (defender.x - attacker.x) * attacker.ultimateFacing;
+      if (signedCenterDistance < 0) continue;
+      if (!intervalsOverlap(blastMinX, blastMaxX, hurtMinX, hurtMaxX)) continue;
+      if (!intervalsOverlap(bottom, top, hurtBottom, hurtTop)) continue;
+
+      contacts.push({
+        attacker: attackerIndex,
+        defender: defenderIndex,
+        definition,
+        beat,
+        blocked: this.canBlock(defender, inputs[defenderIndex], 'mid'),
+        finalBeat: definition.sequenceHits[definition.sequenceHits.length - 1] === beat,
+      });
+    }
+
+    // Eligibility is collected before any damage is applied so simultaneous
+    // forwardBlast contacts remain slot-symmetric outside accepted Clash.
+    for (const contact of contacts) {
+      const attacker = this.fighters[contact.attacker];
+      const defender = this.fighters[contact.defender];
+      const { beat, definition } = contact;
+      attacker.ultimateConnected = true;
+
+      let actualDamage = 0;
+      if (contact.blocked) {
+        actualDamage = this.applyDamage(
+          contact.attacker,
+          contact.defender,
+          beat.chipDamage ?? 0,
+          'ultimate',
+          true,
+        );
+        defender.blockstunFrames = beat.blockstun ?? 0;
+        defender.blocking = true;
+        defender.vx = attacker.ultimateFacing * (beat.blockKnockback ?? 0);
+        this.applyCornerBlockTransfer(contact.attacker, contact.defender, beat.knockback);
+        this.damageGuard(contact.defender, beat.guardDamage ?? 0);
+      } else {
+        actualDamage = this.applyDamage(
+          contact.attacker,
+          contact.defender,
+          beat.damage,
+          'ultimate',
+          false,
+        );
+        this.cancelJumpPreparation(defender);
+        defender.stunFrames = beat.hitstun ?? 0;
+        defender.blocking = false;
+        defender.vx = attacker.ultimateFacing * (
+          contact.finalBeat ? (definition.releaseVx ?? beat.knockback) : beat.knockback
+        );
+        if (contact.finalBeat && (definition.releaseVy ?? 0) > 0) {
+          defender.vy = definition.releaseVy ?? 0;
+          defender.grounded = false;
+          defender.ultimateReleaseSource = contact.attacker;
+        }
+      }
+
+      this.hitstopFrames = Math.max(
+        this.hitstopFrames,
+        beat.hitstop ?? (contact.finalBeat ? (definition.finalHitstop ?? 7) : 7),
+      );
+      this.events.push({
+        type: 'hit',
+        attacker: contact.attacker,
+        defender: contact.defender,
+        blocked: contact.blocked,
+        damage: actualDamage,
+        strong: true,
+        source: 'ultimate',
+        finisher: defender.health <= 0,
+        majorImpact: contact.finalBeat,
+        moveId: attacker.moveId ?? undefined,
+      });
     }
   }
 

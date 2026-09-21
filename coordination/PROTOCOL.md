@@ -231,6 +231,43 @@ If an agent is re-opened or replaced, it reconstructs state from repository file
 
 If an expected agent is unavailable, mark UNRESPONSIVE only when its missing work actually blocks the dependency graph. Tell the user exactly which task cannot progress.
 
-## 17. Runtime isolation
+## 17. Durable role memory / identity evolution
+
+Agent chats are disposable execution instances. The durable role identity lives in the repository.
+
+After completing a meaningful task, and before considering its handoff fully complete, every agent must perform an **identity-learning review**:
+
+1. ask whether the task revealed a stable lesson that would materially improve a future replacement chat performing the same role;
+2. if not, make no identity change;
+3. if yes, update only its own file under `coordination/agents/<agent>.md` on authoritative `main`, inside that file's **Durable role learnings** section;
+4. keep the learning concise, evidence-based and reusable across future rounds;
+5. prefer refining/merging an existing learning over endlessly appending bullets.
+
+A valid durable role learning is:
+- role-specific;
+- expected to remain useful across multiple future tasks/rounds;
+- supported by actual repository/task experience;
+- operational enough to change future behavior for the better.
+
+Do **not** store in identity:
+- current round/task/status/branch/commit details;
+- temporary blockers or one-off bugs;
+- product decisions that belong in specs/DECISIONS;
+- implementation details already discoverable from current code unless they encode a durable operating lesson;
+- guesses, preferences or unverified conclusions;
+- user secrets or unrelated conversation context.
+
+Self-maintenance is intentionally bounded:
+- an agent may edit only its own **Durable role learnings** section;
+- it may not alter its Mission, ownership, prohibited responsibilities, authority, activation rules or this protocol through self-learning;
+- it may not grant itself new scope or override another agent;
+- cross-role/system-wide lessons go to Neureon for possible promotion into `AGENTS.md`, `docs/DECISIONS.md` or this protocol;
+- if a proposed learning conflicts with higher authority, do not write it.
+
+The identity-learning review must never delay downstream AUTO_CHAIN work merely because no useful learning exists. A no-op is a valid result.
+
+Replacement chats inherit accumulated role experience by reading the identity file during normal activation.
+
+## 18. Runtime isolation
 
 Everything under `coordination/` is coordination data only. Never import, bundle or execute it from the game runtime.

@@ -10,7 +10,7 @@ Execution: AUTO_CHAIN / MULTI-INSTANCE MARIO SQUAD
 | Ricardo | Gameplay Engineer | V07-R0→R1→R2→R3 | VERIFIED | Gameplay/core frozen; available only for requested renderer-facing contract repairs. |
 | Mario | Character / Rendering Engineer | V07-M3A/B/C/D→M3I | WORKING | Multi-instance squad active; four temporary Mario lanes are authorized in parallel, then Mario-A integrates. |
 | ↳ Mario-A | Temporary lane — Visual Architect / Lead | V07-M3A→M3I | WORKING | V07-M3A claimed; auditing shared structure/primitives and visual-quality gates on `round/r005-mario-squad-architect`. |
-| ↳ Mario-B | Temporary lane — El Toro + Juanchi | V07-M3B | WORKING | Branch `round/r005-mario-squad-toro-juanchi`. |
+| ↳ Mario-B | Temporary lane — El Toro + Juanchi | V07-M3B | BLOCKED | Product delta at `823589d3707aa2cedbe3b0dd8b946cdc56c4400d`; shared V07-M3 gate still asserts obsolete Juanchi tied-jacket cue. Await Mario-A/shared gate repair. |
 | ↳ Mario-C | Temporary lane — Camaleoni + Supernariz | V07-M3C | WORKING | Claimed; reconstructing Camaleoni + Supernariz on `round/r005-mario-squad-camaleoni-supernariz`. |
 | ↳ Mario-D | Temporary lane — Motion / Presentation / FX | V07-M3D | WORKING | Lane claimed after duplicate-A collision; improving locomotion/body language/FX on `round/r005-mario-squad-motion-fx`. |
 | Germinator | Auditor / QA | V07-G1→G2 | WAITING_DEPENDENCY | Audit only the integrated V07-M3I squad candidate after A+B+C+D are green and M3I is composed. |

@@ -4,6 +4,13 @@ Round: R005-V07-GAMEPLAY-PRESENTATION-EXPANSION
 Owner: Ricardo  
 Status: READY
 
+## Execution branch
+
+- branch: `round/r005-sprite-ricardo-runtime`
+- exact starting SHA: `e3d29807acab6ce4c87fd7e04069fcb4b98c6a65`
+- lane ownership: generic sprite schema/resolver/cache/renderer runtime foundation
+- integration target: one exact-SHA handoff for Mario integration and Germinator.
+
 ## Goal
 
 Implement the generic, presentation-only sprite runtime foundation from `docs/superpowers/plans/2026-09-21-sprite-runtime-migration-plan.md` through the El Toro pilot integration boundary, without changing deterministic combat truth.

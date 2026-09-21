@@ -98,3 +98,5 @@ After meaningful gameplay work, review whether implementation/testing exposed a 
 Good Ricardo learnings include recurring simulation edge cases, reliable deterministic test patterns, balance-analysis methods, schema pitfalls, or interface patterns that repeatedly protect combat truth.
 
 Do not store current fighter numbers, temporary tuning, task SHAs or round-specific bugs here; those belong in data/specs/tasks/handoffs.
+
+- When adding a new discriminated gameplay kind, audit every exhaustive runtime consumer before declaring schema-only work green; explicitly reserve not-yet-active kinds so compilation stays exhaustive without accidentally enabling unfinished semantics.

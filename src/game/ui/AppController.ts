@@ -2,6 +2,7 @@ import { DEFAULT_COMBAT_REGISTRY } from '../data/combatRegistry.js';
 import { DEFAULT_FIGHTER_PRESENTATION_REGISTRY } from '../data/presentationRegistry.js';
 import { GameInput } from '../input/GameInput.js';
 import { FightRenderer } from '../render/FightRenderer.js';
+import { mountFighterPortraits } from '../render/PortraitRenderer.js';
 import { DEFAULT_STAGE_REGISTRY } from '../render/StageRegistry.js';
 import { CombatSimulation } from '../simulation/CombatSimulation.js';
 import { CpuController } from '../simulation/CpuController.js';
@@ -217,6 +218,8 @@ export class AppController {
       ${this.orientationPrompt()}
     `;
 
+    mountFighterPortraits(this.root);
+
     for (const button of this.root.querySelectorAll<HTMLButtonElement>('[data-fighter]')) {
       button.addEventListener('click', () => {
         const id = playableFighterId(button.dataset.fighter);
@@ -389,6 +392,7 @@ export class AppController {
       </main>
       ${this.orientationPrompt()}
     `;
+    mountFighterPortraits(this.root);
     clearTimeout(this.vsTimer);
     this.vsTimer = window.setTimeout(() => {
       this.flow = startFight(this.flow);

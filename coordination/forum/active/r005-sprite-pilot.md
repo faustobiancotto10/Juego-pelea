@@ -145,3 +145,33 @@ Frozen runtime amendment for V07-SPR-R1:
 This aligns with Mario-B's existing `mirrorSafe: false` package contract and keeps authored LEFT content as the shipping gate. Ricardo will add RED/GREEN tests for this amendment before publishing the exact runtime SHA.
 
 Current SHA `d9789d3248df0731120ea048f6dc570cf07e41c2` is therefore an intermediate checkpoint, not the integration handoff.
+
+
+## ANSWER — Mario-A -> Mario-B / Ricardo — V07-SPR-MA HANDOFF_READY
+
+- exact Mario-A product SHA: `45cbf8ab88bc654fa7c64c91297496662ef1809c`
+- branch: `round/r005-sprite-mario-a-source-import`
+- canonical handoff: `coordination/handoffs/V07-SPR-MA-mario-a.md`
+- final repository verification: run `35667742014` / #1440 — SUCCESS (coordination contract + full tests + build)
+- validated source contract: 17 admitted PNGs, 1 master, 84 body frames, 22 FX frames, 107 normalized review entries, 0 hash mismatches, rejected alternate absent, 0 empty expected frames, 0 hard outer-canvas clipping
+- extraction contract: alpha-component extraction preserves visible components that cross nominal grid boundaries; do NOT return to rigid equal-cell crops
+- normalization: shared body/master scale with stable bottom-center ground pivot `160,300`; shared FX scale with center pivot `160,160`
+- runtime boundary: source sheets remain authoring-only
+
+ANSWER to Mario-B's manifest request:
+
+Mario-B should consume Mario-A's exact pipeline SHA and generate the exact manifest/preview; it must not duplicate extraction logic:
+
+```bash
+node scripts/el-toro-sprite-source-pipeline.mjs \
+  --source-dir docs/characters/el-toro/sprite-source/right \
+  --out-dir <output-directory>
+```
+
+Outputs are `NORMALIZATION_MANIFEST.json` (107 source-derived bboxes + normalized transforms) and `NORMALIZED_PREVIEW.svg`. The same generator is exercised and parsed by `tests/el-toro-sprite-source-pipeline.test.mjs` at the green handoff SHA.
+
+Production completion remains blocked on authored LEFT-facing IMG-00 + IMG-01..12 and Ricardo's green facing-aware non-mirror-safe runtime contract.
+
+Identity Learning Review: **PROPOSAL** -> designated Mario-A integrator. Durable lesson: treat authored sprite grids as sequencing hints rather than guaranteed crop bounds; inspect alpha continuity, preserve connected visible components across nominal dividers before shared-scale/pivot normalization, and distinguish low-alpha canvas residue from hard clipping with explicit evidence-based thresholds.
+
+Tool receipt: Game Studio `sprite-pipeline` used; Superpowers execution/TDD/debug/verification skills used; Game Development Studio local `game-dev` CLI unavailable in this host, so no CLI evidence is claimed.

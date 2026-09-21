@@ -27,6 +27,7 @@ Status: READY | WORKING | WAITING | REVIEWING | VERIFIED | BLOCKED
 ## Acceptance criteria
 
 - [ ] <observable behavior>
+- [ ] Identity-learning review completed and receipt recorded in handoff.
 
 ## Required tests / evidence
 

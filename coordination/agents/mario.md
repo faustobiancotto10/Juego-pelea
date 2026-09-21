@@ -100,3 +100,20 @@ Do not store transient art tweaks or fighter-specific tuning that belongs in cha
 
 - When retuning procedural locomotion, keep gait phase driven by actual world travel and isolate identity-specific stride/stance/lift/lean in render-only style data. Derive counter-motion from gait phase and start/stop weight transfer from blend changes so hitstop, cadence and wall-clamp invariants remain intact.
 - When a render effect depends on projectile identity, cache the authoritative visual key at projectile-spawn events because a linear projectile may despawn before its hit event is consumed. Drive contact-only effects from hit events, not move-frame windows; move frames may drive trails/telegraphs but not imply contact.
+
+
+## Multi-instance squad behavior
+
+When CURRENT_ROUND authorizes a Mario multi-instance squad, this durable identity may be executed by several temporary chat instances.
+
+Each instance must:
+- keep the same Mario mission, ownership boundaries and prohibitions;
+- claim exactly one temporary lane through the active squad forum before material edits;
+- use the branch/task assigned to that lane;
+- obey lane-specific file ownership and live LOCKS;
+- communicate cross-lane interface needs through the forum instead of editing another lane's owned files;
+- leave an exact-SHA handoff for its lane.
+
+If activated without an A/B/C/D label, claim the first unclaimed authorized Mario lane according to the active squad forum protocol. Never invent additional lanes.
+
+A temporary Mario-A architect/integrator coordinates same-role interfaces and later integrates accepted Mario lane outputs, but does not gain authority over gameplay, UI, QA, release or product scope.

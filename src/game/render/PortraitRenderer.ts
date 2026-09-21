@@ -113,7 +113,7 @@ function drawJuanchiPortrait(ctx: CanvasRenderingContext2D, width: number, heigh
     ctx.fillText('La 56', 5, -64);
     ellipse(ctx, 2, -126, 34, 39, '#c88c68', -0.03, '#5c382a', 2.3);
     ctx.fillStyle = '#171819';
-    for (const [x, y, r] of [[-23,-153,10],[-9,-165,11],[5,-168,12],[20,-161,11],[29,-149,9]]) {
+    for (const [x, y, r] of [[-23,-153,10],[-9,-165,11],[5,-168,12],[20,-161,11],[29,-149,9]] as const) {
       ctx.beginPath();
       ctx.arc(x, y, r, 0, Math.PI * 2);
       ctx.fill();
@@ -151,7 +151,7 @@ function drawElToroPortrait(ctx: CanvasRenderingContext2D, width: number, height
 
     ellipse(ctx, 3, -132, 37, 40, '#c88a66', -0.02, '#57382c', 2.4);
     ctx.fillStyle = '#2b211d';
-    for (const [x, y, r] of [[-28,-158,10],[-15,-170,11],[0,-176,12],[17,-171,12],[30,-159,11]]) {
+    for (const [x, y, r] of [[-28,-158,10],[-15,-170,11],[0,-176,12],[17,-171,12],[30,-159,11]] as const) {
       ctx.beginPath();
       ctx.arc(x, y, r, 0, Math.PI * 2);
       ctx.fill();

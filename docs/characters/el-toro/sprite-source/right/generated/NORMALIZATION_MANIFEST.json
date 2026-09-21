@@ -1,0 +1,2943 @@
+{
+  "contractVersion": 1,
+  "fighterId": "el-toro",
+  "facing": "right",
+  "shippingStatus": "pilot-only-left-facing-blocked",
+  "authority": [
+    "docs/SPRITE_PRODUCTION_CONTRACT.md",
+    "docs/characters/el-toro/SPRITE_INTAKE_2026-09-21.md",
+    "docs/characters/el-toro/LEFT_FACING_SET_PROMPT.md"
+  ],
+  "runtimeBoundary": "Runtime consumes normalized derived frames/atlases and this transform contract; source sheets remain authoring-only and must never be loaded as fighter textures.",
+  "leftFacingGate": "El Toro is not mirror-safe. Authored LEFT-IMG-00 + LEFT IMG-01..12 remain mandatory before production cutover.",
+  "normalization": {
+    "body": {
+      "canvas": {
+        "width": 320,
+        "height": 320
+      },
+      "anchor": "bottom-center",
+      "groundPivot": {
+        "x": 160,
+        "y": 300
+      },
+      "sharedScale": 0.22988506
+    },
+    "fx": {
+      "canvas": {
+        "width": 320,
+        "height": 320
+      },
+      "anchor": "center",
+      "pivot": {
+        "x": 160,
+        "y": 160
+      },
+      "sharedScale": 0.43209877
+    }
+  },
+  "sheets": [
+    {
+      "id": "IMG-00",
+      "file": "el-toro__IMG-00__master-seed.png",
+      "sourcePath": "docs/characters/el-toro/sprite-source/right/el-toro__IMG-00__master-seed.png",
+      "expectedHash": "b22e581da861bee4c98601d9ceb53d5c1ea79993a0bc0f4b50a72cf5e9ca5752",
+      "actualHash": "b22e581da861bee4c98601d9ceb53d5c1ea79993a0bc0f4b50a72cf5e9ca5752",
+      "width": 1254,
+      "height": 1254,
+      "bitDepth": 8,
+      "colorType": 6,
+      "grid": {
+        "rows": 1,
+        "cols": 1
+      },
+      "extraction": {
+        "method": "alpha-components",
+        "contentAlpha": 32,
+        "clipAlpha": 128
+      },
+      "expectedFrames": 1,
+      "extractedFrames": 1,
+      "hasVisiblePixels": true,
+      "hasTransparentPixels": true
+    },
+    {
+      "id": "IMG-01",
+      "file": "el-toro__IMG-01__idle.png",
+      "sourcePath": "docs/characters/el-toro/sprite-source/right/el-toro__IMG-01__idle.png",
+      "expectedHash": "396e43959c197c5e57a3021751dfe752f27dd70fa89bdd81e0c22422ee8f0585",
+      "actualHash": "396e43959c197c5e57a3021751dfe752f27dd70fa89bdd81e0c22422ee8f0585",
+      "width": 1536,
+      "height": 1024,
+      "bitDepth": 8,
+      "colorType": 6,
+      "grid": {
+        "rows": 2,
+        "cols": 4
+      },
+      "extraction": {
+        "method": "alpha-components",
+        "contentAlpha": 32,
+        "clipAlpha": 128
+      },
+      "expectedFrames": 8,
+      "extractedFrames": 8,
+      "hasVisiblePixels": true,
+      "hasTransparentPixels": true
+    },
+    {
+      "id": "IMG-02",
+      "file": "el-toro__IMG-02__forward-shuffle.png",
+      "sourcePath": "docs/characters/el-toro/sprite-source/right/el-toro__IMG-02__forward-shuffle.png",
+      "expectedHash": "20cbc7c2c55c0b38a3195957fe7e68cc6f07386428c43ea999170cbce99523fc",
+      "actualHash": "20cbc7c2c55c0b38a3195957fe7e68cc6f07386428c43ea999170cbce99523fc",
+      "width": 1536,
+      "height": 1024,
+      "bitDepth": 8,
+      "colorType": 6,
+      "grid": {
+        "rows": 2,
+        "cols": 4
+      },
+      "extraction": {
+        "method": "alpha-components",
+        "contentAlpha": 32,
+        "clipAlpha": 128
+      },
+      "expectedFrames": 8,
+      "extractedFrames": 8,
+      "hasVisiblePixels": true,
+      "hasTransparentPixels": true
+    },
+    {
+      "id": "IMG-03",
+      "file": "el-toro__IMG-03__backward-shuffle.png",
+      "sourcePath": "docs/characters/el-toro/sprite-source/right/el-toro__IMG-03__backward-shuffle.png",
+      "expectedHash": "26d3e001a9902f66c606e720f3bf8410d7c630bbd99880369b3590dfc3b00a43",
+      "actualHash": "26d3e001a9902f66c606e720f3bf8410d7c630bbd99880369b3590dfc3b00a43",
+      "width": 1536,
+      "height": 1024,
+      "bitDepth": 8,
+      "colorType": 6,
+      "grid": {
+        "rows": 2,
+        "cols": 4
+      },
+      "extraction": {
+        "method": "alpha-components",
+        "contentAlpha": 32,
+        "clipAlpha": 128
+      },
+      "expectedFrames": 8,
+      "extractedFrames": 8,
+      "hasVisiblePixels": true,
+      "hasTransparentPixels": true
+    },
+    {
+      "id": "IMG-04",
+      "file": "el-toro__IMG-04__crouch.png",
+      "sourcePath": "docs/characters/el-toro/sprite-source/right/el-toro__IMG-04__crouch.png",
+      "expectedHash": "ba844bb600f903c62d918c6e3aab4365c1372af6f36ba54d31c736ff0ed398c3",
+      "actualHash": "ba844bb600f903c62d918c6e3aab4365c1372af6f36ba54d31c736ff0ed398c3",
+      "width": 1536,
+      "height": 1024,
+      "bitDepth": 8,
+      "colorType": 6,
+      "grid": {
+        "rows": 1,
+        "cols": 4
+      },
+      "extraction": {
+        "method": "alpha-components",
+        "contentAlpha": 32,
+        "clipAlpha": 128
+      },
+      "expectedFrames": 4,
+      "extractedFrames": 4,
+      "hasVisiblePixels": true,
+      "hasTransparentPixels": true
+    },
+    {
+      "id": "IMG-05",
+      "file": "el-toro__IMG-05__jump.png",
+      "sourcePath": "docs/characters/el-toro/sprite-source/right/el-toro__IMG-05__jump.png",
+      "expectedHash": "9bf5fd065e3241e978334791c291a06f2a001d58f789a3b4e6d7163392dd54d3",
+      "actualHash": "9bf5fd065e3241e978334791c291a06f2a001d58f789a3b4e6d7163392dd54d3",
+      "width": 1536,
+      "height": 1024,
+      "bitDepth": 8,
+      "colorType": 6,
+      "grid": {
+        "rows": 2,
+        "cols": 3
+      },
+      "extraction": {
+        "method": "alpha-components",
+        "contentAlpha": 32,
+        "clipAlpha": 128
+      },
+      "expectedFrames": 6,
+      "extractedFrames": 6,
+      "hasVisiblePixels": true,
+      "hasTransparentPixels": true
+    },
+    {
+      "id": "IMG-06",
+      "file": "el-toro__IMG-06__basic-attack.png",
+      "sourcePath": "docs/characters/el-toro/sprite-source/right/el-toro__IMG-06__basic-attack.png",
+      "expectedHash": "453e2a9a4983c94dc9579892181ae4e2cd6f214fedbb184d7628d7871b5b05ba",
+      "actualHash": "453e2a9a4983c94dc9579892181ae4e2cd6f214fedbb184d7628d7871b5b05ba",
+      "width": 1536,
+      "height": 1024,
+      "bitDepth": 8,
+      "colorType": 6,
+      "grid": {
+        "rows": 2,
+        "cols": 3
+      },
+      "extraction": {
+        "method": "alpha-components",
+        "contentAlpha": 32,
+        "clipAlpha": 128
+      },
+      "expectedFrames": 6,
+      "extractedFrames": 6,
+      "hasVisiblePixels": true,
+      "hasTransparentPixels": true
+    },
+    {
+      "id": "IMG-07",
+      "file": "el-toro__IMG-07__low-attack.png",
+      "sourcePath": "docs/characters/el-toro/sprite-source/right/el-toro__IMG-07__low-attack.png",
+      "expectedHash": "53fe7886c66a4a2ac7cecc18e9bf095faa0c174a1c5ce738b4b2f7c265dcdfa4",
+      "actualHash": "53fe7886c66a4a2ac7cecc18e9bf095faa0c174a1c5ce738b4b2f7c265dcdfa4",
+      "width": 1536,
+      "height": 1024,
+      "bitDepth": 8,
+      "colorType": 6,
+      "grid": {
+        "rows": 2,
+        "cols": 3
+      },
+      "extraction": {
+        "method": "alpha-components",
+        "contentAlpha": 32,
+        "clipAlpha": 128
+      },
+      "expectedFrames": 6,
+      "extractedFrames": 6,
+      "hasVisiblePixels": true,
+      "hasTransparentPixels": true
+    },
+    {
+      "id": "IMG-08",
+      "file": "el-toro__IMG-08__block.png",
+      "sourcePath": "docs/characters/el-toro/sprite-source/right/el-toro__IMG-08__block.png",
+      "expectedHash": "194ee89d805154b1cdfe41f55c5751fb7f829e1ac14a5ea51d569c473704693c",
+      "actualHash": "194ee89d805154b1cdfe41f55c5751fb7f829e1ac14a5ea51d569c473704693c",
+      "width": 1536,
+      "height": 1024,
+      "bitDepth": 8,
+      "colorType": 6,
+      "grid": {
+        "rows": 1,
+        "cols": 4
+      },
+      "extraction": {
+        "method": "alpha-components",
+        "contentAlpha": 32,
+        "clipAlpha": 128
+      },
+      "expectedFrames": 4,
+      "extractedFrames": 4,
+      "hasVisiblePixels": true,
+      "hasTransparentPixels": true
+    },
+    {
+      "id": "IMG-09",
+      "file": "el-toro__IMG-09__hurt-knockdown.png",
+      "sourcePath": "docs/characters/el-toro/sprite-source/right/el-toro__IMG-09__hurt-knockdown.png",
+      "expectedHash": "9f926012b8bb8e11711b572463787a7601fa2fd1d3b32ea91c5bfaff38add572",
+      "actualHash": "9f926012b8bb8e11711b572463787a7601fa2fd1d3b32ea91c5bfaff38add572",
+      "width": 1536,
+      "height": 1024,
+      "bitDepth": 8,
+      "colorType": 6,
+      "grid": {
+        "rows": 2,
+        "cols": 4
+      },
+      "extraction": {
+        "method": "alpha-components",
+        "contentAlpha": 32,
+        "clipAlpha": 128
+      },
+      "expectedFrames": 8,
+      "extractedFrames": 8,
+      "hasVisiblePixels": true,
+      "hasTransparentPixels": true
+    },
+    {
+      "id": "IMG-10",
+      "file": "el-toro__IMG-10__topete.png",
+      "sourcePath": "docs/characters/el-toro/sprite-source/right/el-toro__IMG-10__topete.png",
+      "expectedHash": "bbc0eceb11a903237d12a20a5b7b1c2eef60a02c19c836c474def1dbf7b3d8f1",
+      "actualHash": "bbc0eceb11a903237d12a20a5b7b1c2eef60a02c19c836c474def1dbf7b3d8f1",
+      "width": 1536,
+      "height": 1024,
+      "bitDepth": 8,
+      "colorType": 6,
+      "grid": {
+        "rows": 2,
+        "cols": 4
+      },
+      "extraction": {
+        "method": "alpha-components",
+        "contentAlpha": 32,
+        "clipAlpha": 128
+      },
+      "expectedFrames": 8,
+      "extractedFrames": 8,
+      "hasVisiblePixels": true,
+      "hasTransparentPixels": true
+    },
+    {
+      "id": "IMG-11",
+      "file": "el-toro__IMG-11__shawarmazo.png",
+      "sourcePath": "docs/characters/el-toro/sprite-source/right/el-toro__IMG-11__shawarmazo.png",
+      "expectedHash": "3bc8567f72aa50cf0df8650fcb172db385e74f8706b1f7d53cf95e4b51eeca2b",
+      "actualHash": "3bc8567f72aa50cf0df8650fcb172db385e74f8706b1f7d53cf95e4b51eeca2b",
+      "width": 1536,
+      "height": 1024,
+      "bitDepth": 8,
+      "colorType": 6,
+      "grid": {
+        "rows": 2,
+        "cols": 4
+      },
+      "extraction": {
+        "method": "alpha-components",
+        "contentAlpha": 32,
+        "clipAlpha": 128
+      },
+      "expectedFrames": 8,
+      "extractedFrames": 8,
+      "hasVisiblePixels": true,
+      "hasTransparentPixels": true
+    },
+    {
+      "id": "IMG-12",
+      "file": "el-toro__IMG-12__super-eructo.png",
+      "sourcePath": "docs/characters/el-toro/sprite-source/right/el-toro__IMG-12__super-eructo.png",
+      "expectedHash": "f91465638ff69f9a568fb4e168ad755fdc52883ae9d4cade093350ec20bc1ef5",
+      "actualHash": "f91465638ff69f9a568fb4e168ad755fdc52883ae9d4cade093350ec20bc1ef5",
+      "width": 1536,
+      "height": 1024,
+      "bitDepth": 8,
+      "colorType": 6,
+      "grid": {
+        "rows": 2,
+        "cols": 5
+      },
+      "extraction": {
+        "method": "alpha-components",
+        "contentAlpha": 32,
+        "clipAlpha": 128
+      },
+      "expectedFrames": 10,
+      "extractedFrames": 10,
+      "hasVisiblePixels": true,
+      "hasTransparentPixels": true
+    },
+    {
+      "id": "FX-01",
+      "file": "el-toro__FX-01__topete-impact.png",
+      "sourcePath": "docs/characters/el-toro/sprite-source/right/el-toro__FX-01__topete-impact.png",
+      "expectedHash": "3df8e51df3387112e611e138b577db75f283286b47bab86c43edef5b38b0dab1",
+      "actualHash": "3df8e51df3387112e611e138b577db75f283286b47bab86c43edef5b38b0dab1",
+      "width": 1536,
+      "height": 1024,
+      "bitDepth": 8,
+      "colorType": 6,
+      "grid": {
+        "rows": 1,
+        "cols": 4
+      },
+      "extraction": {
+        "method": "alpha-components",
+        "contentAlpha": 32,
+        "clipAlpha": 128
+      },
+      "expectedFrames": 4,
+      "extractedFrames": 4,
+      "hasVisiblePixels": true,
+      "hasTransparentPixels": true
+    },
+    {
+      "id": "FX-02",
+      "file": "el-toro__FX-02__shawarmazo-projectile.png",
+      "sourcePath": "docs/characters/el-toro/sprite-source/right/el-toro__FX-02__shawarmazo-projectile.png",
+      "expectedHash": "df2bfdc4dfd0a388a70693522c5b6c125c70437dbac41effd2bd0eb02cfd7e4c",
+      "actualHash": "df2bfdc4dfd0a388a70693522c5b6c125c70437dbac41effd2bd0eb02cfd7e4c",
+      "width": 1536,
+      "height": 1024,
+      "bitDepth": 8,
+      "colorType": 6,
+      "grid": {
+        "rows": 2,
+        "cols": 4
+      },
+      "extraction": {
+        "method": "alpha-components",
+        "contentAlpha": 32,
+        "clipAlpha": 128
+      },
+      "expectedFrames": 8,
+      "extractedFrames": 8,
+      "hasVisiblePixels": true,
+      "hasTransparentPixels": true
+    },
+    {
+      "id": "FX-03",
+      "file": "el-toro__FX-03__shawarmazo-impact.png",
+      "sourcePath": "docs/characters/el-toro/sprite-source/right/el-toro__FX-03__shawarmazo-impact.png",
+      "expectedHash": "a06588de862d431074957915770d387259d77c322425a1d02f3839e52b5bc9b5",
+      "actualHash": "a06588de862d431074957915770d387259d77c322425a1d02f3839e52b5bc9b5",
+      "width": 1536,
+      "height": 1024,
+      "bitDepth": 8,
+      "colorType": 6,
+      "grid": {
+        "rows": 1,
+        "cols": 4
+      },
+      "extraction": {
+        "method": "alpha-components",
+        "contentAlpha": 32,
+        "clipAlpha": 128
+      },
+      "expectedFrames": 4,
+      "extractedFrames": 4,
+      "hasVisiblePixels": true,
+      "hasTransparentPixels": true
+    },
+    {
+      "id": "FX-04",
+      "file": "el-toro__FX-04__super-eructo-effect.png",
+      "sourcePath": "docs/characters/el-toro/sprite-source/right/el-toro__FX-04__super-eructo-effect.png",
+      "expectedHash": "d1f69195f325d59036176eb13a48b21e595d536e56ce32930a4100ee0d4e701b",
+      "actualHash": "d1f69195f325d59036176eb13a48b21e595d536e56ce32930a4100ee0d4e701b",
+      "width": 1536,
+      "height": 1024,
+      "bitDepth": 8,
+      "colorType": 6,
+      "grid": {
+        "rows": 2,
+        "cols": 3
+      },
+      "extraction": {
+        "method": "alpha-components",
+        "contentAlpha": 32,
+        "clipAlpha": 128
+      },
+      "expectedFrames": 6,
+      "extractedFrames": 6,
+      "hasVisiblePixels": true,
+      "hasTransparentPixels": true
+    }
+  ],
+  "frames": [
+    {
+      "frameId": "IMG-00__f01",
+      "sheetId": "IMG-00",
+      "kind": "body",
+      "sourceRect": {
+        "x": 0,
+        "y": 0,
+        "width": 1254,
+        "height": 1254
+      },
+      "bbox": {
+        "x": 157,
+        "y": 15,
+        "width": 947,
+        "height": 1218
+      },
+      "extraction": {
+        "method": "alpha-components",
+        "contentAlpha": 32,
+        "components": 1,
+        "crossesNominal": false
+      },
+      "normalized": {
+        "scale": 0.22988506,
+        "pivotX": 160,
+        "pivotY": 300,
+        "x": 51.14942409,
+        "y": 19.99999692,
+        "width": 217.70115182,
+        "height": 280.00000308
+      }
+    },
+    {
+      "frameId": "IMG-01__f01",
+      "sheetId": "IMG-01",
+      "kind": "body",
+      "sourceRect": {
+        "x": 0,
+        "y": 0,
+        "width": 384,
+        "height": 512
+      },
+      "bbox": {
+        "x": 11,
+        "y": 17,
+        "width": 356,
+        "height": 498
+      },
+      "extraction": {
+        "method": "alpha-components",
+        "contentAlpha": 32,
+        "components": 1,
+        "crossesNominal": true
+      },
+      "normalized": {
+        "scale": 0.22988506,
+        "pivotX": 160,
+        "pivotY": 300,
+        "x": 119.08045932,
+        "y": 185.51724012,
+        "width": 81.83908136,
+        "height": 114.48275988
+      }
+    },
+    {
+      "frameId": "IMG-01__f02",
+      "sheetId": "IMG-01",
+      "kind": "body",
+      "sourceRect": {
+        "x": 384,
+        "y": 0,
+        "width": 384,
+        "height": 512
+      },
+      "bbox": {
+        "x": 408,
+        "y": 20,
+        "width": 350,
+        "height": 495
+      },
+      "extraction": {
+        "method": "alpha-components",
+        "contentAlpha": 32,
+        "components": 1,
+        "crossesNominal": true
+      },
+      "normalized": {
+        "scale": 0.22988506,
+        "pivotX": 160,
+        "pivotY": 300,
+        "x": 119.7701145,
+        "y": 186.2068953,
+        "width": 80.459771,
+        "height": 113.7931047
+      }
+    },
+    {
+      "frameId": "IMG-01__f03",
+      "sheetId": "IMG-01",
+      "kind": "body",
+      "sourceRect": {
+        "x": 768,
+        "y": 0,
+        "width": 384,
+        "height": 512
+      },
+      "bbox": {
+        "x": 796,
+        "y": 12,
+        "width": 351,
+        "height": 503
+      },
+      "extraction": {
+        "method": "alpha-components",
+        "contentAlpha": 32,
+        "components": 1,
+        "crossesNominal": true
+      },
+      "normalized": {
+        "scale": 0.22988506,
+        "pivotX": 160,
+        "pivotY": 300,
+        "x": 119.65517197,
+        "y": 184.36781482,
+        "width": 80.68965606,
+        "height": 115.63218518
+      }
+    },
+    {
+      "frameId": "IMG-01__f04",
+      "sheetId": "IMG-01",
+      "kind": "body",
+      "sourceRect": {
+        "x": 1152,
+        "y": 0,
+        "width": 384,
+        "height": 512
+      },
+      "bbox": {
+        "x": 1189,
+        "y": 7,
+        "width": 342,
+        "height": 508
+      },
+      "extraction": {
+        "method": "alpha-components",
+        "contentAlpha": 32,
+        "components": 1,
+        "crossesNominal": true
+      },
+      "normalized": {
+        "scale": 0.22988506,
+        "pivotX": 160,
+        "pivotY": 300,
+        "x": 120.68965474,
+        "y": 183.21838952,
+        "width": 78.62069052,
+        "height": 116.78161048
+      }
+    },
+    {
+      "frameId": "IMG-01__f05",
+      "sheetId": "IMG-01",
+      "kind": "body",
+      "sourceRect": {
+        "x": 0,
+        "y": 512,
+        "width": 384,
+        "height": 512
+      },
+      "bbox": {
+        "x": 12,
+        "y": 525,
+        "width": 355,
+        "height": 486
+      },
+      "extraction": {
+        "method": "alpha-components",
+        "contentAlpha": 32,
+        "components": 1,
+        "crossesNominal": false
+      },
+      "normalized": {
+        "scale": 0.22988506,
+        "pivotX": 160,
+        "pivotY": 300,
+        "x": 119.19540185,
+        "y": 188.27586084,
+        "width": 81.6091963,
+        "height": 111.72413916
+      }
+    },
+    {
+      "frameId": "IMG-01__f06",
+      "sheetId": "IMG-01",
+      "kind": "body",
+      "sourceRect": {
+        "x": 384,
+        "y": 512,
+        "width": 384,
+        "height": 512
+      },
+      "bbox": {
+        "x": 403,
+        "y": 532,
+        "width": 359,
+        "height": 478
+      },
+      "extraction": {
+        "method": "alpha-components",
+        "contentAlpha": 32,
+        "components": 1,
+        "crossesNominal": false
+      },
+      "normalized": {
+        "scale": 0.22988506,
+        "pivotX": 160,
+        "pivotY": 300,
+        "x": 118.73563173,
+        "y": 190.11494132,
+        "width": 82.52873654,
+        "height": 109.88505868
+      }
+    },
+    {
+      "frameId": "IMG-01__f07",
+      "sheetId": "IMG-01",
+      "kind": "body",
+      "sourceRect": {
+        "x": 768,
+        "y": 512,
+        "width": 384,
+        "height": 512
+      },
+      "bbox": {
+        "x": 791,
+        "y": 525,
+        "width": 355,
+        "height": 485
+      },
+      "extraction": {
+        "method": "alpha-components",
+        "contentAlpha": 32,
+        "components": 1,
+        "crossesNominal": false
+      },
+      "normalized": {
+        "scale": 0.22988506,
+        "pivotX": 160,
+        "pivotY": 300,
+        "x": 119.19540185,
+        "y": 188.5057459,
+        "width": 81.6091963,
+        "height": 111.4942541
+      }
+    },
+    {
+      "frameId": "IMG-01__f08",
+      "sheetId": "IMG-01",
+      "kind": "body",
+      "sourceRect": {
+        "x": 1152,
+        "y": 512,
+        "width": 384,
+        "height": 512
+      },
+      "bbox": {
+        "x": 1173,
+        "y": 523,
+        "width": 357,
+        "height": 487
+      },
+      "extraction": {
+        "method": "alpha-components",
+        "contentAlpha": 32,
+        "components": 1,
+        "crossesNominal": false
+      },
+      "normalized": {
+        "scale": 0.22988506,
+        "pivotX": 160,
+        "pivotY": 300,
+        "x": 118.96551679,
+        "y": 188.04597578,
+        "width": 82.06896642,
+        "height": 111.95402422
+      }
+    },
+    {
+      "frameId": "IMG-02__f01",
+      "sheetId": "IMG-02",
+      "kind": "body",
+      "sourceRect": {
+        "x": 0,
+        "y": 0,
+        "width": 384,
+        "height": 512
+      },
+      "bbox": {
+        "x": 64,
+        "y": 16,
+        "width": 309,
+        "height": 480
+      },
+      "extraction": {
+        "method": "alpha-components",
+        "contentAlpha": 32,
+        "components": 1,
+        "crossesNominal": false
+      },
+      "normalized": {
+        "scale": 0.22988506,
+        "pivotX": 160,
+        "pivotY": 300,
+        "x": 124.48275823,
+        "y": 189.6551712,
+        "width": 71.03448354,
+        "height": 110.3448288
+      }
+    },
+    {
+      "frameId": "IMG-02__f02",
+      "sheetId": "IMG-02",
+      "kind": "body",
+      "sourceRect": {
+        "x": 384,
+        "y": 0,
+        "width": 384,
+        "height": 512
+      },
+      "bbox": {
+        "x": 451,
+        "y": 17,
+        "width": 249,
+        "height": 478
+      },
+      "extraction": {
+        "method": "alpha-components",
+        "contentAlpha": 32,
+        "components": 1,
+        "crossesNominal": false
+      },
+      "normalized": {
+        "scale": 0.22988506,
+        "pivotX": 160,
+        "pivotY": 300,
+        "x": 131.37931003,
+        "y": 190.11494132,
+        "width": 57.24137994,
+        "height": 109.88505868
+      }
+    },
+    {
+      "frameId": "IMG-02__f03",
+      "sheetId": "IMG-02",
+      "kind": "body",
+      "sourceRect": {
+        "x": 768,
+        "y": 0,
+        "width": 384,
+        "height": 512
+      },
+      "bbox": {
+        "x": 769,
+        "y": 23,
+        "width": 354,
+        "height": 470
+      },
+      "extraction": {
+        "method": "alpha-components",
+        "contentAlpha": 32,
+        "components": 1,
+        "crossesNominal": false
+      },
+      "normalized": {
+        "scale": 0.22988506,
+        "pivotX": 160,
+        "pivotY": 300,
+        "x": 119.31034438,
+        "y": 191.9540218,
+        "width": 81.37931124,
+        "height": 108.0459782
+      }
+    },
+    {
+      "frameId": "IMG-02__f04",
+      "sheetId": "IMG-02",
+      "kind": "body",
+      "sourceRect": {
+        "x": 1152,
+        "y": 0,
+        "width": 384,
+        "height": 512
+      },
+      "bbox": {
+        "x": 1193,
+        "y": 23,
+        "width": 299,
+        "height": 470
+      },
+      "extraction": {
+        "method": "alpha-components",
+        "contentAlpha": 32,
+        "components": 1,
+        "crossesNominal": false
+      },
+      "normalized": {
+        "scale": 0.22988506,
+        "pivotX": 160,
+        "pivotY": 300,
+        "x": 125.63218353,
+        "y": 191.9540218,
+        "width": 68.73563294,
+        "height": 108.0459782
+      }
+    },
+    {
+      "frameId": "IMG-02__f05",
+      "sheetId": "IMG-02",
+      "kind": "body",
+      "sourceRect": {
+        "x": 0,
+        "y": 512,
+        "width": 384,
+        "height": 512
+      },
+      "bbox": {
+        "x": 67,
+        "y": 532,
+        "width": 290,
+        "height": 462
+      },
+      "extraction": {
+        "method": "alpha-components",
+        "contentAlpha": 32,
+        "components": 1,
+        "crossesNominal": false
+      },
+      "normalized": {
+        "scale": 0.22988506,
+        "pivotX": 160,
+        "pivotY": 300,
+        "x": 126.6666663,
+        "y": 193.79310228,
+        "width": 66.6666674,
+        "height": 106.20689772
+      }
+    },
+    {
+      "frameId": "IMG-02__f06",
+      "sheetId": "IMG-02",
+      "kind": "body",
+      "sourceRect": {
+        "x": 384,
+        "y": 512,
+        "width": 384,
+        "height": 512
+      },
+      "bbox": {
+        "x": 468,
+        "y": 529,
+        "width": 272,
+        "height": 464
+      },
+      "extraction": {
+        "method": "alpha-components",
+        "contentAlpha": 32,
+        "components": 1,
+        "crossesNominal": false
+      },
+      "normalized": {
+        "scale": 0.22988506,
+        "pivotX": 160,
+        "pivotY": 300,
+        "x": 128.73563184,
+        "y": 193.33333216,
+        "width": 62.52873632,
+        "height": 106.66666784
+      }
+    },
+    {
+      "frameId": "IMG-02__f07",
+      "sheetId": "IMG-02",
+      "kind": "body",
+      "sourceRect": {
+        "x": 768,
+        "y": 512,
+        "width": 384,
+        "height": 512
+      },
+      "bbox": {
+        "x": 813,
+        "y": 531,
+        "width": 365,
+        "height": 461
+      },
+      "extraction": {
+        "method": "alpha-components",
+        "contentAlpha": 32,
+        "components": 1,
+        "crossesNominal": true
+      },
+      "normalized": {
+        "scale": 0.22988506,
+        "pivotX": 160,
+        "pivotY": 300,
+        "x": 118.04597655,
+        "y": 194.02298734,
+        "width": 83.9080469,
+        "height": 105.97701266
+      }
+    },
+    {
+      "frameId": "IMG-02__f08",
+      "sheetId": "IMG-02",
+      "kind": "body",
+      "sourceRect": {
+        "x": 1152,
+        "y": 512,
+        "width": 384,
+        "height": 512
+      },
+      "bbox": {
+        "x": 1264,
+        "y": 529,
+        "width": 238,
+        "height": 463
+      },
+      "extraction": {
+        "method": "alpha-components",
+        "contentAlpha": 32,
+        "components": 1,
+        "crossesNominal": false
+      },
+      "normalized": {
+        "scale": 0.22988506,
+        "pivotX": 160,
+        "pivotY": 300,
+        "x": 132.64367786,
+        "y": 193.56321722,
+        "width": 54.71264428,
+        "height": 106.43678278
+      }
+    },
+    {
+      "frameId": "IMG-03__f01",
+      "sheetId": "IMG-03",
+      "kind": "body",
+      "sourceRect": {
+        "x": 0,
+        "y": 0,
+        "width": 384,
+        "height": 512
+      },
+      "bbox": {
+        "x": 37,
+        "y": 18,
+        "width": 350,
+        "height": 484
+      },
+      "extraction": {
+        "method": "alpha-components",
+        "contentAlpha": 32,
+        "components": 1,
+        "crossesNominal": true
+      },
+      "normalized": {
+        "scale": 0.22988506,
+        "pivotX": 160,
+        "pivotY": 300,
+        "x": 119.7701145,
+        "y": 188.73563096,
+        "width": 80.459771,
+        "height": 111.26436904
+      }
+    },
+    {
+      "frameId": "IMG-03__f02",
+      "sheetId": "IMG-03",
+      "kind": "body",
+      "sourceRect": {
+        "x": 384,
+        "y": 0,
+        "width": 384,
+        "height": 512
+      },
+      "bbox": {
+        "x": 438,
+        "y": 20,
+        "width": 256,
+        "height": 484
+      },
+      "extraction": {
+        "method": "alpha-components",
+        "contentAlpha": 32,
+        "components": 1,
+        "crossesNominal": false
+      },
+      "normalized": {
+        "scale": 0.22988506,
+        "pivotX": 160,
+        "pivotY": 300,
+        "x": 130.57471232,
+        "y": 188.73563096,
+        "width": 58.85057536,
+        "height": 111.26436904
+      }
+    },
+    {
+      "frameId": "IMG-03__f03",
+      "sheetId": "IMG-03",
+      "kind": "body",
+      "sourceRect": {
+        "x": 768,
+        "y": 0,
+        "width": 384,
+        "height": 512
+      },
+      "bbox": {
+        "x": 783,
+        "y": 21,
+        "width": 316,
+        "height": 481
+      },
+      "extraction": {
+        "method": "alpha-components",
+        "contentAlpha": 32,
+        "components": 1,
+        "crossesNominal": false
+      },
+      "normalized": {
+        "scale": 0.22988506,
+        "pivotX": 160,
+        "pivotY": 300,
+        "x": 123.67816052,
+        "y": 189.42528614,
+        "width": 72.64367896,
+        "height": 110.57471386
+      }
+    },
+    {
+      "frameId": "IMG-03__f04",
+      "sheetId": "IMG-03",
+      "kind": "body",
+      "sourceRect": {
+        "x": 1152,
+        "y": 0,
+        "width": 384,
+        "height": 512
+      },
+      "bbox": {
+        "x": 1151,
+        "y": 20,
+        "width": 373,
+        "height": 486
+      },
+      "extraction": {
+        "method": "alpha-components",
+        "contentAlpha": 32,
+        "components": 1,
+        "crossesNominal": true
+      },
+      "normalized": {
+        "scale": 0.22988506,
+        "pivotX": 160,
+        "pivotY": 300,
+        "x": 117.12643631,
+        "y": 188.27586084,
+        "width": 85.74712738,
+        "height": 111.72413916
+      }
+    },
+    {
+      "frameId": "IMG-03__f05",
+      "sheetId": "IMG-03",
+      "kind": "body",
+      "sourceRect": {
+        "x": 0,
+        "y": 512,
+        "width": 384,
+        "height": 512
+      },
+      "bbox": {
+        "x": 22,
+        "y": 527,
+        "width": 370,
+        "height": 477
+      },
+      "extraction": {
+        "method": "alpha-components",
+        "contentAlpha": 32,
+        "components": 1,
+        "crossesNominal": true
+      },
+      "normalized": {
+        "scale": 0.22988506,
+        "pivotX": 160,
+        "pivotY": 300,
+        "x": 117.4712639,
+        "y": 190.34482638,
+        "width": 85.0574722,
+        "height": 109.65517362
+      }
+    },
+    {
+      "frameId": "IMG-03__f06",
+      "sheetId": "IMG-03",
+      "kind": "body",
+      "sourceRect": {
+        "x": 384,
+        "y": 512,
+        "width": 384,
+        "height": 512
+      },
+      "bbox": {
+        "x": 425,
+        "y": 530,
+        "width": 266,
+        "height": 473
+      },
+      "extraction": {
+        "method": "alpha-components",
+        "contentAlpha": 32,
+        "components": 1,
+        "crossesNominal": false
+      },
+      "normalized": {
+        "scale": 0.22988506,
+        "pivotX": 160,
+        "pivotY": 300,
+        "x": 129.42528702,
+        "y": 191.26436662,
+        "width": 61.14942596,
+        "height": 108.73563338
+      }
+    },
+    {
+      "frameId": "IMG-03__f07",
+      "sheetId": "IMG-03",
+      "kind": "body",
+      "sourceRect": {
+        "x": 768,
+        "y": 512,
+        "width": 384,
+        "height": 512
+      },
+      "bbox": {
+        "x": 770,
+        "y": 528,
+        "width": 353,
+        "height": 475
+      },
+      "extraction": {
+        "method": "alpha-components",
+        "contentAlpha": 32,
+        "components": 1,
+        "crossesNominal": false
+      },
+      "normalized": {
+        "scale": 0.22988506,
+        "pivotX": 160,
+        "pivotY": 300,
+        "x": 119.42528691,
+        "y": 190.8045965,
+        "width": 81.14942618,
+        "height": 109.1954035
+      }
+    },
+    {
+      "frameId": "IMG-03__f08",
+      "sheetId": "IMG-03",
+      "kind": "body",
+      "sourceRect": {
+        "x": 1152,
+        "y": 512,
+        "width": 384,
+        "height": 512
+      },
+      "bbox": {
+        "x": 1156,
+        "y": 528,
+        "width": 380,
+        "height": 474
+      },
+      "extraction": {
+        "method": "alpha-components",
+        "contentAlpha": 32,
+        "components": 1,
+        "crossesNominal": false
+      },
+      "normalized": {
+        "scale": 0.22988506,
+        "pivotX": 160,
+        "pivotY": 300,
+        "x": 116.3218386,
+        "y": 191.03448156,
+        "width": 87.3563228,
+        "height": 108.96551844
+      }
+    },
+    {
+      "frameId": "IMG-04__f01",
+      "sheetId": "IMG-04",
+      "kind": "body",
+      "sourceRect": {
+        "x": 0,
+        "y": 0,
+        "width": 384,
+        "height": 1024
+      },
+      "bbox": {
+        "x": 26,
+        "y": 235,
+        "width": 364,
+        "height": 653
+      },
+      "extraction": {
+        "method": "alpha-components",
+        "contentAlpha": 32,
+        "components": 1,
+        "crossesNominal": true
+      },
+      "normalized": {
+        "scale": 0.22988506,
+        "pivotX": 160,
+        "pivotY": 300,
+        "x": 118.16091908,
+        "y": 149.88505582,
+        "width": 83.67816184,
+        "height": 150.11494418
+      }
+    },
+    {
+      "frameId": "IMG-04__f02",
+      "sheetId": "IMG-04",
+      "kind": "body",
+      "sourceRect": {
+        "x": 384,
+        "y": 0,
+        "width": 384,
+        "height": 1024
+      },
+      "bbox": {
+        "x": 415,
+        "y": 329,
+        "width": 351,
+        "height": 560
+      },
+      "extraction": {
+        "method": "alpha-components",
+        "contentAlpha": 32,
+        "components": 1,
+        "crossesNominal": false
+      },
+      "normalized": {
+        "scale": 0.22988506,
+        "pivotX": 160,
+        "pivotY": 300,
+        "x": 119.65517197,
+        "y": 171.2643664,
+        "width": 80.68965606,
+        "height": 128.7356336
+      }
+    },
+    {
+      "frameId": "IMG-04__f03",
+      "sheetId": "IMG-04",
+      "kind": "body",
+      "sourceRect": {
+        "x": 768,
+        "y": 0,
+        "width": 384,
+        "height": 1024
+      },
+      "bbox": {
+        "x": 811,
+        "y": 424,
+        "width": 335,
+        "height": 464
+      },
+      "extraction": {
+        "method": "alpha-components",
+        "contentAlpha": 32,
+        "components": 1,
+        "crossesNominal": false
+      },
+      "normalized": {
+        "scale": 0.22988506,
+        "pivotX": 160,
+        "pivotY": 300,
+        "x": 121.49425245,
+        "y": 193.33333216,
+        "width": 77.0114951,
+        "height": 106.66666784
+      }
+    },
+    {
+      "frameId": "IMG-04__f04",
+      "sheetId": "IMG-04",
+      "kind": "body",
+      "sourceRect": {
+        "x": 1152,
+        "y": 0,
+        "width": 384,
+        "height": 1024
+      },
+      "bbox": {
+        "x": 1197,
+        "y": 448,
+        "width": 328,
+        "height": 440
+      },
+      "extraction": {
+        "method": "alpha-components",
+        "contentAlpha": 32,
+        "components": 1,
+        "crossesNominal": false
+      },
+      "normalized": {
+        "scale": 0.22988506,
+        "pivotX": 160,
+        "pivotY": 300,
+        "x": 122.29885016,
+        "y": 198.8505736,
+        "width": 75.40229968,
+        "height": 101.1494264
+      }
+    },
+    {
+      "frameId": "IMG-05__f01",
+      "sheetId": "IMG-05",
+      "kind": "body",
+      "sourceRect": {
+        "x": 0,
+        "y": 0,
+        "width": 512,
+        "height": 512
+      },
+      "bbox": {
+        "x": 62,
+        "y": 121,
+        "width": 322,
+        "height": 362
+      },
+      "extraction": {
+        "method": "alpha-components",
+        "contentAlpha": 32,
+        "components": 1,
+        "crossesNominal": false
+      },
+      "normalized": {
+        "scale": 0.22988506,
+        "pivotX": 160,
+        "pivotY": 300,
+        "x": 122.98850534,
+        "y": 216.78160828,
+        "width": 74.02298932,
+        "height": 83.21839172
+      }
+    },
+    {
+      "frameId": "IMG-05__f02",
+      "sheetId": "IMG-05",
+      "kind": "body",
+      "sourceRect": {
+        "x": 512,
+        "y": 0,
+        "width": 512,
+        "height": 512
+      },
+      "bbox": {
+        "x": 562,
+        "y": 45,
+        "width": 384,
+        "height": 442
+      },
+      "extraction": {
+        "method": "alpha-components",
+        "contentAlpha": 32,
+        "components": 1,
+        "crossesNominal": false
+      },
+      "normalized": {
+        "scale": 0.22988506,
+        "pivotX": 160,
+        "pivotY": 300,
+        "x": 115.86206848,
+        "y": 198.39080348,
+        "width": 88.27586304,
+        "height": 101.60919652
+      }
+    },
+    {
+      "frameId": "IMG-05__f03",
+      "sheetId": "IMG-05",
+      "kind": "body",
+      "sourceRect": {
+        "x": 1024,
+        "y": 0,
+        "width": 512,
+        "height": 512
+      },
+      "bbox": {
+        "x": 1093,
+        "y": 7,
+        "width": 318,
+        "height": 481
+      },
+      "extraction": {
+        "method": "alpha-components",
+        "contentAlpha": 32,
+        "components": 1,
+        "crossesNominal": false
+      },
+      "normalized": {
+        "scale": 0.22988506,
+        "pivotX": 160,
+        "pivotY": 300,
+        "x": 123.44827546,
+        "y": 189.42528614,
+        "width": 73.10344908,
+        "height": 110.57471386
+      }
+    },
+    {
+      "frameId": "IMG-05__f04",
+      "sheetId": "IMG-05",
+      "kind": "body",
+      "sourceRect": {
+        "x": 0,
+        "y": 512,
+        "width": 512,
+        "height": 512
+      },
+      "bbox": {
+        "x": 103,
+        "y": 507,
+        "width": 308,
+        "height": 358
+      },
+      "extraction": {
+        "method": "alpha-components",
+        "contentAlpha": 32,
+        "components": 1,
+        "crossesNominal": true
+      },
+      "normalized": {
+        "scale": 0.22988506,
+        "pivotX": 160,
+        "pivotY": 300,
+        "x": 124.59770076,
+        "y": 217.70114852,
+        "width": 70.80459848,
+        "height": 82.29885148
+      }
+    },
+    {
+      "frameId": "IMG-05__f05",
+      "sheetId": "IMG-05",
+      "kind": "body",
+      "sourceRect": {
+        "x": 512,
+        "y": 512,
+        "width": 512,
+        "height": 512
+      },
+      "bbox": {
+        "x": 626,
+        "y": 522,
+        "width": 324,
+        "height": 480
+      },
+      "extraction": {
+        "method": "alpha-components",
+        "contentAlpha": 32,
+        "components": 1,
+        "crossesNominal": false
+      },
+      "normalized": {
+        "scale": 0.22988506,
+        "pivotX": 160,
+        "pivotY": 300,
+        "x": 122.75862028,
+        "y": 189.6551712,
+        "width": 74.48275944,
+        "height": 110.3448288
+      }
+    },
+    {
+      "frameId": "IMG-05__f06",
+      "sheetId": "IMG-05",
+      "kind": "body",
+      "sourceRect": {
+        "x": 1024,
+        "y": 512,
+        "width": 512,
+        "height": 512
+      },
+      "bbox": {
+        "x": 1081,
+        "y": 584,
+        "width": 390,
+        "height": 421
+      },
+      "extraction": {
+        "method": "alpha-components",
+        "contentAlpha": 32,
+        "components": 1,
+        "crossesNominal": false
+      },
+      "normalized": {
+        "scale": 0.22988506,
+        "pivotX": 160,
+        "pivotY": 300,
+        "x": 115.1724133,
+        "y": 203.21838974,
+        "width": 89.6551734,
+        "height": 96.78161026
+      }
+    },
+    {
+      "frameId": "IMG-06__f01",
+      "sheetId": "IMG-06",
+      "kind": "body",
+      "sourceRect": {
+        "x": 0,
+        "y": 0,
+        "width": 512,
+        "height": 512
+      },
+      "bbox": {
+        "x": 77,
+        "y": 19,
+        "width": 399,
+        "height": 488
+      },
+      "extraction": {
+        "method": "alpha-components",
+        "contentAlpha": 32,
+        "components": 1,
+        "crossesNominal": false
+      },
+      "normalized": {
+        "scale": 0.22988506,
+        "pivotX": 160,
+        "pivotY": 300,
+        "x": 114.13793053,
+        "y": 187.81609072,
+        "width": 91.72413894,
+        "height": 112.18390928
+      }
+    },
+    {
+      "frameId": "IMG-06__f02",
+      "sheetId": "IMG-06",
+      "kind": "body",
+      "sourceRect": {
+        "x": 512,
+        "y": 0,
+        "width": 512,
+        "height": 512
+      },
+      "bbox": {
+        "x": 574,
+        "y": 36,
+        "width": 417,
+        "height": 471
+      },
+      "extraction": {
+        "method": "alpha-components",
+        "contentAlpha": 32,
+        "components": 1,
+        "crossesNominal": false
+      },
+      "normalized": {
+        "scale": 0.22988506,
+        "pivotX": 160,
+        "pivotY": 300,
+        "x": 112.06896499,
+        "y": 191.72413674,
+        "width": 95.86207002,
+        "height": 108.27586326
+      }
+    },
+    {
+      "frameId": "IMG-06__f03",
+      "sheetId": "IMG-06",
+      "kind": "body",
+      "sourceRect": {
+        "x": 1024,
+        "y": 0,
+        "width": 512,
+        "height": 512
+      },
+      "bbox": {
+        "x": 1077,
+        "y": 34,
+        "width": 416,
+        "height": 473
+      },
+      "extraction": {
+        "method": "alpha-components",
+        "contentAlpha": 32,
+        "components": 1,
+        "crossesNominal": false
+      },
+      "normalized": {
+        "scale": 0.22988506,
+        "pivotX": 160,
+        "pivotY": 300,
+        "x": 112.18390752,
+        "y": 191.26436662,
+        "width": 95.63218496,
+        "height": 108.73563338
+      }
+    },
+    {
+      "frameId": "IMG-06__f04",
+      "sheetId": "IMG-06",
+      "kind": "body",
+      "sourceRect": {
+        "x": 0,
+        "y": 512,
+        "width": 512,
+        "height": 512
+      },
+      "bbox": {
+        "x": 62,
+        "y": 535,
+        "width": 511,
+        "height": 460
+      },
+      "extraction": {
+        "method": "alpha-components",
+        "contentAlpha": 32,
+        "components": 1,
+        "crossesNominal": true
+      },
+      "normalized": {
+        "scale": 0.22988506,
+        "pivotX": 160,
+        "pivotY": 300,
+        "x": 101.26436717,
+        "y": 194.2528724,
+        "width": 117.47126566,
+        "height": 105.7471276
+      }
+    },
+    {
+      "frameId": "IMG-06__f05",
+      "sheetId": "IMG-06",
+      "kind": "body",
+      "sourceRect": {
+        "x": 512,
+        "y": 512,
+        "width": 512,
+        "height": 512
+      },
+      "bbox": {
+        "x": 595,
+        "y": 532,
+        "width": 403,
+        "height": 465
+      },
+      "extraction": {
+        "method": "alpha-components",
+        "contentAlpha": 32,
+        "components": 1,
+        "crossesNominal": false
+      },
+      "normalized": {
+        "scale": 0.22988506,
+        "pivotX": 160,
+        "pivotY": 300,
+        "x": 113.67816041,
+        "y": 193.1034471,
+        "width": 92.64367918,
+        "height": 106.8965529
+      }
+    },
+    {
+      "frameId": "IMG-06__f06",
+      "sheetId": "IMG-06",
+      "kind": "body",
+      "sourceRect": {
+        "x": 1024,
+        "y": 512,
+        "width": 512,
+        "height": 512
+      },
+      "bbox": {
+        "x": 1070,
+        "y": 523,
+        "width": 408,
+        "height": 474
+      },
+      "extraction": {
+        "method": "alpha-components",
+        "contentAlpha": 32,
+        "components": 1,
+        "crossesNominal": false
+      },
+      "normalized": {
+        "scale": 0.22988506,
+        "pivotX": 160,
+        "pivotY": 300,
+        "x": 113.10344776,
+        "y": 191.03448156,
+        "width": 93.79310448,
+        "height": 108.96551844
+      }
+    },
+    {
+      "frameId": "IMG-07__f01",
+      "sheetId": "IMG-07",
+      "kind": "body",
+      "sourceRect": {
+        "x": 0,
+        "y": 0,
+        "width": 512,
+        "height": 512
+      },
+      "bbox": {
+        "x": 11,
+        "y": 19,
+        "width": 432,
+        "height": 490
+      },
+      "extraction": {
+        "method": "alpha-components",
+        "contentAlpha": 32,
+        "components": 1,
+        "crossesNominal": false
+      },
+      "normalized": {
+        "scale": 0.22988506,
+        "pivotX": 160,
+        "pivotY": 300,
+        "x": 110.34482704,
+        "y": 187.3563206,
+        "width": 99.31034592,
+        "height": 112.6436794
+      }
+    },
+    {
+      "frameId": "IMG-07__f02",
+      "sheetId": "IMG-07",
+      "kind": "body",
+      "sourceRect": {
+        "x": 512,
+        "y": 0,
+        "width": 512,
+        "height": 512
+      },
+      "bbox": {
+        "x": 554,
+        "y": 138,
+        "width": 428,
+        "height": 374
+      },
+      "extraction": {
+        "method": "alpha-components",
+        "contentAlpha": 32,
+        "components": 1,
+        "crossesNominal": false
+      },
+      "normalized": {
+        "scale": 0.22988506,
+        "pivotX": 160,
+        "pivotY": 300,
+        "x": 110.80459716,
+        "y": 214.02298756,
+        "width": 98.39080568,
+        "height": 85.97701244
+      }
+    },
+    {
+      "frameId": "IMG-07__f03",
+      "sheetId": "IMG-07",
+      "kind": "body",
+      "sourceRect": {
+        "x": 1024,
+        "y": 0,
+        "width": 512,
+        "height": 512
+      },
+      "bbox": {
+        "x": 1035,
+        "y": 178,
+        "width": 482,
+        "height": 341
+      },
+      "extraction": {
+        "method": "alpha-components",
+        "contentAlpha": 32,
+        "components": 1,
+        "crossesNominal": true
+      },
+      "normalized": {
+        "scale": 0.22988506,
+        "pivotX": 160,
+        "pivotY": 300,
+        "x": 104.59770054,
+        "y": 221.60919454,
+        "width": 110.80459892,
+        "height": 78.39080546
+      }
+    },
+    {
+      "frameId": "IMG-07__f04",
+      "sheetId": "IMG-07",
+      "kind": "body",
+      "sourceRect": {
+        "x": 0,
+        "y": 512,
+        "width": 512,
+        "height": 512
+      },
+      "bbox": {
+        "x": 38,
+        "y": 676,
+        "width": 604,
+        "height": 309
+      },
+      "extraction": {
+        "method": "alpha-components",
+        "contentAlpha": 32,
+        "components": 1,
+        "crossesNominal": true
+      },
+      "normalized": {
+        "scale": 0.22988506,
+        "pivotX": 160,
+        "pivotY": 300,
+        "x": 90.57471188,
+        "y": 228.96551646,
+        "width": 138.85057624,
+        "height": 71.03448354
+      }
+    },
+    {
+      "frameId": "IMG-07__f05",
+      "sheetId": "IMG-07",
+      "kind": "body",
+      "sourceRect": {
+        "x": 512,
+        "y": 512,
+        "width": 512,
+        "height": 512
+      },
+      "bbox": {
+        "x": 634,
+        "y": 692,
+        "width": 423,
+        "height": 305
+      },
+      "extraction": {
+        "method": "alpha-components",
+        "contentAlpha": 32,
+        "components": 1,
+        "crossesNominal": true
+      },
+      "normalized": {
+        "scale": 0.22988506,
+        "pivotX": 160,
+        "pivotY": 300,
+        "x": 111.37930981,
+        "y": 229.8850567,
+        "width": 97.24138038,
+        "height": 70.1149433
+      }
+    },
+    {
+      "frameId": "IMG-07__f06",
+      "sheetId": "IMG-07",
+      "kind": "body",
+      "sourceRect": {
+        "x": 1024,
+        "y": 512,
+        "width": 512,
+        "height": 512
+      },
+      "bbox": {
+        "x": 1081,
+        "y": 519,
+        "width": 425,
+        "height": 472
+      },
+      "extraction": {
+        "method": "alpha-components",
+        "contentAlpha": 32,
+        "components": 1,
+        "crossesNominal": false
+      },
+      "normalized": {
+        "scale": 0.22988506,
+        "pivotX": 160,
+        "pivotY": 300,
+        "x": 111.14942475,
+        "y": 191.49425168,
+        "width": 97.7011505,
+        "height": 108.50574832
+      }
+    },
+    {
+      "frameId": "IMG-08__f01",
+      "sheetId": "IMG-08",
+      "kind": "body",
+      "sourceRect": {
+        "x": 0,
+        "y": 0,
+        "width": 384,
+        "height": 1024
+      },
+      "bbox": {
+        "x": 14,
+        "y": 201,
+        "width": 402,
+        "height": 698
+      },
+      "extraction": {
+        "method": "alpha-components",
+        "contentAlpha": 32,
+        "components": 1,
+        "crossesNominal": true
+      },
+      "normalized": {
+        "scale": 0.22988506,
+        "pivotX": 160,
+        "pivotY": 300,
+        "x": 113.79310294,
+        "y": 139.54022812,
+        "width": 92.41379412,
+        "height": 160.45977188
+      }
+    },
+    {
+      "frameId": "IMG-08__f02",
+      "sheetId": "IMG-08",
+      "kind": "body",
+      "sourceRect": {
+        "x": 384,
+        "y": 0,
+        "width": 384,
+        "height": 1024
+      },
+      "bbox": {
+        "x": 411,
+        "y": 202,
+        "width": 371,
+        "height": 696
+      },
+      "extraction": {
+        "method": "alpha-components",
+        "contentAlpha": 32,
+        "components": 1,
+        "crossesNominal": true
+      },
+      "normalized": {
+        "scale": 0.22988506,
+        "pivotX": 160,
+        "pivotY": 300,
+        "x": 117.35632137,
+        "y": 139.99999824,
+        "width": 85.28735726,
+        "height": 160.00000176
+      }
+    },
+    {
+      "frameId": "IMG-08__f03",
+      "sheetId": "IMG-08",
+      "kind": "body",
+      "sourceRect": {
+        "x": 768,
+        "y": 0,
+        "width": 384,
+        "height": 1024
+      },
+      "bbox": {
+        "x": 791,
+        "y": 262,
+        "width": 356,
+        "height": 635
+      },
+      "extraction": {
+        "method": "alpha-components",
+        "contentAlpha": 32,
+        "components": 1,
+        "crossesNominal": false
+      },
+      "normalized": {
+        "scale": 0.22988506,
+        "pivotX": 160,
+        "pivotY": 300,
+        "x": 119.08045932,
+        "y": 154.0229869,
+        "width": 81.83908136,
+        "height": 145.9770131
+      }
+    },
+    {
+      "frameId": "IMG-08__f04",
+      "sheetId": "IMG-08",
+      "kind": "body",
+      "sourceRect": {
+        "x": 1152,
+        "y": 0,
+        "width": 384,
+        "height": 1024
+      },
+      "bbox": {
+        "x": 1157,
+        "y": 205,
+        "width": 379,
+        "height": 693
+      },
+      "extraction": {
+        "method": "alpha-components",
+        "contentAlpha": 32,
+        "components": 1,
+        "crossesNominal": false
+      },
+      "normalized": {
+        "scale": 0.22988506,
+        "pivotX": 160,
+        "pivotY": 300,
+        "x": 116.43678113,
+        "y": 140.68965342,
+        "width": 87.12643774,
+        "height": 159.31034658
+      }
+    },
+    {
+      "frameId": "IMG-09__f01",
+      "sheetId": "IMG-09",
+      "kind": "body",
+      "sourceRect": {
+        "x": 0,
+        "y": 0,
+        "width": 384,
+        "height": 512
+      },
+      "bbox": {
+        "x": 63,
+        "y": 99,
+        "width": 316,
+        "height": 491
+      },
+      "extraction": {
+        "method": "alpha-components",
+        "contentAlpha": 32,
+        "components": 1,
+        "crossesNominal": true
+      },
+      "normalized": {
+        "scale": 0.22988506,
+        "pivotX": 160,
+        "pivotY": 300,
+        "x": 123.67816052,
+        "y": 187.12643554,
+        "width": 72.64367896,
+        "height": 112.87356446
+      }
+    },
+    {
+      "frameId": "IMG-09__f02",
+      "sheetId": "IMG-09",
+      "kind": "body",
+      "sourceRect": {
+        "x": 384,
+        "y": 0,
+        "width": 384,
+        "height": 512
+      },
+      "bbox": {
+        "x": 421,
+        "y": 113,
+        "width": 322,
+        "height": 484
+      },
+      "extraction": {
+        "method": "alpha-components",
+        "contentAlpha": 32,
+        "components": 1,
+        "crossesNominal": true
+      },
+      "normalized": {
+        "scale": 0.22988506,
+        "pivotX": 160,
+        "pivotY": 300,
+        "x": 122.98850534,
+        "y": 188.73563096,
+        "width": 74.02298932,
+        "height": 111.26436904
+      }
+    },
+    {
+      "frameId": "IMG-09__f03",
+      "sheetId": "IMG-09",
+      "kind": "body",
+      "sourceRect": {
+        "x": 768,
+        "y": 0,
+        "width": 384,
+        "height": 512
+      },
+      "bbox": {
+        "x": 791,
+        "y": 163,
+        "width": 314,
+        "height": 427
+      },
+      "extraction": {
+        "method": "alpha-components",
+        "contentAlpha": 32,
+        "components": 1,
+        "crossesNominal": true
+      },
+      "normalized": {
+        "scale": 0.22988506,
+        "pivotX": 160,
+        "pivotY": 300,
+        "x": 123.90804558,
+        "y": 201.83907938,
+        "width": 72.18390884,
+        "height": 98.16092062
+      }
+    },
+    {
+      "frameId": "IMG-09__f04",
+      "sheetId": "IMG-09",
+      "kind": "body",
+      "sourceRect": {
+        "x": 1152,
+        "y": 0,
+        "width": 384,
+        "height": 512
+      },
+      "bbox": {
+        "x": 1166,
+        "y": 143,
+        "width": 334,
+        "height": 447
+      },
+      "extraction": {
+        "method": "alpha-components",
+        "contentAlpha": 32,
+        "components": 1,
+        "crossesNominal": true
+      },
+      "normalized": {
+        "scale": 0.22988506,
+        "pivotX": 160,
+        "pivotY": 300,
+        "x": 121.60919498,
+        "y": 197.24137818,
+        "width": 76.78161004,
+        "height": 102.75862182
+      }
+    },
+    {
+      "frameId": "IMG-09__f05",
+      "sheetId": "IMG-09",
+      "kind": "body",
+      "sourceRect": {
+        "x": 0,
+        "y": 512,
+        "width": 384,
+        "height": 512
+      },
+      "bbox": {
+        "x": 29,
+        "y": 619,
+        "width": 338,
+        "height": 366
+      },
+      "extraction": {
+        "method": "alpha-components",
+        "contentAlpha": 32,
+        "components": 1,
+        "crossesNominal": false
+      },
+      "normalized": {
+        "scale": 0.22988506,
+        "pivotX": 160,
+        "pivotY": 300,
+        "x": 121.14942486,
+        "y": 215.86206804,
+        "width": 77.70115028,
+        "height": 84.13793196
+      }
+    },
+    {
+      "frameId": "IMG-09__f06",
+      "sheetId": "IMG-09",
+      "kind": "body",
+      "sourceRect": {
+        "x": 384,
+        "y": 512,
+        "width": 384,
+        "height": 512
+      },
+      "bbox": {
+        "x": 371,
+        "y": 713,
+        "width": 384,
+        "height": 272
+      },
+      "extraction": {
+        "method": "alpha-components",
+        "contentAlpha": 32,
+        "components": 1,
+        "crossesNominal": true
+      },
+      "normalized": {
+        "scale": 0.22988506,
+        "pivotX": 160,
+        "pivotY": 300,
+        "x": 115.86206848,
+        "y": 237.47126368,
+        "width": 88.27586304,
+        "height": 62.52873632
+      }
+    },
+    {
+      "frameId": "IMG-09__f07",
+      "sheetId": "IMG-09",
+      "kind": "body",
+      "sourceRect": {
+        "x": 768,
+        "y": 512,
+        "width": 384,
+        "height": 512
+      },
+      "bbox": {
+        "x": 737,
+        "y": 822,
+        "width": 359,
+        "height": 167
+      },
+      "extraction": {
+        "method": "alpha-components",
+        "contentAlpha": 32,
+        "components": 1,
+        "crossesNominal": true
+      },
+      "normalized": {
+        "scale": 0.22988506,
+        "pivotX": 160,
+        "pivotY": 300,
+        "x": 118.73563173,
+        "y": 261.60919498,
+        "width": 82.52873654,
+        "height": 38.39080502
+      }
+    },
+    {
+      "frameId": "IMG-09__f08",
+      "sheetId": "IMG-09",
+      "kind": "body",
+      "sourceRect": {
+        "x": 1152,
+        "y": 512,
+        "width": 384,
+        "height": 512
+      },
+      "bbox": {
+        "x": 1110,
+        "y": 868,
+        "width": 413,
+        "height": 117
+      },
+      "extraction": {
+        "method": "alpha-components",
+        "contentAlpha": 32,
+        "components": 1,
+        "crossesNominal": true
+      },
+      "normalized": {
+        "scale": 0.22988506,
+        "pivotX": 160,
+        "pivotY": 300,
+        "x": 112.52873511,
+        "y": 273.10344798,
+        "width": 94.94252978,
+        "height": 26.89655202
+      }
+    },
+    {
+      "frameId": "IMG-10__f01",
+      "sheetId": "IMG-10",
+      "kind": "body",
+      "sourceRect": {
+        "x": 0,
+        "y": 0,
+        "width": 384,
+        "height": 512
+      },
+      "bbox": {
+        "x": 40,
+        "y": 45,
+        "width": 317,
+        "height": 464
+      },
+      "extraction": {
+        "method": "alpha-components",
+        "contentAlpha": 32,
+        "components": 1,
+        "crossesNominal": false
+      },
+      "normalized": {
+        "scale": 0.22988506,
+        "pivotX": 160,
+        "pivotY": 300,
+        "x": 123.56321799,
+        "y": 193.33333216,
+        "width": 72.87356402,
+        "height": 106.66666784
+      }
+    },
+    {
+      "frameId": "IMG-10__f02",
+      "sheetId": "IMG-10",
+      "kind": "body",
+      "sourceRect": {
+        "x": 384,
+        "y": 0,
+        "width": 384,
+        "height": 512
+      },
+      "bbox": {
+        "x": 403,
+        "y": 91,
+        "width": 300,
+        "height": 417
+      },
+      "extraction": {
+        "method": "alpha-components",
+        "contentAlpha": 32,
+        "components": 1,
+        "crossesNominal": false
+      },
+      "normalized": {
+        "scale": 0.22988506,
+        "pivotX": 160,
+        "pivotY": 300,
+        "x": 125.517241,
+        "y": 204.13792998,
+        "width": 68.965518,
+        "height": 95.86207002
+      }
+    },
+    {
+      "frameId": "IMG-10__f03",
+      "sheetId": "IMG-10",
+      "kind": "body",
+      "sourceRect": {
+        "x": 768,
+        "y": 0,
+        "width": 384,
+        "height": 512
+      },
+      "bbox": {
+        "x": 729,
+        "y": 130,
+        "width": 376,
+        "height": 377
+      },
+      "extraction": {
+        "method": "alpha-components",
+        "contentAlpha": 32,
+        "components": 1,
+        "crossesNominal": true
+      },
+      "normalized": {
+        "scale": 0.22988506,
+        "pivotX": 160,
+        "pivotY": 300,
+        "x": 116.78160872,
+        "y": 213.33333238,
+        "width": 86.43678256,
+        "height": 86.66666762
+      }
+    },
+    {
+      "frameId": "IMG-10__f04",
+      "sheetId": "IMG-10",
+      "kind": "body",
+      "sourceRect": {
+        "x": 1152,
+        "y": 0,
+        "width": 384,
+        "height": 512
+      },
+      "bbox": {
+        "x": 1082,
+        "y": 172,
+        "width": 424,
+        "height": 333
+      },
+      "extraction": {
+        "method": "alpha-components",
+        "contentAlpha": 32,
+        "components": 1,
+        "crossesNominal": true
+      },
+      "normalized": {
+        "scale": 0.22988506,
+        "pivotX": 160,
+        "pivotY": 300,
+        "x": 111.26436728,
+        "y": 223.44827502,
+        "width": 97.47126544,
+        "height": 76.55172498
+      }
+    },
+    {
+      "frameId": "IMG-10__f05",
+      "sheetId": "IMG-10",
+      "kind": "body",
+      "sourceRect": {
+        "x": 0,
+        "y": 512,
+        "width": 384,
+        "height": 512
+      },
+      "bbox": {
+        "x": 15,
+        "y": 642,
+        "width": 468,
+        "height": 346
+      },
+      "extraction": {
+        "method": "alpha-components",
+        "contentAlpha": 32,
+        "components": 1,
+        "crossesNominal": true
+      },
+      "normalized": {
+        "scale": 0.22988506,
+        "pivotX": 160,
+        "pivotY": 300,
+        "x": 106.20689596,
+        "y": 220.45976924,
+        "width": 107.58620808,
+        "height": 79.54023076
+      }
+    },
+    {
+      "frameId": "IMG-10__f06",
+      "sheetId": "IMG-10",
+      "kind": "body",
+      "sourceRect": {
+        "x": 384,
+        "y": 512,
+        "width": 384,
+        "height": 512
+      },
+      "bbox": {
+        "x": 430,
+        "y": 625,
+        "width": 431,
+        "height": 360
+      },
+      "extraction": {
+        "method": "alpha-components",
+        "contentAlpha": 32,
+        "components": 1,
+        "crossesNominal": true
+      },
+      "normalized": {
+        "scale": 0.22988506,
+        "pivotX": 160,
+        "pivotY": 300,
+        "x": 110.45976957,
+        "y": 217.2413784,
+        "width": 99.08046086,
+        "height": 82.7586216
+      }
+    },
+    {
+      "frameId": "IMG-10__f07",
+      "sheetId": "IMG-10",
+      "kind": "body",
+      "sourceRect": {
+        "x": 768,
+        "y": 512,
+        "width": 384,
+        "height": 512
+      },
+      "bbox": {
+        "x": 878,
+        "y": 570,
+        "width": 292,
+        "height": 418
+      },
+      "extraction": {
+        "method": "alpha-components",
+        "contentAlpha": 32,
+        "components": 1,
+        "crossesNominal": true
+      },
+      "normalized": {
+        "scale": 0.22988506,
+        "pivotX": 160,
+        "pivotY": 300,
+        "x": 126.43678124,
+        "y": 203.90804492,
+        "width": 67.12643752,
+        "height": 96.09195508
+      }
+    },
+    {
+      "frameId": "IMG-10__f08",
+      "sheetId": "IMG-10",
+      "kind": "body",
+      "sourceRect": {
+        "x": 1152,
+        "y": 512,
+        "width": 384,
+        "height": 512
+      },
+      "bbox": {
+        "x": 1192,
+        "y": 524,
+        "width": 317,
+        "height": 465
+      },
+      "extraction": {
+        "method": "alpha-components",
+        "contentAlpha": 32,
+        "components": 1,
+        "crossesNominal": false
+      },
+      "normalized": {
+        "scale": 0.22988506,
+        "pivotX": 160,
+        "pivotY": 300,
+        "x": 123.56321799,
+        "y": 193.1034471,
+        "width": 72.87356402,
+        "height": 106.8965529
+      }
+    },
+    {
+      "frameId": "IMG-11__f01",
+      "sheetId": "IMG-11",
+      "kind": "body",
+      "sourceRect": {
+        "x": 0,
+        "y": 0,
+        "width": 384,
+        "height": 512
+      },
+      "bbox": {
+        "x": 15,
+        "y": 49,
+        "width": 342,
+        "height": 449
+      },
+      "extraction": {
+        "method": "alpha-components",
+        "contentAlpha": 32,
+        "components": 1,
+        "crossesNominal": false
+      },
+      "normalized": {
+        "scale": 0.22988506,
+        "pivotX": 160,
+        "pivotY": 300,
+        "x": 120.68965474,
+        "y": 196.78160806,
+        "width": 78.62069052,
+        "height": 103.21839194
+      }
+    },
+    {
+      "frameId": "IMG-11__f02",
+      "sheetId": "IMG-11",
+      "kind": "body",
+      "sourceRect": {
+        "x": 384,
+        "y": 0,
+        "width": 384,
+        "height": 512
+      },
+      "bbox": {
+        "x": 385,
+        "y": 56,
+        "width": 355,
+        "height": 442
+      },
+      "extraction": {
+        "method": "alpha-components",
+        "contentAlpha": 32,
+        "components": 1,
+        "crossesNominal": false
+      },
+      "normalized": {
+        "scale": 0.22988506,
+        "pivotX": 160,
+        "pivotY": 300,
+        "x": 119.19540185,
+        "y": 198.39080348,
+        "width": 81.6091963,
+        "height": 101.60919652
+      }
+    },
+    {
+      "frameId": "IMG-11__f03",
+      "sheetId": "IMG-11",
+      "kind": "body",
+      "sourceRect": {
+        "x": 768,
+        "y": 0,
+        "width": 384,
+        "height": 512
+      },
+      "bbox": {
+        "x": 764,
+        "y": 66,
+        "width": 382,
+        "height": 431
+      },
+      "extraction": {
+        "method": "alpha-components",
+        "contentAlpha": 32,
+        "components": 1,
+        "crossesNominal": true
+      },
+      "normalized": {
+        "scale": 0.22988506,
+        "pivotX": 160,
+        "pivotY": 300,
+        "x": 116.09195354,
+        "y": 200.91953914,
+        "width": 87.81609292,
+        "height": 99.08046086
+      }
+    },
+    {
+      "frameId": "IMG-11__f04",
+      "sheetId": "IMG-11",
+      "kind": "body",
+      "sourceRect": {
+        "x": 1152,
+        "y": 0,
+        "width": 384,
+        "height": 512
+      },
+      "bbox": {
+        "x": 1136,
+        "y": 73,
+        "width": 392,
+        "height": 424
+      },
+      "extraction": {
+        "method": "alpha-components",
+        "contentAlpha": 32,
+        "components": 1,
+        "crossesNominal": true
+      },
+      "normalized": {
+        "scale": 0.22988506,
+        "pivotX": 160,
+        "pivotY": 300,
+        "x": 114.94252824,
+        "y": 202.52873456,
+        "width": 90.11494352,
+        "height": 97.47126544
+      }
+    },
+    {
+      "frameId": "IMG-11__f05",
+      "sheetId": "IMG-11",
+      "kind": "body",
+      "sourceRect": {
+        "x": 0,
+        "y": 512,
+        "width": 384,
+        "height": 512
+      },
+      "bbox": {
+        "x": 22,
+        "y": 534,
+        "width": 427,
+        "height": 443
+      },
+      "extraction": {
+        "method": "alpha-components",
+        "contentAlpha": 32,
+        "components": 1,
+        "crossesNominal": true
+      },
+      "normalized": {
+        "scale": 0.22988506,
+        "pivotX": 160,
+        "pivotY": 300,
+        "x": 110.91953969,
+        "y": 198.16091842,
+        "width": 98.16092062,
+        "height": 101.83908158
+      }
+    },
+    {
+      "frameId": "IMG-11__f06",
+      "sheetId": "IMG-11",
+      "kind": "body",
+      "sourceRect": {
+        "x": 384,
+        "y": 512,
+        "width": 384,
+        "height": 512
+      },
+      "bbox": {
+        "x": 393,
+        "y": 562,
+        "width": 437,
+        "height": 414
+      },
+      "extraction": {
+        "method": "alpha-components",
+        "contentAlpha": 32,
+        "components": 1,
+        "crossesNominal": true
+      },
+      "normalized": {
+        "scale": 0.22988506,
+        "pivotX": 160,
+        "pivotY": 300,
+        "x": 109.77011439,
+        "y": 204.82758516,
+        "width": 100.45977122,
+        "height": 95.17241484
+      }
+    },
+    {
+      "frameId": "IMG-11__f07",
+      "sheetId": "IMG-11",
+      "kind": "body",
+      "sourceRect": {
+        "x": 768,
+        "y": 512,
+        "width": 384,
+        "height": 512
+      },
+      "bbox": {
+        "x": 783,
+        "y": 548,
+        "width": 363,
+        "height": 429
+      },
+      "extraction": {
+        "method": "alpha-components",
+        "contentAlpha": 32,
+        "components": 1,
+        "crossesNominal": false
+      },
+      "normalized": {
+        "scale": 0.22988506,
+        "pivotX": 160,
+        "pivotY": 300,
+        "x": 118.27586161,
+        "y": 201.37930926,
+        "width": 83.44827678,
+        "height": 98.62069074
+      }
+    },
+    {
+      "frameId": "IMG-11__f08",
+      "sheetId": "IMG-11",
+      "kind": "body",
+      "sourceRect": {
+        "x": 1152,
+        "y": 512,
+        "width": 384,
+        "height": 512
+      },
+      "bbox": {
+        "x": 1165,
+        "y": 534,
+        "width": 338,
+        "height": 443
+      },
+      "extraction": {
+        "method": "alpha-components",
+        "contentAlpha": 32,
+        "components": 1,
+        "crossesNominal": false
+      },
+      "normalized": {
+        "scale": 0.22988506,
+        "pivotX": 160,
+        "pivotY": 300,
+        "x": 121.14942486,
+        "y": 198.16091842,
+        "width": 77.70115028,
+        "height": 101.83908158
+      }
+    },
+    {
+      "frameId": "IMG-12__f01",
+      "sheetId": "IMG-12",
+      "kind": "body",
+      "sourceRect": {
+        "x": 0,
+        "y": 0,
+        "width": 307,
+        "height": 512
+      },
+      "bbox": {
+        "x": 4,
+        "y": 74,
+        "width": 297,
+        "height": 433
+      },
+      "extraction": {
+        "method": "alpha-components",
+        "contentAlpha": 32,
+        "components": 1,
+        "crossesNominal": false
+      },
+      "normalized": {
+        "scale": 0.22988506,
+        "pivotX": 160,
+        "pivotY": 300,
+        "x": 125.86206859,
+        "y": 200.45976902,
+        "width": 68.27586282,
+        "height": 99.54023098
+      }
+    },
+    {
+      "frameId": "IMG-12__f02",
+      "sheetId": "IMG-12",
+      "kind": "body",
+      "sourceRect": {
+        "x": 307,
+        "y": 0,
+        "width": 307,
+        "height": 512
+      },
+      "bbox": {
+        "x": 300,
+        "y": 105,
+        "width": 320,
+        "height": 404
+      },
+      "extraction": {
+        "method": "alpha-components",
+        "contentAlpha": 32,
+        "components": 1,
+        "crossesNominal": true
+      },
+      "normalized": {
+        "scale": 0.22988506,
+        "pivotX": 160,
+        "pivotY": 300,
+        "x": 123.2183904,
+        "y": 207.12643576,
+        "width": 73.5632192,
+        "height": 92.87356424
+      }
+    },
+    {
+      "frameId": "IMG-12__f03",
+      "sheetId": "IMG-12",
+      "kind": "body",
+      "sourceRect": {
+        "x": 614,
+        "y": 0,
+        "width": 307,
+        "height": 512
+      },
+      "bbox": {
+        "x": 639,
+        "y": 73,
+        "width": 285,
+        "height": 436
+      },
+      "extraction": {
+        "method": "alpha-components",
+        "contentAlpha": 32,
+        "components": 1,
+        "crossesNominal": true
+      },
+      "normalized": {
+        "scale": 0.22988506,
+        "pivotX": 160,
+        "pivotY": 300,
+        "x": 127.24137895,
+        "y": 199.77011384,
+        "width": 65.5172421,
+       ZYÚˆLˆKˆ˜˜›ŞˆÂˆˆÎKˆHˆŒËˆÚYˆÌÌˆšZYÚˆLÎˆKˆ™^˜Xİ[ÛˆˆÂˆ›Y]Ùˆ˜[KXÛÛ\Û™[È‹ˆ˜ÛÛ[[HˆÌ‹ˆ˜ÛÛ\Û™[Èˆˆ˜Ü›ÜÜÙ\Ó›ÛZ[˜[ˆ˜[ÙBˆKˆ››Ü›X[^™YˆÂˆœØØ[HˆÌŒNÍËˆœ]›İˆMŒˆœ]›İHˆMŒˆˆÌÍÌMKˆHˆLÌŒNLNËˆÚYˆM‹NLNMKˆšZYÚˆNKŒMŒÌ‚ˆBˆKˆÂˆ™œ˜[YRYˆ‘–LW×ÙŒˆ‹ˆœÚY]Yˆ‘–LH‹ˆšÚ[™ˆ™‹ˆœÛİ\˜ÙT™XİˆÂˆˆÎˆHˆˆÚYˆÎˆšZYÚˆLˆKˆ˜˜›ŞˆÂˆˆKˆHˆˆÚYˆÎˆšZYÚˆÎBˆKˆ™^˜Xİ[ÛˆˆÂˆ›Y]Ùˆ˜[KXÛÛ\Û™[È‹ˆ˜ÛÛ[[HˆÌ‹ˆ˜ÛÛ\Û™[ÈˆŒ‹ˆ˜Ü›ÜÜÙ\Ó›ÛZ[˜[ˆYBˆKˆ››Ü›X[^™YˆÂˆœØØ[HˆÌŒNÍËˆœ]›İˆMŒˆœ]›İHˆMŒˆˆÍËLLŒÌÍËˆHˆNKÌŒŒŒŒMNˆÚYˆMŒNMÍLÌ‹ˆšZYÚˆLŒMMMMMÂˆBˆKˆÂˆ™œ˜[YRYˆ‘–LW×ÙŒÈ‹ˆœÚY]Yˆ‘–LH‹ˆšÚ[™ˆ™‹ˆœÛİ\˜ÙT™XİˆÂˆˆÍˆHˆˆÚYˆÎˆšZYÚˆLˆKˆ˜˜›ŞˆÂˆˆÍ‹ˆHˆMËˆÚYˆÎKˆšZYÚˆNˆKˆ™^˜Xİ[ÛˆˆÂˆ›Y]Ùˆ˜[KXÛÛ\Û™[È‹ˆ˜ÛÛ[[HˆÌ‹ˆ˜ÛÛ\Û™[ÈˆÌKˆ˜Ü›ÜÜÙ\Ó›ÛZ[˜[ˆYBˆKˆ››Ü›X[^™YˆÂˆœØØ[HˆÌŒNÍËˆœ]›İˆMŒˆœ]›İHˆMŒˆˆKŒMMÌNNNKˆHˆŒKŒLÎMËˆÚYˆNKLLÍŒËˆšZYÚˆNMËLLŒÍ‚ˆBˆKˆÂˆ™œ˜[YRYˆ‘–LW×ÙŒ‹ˆœÚY]Yˆ‘–LH‹ˆšÚ[™ˆ™‹ˆœÛİ\˜ÙT™XİˆÂˆˆLML‹ˆHˆˆÚYˆÎˆšZYÚˆLˆKˆ˜˜›ŞˆÂˆˆLMˆHˆŒËˆÚYˆÍLKˆšZYÚˆÌÌBˆKˆ™^˜Xİ[ÛˆˆÂˆ›Y]Ùˆ˜[KXÛÛ\Û™[È‹ˆ˜ÛÛ[[HˆÌ‹ˆ˜ÛÛ\Û™[Èˆ‹ˆ˜Ü›ÜÜÙ\Ó›ÛZ[˜[ˆYBˆKˆ››Ü›X[^™YˆÂˆœØØ[HˆÌŒNÍËˆœ]›İˆMŒˆœ]›İHˆMŒˆˆŒMN‹ˆHˆÍLÍMËˆÚYˆMLKËˆšZYÚˆMËŒLÂˆBˆKˆÂˆ™œ˜[YRYˆ‘–L—×ÙŒH‹ˆœÚY]Yˆ‘–Lˆ‹ˆšÚ[™ˆ™‹ˆœÛİ\˜ÙT™XİˆÂˆˆˆHˆˆÚYˆÎˆšZYÚˆLL‚ˆKˆ˜˜›ŞˆÂˆˆ‹ˆHˆMKˆÚYˆM‹ˆšZYÚˆMŒÂˆKˆ™^˜Xİ[ÛˆˆÂˆ›Y]Ùˆ˜[KXÛÛ\Û™[È‹ˆ˜ÛÛ[[HˆÌ‹ˆ˜ÛÛ\Û™[ÈˆLˆ˜Ü›ÜÜÙ\Ó›ÛZ[˜[ˆ˜[ÙBˆKˆ››Ü›X[^™YˆÂˆœØØ[HˆÌŒNÍËˆœ]›İˆMŒˆœ]›İHˆMŒˆˆM‹ŒLÎŒˆHˆLÎÎMLˆÚYˆLËLLŒÍNL‹ˆšZYÚˆÌÌŒNMLBˆBˆKˆÂˆ™œ˜[YRYˆ‘–L—×ÙŒˆ‹ˆœÚY]Yˆ‘–Lˆ‹ˆšÚ[™ˆ™‹ˆœÛİ\˜ÙT™XİˆÂˆˆÎˆHˆˆÚYˆÎˆšZYÚˆLL‚ˆKˆ˜˜›ŞˆÂˆˆ‹ˆHˆŒÍKˆÚYˆÌˆšZYÚˆNLÂˆKˆ™^˜Xİ[ÛˆˆÂˆ›Y]Ùˆ˜[KXÛÛ\Û™[È‹ˆ˜ÛÛ[[HˆÌ‹ˆ˜ÛÛ\Û™[ÈˆL‹ˆ˜Ü›ÜÜÙ\Ó›ÛZ[˜[ˆ˜[ÙBˆKˆ››Ü›X[^™YˆÂˆœØØ[HˆÌŒNÍËˆœ]›İˆMŒˆœ]›İHˆMŒˆˆKŒLÍNMÌ‹ˆHˆLNŒÌKˆÚYˆMKÌÎMM‹ˆšZYÚˆËŒÎMLŒŒBˆBˆKˆÂˆ™œ˜[YRYˆ‘–L—×ÙŒÈ‹ˆœÚY]Yˆ‘–Lˆ‹ˆšÚ[™ˆ™‹ˆœÛİ\˜ÙT™XİˆÂˆˆÍˆHˆˆÚYˆÎˆšZYÚˆLL‚ˆKˆ˜˜›ŞˆÂˆˆÍÍKˆHˆŒËˆÚYˆÌÎKˆšZYÚˆŒBˆKˆ™^˜Xİ[ÛˆˆÂˆ›Y]Ùˆ˜[KXÛÛ\Û™[È‹ˆ˜ÛÛ[[HˆÌ‹ˆ˜ÛÛ\Û™[ÈˆËˆ˜Ü›ÜÜÙ\Ó›ÛZ[˜[ˆ˜[ÙBˆKˆ››Ü›X[^™YˆÂˆœØØ[HˆÌŒNÍËˆœ]›İˆMŒˆœ]›İHˆMŒˆˆ‹ÍNLNˆHˆLMMÎLËˆÚYˆM‹MÌËˆšZYÚˆLŒÌLÂˆBˆKˆÂˆ™œ˜[YRYˆ‘–L—×ÙŒ‹ˆœÚY]Yˆ‘–Lˆ‹ˆšÚ[™ˆ™‹ˆœÛİ\˜ÙT™XİˆÂˆˆLML‹ˆHˆˆÚYˆÎˆšZYÚˆLL‚ˆKˆ˜˜›ŞˆÂˆˆLMLKˆHˆŒMˆÚYˆÍˆšZYÚˆŒÍÂˆKˆ™^˜Xİ[ÛˆˆÂˆ›Y]Ùˆ˜[KXÛÛ\Û™[È‹ˆ˜ÛÛ[[HˆÌ‹ˆ˜ÛÛ\Û™[Èˆ‹ˆ˜Ü›ÜÜÙ\Ó›ÛZ[˜[ˆYBˆKˆ››Ü›X[^™YˆÂˆœØØ[HˆÌŒNÍËˆœ]›İˆMŒˆœ]›İHˆMŒˆˆKŒÍNŒÎ‹ˆHˆLÎMŒMMÍKˆÚYˆMMËŒÎMLŒˆšZYÚˆL‹ÍBˆBˆKˆÂˆ™œ˜[YRYˆ‘–L—×ÙŒH‹ˆœÚY]Yˆ‘–Lˆ‹ˆšÚ[™ˆ™‹ˆœÛİ\˜ÙT™XİˆÂˆˆˆHˆLL‹ˆÚYˆÎˆšZYÚˆLL‚ˆKˆ˜˜›ŞˆÂˆˆNKˆHˆNˆÚYˆÍËˆšZYÚˆNL‚ˆKˆ™^˜Xİ[ÛˆˆÂˆ›Y]Ùˆ˜[KXÛÛ\Û™[È‹ˆ˜ÛÛ[[HˆÌ‹ˆ˜ÛÛ\Û™[ÈˆËˆ˜Ü›ÜÜÙ\Ó›ÛZ[˜[ˆYBˆKˆ››Ü›X[^™YˆÂˆœØØ[HˆÌŒNÍËˆœ]›İˆMŒˆœ]›İHˆMŒˆˆÌNÍMÌKˆHˆLNLNLNˆÚYˆMNNNKˆšZYÚˆ‹MŒMŒÎˆBˆKˆÂˆ™œ˜[YRYˆ‘–L—×ÙŒˆ‹ˆœÚY]Yˆ‘–Lˆ‹ˆšÚ[™ˆ™‹ˆœÛİ\˜ÙT™XİˆÂˆˆÎˆHˆLL‹ˆÚYˆÎˆšZYÚˆLL‚ˆKˆ˜˜›ŞˆÂˆˆÎLËˆHˆŒËˆÚYˆÍÌËˆšZYÚˆNÂˆKˆ™^˜Xİ[ÛˆˆÂˆ›Y]Ùˆ˜[KXÛÛ\Û™[È‹ˆ˜ÛÛ[[HˆÌ‹ˆ˜ÛÛ\Û™[Èˆˆ˜Ü›ÜÜÙ\Ó›ÛZ[˜[ˆ˜[ÙBˆKˆ››Ü›X[^™YˆÂˆœØØ[HˆÌŒNÍËˆœ]›İˆMŒˆœ]›İHˆMŒˆˆÎKLÍMÎLÎKˆHˆLŒŒMŒMˆÚYˆMŒKŒMÌLŒKˆšZYÚˆÎKŒÍÍLBˆBˆKˆÂˆ™œ˜[YRYˆ‘–L—×ÙŒÈ‹ˆœÚY]Yˆ‘–Lˆ‹ˆšÚ[™ˆ™‹ˆœÛİ\˜ÙT™XİˆÂˆˆÍˆHˆLL‹ˆÚYˆÎˆšZYÚˆLL‚ˆKˆ˜˜›ŞˆÂˆˆÎ‹ˆHˆˆÚYˆÍÌ‹ˆšZYÚˆMŒÂˆKˆ™^˜Xİ[ÛˆˆÂˆ›Y]Ùˆ˜[KXÛÛ\Û™[È‹ˆ˜ÛÛ[[HˆÌ‹ˆ˜ÛÛ\Û™[Èˆ‹ˆ˜Ü›ÜÜÙ\Ó›ÛZ[˜[ˆYBˆKˆ››Ü›X[^™YˆÂˆœØØ[HˆÌŒNÍËˆœ]›İˆMŒˆœ]›İHˆMŒˆˆÎKŒMŒÎˆHˆLÎÎMLˆÚYˆMŒÍÍˆšZYÚˆÌÌŒNMLBˆBˆKˆÂˆ™œ˜[YRYˆ‘–L—×ÙŒ‹ˆœÚY]Yˆ‘–Lˆ‹ˆšÚ[™ˆ™‹ˆœÛİ\˜ÙT™XİˆÂˆˆLML‹ˆHˆLL‹ˆÚYˆÎˆšZYÚˆLL‚ˆKˆ˜˜›ŞˆÂˆˆLMÎˆHˆÍˆÚYˆÍ‹ˆšZYÚˆMMBˆKˆ™^˜Xİ[ÛˆˆÂˆ›Y]Ùˆ˜[KXÛÛ\Û™[È‹ˆ˜ÛÛ[[HˆÌ‹ˆ˜ÛÛ\Û™[ÈˆKˆ˜Ü›ÜÜÙ\Ó›ÛZ[˜[ˆ˜[ÙBˆKˆ››Ü›X[^™YˆÂˆœØØ[HˆÌŒNÍËˆœ]›İˆMŒˆœ]›İHˆMŒˆˆKŒLLÎKˆHˆL‹LLŒÍLÌ‹ˆÚYˆMKLŒMÍ‹ˆšZYÚˆ‹MÍLÌLÍBˆBˆKˆÂˆ™œ˜[YRYˆ‘–L××ÙŒH‹ˆœÚY]Yˆ‘–LÈ‹ˆšÚ[™ˆ™‹ˆœÛİ\˜ÙT™XİˆÂˆˆˆHˆˆÚYˆÎˆšZYÚˆLˆKˆ˜˜›ŞˆÂˆˆÌKˆHˆL‹ˆÚYˆÍŒKˆšZYÚˆŒÎBˆKˆ™^˜Xİ[ÛˆˆÂˆ›Y]Ùˆ˜[KXÛÛ\Û™[È‹ˆ˜ÛÛ[[HˆÌ‹ˆ˜ÛÛ\Û™[ÈˆMKˆ˜Ü›ÜÜÙ\Ó›ÛZ[˜[ˆYBˆKˆ››Ü›X[^™YˆÂˆœØØ[HˆÌŒNÍËˆœ]›İˆMŒˆœ]›İHˆMŒˆˆ‹ŒŒMÌŒKˆHˆLŒÍNMNKˆÚYˆMMKNÍMNMËˆšZYÚˆLËŒÌMŒŒÂˆBˆKˆÂˆ™œ˜[YRYˆ‘–L××ÙŒˆ‹ˆœÚY]Yˆ‘–LÈ‹ˆšÚ[™ˆ™‹ˆœÛİ\˜ÙT™XİˆÂˆˆÎˆHˆˆÚYˆÎˆšZYÚˆLˆKˆ˜˜›ŞˆÂˆˆÌMËˆHˆMKˆÚYˆÌ‹ˆšZYÚˆÂˆKˆ™^˜Xİ[ÛˆˆÂˆ›Y]Ùˆ˜[KXÛÛ\Û™[È‹ˆ˜ÛÛ[[HˆÌ‹ˆ˜ÛÛ\Û™[Èˆ‹ˆ˜Ü›ÜÜÙ\Ó›ÛZ[˜[ˆYBˆKˆ››Ü›X[^™YˆÂˆœØØ[HˆÌŒNÍËˆœ]›İˆMŒˆœ]›İHˆMŒˆˆNŒLˆHˆŒLLŒˆÚYˆŒËMLŒNMˆšZYÚˆNLKNMÍMLLBˆBˆKˆÂˆ™œ˜[YRYˆ‘–L××ÙŒÈ‹ˆœÚY]Yˆ‘–LÈ‹ˆšÚ[™ˆ™‹ˆœÛİ\˜ÙT™XİˆÂˆˆÍˆHˆˆÚYˆÎˆšZYÚˆLˆKˆ˜˜›ŞˆÂˆˆÌNKˆHˆKˆÚYˆLˆšZYÚˆLBˆKˆ™^˜Xİ[ÛˆˆÂˆ›Y]Ùˆ˜[KXÛÛ\Û™[È‹ˆ˜ÛÛ[[HˆÌ‹ˆ˜ÛÛ\Û™[ÈˆÍËˆ˜Ü›ÜÜÙ\Ó›ÛZ[˜[ˆYBˆKˆ››Ü›X[^™YˆÂˆœØØ[HˆÌŒNÍËˆœ]›İˆMŒˆœ]›İHˆMŒˆˆŒ‹ÍÍÍÍÍÍKˆHˆLMLŒMËˆÚYˆNMKˆšZYÚˆŒNŒŒNÎBˆBˆKˆÂˆ™œ˜[YRYˆ‘–L××ÙŒ‹ˆœÚY]Yˆ‘–LÈ‹ˆšÚ[™ˆ™‹ˆœÛİ\˜ÙT™XİˆÂˆˆLML‹ˆHˆˆÚYˆÎˆšZYÚˆLˆKˆ˜˜›ŞˆÂˆˆLLÎˆHˆÌM‹ˆÚYˆÍˆšZYÚˆŒ‚ˆKˆ™^˜Xİ[ÛˆˆÂˆ›Y]Ùˆ˜[KXÛÛ\Û™[È‹ˆ˜ÛÛ[[HˆÌ‹ˆ˜ÛÛ\Û™[ÈˆŒˆ˜Ü›ÜÜÙ\Ó›ÛZ[˜[ˆYBˆKˆ››Ü›X[^™YˆÂˆœØØ[HˆÌŒNÍËˆœ]›İˆMŒˆœ]›İHˆMŒˆˆLÎŒÌ‹ˆHˆŒŒNLNLËˆÚYˆMNKŒLŒÍÌÍ‹ˆšZYÚˆNNKŒMŒÌMÍˆBˆKˆÂˆ™œ˜[YRYˆ‘–L×ÙŒH‹ˆœÚY]Yˆ‘–L‹ˆšÚ[™ˆ™‹ˆœÛİ\˜ÙT™XİˆÂˆˆˆHˆˆÚYˆLL‹ˆšZYÚˆLL‚ˆKˆ˜˜›ŞˆÂˆˆM‹ˆHˆŒˆÚYˆKˆšZYÚˆL‚ˆKˆ™^˜Xİ[ÛˆˆÂˆ›Y]Ùˆ˜[KXÛÛ\Û™[È‹ˆ˜ÛÛ[[HˆÌ‹ˆ˜ÛÛ\Û™[ÈˆMˆ˜Ü›ÜÜÙ\Ó›ÛZ[˜[ˆ˜[ÙBˆKˆ››Ü›X[^™YˆÂˆœØØ[HˆÌŒNÍËˆœ]›İˆMŒˆœ]›İHˆMŒˆˆMŒÍLNLÌËˆHˆLKMMMMMNˆÚYˆŒLKŒMŒNLËˆšZYÚˆLLˆBˆKˆÂˆ™œ˜[YRYˆ‘–L×ÙŒˆ‹ˆœÚY]Yˆ‘–L‹ˆšÚ[™ˆ™‹ˆœÛİ\˜ÙT™XİˆÂˆˆLL‹ˆHˆˆÚYˆLL‹ˆšZYÚˆLL‚ˆKˆ˜˜›ŞˆÂˆˆÍÌËˆHˆLÍËˆÚYˆˆšZYÚˆÍˆKˆ™^˜Xİ[ÛˆˆÂˆ›Y]Ùˆ˜[KXÛÛ\Û™[È‹ˆ˜ÛÛ[[HˆÌ‹ˆ˜ÛÛ\Û™[ÈˆLËˆ˜Ü›ÜÜÙ\Ó›ÛZ[˜[ˆYBˆKˆ››Ü›X[^™YˆÂˆœØØ[HˆÌŒNÍËˆœ]›İˆMŒˆœ]›İHˆMŒˆˆNKNNNNNL‹ˆHˆMM‹ˆÚYˆŒM‹ˆšZYÚˆMLŒÍÌÍÌNM‚ˆBˆKˆÂˆ™œ˜[YRYˆ‘–L×ÙŒÈ‹ˆœÚY]Yˆ‘–L‹ˆšÚ[™ˆ™‹ˆœÛİ\˜ÙT™XİˆÂˆˆLˆHˆˆÚYˆLL‹ˆšZYÚˆLL‚ˆKˆ˜˜›ŞˆÂˆˆLˆHˆMˆÚYˆŒMKˆšZYÚˆLBˆKˆ™^˜Xİ[ÛˆˆÂˆ›Y]Ùˆ˜[KXÛÛ\Û™[È‹ˆ˜ÛÛ[[HˆÌ‹ˆ˜ÛÛ\Û™[ÈˆLËˆ˜Ü›ÜÜÙ\Ó›ÛZ[˜[ˆYBˆKˆ››Ü›X[^™YˆÂˆœØØ[HˆÌŒNÍËˆœ]›İˆMŒˆœ]›İHˆMŒˆˆËŒLMŒŒËˆHˆŒ‹MŒMÌÌÍ‹ˆÚYˆKÍÍÍMKˆšZYÚˆNMÍMLÂˆBˆKˆÂˆ™œ˜[YRYˆ‘–L×ÙŒ‹ˆœÚY]Yˆ‘–L‹ˆšÚ[™ˆ™‹ˆœÛİ\˜ÙT™XİˆÂˆˆˆHˆLL‹ˆÚYˆLL‹ˆšZYÚˆLL‚ˆKˆ˜˜›ŞˆÂˆˆMˆHˆŒˆÚYˆMˆšZYÚˆBˆKˆ™^˜Xİ[ÛˆˆÂˆ›Y]Ùˆ˜[KXÛÛ\Û™[È‹ˆ˜ÛÛ[[HˆÌ‹ˆ˜ÛÛ\Û™[ÈˆMËˆ˜Ü›ÜÜÙ\Ó›ÛZ[˜[ˆYBˆKˆ››Ü›X[^™YˆÂˆœØØ[HˆÌŒNÍËˆœ]›İˆMŒˆœ]›İHˆMŒˆˆ‹LLÍM‹ˆHˆNNLLËˆÚYˆŒÍKŒŒMÌÌˆšZYÚˆLŒËŒMMMBˆBˆKˆÂˆ™œ˜[YRYˆ‘–L×ÙŒH‹ˆœÚY]Yˆ‘–L‹ˆšÚ[™ˆ™‹ˆœÛİ\˜ÙT™XİˆÂˆˆLL‹ˆHˆLL‹ˆÚYˆLL‹ˆšZYÚˆLL‚ˆKˆ˜˜›ŞˆÂˆˆL‹ˆHˆÌˆÚYˆL‹ˆšZYÚˆNBˆKˆ™^˜Xİ[ÛˆˆÂˆ›Y]Ùˆ˜[KXÛÛ\Û™[È‹ˆ˜ÛÛ[[HˆÌ‹ˆ˜ÛÛ\Û™[ÈˆŒ‹ˆ˜Ü›ÜÜÙ\Ó›ÛZ[˜[ˆ˜[ÙBˆKˆ››Ü›X[^™YˆÂˆœØØ[HˆÌŒNÍËˆœ]›İˆMŒˆœ]›İHˆMŒˆˆLËÌÍÌNˆHˆLŒÌŒLˆÚYˆŒL‹NLNMˆšZYÚˆLLKLLÍNMÂˆBˆKˆÂˆ™œ˜[YRYˆ‘–L×ÙŒˆ‹ˆœÚY]Yˆ‘–L‹ˆšÚ[™ˆ™‹ˆœÛİ\˜ÙT™XİˆÂˆˆLˆHˆLL‹ˆÚYˆLL‹ˆšZYÚˆLL‚ˆKˆ˜˜›ŞˆÂˆˆLLKˆHˆM‹ˆÚYˆÎKˆšZYÚˆˆKˆ™^˜Xİ[ÛˆˆÂˆ›Y]Ùˆ˜[KXÛÛ\Û™[È‹ˆ˜ÛÛ[[HˆÌ‹ˆ˜ÛÛ\Û™[ÈˆŒKˆ˜Ü›ÜÜÙ\Ó›ÛZ[˜[ˆYBˆKˆ››Ü›X[^™YˆÂˆœØØ[HˆÌŒNÍËˆœ]›İˆMŒˆœ]›İHˆMŒˆˆM‹LLŒÍNˆHˆÌKLNLL‹ˆÚYˆŒ‹MÍLÌLËˆšZYÚˆMÍ‹ŒMŒNM‚ˆBˆBˆKˆ™XYÛ›ÜİXÜÈˆÂˆš\ÚZ\ÛX]Ú\Èˆ×Kˆœ™Z™XİY[\›˜]T™\Ù[ˆ˜[ÙKˆ™[\Qœ˜[Y\Èˆ×Kˆ˜Ø[˜\ÑYÙPÛ\[™Èˆ×Kˆ˜Ù[›İ[™\UİXÚ\ÈˆÂˆ’SQËLW×ÙŒH‹ˆ’SQËLW×ÙŒˆ‹ˆ’SQËLW×ÙŒÈ‹ˆ’SQËLW×ÙŒ‹ˆ’SQËL—×ÙŒÈ‹ˆ’SQËL××ÙŒH‹ˆ’SQËL××ÙŒ‹ˆ’SQËL××ÙŒH‹ˆ’SQËL×ÙŒH‹ˆ’SQËLW×ÙŒ‹ˆ’SQËL—×ÙŒ‹ˆ’SQËL××ÙŒÈ‹ˆ’SQËL××ÙŒ‹ˆ’SQËL××ÙŒH‹ˆ’SQËL×ÙŒH‹ˆ’SQËL×ÙŒˆ‹ˆ’SQËLW×ÙŒH‹ˆ’SQËLW×ÙŒˆ‹ˆ’SQËLW×ÙŒÈ‹ˆ’SQËLW×ÙŒ‹ˆ’SQËLW×ÙŒˆ‹ˆ’SQËLW×ÙŒÈ‹ˆ’SQËLW×ÙŒ‹ˆ’SQËLL×ÙŒÈ‹ˆ’SQËLL×ÙŒ‹ˆ’SQËLL×ÙŒH‹ˆ’SQËLL×ÙŒˆ‹ˆ’SQËLL×ÙŒÈ‹ˆ’SQËLLW×ÙŒÈ‹ˆ’SQËLLW×ÙŒ‹ˆ’SQËLLW×ÙŒH‹ˆ’SQËLLW×ÙŒˆ‹ˆ’SQËLL—×ÙŒˆ‹ˆ’SQËLL—×ÙŒÈ‹ˆ’SQËLL—×ÙŒ‹ˆ’SQËLL—×ÙŒˆ‹ˆ’SQËLL—×ÙŒÈ‹ˆ’SQËLL—×ÙŒ‹ˆ’SQËLL—×ÙŒL‹ˆ‘–LW×ÙŒˆ‹ˆ‘–LW×ÙŒÈ‹ˆ‘–LW×ÙŒ‹ˆ‘–L—×ÙŒ‹ˆ‘–L—×ÙŒH‹ˆ‘–L—×ÙŒÈ‹ˆ‘–L××ÙŒH‹ˆ‘–L××ÙŒˆ‹ˆ‘–L××ÙŒÈ‹ˆ‘–L××ÙŒ‹ˆ‘–L×ÙŒˆ‹ˆ‘–L×ÙŒÈ‹ˆ‘–L×ÙŒ‹ˆ‘–L×ÙŒˆ‚ˆKˆ[œİ\ÜY™ÜÈˆ×BˆBŸB

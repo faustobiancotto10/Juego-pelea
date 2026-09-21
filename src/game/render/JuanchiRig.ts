@@ -7,6 +7,12 @@ import {
   type RigAnchors,
 } from './RigAnchors.js';
 import { getCharacterStructure } from './CharacterStructure.js';
+import {
+  drawCargoPocket,
+  drawFabricGrain,
+  drawHairStrands,
+  drawStitchLine,
+} from './ReferenceDetailPrimitives.js';
 import { GROUND_Y, clamp01, ellipse, lerp, pulse, roundedLine } from './drawUtils.js';
 
 interface JuanchiActionPose {
@@ -412,9 +418,36 @@ export function drawJuanchi(
   roundedLine(ctx, frontKnee.x, -frontKnee.y, action.frontFoot.x, -action.frontFoot.y, 18 * body.legThickness, '#111419');
   roundedLine(ctx, backHip.x, -backHip.y, backKnee.x, -backKnee.y, 22 * body.legThickness, '#121519');
   roundedLine(ctx, backKnee.x, -backKnee.y, action.backFoot.x, -action.backFoot.y, 18 * body.legThickness, '#0d1014');
-  ellipse(ctx, frontKnee.x + 4, -frontKnee.y + 2, 9, 6, '#22262c');
-  ellipse(ctx, backKnee.x - 4, -backKnee.y + 2, 9, 6, '#20242a');
+  drawCargoPocket(ctx, frontKnee.x + 4, -frontKnee.y + 2, 22, 17, '#20242a', '#080a0d', '#d8b65c');
+  drawCargoPocket(ctx, backKnee.x - 4, -backKnee.y + 2, 22, 17, '#1c2026', '#080a0d', '#c9a44f');
+  drawStitchLine(ctx, frontHip.x, -frontHip.y + 4, frontKnee.x + 2, -frontKnee.y + 5, '#545a62', 0.9, [3, 4], 0.35);
+  drawStitchLine(ctx, backHip.x, -backHip.y + 4, backKnee.x - 2, -backKnee.y + 5, '#4e545b', 0.9, [3, 4], 0.32);
   roundedLine(ctx, 11, -75 + action.drop, 28, -74 + action.drop, 2.2, '#d8b65c');
+
+  // Jacket tied around the waist: two hanging sleeves and gold cuff stripes from the master.
+  ctx.save();
+  ctx.fillStyle = '#11151b';
+  ctx.strokeStyle = '#05070a';
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.moveTo(-31, -78 + action.drop);
+  ctx.quadraticCurveTo(-19, -64 + action.drop, -8, -70 + action.drop);
+  ctx.lineTo(-14, -30 + action.drop);
+  ctx.quadraticCurveTo(-26, -25 + action.drop, -34, -42 + action.drop);
+  ctx.closePath();
+  ctx.fill();
+  ctx.stroke();
+  ctx.beginPath();
+  ctx.moveTo(28, -78 + action.drop);
+  ctx.quadraticCurveTo(17, -64 + action.drop, 8, -70 + action.drop);
+  ctx.lineTo(16, -31 + action.drop);
+  ctx.quadraticCurveTo(28, -27 + action.drop, 35, -43 + action.drop);
+  ctx.closePath();
+  ctx.fill();
+  ctx.stroke();
+  roundedLine(ctx, -17, -36 + action.drop, -30, -39 + action.drop, 2.2, '#d8b65c');
+  roundedLine(ctx, 18, -37 + action.drop, 31, -40 + action.drop, 2.2, '#d8b65c');
+  ctx.restore();
 
   // Black/white sneakers with a restrained gold stripe.
   ellipse(ctx, action.frontFoot.x + 5, -action.frontFoot.y + 1, 19, 7, '#f4f5f2', 0.03, '#090b0e', 2);
@@ -445,6 +478,9 @@ export function drawJuanchi(
   ctx.fill();
   ctx.stroke();
   ctx.restore();
+  drawFabricGrain(ctx, 0, torsoY + 2, 86 * body.torsoWidth, 78 * body.torsoLength, '#676d76', 0.10, 10);
+  drawStitchLine(ctx, -29, torsoY - 13, -34, torsoY + 27, '#30353c', 0.9, [4, 4], 0.45);
+  drawStitchLine(ctx, 29, torsoY - 13, 35, torsoY + 27, '#30353c', 0.9, [4, 4], 0.45);
 
   // Gold chain/details.
   ctx.save();
@@ -454,6 +490,8 @@ export function drawJuanchi(
   ctx.arc(2, torsoY - 31, 19, 0.28, Math.PI - 0.28);
   ctx.stroke();
   ellipse(ctx, 2, torsoY - 10, 4, 6, '#d8b65c', 0.08, '#6b5524', 1);
+  roundedLine(ctx, 2, torsoY - 17, 2, torsoY - 4, 1.6, '#f1d77f');
+  roundedLine(ctx, -3, torsoY - 10, 7, torsoY - 10, 1.6, '#f1d77f');
   ctx.restore();
 
   // "La 56" is drawn in an unmirrored local subpass so both facings stay readable.
@@ -463,6 +501,19 @@ export function drawJuanchi(
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
   drawFacingReadableText(ctx, fighter.facing, 7, torsoY + 3, 'La 56');
+  ctx.restore();
+  // Gold brush slash/crown cue under the shirt mark.
+  roundedLine(ctx, -20, torsoY + 17, 27, torsoY + 10, 3, '#c49a39');
+  ctx.save();
+  ctx.strokeStyle = '#d8b65c';
+  ctx.lineWidth = 1.8;
+  ctx.beginPath();
+  ctx.moveTo(12, torsoY - 27);
+  ctx.lineTo(18, torsoY - 34);
+  ctx.lineTo(24, torsoY - 27);
+  ctx.lineTo(29, torsoY - 34);
+  ctx.lineTo(33, torsoY - 24);
+  ctx.stroke();
   ctx.restore();
 
   const shoulderY = torsoY - 23;
@@ -481,6 +532,9 @@ export function drawJuanchi(
   roundedLine(ctx, backElbow.x, -backElbow.y, action.backHand.x, -action.backHand.y, 13 * body.forearmThickness, '#b87859');
   ellipse(ctx, action.frontHand.x, -action.frontHand.y, 7.5, 7, '#c98a67');
   ellipse(ctx, action.backHand.x, -action.backHand.y, 7.5, 7, '#c38563');
+  // Watch and bracelet remain visible at normal gameplay scale.
+  ellipse(ctx, action.frontHand.x - 8, -action.frontHand.y + 1, 4.5, 5.5, '#20252c', 0, '#d4b451', 1);
+  roundedLine(ctx, action.backHand.x - 8, -action.backHand.y, action.backHand.x - 3, -action.backHand.y, 2, '#d8b65c');
 
   // Heat only lives between the hands during Fricción; body pose remains readable without it.
   if (action.rub > 0.05) {
@@ -540,6 +594,12 @@ export function drawJuanchi(
     ctx.arc(headX + dx, headY + dy, radius, 0, Math.PI * 2);
     ctx.fill();
   }
+  drawHairStrands(ctx, [
+    [headX - 19, headY - 38, headX - 14, headY - 27],
+    [headX - 6, headY - 45, headX - 2, headY - 31],
+    [headX + 8, headY - 44, headX + 13, headY - 30],
+    [headX + 21, headY - 36, headX + 23, headY - 25],
+  ], '#5a4b45', 0.28);
   ctx.restore();
 
   roundedLine(ctx, headX + 4, headY - 7, headX + 18, headY - 8, 3, '#432b24');

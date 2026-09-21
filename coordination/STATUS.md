@@ -10,7 +10,7 @@ Execution: AUTO_CHAIN / MULTI-INSTANCE MARIO SQUAD
 | Ricardo | Gameplay Engineer | V07-R0→R1→R2→R3 | VERIFIED | Gameplay/core frozen; available only for requested renderer-facing contract repairs. |
 | Mario | Character / Rendering Engineer | V07-M3A/B/C/D→M3I | WORKING | Multi-instance squad active; four temporary Mario lanes are authorized in parallel, then Mario-A integrates. |
 | ↳ Mario-A | Temporary lane — Visual Architect / Lead | V07-M3A→M3I | HANDOFF_READY | M3A GREEN at `d6d1e074526cd1674af4e6103995eda19ab5a46b`; shared Juanchi gate repaired; waits for M3B+D before M3I. |
-| ↳ Mario-B | Temporary lane — El Toro + Juanchi | V07-M3B | BLOCKED | Product delta at `823589d3707aa2cedbe3b0dd8b946cdc56c4400d`; shared V07-M3 gate still asserts obsolete Juanchi tied-jacket cue. Await Mario-A/shared gate repair. |
+| ↳ Mario-B | Temporary lane — El Toro + Juanchi | V07-M3B | READY | Shared gate repair is GREEN at A SHA `d6d1e074526cd1674af4e6103995eda19ab5a46b`; consume the test-only delta, revalidate B candidate, then hand off exact SHA. |
 | ↳ Mario-C | Temporary lane — Camaleoni + Supernariz | V07-M3C | WORKING | Reopened for Mario-D secondary-motion request using existing locomotion signals only. |
 | ↳ Mario-D | Temporary lane — Motion / Presentation / FX | V07-M3D | WORKING | Lane claimed after duplicate-A collision; improving locomotion/body language/FX on `round/r005-mario-squad-motion-fx`. |
 | Germinator | Auditor / QA | V07-G1→G2 | WAITING_DEPENDENCY | Audit only the integrated V07-M3I squad candidate after A+B+C+D are green and M3I is composed. |

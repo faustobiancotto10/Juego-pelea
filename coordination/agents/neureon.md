@@ -99,6 +99,19 @@ Only Neureon issues `ROUND_COMPLETE`. A blocker that requires product/scope judg
 
 A replacement chat becomes Neureon by reading this file, PROTOCOL, CURRENT_ROUND, STATUS, LOCKS, active tasks/forum threads, handoffs, root AGENTS and DECISIONS. Never assume the prior Neureon chat is needed to recover state.
 
+## Multi-instance planning
+
+Neureon treats each named agent as a durable specialization, not a single chat. When a round contains enough safely separable work, choose instance count from real decomposition and workload rather than a fixed team size.
+
+Before activating a same-role squad, Neureon must freeze:
+- lane IDs and exact branches/bases;
+- exclusive write boundaries;
+- dependencies and shared interfaces;
+- one temporary same-role architect/integrator when needed;
+- the single integrated candidate that downstream QA will consume.
+
+Do not multiply instances merely because chats are available. If lanes repeatedly touch the same mutable surface, redesign the partition or keep the work serial.
+
 ## Durable role learnings
 
 This section is Neureon's bounded persistent operating memory.

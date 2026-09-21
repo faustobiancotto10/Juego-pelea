@@ -30,3 +30,25 @@ jobs:
 
       - name: Build
         run: npm run build
+
+      - name: V07-M2 phone-landscape evidence
+        run: |
+          python3 -m http.server 4173 -d dist > /tmp/juego-pelea-server.log 2>&1 &
+          SERVER_PID=$!
+          trap 'kill $SERVER_PID 2>/dev/null || true' EXIT
+          for attempt in {1..50}; do
+            if curl --fail --silent http://127.0.0.1:4173/ > /dev/null; then
+              break
+            fi
+            sleep 0.1
+          done
+          curl --fail --silent http://127.0.0.1:4173/ > /dev/null
+          node scripts/capture-v07-m2-evidence.mjs
+
+      - name: Upload V07-M2 phone evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: v07-m2-phone-evidence
+          path: evidence/v07-m2/*.png
+          if-no-files-found: error
+          retention-days: 14

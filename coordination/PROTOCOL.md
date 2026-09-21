@@ -233,15 +233,24 @@ If an expected agent is unavailable, mark UNRESPONSIVE only when its missing wor
 
 ## 17. Durable role memory / identity evolution
 
-Agent chats are disposable execution instances. The durable role identity lives in the repository.
+Agent chats are disposable execution instances. Durable role identity lives in the repository.
 
-After completing a meaningful task, and before considering its handoff fully complete, every agent must perform an **identity-learning review**:
+### Fundamental closeout law
 
-1. ask whether the task revealed a stable lesson that would materially improve a future replacement chat performing the same role;
-2. if not, make no identity change;
-3. if yes, update only its own file under `coordination/agents/<agent>.md` on authoritative `main`, inside that file's **Durable role learnings** section;
-4. keep the learning concise, evidence-based and reusable across future rounds;
-5. prefer refining/merging an existing learning over endlessly appending bullets.
+Every meaningful task/session closeout **MUST perform an Identity Learning Review before the handoff is complete**. The review is mandatory; adding text is not.
+
+The closeout records exactly one receipt:
+- `UPDATED` — one or more stable reusable lessons were consolidated into the durable identity;
+- `PROPOSAL` — a stable reusable lesson exists, but this instance must not edit the shared identity directly (for example, a same-role squad lane); the proposal travels to the designated consolidator;
+- `NO_CHANGE` — the review was performed and no candidate passed the durability filter.
+
+Skipping the review is not a valid closeout. A task may be technically green while its handoff remains incomplete until the receipt exists.
+
+The review asks:
+1. did this task reveal friction, an error pattern, a reliable technique or an interface lesson?
+2. would the lesson materially help a replacement instance of this same role across multiple future tasks/rounds?
+3. is it supported by actual repository/task evidence?
+4. is it operational rather than merely historical?
 
 A valid durable role learning is:
 - role-specific;
@@ -257,39 +266,63 @@ Do **not** store in identity:
 - guesses, preferences or unverified conclusions;
 - user secrets or unrelated conversation context.
 
-Self-maintenance is intentionally bounded:
-- an agent may edit only its own **Durable role learnings** section;
-- it may not alter its Mission, ownership, prohibited responsibilities, authority, activation rules or this protocol through self-learning;
+Self-maintenance is bounded:
+- a single non-squad agent may edit only its own **Durable role learnings** section;
+- it may not alter Mission, ownership, prohibited responsibilities, authority, activation rules or this protocol through self-learning;
 - it may not grant itself new scope or override another agent;
-- cross-role/system-wide lessons go to Neureon for possible promotion into `AGENTS.md`, `docs/DECISIONS.md` or this protocol;
+- cross-role/system-wide lessons go to Neureon for possible promotion into `AGENTS.md`, `docs/DECISIONS.md`, `coordination/TOOLING.md` or this protocol;
 - if a proposed learning conflicts with higher authority, do not write it.
 
-The identity-learning review must never delay downstream AUTO_CHAIN work merely because no useful learning exists. A no-op is a valid result.
+### Same-role squad consolidation
+
+Lane instances **do not race** to edit one shared role identity.
+
+Non-integrator lanes finish with either:
+- `PROPOSAL` plus the concise reusable lesson and designated same-role integrator/consolidator; or
+- `NO_CHANGE`.
+
+The designated same-role integrator/consolidator deduplicates proposals after the squad converges and performs at most one coherent durable-role update. Its final squad handoff records `UPDATED` if it wrote the identity, otherwise `NO_CHANGE`.
 
 Replacement chats inherit accumulated role experience by reading the identity file during normal activation.
 
 ## 18. Multi-instance role squads
 
-A round may explicitly authorize multiple disposable chat instances of the same durable identity to work concurrently.
+**A durable identity is not an instance.** Any durable role may be executed by N temporary chat instances when the round explicitly authorizes safely separable same-role lanes.
+
+Temporary labels such as `Mario-A`, `Mario-B`, `Ricardo-A` or `Germinator-C` exist only for execution coordination. They inherit the durable role's mission, ownership boundaries, prohibitions and Durable role learnings; they do not become new permanent roles.
+
+There is no repository-defined numeric maximum. Safe decomposition, not chat count, is the limit.
+
+Before material edits, every same-role lane must register:
+- durable identity and temporary instance label;
+- task/lane ID;
+- exact base SHA and branch;
+- dependencies;
+- exclusive owned files/subsystems;
+- prohibited overlap with sibling lanes;
+- integration target/integrator;
+- required verification/evidence.
+
+Use `coordination/templates/squad-lane.md` as the canonical lane contract.
 
 All instances:
-- inherit the same durable role identity, ownership boundaries and prohibitions;
-- use temporary instance labels only for execution coordination (for example `Mario-A`, `Mario-B`);
-- must register their lane in the round/task/forum before material edits;
-- must use distinct branches unless the round explicitly proves same-branch work safe;
-- must partition file/subsystem ownership before editing and obey LOCKS;
-- may communicate through the active forum to request interfaces, challenge decisions and coordinate integration;
+- use isolated branches unless the round explicitly proves another write model safe;
+- obey live LOCKS and exclusive lane ownership;
+- communicate interface needs through the active forum rather than editing a sibling lane's surface;
+- leave an exact-SHA handoff;
+- leave the mandatory Identity Learning Review receipt;
 - may not broaden the durable role's authority merely because several instances exist.
 
-Parallelization is appropriate only when lanes are meaningfully separable. Do not split work when agents would repeatedly require the same mutable files or when one lane's implementation must be understood before another can safely proceed.
+Parallelization is appropriate only when lanes are meaningfully separable. Do not split work when workers repeatedly require the same mutable files or when one lane's unfinished implementation must be understood before another can safely proceed.
 
-A round may designate one temporary **squad architect/integrator**. This is execution authority only:
-- it may define same-role shared interfaces inside the durable role's existing ownership;
-- it may coordinate same-role cross-lane decisions;
-- it may compose exact accepted lane deltas into a candidate;
+A round may designate one temporary same-role **architect/integrator**. This is execution authority only:
+- it may define shared interfaces inside the durable role's existing ownership;
+- coordinate cross-lane decisions;
+- compose exact accepted lane deltas into one candidate;
+- consolidate same-role Identity Learning proposals;
 - it may not override Neureon, Germinator, another durable role, frozen product contracts or user authority.
 
-Each lane must leave an exact-SHA handoff. Downstream QA/integration consumes the explicitly integrated squad candidate, not arbitrary moving lane heads.
+Cross-role QA and downstream integration consume one explicitly integrated same-role candidate, never arbitrary moving lane heads.
 
 If two instances collide on the same file/subsystem, stop the conflicting edits, record the collision, resolve ownership in the forum and continue only after the write boundary is unambiguous.
 

@@ -112,6 +112,12 @@ export function drawChameleon(
   const airClaw = f.moveId === 'airClaw' ? Math.max(claw, movePhase.active) : 0;
   const airTilt = -motion.ascent * 0.07 + motion.descent * 0.09;
   const landingCompression = locomotion.landingAbsorption * 4;
+  // Existing travel-driven secondary-motion channels from LocomotionPose.
+  // These are render-only and stay inert outside ordinary locomotion.
+  const hipTwist = locomotion.hipCounterRotation * 180;
+  const chestTwist = locomotion.chestCounterRotation;
+  const freeArmSwing = locomotion.freeArmSwing;
+  const weightShift = locomotion.weightTransfer;
   const forwardLean =
     tongue * 0.12
     + claw * 0.07
@@ -125,6 +131,7 @@ export function drawChameleon(
     + dashDrive * 0.24
     + comboBeat * 0.16
     + locomotion.torsoLean
+    + chestTwist * 0.24
     + stance.forwardLean * 0.16
     + hurtLean
     - ko * 1.16;
@@ -156,7 +163,13 @@ export function drawChameleon(
     comboBeat * Math.sin(time * 21) * 30
     - vanishCoil * 20
     + dashDrive * 18;
-  const tailCounter = -tongue * 28 - claw * 12 + ultimateTailBeat + Math.sin(time * 2.8) * 5;
+  const tailCounter =
+    -tongue * 28
+    - claw * 12
+    + ultimateTailBeat
+    + Math.sin(time * 2.8) * 5
+    - freeArmSwing * 0.52
+    - weightShift * 0.65;
   const sweep = coletazo.sweep;
   const tailMidX = sweep < 0 ? lerp(-67, -104, -sweep / 0.58) : lerp(-67, 84, sweep);
   const tailMidY = sweep < 0 ? lerp(-10 + tailCounter * 0.18, -48, -sweep / 0.58) : lerp(-10 + tailCounter * 0.18, -91, sweep);
@@ -192,7 +205,12 @@ export function drawChameleon(
   const hipY = -54 + bodyDrop;
   const shoulderY = -112 - (body.torsoLength - 1) * 44 + bodyDrop * 0.45 + idle;
   const hipSpan = 13 * body.hipWidth * stance.width;
-  const hipCounter = coletazo.windup * -13 + coletazo.strike * 11 + coletazo.followThrough * 7;
+  const hipCounter =
+    coletazo.windup * -13
+    + coletazo.strike * 11
+    + coletazo.followThrough * 7
+    + hipTwist
+    + weightShift * 0.42;
 
   // Travel-driven feet keep a support foot near its world anchor instead of
   // oscillating from wall time / velocity while clamped.
@@ -263,7 +281,8 @@ export function drawChameleon(
     + lowClaw * 31
     - vanishCoil * 9
     + dashDrive * 24
-    + comboBeat * 34;
+    + comboBeat * 34
+    + freeArmSwing * 0.20;
   const frontY =
     shoulderY
     + block * 16
@@ -279,8 +298,10 @@ export function drawChameleon(
   roundedLine(ctx, frontReach + 5, frontY - 1, frontReach + 12, frontY - 5, 1.5, '#c6d98c');
   roundedLine(ctx, frontReach + 5, frontY + 1, frontReach + 13, frontY + 1, 1.5, '#c6d98c');
   roundedLine(ctx, frontReach + 4, frontY + 3, frontReach + 11, frontY + 6, 1.5, '#c6d98c');
-  roundedLine(ctx, -shoulderSpan, shoulderY + 4, -24 + block * 13, shoulderY + 18 - block * 25, 10 * body.armThickness, '#568f3a');
-  ellipse(ctx, -25 + block * 13, shoulderY + 18 - block * 25, 7, 6, '#80b75a');
+  const rearHandX = -24 + block * 13 - freeArmSwing * 0.34;
+  const rearHandY = shoulderY + 18 - block * 25 + Math.abs(freeArmSwing) * 0.10;
+  roundedLine(ctx, -shoulderSpan, shoulderY + 4, rearHandX, rearHandY, 10 * body.armThickness, '#568f3a');
+  ellipse(ctx, rearHandX - 1, rearHandY, 7, 6, '#80b75a');
 
   // Oversized stylized human-like head from the reference concept, reconstructed with vector forms.
   const headX =
@@ -289,7 +310,9 @@ export function drawChameleon(
     - vanishCoil * 8
     + dashDrive * 14
     + comboBeat * 9
-    + block * -3;
+    + block * -3
+    + chestTwist * 52
+    + weightShift * 0.22;
   const headY =
     -155
     + bodyDrop * 0.43

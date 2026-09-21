@@ -56,7 +56,7 @@ test('guard damage can break defense and guard later regenerates', () => {
   const sim = new CombatSimulation('chameleon', 'supernariz', { skipIntro: true });
   sim.fighters[0].x = 500;
   sim.fighters[1].x = 700;
-  sim.fighters[1].guard = 14;
+  sim.fighters[1].guard = 10;
   sim.fighters[1].guardRegenDelay = 45;
 
   sim.step(input({ special: true }), input({ right: true }));
@@ -65,7 +65,7 @@ test('guard damage can break defense and guard later regenerates', () => {
     snap = sim.step(EMPTY_INPUT, input({ right: true }));
   }
   assert.equal(snap.fighters[1].guard, 0);
-  assert.ok(snap.fighters[1].guardBreakFrames > 0, 'one blocked Lengua at 14 GUARD should break defense');
+  assert.ok(snap.fighters[1].guardBreakFrames > 0, 'one blocked V0.7 Lengua at 10 GUARD should break defense');
 
   snap = stepN(sim, 130);
   assert.equal(snap.fighters[1].guardBreakFrames, 0);

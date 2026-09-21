@@ -1,4 +1,4 @@
-import type { FighterId, FighterIndex } from '../types.js';
+import type { CpuDifficulty, FighterId, FighterIndex } from '../types.js';
 
 export type StageSelectionId = 'tramontana-dusk' | 'cancha-56';
 export type RosterDensity = 'standard' | 'compact' | 'dense';
@@ -17,12 +17,14 @@ export interface GameFlowState {
   cpu: FighterId | null;
   stage: StageSelectionId;
   winner: FighterIndex | null;
+  cpuDifficulty: CpuDifficulty;
 }
 
 export const DEFAULT_STAGE: StageSelectionId = 'tramontana-dusk';
+export const DEFAULT_CPU_DIFFICULTY: CpuDifficulty = 'normal';
 
 export function initialFlowState(stage: StageSelectionId = DEFAULT_STAGE): GameFlowState {
-  return { phase: 'title', player: null, cpu: null, stage, winner: null };
+  return { phase: 'title', player: null, cpu: null, stage, winner: null, cpuDifficulty: DEFAULT_CPU_DIFFICULTY };
 }
 
 export function beginSelection(state: GameFlowState): GameFlowState {
@@ -38,6 +40,11 @@ export function chooseFighter(state: GameFlowState, fighter: FighterId): GameFlo
     return { ...state, phase: 'select-stage', cpu: fighter, winner: null };
   }
   return state;
+}
+
+export function chooseCpuDifficulty(state: GameFlowState, cpuDifficulty: CpuDifficulty): GameFlowState {
+  if (state.phase !== 'select-cpu') return state;
+  return { ...state, cpuDifficulty };
 }
 
 export function chooseStage(state: GameFlowState, stage: StageSelectionId): GameFlowState {
@@ -67,6 +74,7 @@ export function changeFighters(state: GameFlowState): GameFlowState {
     cpu: null,
     stage: state.stage,
     winner: null,
+    cpuDifficulty: state.cpuDifficulty,
   };
 }
 

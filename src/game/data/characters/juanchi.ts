@@ -4,6 +4,7 @@ export const JUANCHI_CHARACTER_ID = 'juanchi';
 
 export const JUANCHI_PRESENTATION: FighterPresentationDefinition = {
   rigKey: 'juanchi',
+  portraitKey: 'juanchi',
   ultimateVisualKey: 'police-cap-rage',
   accent: '#d8b65c',
   effectAccent: '#f1cd62',

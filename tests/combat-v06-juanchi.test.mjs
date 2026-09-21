@@ -50,7 +50,7 @@ function runJuanchiRoute(slot, distance) {
 }
 
 test('R2 default registry publishes exact Juanchi kit and authoritative resource metadata', () => {
-  assert.deepEqual([...DEFAULT_COMBAT_REGISTRY.playableIds], ['chameleon', 'supernariz', 'juanchi']);
+  assert.deepEqual([...DEFAULT_COMBAT_REGISTRY.playableIds], ['chameleon', 'supernariz', 'juanchi', 'el-toro']);
   const fighter = DEFAULT_COMBAT_REGISTRY.getFighter('juanchi');
   assert.equal(fighter.maxHealth, 1000);
   assert.equal(fighter.walkSpeed, 4.55);

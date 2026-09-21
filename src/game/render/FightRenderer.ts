@@ -1,6 +1,10 @@
 import type { CombatEvent, MatchSnapshot, ProjectileSnapshot } from '../types.js';
 import { DEFAULT_FIGHTER_PRESENTATION_REGISTRY } from '../data/presentationRegistry.js';
+import { ULTIMATES } from '../data/ultimates.js';
+import { resolveAttackPresentationProfile } from './AttackPresentation.js';
 import {
+  drawAttackContactBurst,
+  drawAttackMotionAccent,
   drawCamaleoniSequenceCuts,
   drawCamaleoniVeil,
   drawClashOpposingTrails,
@@ -12,8 +16,14 @@ import {
   drawNazazoArc,
   drawPushGuardBurst,
   drawReappearanceFlash,
+  drawRugbyCatchAccent,
   drawSuctionField,
   drawSupernarizInhalePulse,
+  drawSuperEructoBlast,
+  drawShawarmaImpact,
+  drawShawarmaProjectile,
+  drawToroGroundImpact,
+  drawTopeteDrive,
   drawUltimateClashEffect,
   drawUltimateImpact,
   getColetazoPresentation,
@@ -68,6 +78,23 @@ interface ClashFlash {
   maxLife: number;
 }
 
+interface AttackBurst {
+  x: number;
+  y: number;
+  facing: -1 | 1;
+  key: string;
+  intensity: number;
+  life: number;
+  maxLife: number;
+}
+
+interface RugbyCatchFlash {
+  x: number;
+  y: number;
+  life: number;
+  maxLife: number;
+}
+
 export class FightRenderer {
   private readonly ctx: CanvasRenderingContext2D;
   private particles: Particle[] = [];
@@ -75,6 +102,9 @@ export class FightRenderer {
   private ultimateFlashes: UltimateFlash[] = [];
   private ultimateReleaseTrails: UltimateReleaseTrail[] = [];
   private clashFlashes: ClashFlash[] = [];
+  private attackBursts: AttackBurst[] = [];
+  private rugbyCatchFlashes: RugbyCatchFlash[] = [];
+  private readonly projectileVisualKeys = new Map<number, string>();
   private stageReactionTicks = 0;
   private shakeFrames = 0;
   private shakeStrength = 0;
@@ -109,8 +139,23 @@ export class FightRenderer {
     if (event.type === 'round-start') {
       resetFighterPresentation();
       this.clashFlashes = [];
+      this.attackBursts = [];
+      this.rugbyCatchFlashes = [];
+      this.projectileVisualKeys.clear();
       this.stageReactionTicks = 0;
       this.lastRenderedCombatTick = null;
+      return;
+    }
+
+    if (event.type === 'projectile') {
+      const projectile = snapshot.projectiles.find((candidate) => candidate.id === event.projectileId);
+      if (projectile) {
+        this.projectileVisualKeys.set(event.projectileId, projectile.visualKey);
+        if (this.projectileVisualKeys.size > 32) {
+          const oldestId = this.projectileVisualKeys.keys().next().value;
+          if (oldestId !== undefined) this.projectileVisualKeys.delete(oldestId);
+        }
+      }
       return;
     }
 
@@ -182,6 +227,24 @@ export class FightRenderer {
       return;
     }
 
+    if (event.type === 'projectile-catch') {
+      const owner = snapshot.fighters[event.owner];
+      const anchors = sampleFighterAnchors(event.owner, owner, snapshot.frame, snapshot.combatTick);
+      const hand = anchors
+        ? localAnchorToWorld(owner, anchors.backHand)
+        : { x: owner.x + owner.facing * 24, y: owner.y + 108 };
+      this.rugbyCatchFlashes.push({
+        x: hand.x,
+        y: GROUND_Y - hand.y,
+        life: 14,
+        maxLife: 14,
+      });
+      if (this.rugbyCatchFlashes.length > 6) {
+        this.rugbyCatchFlashes.splice(0, this.rugbyCatchFlashes.length - 6);
+      }
+      return;
+    }
+
     if (event.type === 'guard-break') {
       const defender = snapshot.fighters[event.defender];
       const centerX = defender.x;
@@ -215,6 +278,32 @@ export class FightRenderer {
     const ultimateFinisher = ultimateHit && event.finisher;
     const majorImpact = ultimateHit && event.majorImpact === true;
     const peakImpact = majorImpact || ultimateFinisher;
+    const projectileVisualKey = event.projectileId === undefined
+      ? null
+      : snapshot.projectiles.find((projectile) => projectile.id === event.projectileId)?.visualKey
+        ?? this.projectileVisualKeys.get(event.projectileId)
+        ?? null;
+    const presentationMoveId = projectileVisualKey === 'shawarma'
+      ? 'shawarmazoThrow'
+      : event.moveId ?? attacker.moveId;
+    const presentation = resolveAttackPresentationProfile(attacker.id, presentationMoveId);
+    const contactBurstKey = peakImpact
+      ? 'major-impact'
+      : projectileVisualKey === 'shawarma'
+        ? 'shawarma-debris'
+        : presentation.contactBurstKey;
+    this.attackBursts.push({
+      x: centerX,
+      y: centerY,
+      facing: attacker.facing,
+      key: contactBurstKey,
+      intensity: presentation.intensity * (event.blocked ? 0.55 : event.strong ? 1 : 0.82),
+      life: peakImpact ? 18 : 12,
+      maxLife: peakImpact ? 18 : 12,
+    });
+    if (this.attackBursts.length > 18) {
+      this.attackBursts.splice(0, this.attackBursts.length - 18);
+    }
     const tone: Particle['tone'] = event.blocked
       ? 'block'
       : ultimateHit
@@ -322,6 +411,33 @@ export class FightRenderer {
     for (const projectile of snapshot.projectiles) this.drawProjectile(projectile);
 
     for (const fighter of snapshot.fighters) {
+      if (fighter.moveId === null) continue;
+      const presentation = resolveAttackPresentationProfile(fighter.id, fighter.moveId);
+      const presentationPhase = Math.min(1, Math.max(0, fighter.moveFrame / 14));
+      drawAttackMotionAccent(
+        ctx,
+        fighter.x,
+        GROUND_Y - fighter.y,
+        fighter.facing,
+        presentation.trailKey,
+        presentation.intensity,
+        presentationPhase,
+      );
+    }
+
+    for (const fighter of snapshot.fighters) {
+      if (fighter.id !== 'el-toro' || fighter.moveId !== 'topete') continue;
+      const topeteBeat = Math.max(0, 1 - Math.abs(fighter.moveFrame - 13) / 9);
+      drawTopeteDrive(
+        ctx,
+        fighter.x,
+        GROUND_Y - fighter.y,
+        fighter.facing,
+        topeteBeat,
+      );
+    }
+
+    for (const fighter of snapshot.fighters) {
       if (fighter.moveId !== 'coletazo') continue;
       drawColetazoTrail(
         ctx,
@@ -427,10 +543,32 @@ export class FightRenderer {
     for (const attackerIndex of [0, 1] as const) {
       const fighter = snapshot.fighters[attackerIndex];
       if (fighter.ultimatePhase === 'idle') continue;
-      if (fighter.id !== 'chameleon' && fighter.id !== 'supernariz' && fighter.id !== 'juanchi') continue;
+      if (
+        fighter.id !== 'chameleon'
+        && fighter.id !== 'supernariz'
+        && fighter.id !== 'juanchi'
+        && fighter.id !== 'el-toro'
+      ) continue;
 
       const feetY = GROUND_Y - fighter.y;
       const accent = this.accentForFighter(fighter.id);
+
+      if (fighter.id === 'el-toro') {
+        const toroDefinition = ULTIMATES.toroSuperEructo;
+        const blastRange = toroDefinition?.blastRange ?? 390;
+        if (fighter.ultimatePhase === 'startup') {
+          const charge = Math.min(1, fighter.ultimatePhaseFrame / Math.max(1, toroDefinition?.startupFrames ?? 26));
+          drawSuperEructoBlast(ctx, fighter.x + fighter.facing * 18, feetY, fighter.facing, charge * 0.22, blastRange);
+        } else if (fighter.ultimatePhase === 'sequence') {
+          const blastFrames = Math.max(1, toroDefinition?.blastFrames ?? 18);
+          const progress = Math.min(1, (fighter.ultimatePhaseFrame + 1) / blastFrames);
+          drawSuperEructoBlast(ctx, fighter.x + fighter.facing * 18, feetY, fighter.facing, progress, blastRange);
+        } else if (fighter.ultimatePhase === 'recovery') {
+          const fade = Math.max(0, 1 - fighter.ultimatePhaseFrame / 10);
+          drawSuperEructoBlast(ctx, fighter.x + fighter.facing * 18, feetY, fighter.facing, fade * 0.28, blastRange);
+        }
+        continue;
+      }
       const target = fighter.ultimateTarget === null ? null : snapshot.fighters[fighter.ultimateTarget];
       const targetIsAuthoritativelyCaptured =
         target !== null
@@ -560,6 +698,40 @@ export class FightRenderer {
     }
     this.clashFlashes = clashKept;
 
+    const burstKept: AttackBurst[] = [];
+    for (const burst of this.attackBursts) {
+      burst.life -= simulationDelta;
+      if (burst.life <= 0) continue;
+      burstKept.push(burst);
+      const progress = 1 - burst.life / burst.maxLife;
+      if (burst.key === 'shawarma-debris') {
+        drawShawarmaImpact(ctx, burst.x, burst.y, burst.facing, (1 - progress) * burst.intensity);
+      } else if (burst.key === 'topete-drive') {
+        drawAttackContactBurst(ctx, burst.x, burst.y, burst.facing, burst.key, burst.intensity, progress);
+        drawToroGroundImpact(ctx, burst.x, GROUND_Y, burst.facing, (1 - progress) * burst.intensity);
+      } else {
+        drawAttackContactBurst(
+          ctx,
+          burst.x,
+          burst.y,
+          burst.facing,
+          burst.key,
+          burst.intensity,
+          progress,
+        );
+      }
+    }
+    this.attackBursts = burstKept;
+
+    const catchKept: RugbyCatchFlash[] = [];
+    for (const flash of this.rugbyCatchFlashes) {
+      flash.life -= simulationDelta;
+      if (flash.life <= 0) continue;
+      catchKept.push(flash);
+      drawRugbyCatchAccent(ctx, flash.x, flash.y, flash.life / flash.maxLife);
+    }
+    this.rugbyCatchFlashes = catchKept;
+
     const releaseKept: UltimateReleaseTrail[] = [];
     for (const trail of this.ultimateReleaseTrails) {
       trail.life -= simulationDelta;
@@ -576,9 +748,40 @@ export class FightRenderer {
 
   private drawProjectile(projectile: ProjectileSnapshot): void {
     const y = GROUND_Y - projectile.y;
+    if (projectile.visualKey === 'shawarma') {
+      const ctx = this.ctx;
+      ctx.save();
+      ctx.globalAlpha = 0.24;
+      ctx.strokeStyle = '#ff9d4c';
+      ctx.lineWidth = 3.5;
+      ctx.lineCap = 'round';
+      const direction = projectile.vx >= 0 ? -1 : 1;
+      for (let i = 1; i <= 3; i += 1) {
+        ctx.beginPath();
+        ctx.moveTo(projectile.x + direction * i * 11, y + i * 2);
+        ctx.lineTo(projectile.x + direction * i * 25, y + i * 4);
+        ctx.stroke();
+      }
+      ctx.restore();
+      drawShawarmaProjectile(ctx, projectile.x, y, projectile.vx, projectile.age);
+      return;
+    }
     if (projectile.visualKey === 'rugby-ball') {
       const ctx = this.ctx;
-      if (projectile.phase === 'return') {
+      if (projectile.phase === 'outbound') {
+        ctx.save();
+        ctx.globalAlpha = 0.3;
+        ctx.strokeStyle = '#f4d77c';
+        ctx.lineWidth = 3.5;
+        ctx.lineCap = 'round';
+        for (let i = 1; i <= 3; i += 1) {
+          ctx.beginPath();
+          ctx.moveTo(projectile.x - projectile.vx * i * 1.6, y + i * 1.5);
+          ctx.lineTo(projectile.x - projectile.vx * i * 4.4, y + i * 2.4);
+          ctx.stroke();
+        }
+        ctx.restore();
+      } else if (projectile.phase === 'return') {
         ctx.save();
         ctx.globalAlpha = 0.24;
         ctx.strokeStyle = '#d8b65c';
@@ -619,6 +822,20 @@ export class FightRenderer {
     }
 
     const ctx = this.ctx;
+    ctx.save();
+    ctx.globalAlpha = 0.28;
+    ctx.strokeStyle = '#ff9b48';
+    ctx.lineWidth = 3;
+    ctx.lineCap = 'round';
+    const trailDirection = projectile.vx >= 0 ? -1 : 1;
+    for (let i = 1; i <= 3; i += 1) {
+      ctx.beginPath();
+      ctx.moveTo(projectile.x + trailDirection * i * 10, y - 4 + i * 3);
+      ctx.lineTo(projectile.x + trailDirection * i * 22, y - 1 + i * 2);
+      ctx.stroke();
+    }
+    ctx.restore();
+
     ctx.save();
     ctx.translate(projectile.x, y);
     ctx.rotate(projectile.vx >= 0 ? -0.08 : Math.PI + 0.08);

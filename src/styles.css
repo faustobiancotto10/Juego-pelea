@@ -716,3 +716,53 @@ button:focus-visible {
   .roster-tile,
   .stage-tile { transition:none; }
 }
+
+
+/* V0.7 fighter-select portrait mounts + CPU difficulty */
+.fighter-portrait-v07 {
+  position:relative;
+  display:block;
+  width:min(100%,150px);
+  aspect-ratio:1.15;
+  margin:4px auto 8px;
+  overflow:hidden;
+  border-radius:10px;
+  background:
+    radial-gradient(circle at 50% 35%,color-mix(in srgb,var(--fighter-accent,var(--accent,#777)) 20%,#fff),transparent 42%),
+    rgba(7,9,14,.95);
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,.12);
+}
+.fighter-portrait-canvas {
+  position:absolute;
+  inset:0;
+  z-index:1;
+  width:100%;
+  height:100%;
+  display:block;
+}
+.fighter-portrait-fallback {
+  position:absolute;
+  inset:0;
+  display:grid;
+  place-items:center;
+  color:var(--fighter-accent,var(--accent,#777));
+  opacity:.22;
+  font:900 clamp(54px,8vw,92px)/1 Impact,'Arial Black',sans-serif;
+  pointer-events:none;
+}
+.fighter-portrait-v07[data-portrait-rendered="true"] .fighter-portrait-fallback { opacity:0; }
+.roster-tile-portrait { width:100%; max-width:128px; }
+.fighter-info-portrait { width:min(14vw,145px); margin:0 0 6px; }
+.roster-tile-mark--accent,.fighter-info-mark--accent { position:absolute; opacity:.16; pointer-events:none; }
+.vs-portrait { width:min(18vw,190px); margin:8px 0; }
+.difficulty-selector { border:0; padding:0; margin:10px 0 12px; min-width:0; }
+.difficulty-selector legend { margin-bottom:6px; color:#aeb4c0; font:800 10px/1 system-ui,sans-serif; letter-spacing:.14em; }
+.difficulty-selector > div { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:5px; }
+.difficulty-selector button { min-height:34px; border:1px solid rgba(255,255,255,.18); border-radius:4px; background:rgba(0,0,0,.24); color:#cdd0d6; font-size:10px; font-weight:900; letter-spacing:.08em; cursor:pointer; }
+.difficulty-selector button.is-selected,.difficulty-selector button:focus-visible { border-color:var(--fighter-accent,var(--gold)); background:color-mix(in srgb,var(--fighter-accent,var(--gold)) 22%,#0b0d12); color:#fff; outline:none; }
+@media (max-height:520px) {
+  .fighter-portrait-v07 { max-height:92px; width:105px; }
+  .fighter-info-portrait { width:92px; }
+  .difficulty-selector { margin:5px 0 7px; }
+  .difficulty-selector button { min-height:30px; }
+}

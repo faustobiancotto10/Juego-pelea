@@ -133,6 +133,7 @@ export const SUPERNARIZ_CHARACTER_CONTENT: CombatCharacterContent = {
   },
   presentation: {
     rigKey: 'supernariz',
+    portraitKey: 'supernariz',
     ultimateVisualKey: 'supernariz',
     accent: '#2f6bd7',
     effectAccent: '#6ea1ff',

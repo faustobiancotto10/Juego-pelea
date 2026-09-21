@@ -63,6 +63,15 @@ export function buildUltimateConfrontationVolume(
       : { minX: currentX - range, maxX: currentX, minY: y, maxY: y + definition.captureVertical };
   }
 
+  if (definition.kind === 'forwardBlast') {
+    const range = definition.blastRange ?? definition.captureReach;
+    const bottom = definition.blastBottom ?? 0;
+    const top = definition.blastTop ?? definition.captureVertical;
+    return facing === 1
+      ? { minX: currentX, maxX: currentX + range, minY: y + bottom, maxY: y + top }
+      : { minX: currentX - range, maxX: currentX, minY: y + bottom, maxY: y + top };
+  }
+
   if (!capProbe) throw new Error('capCapture confrontation requires a cap probe plan');
   const pathMin = Math.min(capProbe.previousX, capProbe.nextX) - capProbe.halfWidth;
   const pathMax = Math.max(capProbe.previousX, capProbe.nextX) + capProbe.halfWidth;

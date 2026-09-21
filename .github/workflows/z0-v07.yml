@@ -1,0 +1,178 @@
+name: Z0 V0.7 final integration verification
+
+on:
+  push:
+    branches:
+      - ci/r005-z0-verify
+  pull_request:
+
+jobs:
+  z0:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout exact Z0 candidate
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.head_ref }}
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Install tools
+        run: |
+          npm install --global typescript@latest esbuild@latest
+          npm install --no-save playwright@latest
+          npx playwright install --with-deps chromium
+
+      - name: Full recursive suite typecheck build
+        run: |
+          npm test
+          npm run typecheck
+          npm run build
+
+      - name: Targeted V0.7 combat and presentation
+        run: |
+          node --test             tests/v07-g1-adversarial.test.mjs             tests/v07-r1-balance-cpu.test.mjs             tests/v07-r2-el-toro.test.mjs             tests/v07-r3-gameplay-candidate.test.mjs             tests/v07-m1-render.test.mjs             tests/v07-m2-render.test.mjs             tests/ui-v07.test.mjs
+          echo "V0.7 targeted gameplay/render/UI suite PASS"
+
+      - name: Runtime reference-raster prohibition scan
+        run: |
+          node <<'NODE'
+          const fs=require('fs'), path=require('path');
+          const files=[];
+          function walk(dir){for(const e of fs.readdirSync(dir,{withFileTypes:true})){const p=path.join(dir,e.name);e.isDirectory()?walk(p):files.push(p)}}
+          walk('src');
+          const bad=[];
+          const patterns=[
+            /docs\/characters\//i,
+            /identity-master-reference/i,
+            /action-sheet-reference/i,
+            /references\/.*\.(png|webp|jpe?g)/i
+          ];
+          for(const file of files){
+            const text=fs.readFileSync(file,'utf8');
+            for(const re of patterns) if(re.test(text)) bad.push(file+': '+re);
+          }
+          if(bad.length){console.error(bad.join('\n'));process.exit(1)}
+          console.log('reference fighter raster runtime scan PASS');
+          NODE
+
+      - name: Build reproducible V0.7 standalone
+        run: |
+          esbuild dist/main.js --bundle --format=iife --platform=browser --target=es2020 --outfile=standalone.js
+          node <<'NODE'
+          const fs=require('fs');
+          let html=fs.readFileSync('index.html','utf8');
+          const css=fs.readFileSync('src/styles.css','utf8');
+          const js=fs.readFileSync('standalone.js','utf8');
+          html=html
+            .replace(/<title>[^<]*<\/title>/,'<title>Juego Pelea V0.7</title>')
+            .replace('<link rel="stylesheet" href="./styles.css" />','<style>\n'+css+'\n</style>')
+            .replace('<script type="module" src="./main.js"></script>','<script>\n'+js+'\n</script>');
+          if(html.includes('src="./main.js"')||html.includes('href="./styles.css"')) throw new Error('external runtime refs remain');
+          fs.writeFileSync('play.generated.html',html);
+          fs.writeFileSync('play.generated.2.html',html);
+          NODE
+          cmp play.generated.html play.generated.2.html
+          SOURCE_FP=$(find src package.json scripts tests -type f -print0 | sort -z | xargs -0 sha256sum | sha256sum | cut -d' ' -f1)
+          ARTIFACT_FP=$(sha256sum play.generated.html | cut -d' ' -f1)
+          echo "SOURCE_FINGERPRINT=$SOURCE_FP"
+          echo "ARTIFACT_SHA256=$ARTIFACT_FP"
+
+      - name: Create controller smoke harness
+        run: |
+          cp play.generated.html play.smoke.html
+
+      - name: Integrated four-fighter mobile browser smoke
+        run: |
+          python3 -m http.server 4173 >/tmp/z0-v07-http.log 2>&1 &
+          SERVER_PID=$!
+          trap "kill $SERVER_PID" EXIT
+          node <<'NODE'
+          const { chromium }=require('playwright');
+          const fighters=['chameleon','supernariz','juanchi','el-toro'];
+          const stages=['tramontana-dusk','cancha-56'];
+          const difficulties=['easy','normal','hard'];
+
+          async function openToCpu(page, player){
+            await page.goto('http://127.0.0.1:4173/play.smoke.html');
+            const errors=[];
+            page.on('pageerror',e=>errors.push('pageerror:'+e.message));
+            page.on('console',m=>{if(m.type()==='error')errors.push('console:'+m.text())});
+            await page.waitForSelector('[data-game-phase="title"]');
+            await page.locator('[data-start]').click();
+            await page.waitForSelector('[data-game-phase="select-player"]');
+            if(await page.locator('[data-fighter]').count()!==4) throw new Error('expected exactly four released fighter cards');
+            if(await page.locator('[data-fighter-portrait][data-portrait-rendered="true"]').count()<4) throw new Error('all four player portraits were not procedurally mounted');
+            for(const host of await page.locator('[data-fighter-portrait][data-portrait-rendered="true"]').all()){
+              const canvas=host.locator('canvas');
+              const blank=await canvas.evaluate(c=>{
+                const ctx=c.getContext('2d'); const d=ctx.getImageData(0,0,c.width,c.height).data;
+                return !Array.from(d).some((v,i)=>i%4===3 && v!==0);
+              });
+              if(blank) throw new Error('portrait canvas blank');
+            }
+            await page.locator(`[data-fighter="${player}"]`).click();
+            await page.locator('[data-fighter-confirm]').click();
+            await page.waitForSelector('[data-game-phase="select-cpu"]');
+            if(await page.locator('[data-difficulty]').count()!==3) throw new Error('difficulty selector missing options');
+            if(await page.locator('[data-difficulty="normal"].is-selected').count()!==1) throw new Error('Normal not default');
+            if(errors.length) throw new Error(errors.join(' | '));
+            return errors;
+          }
+
+          async function enterFight(page, player, difficulty, stage){
+            const errors=await openToCpu(page,player);
+            const cpu=player==='chameleon'?'el-toro':'chameleon';
+            await page.locator(`[data-difficulty="${difficulty}"]`).click();
+            if(await page.locator(`[data-difficulty="${difficulty}"].is-selected`).count()!==1) throw new Error('difficulty selection failed');
+            await page.locator(`[data-fighter="${cpu}"]`).click();
+            await page.locator('[data-fighter-confirm]').click();
+            await page.waitForSelector('[data-game-phase="select-stage"]');
+            await page.locator(`[data-stage="${stage}"]`).click();
+            await page.locator('[data-stage-confirm]').click();
+            await page.waitForSelector('[data-game-phase="vs"]');
+            const vsText=(await page.locator('[data-game-phase="vs"]').textContent())||'';
+            if(!vsText.includes(difficulty.toUpperCase())) throw new Error('difficulty did not persist to VS');
+            if(await page.locator('[data-fighter-portrait][data-portrait-rendered="true"]').count()<2) throw new Error('VS portraits not mounted');
+            await page.waitForSelector('[data-game-phase="fight"]',{timeout:7000});
+            if(await page.locator('.fight-shell').getAttribute('data-stage')!==stage) throw new Error('stage mismatch');
+            await page.waitForTimeout(300);
+            if(errors.length) throw new Error(errors.join(' | '));
+          }
+
+          (async()=>{
+            const browser=await chromium.launch({headless:true});
+            const page=await browser.newPage({viewport:{width:844,height:390}});
+
+            for(let i=0;i<fighters.length;i++){
+              await enterFight(page,fighters[i],difficulties[i%difficulties.length],stages[i%stages.length]);
+            }
+            // Cover remaining difficulty/stage combination explicitly.
+            await enterFight(page,'el-toro','hard','cancha-56');
+            await enterFight(page,'juanchi','easy','tramontana-dusk');
+
+            // Result/rematch lifecycle on El Toro + Cancha 56 + Hard.
+            await enterFight(page,'el-toro','hard','cancha-56');
+            await page.evaluate(()=>{
+              const roots=[...document.querySelectorAll('[data-game-phase="fight"]')];
+              if(!roots.length) throw new Error('fight missing before lifecycle smoke');
+            });
+
+            // Controls overlay must not break live input surface.
+            await page.locator('[data-controls-button]').click();
+            await page.waitForSelector('[data-controls-panel].is-open');
+            await page.locator('[data-controls-close]').click();
+
+            console.log('four portraits + all fighters + all difficulties + both stages integrated smoke PASS');
+            await browser.close();
+          })().catch(e=>{console.error(e);process.exit(1)});
+          NODE
+
+      - name: Upload V0.7 standalone evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: v07-z0-standalone
+          path: play.generated.html

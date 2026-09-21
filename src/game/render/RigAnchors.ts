@@ -43,6 +43,13 @@ const PROFILES: Readonly<Record<string, RigAnchorProfile>> = Object.freeze({
     backHand: { x: -30, y: 109 },
     belt: { x: -17, y: 72 },
   },
+  'el-toro': {
+    head: { x: 5, y: 174 },
+    chest: { x: 0, y: 114 },
+    frontHand: { x: 34, y: 106 },
+    backHand: { x: -30, y: 104 },
+    belt: { x: 0, y: 66 },
+  },
 });
 
 export function sampleBaseRigAnchors(

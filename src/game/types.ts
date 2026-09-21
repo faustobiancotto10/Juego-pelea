@@ -11,6 +11,7 @@ export type HitSource = 'normal' | 'special' | 'projectile' | 'ultimate';
 export type ProjectilePhase = 'outbound' | 'turn' | 'return';
 export type RangedAvailability = 'ready' | 'inFlight' | 'cooldown';
 export type CombatAction = 'attack' | 'special' | 'jump' | 'ultimate' | 'pushGuard';
+export type CpuDifficulty = 'easy' | 'normal' | 'hard';
 
 export interface CommandDirection {
   left: boolean;

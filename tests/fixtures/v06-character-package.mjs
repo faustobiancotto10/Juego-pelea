@@ -102,6 +102,7 @@ export const fourthCharacterPackage = {
   },
   presentation: {
     rigKey: 'fixture-four',
+    portraitKey: 'fixture-four',
     ultimateVisualKey: 'fixture-four',
     accent: '#8a7b6b',
     effectAccent: '#c1b3a4',

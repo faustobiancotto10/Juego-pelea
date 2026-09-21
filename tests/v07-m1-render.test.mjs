@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import { existsSync, readFileSync } from 'node:fs';
 import { CombatSimulation } from '../dist/game/simulation/CombatSimulation.js';
 import { LocomotionPoseTracker } from '../dist/game/render/LocomotionPose.js';
+import { getJuanchiRageAuraIntensity } from '../dist/game/render/JuanchiRig.js';
 
 function baseJuanchi() {
   const sim = new CombatSimulation('juanchi', 'supernariz', { skipIntro: true });
@@ -167,4 +168,22 @@ test('Juanchi rage aura has one implementation and is invoked behind the articul
   assert.ok(definitionIndex >= 0);
   assert.ok(callIndex > drawIndex, 'drawJuanchi must invoke the aura');
   assert.ok(callIndex < legIndex, 'aura must render behind the body silhouette');
+});
+
+
+test('Juanchi rage aura envelope builds through rage, stretches through rush, and collapses at finisher', () => {
+  assert.equal(getJuanchiRageAuraIntensity('idle', 0), 0);
+  assert.equal(getJuanchiRageAuraIntensity('sequence', 4), 0);
+
+  const built = getJuanchiRageAuraIntensity('sequence', 11);
+  const rush = getJuanchiRageAuraIntensity('sequence', 20);
+  const held = getJuanchiRageAuraIntensity('sequence', 28);
+  const collapse = getJuanchiRageAuraIntensity('sequence', 37);
+  const gone = getJuanchiRageAuraIntensity('sequence', 40);
+
+  assert.ok(built > 0.95, `rage build should peak near frame 11; got ${built}`);
+  assert.ok(rush >= built * 0.9, `rush should retain/stretch the aura; got ${rush}`);
+  assert.ok(held > 0.6, `aura should remain visible before finisher collapse; got ${held}`);
+  assert.ok(collapse > 0 && collapse < held, `finisher should collapse the aura progressively; got ${collapse}`);
+  assert.ok(gone < 0.01, `aura should be gone at the finisher end; got ${gone}`);
 });

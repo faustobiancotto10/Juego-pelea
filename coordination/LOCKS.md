@@ -1,5 +1,6 @@
 # Active Locks
 
-No active file locks.
-
-V07-G1 is VERIFIED. Germinator released `tests/v07-g1-adversarial.test.mjs` after QA evidence SHA `3959c52969811f9d6bf6b2261c2680cfc374cb3d` passed repository verification run #1041.
+- `src/game/ui/flow.ts` — Brancaforte — V07-B1 — CPU difficulty flow state.
+- `src/game/ui/AppController.ts` — Brancaforte — V07-B1 — difficulty selector + fighter portrait cards.
+- `src/styles.css` — Brancaforte — V07-B1 — responsive portrait/difficulty UX.
+- `tests/ui-v07.test.mjs` — Brancaforte — V07-B1 — acceptance coverage.

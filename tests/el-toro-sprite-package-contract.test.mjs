@@ -57,7 +57,7 @@ function assertEntries(actual, expected, kind) {
     assert.equal(entry.semanticKey, contract.semanticKey, `${entry.id} semantic key`);
     assert.match(entry.source, /^docs\/characters\/el-toro\/sprite-source\/right\//);
     assert.equal(entry.source.includes(REJECTED_SOURCE), false, `${entry.id} must not use rejected source`);
-    assert.equal(existsSync(new URL(`../${entry.source.replace(/^docs\//, '')}`, new URL('../docs/', import.meta.url))), true,
+    assert.equal(existsSync(new URL(`../${entry.source}`, import.meta.url)), true,
       `${entry.id} source must exist`);
   }
 }

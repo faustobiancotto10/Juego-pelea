@@ -6,6 +6,7 @@ import {
   solveTwoBoneLeg,
   type RigAnchors,
 } from './RigAnchors.js';
+import { getCharacterStructure } from './CharacterStructure.js';
 import { GROUND_Y, clamp01, ellipse, lerp, pulse, roundedLine } from './drawUtils.js';
 
 interface ToroPose {
@@ -176,6 +177,8 @@ export function drawElToro(
   locomotion: LocomotionPose,
   combatTimeSeconds: number,
 ): void {
+  const structure = getCharacterStructure('el-toro');
+  const { body, stance } = structure;
   const feetY = GROUND_Y - fighter.y;
   const pose = computeToroPose(fighter, locomotion);
   const anchors = sampleElToroAnchors(fighter, locomotion);
@@ -194,16 +197,17 @@ export function drawElToro(
 
   const hipTwist = locomotion.hipCounterRotation * 36;
   const chestTwist = locomotion.chestCounterRotation * 34;
-  const frontHip: Point2 = { x: 16 + hipTwist, y: 67 - pose.drop };
-  const backHip: Point2 = { x: -16 - hipTwist, y: 67 - pose.drop };
-  const frontKnee = solveTwoBoneLeg(frontHip, pose.frontFoot, 39, 42, 1);
-  const backKnee = solveTwoBoneLeg(backHip, pose.backFoot, 39, 42, -1);
+  const hipSpan = 16 * body.hipWidth * stance.width;
+  const frontHip: Point2 = { x: hipSpan + hipTwist, y: 67 - pose.drop };
+  const backHip: Point2 = { x: -hipSpan - hipTwist, y: 67 - pose.drop };
+  const frontKnee = solveTwoBoneLeg(frontHip, pose.frontFoot, 39 * body.legLength, 42 * body.legLength, 1);
+  const backKnee = solveTwoBoneLeg(backHip, pose.backFoot, 39 * body.legLength, 42 * body.legLength, -1);
 
   // Loose black cargo pants: broad thighs and oversized pockets sell the heavy silhouette.
-  roundedLine(ctx, frontHip.x, -frontHip.y, frontKnee.x, -frontKnee.y, 27, '#16191d');
-  roundedLine(ctx, frontKnee.x, -frontKnee.y, pose.frontFoot.x, -pose.frontFoot.y, 22, '#101317');
-  roundedLine(ctx, backHip.x, -backHip.y, backKnee.x, -backKnee.y, 27, '#121519');
-  roundedLine(ctx, backKnee.x, -backKnee.y, pose.backFoot.x, -pose.backFoot.y, 22, '#0c0f13');
+  roundedLine(ctx, frontHip.x, -frontHip.y, frontKnee.x, -frontKnee.y, 27 * body.legThickness, '#16191d');
+  roundedLine(ctx, frontKnee.x, -frontKnee.y, pose.frontFoot.x, -pose.frontFoot.y, 22 * body.legThickness, '#101317');
+  roundedLine(ctx, backHip.x, -backHip.y, backKnee.x, -backKnee.y, 27 * body.legThickness, '#121519');
+  roundedLine(ctx, backKnee.x, -backKnee.y, pose.backFoot.x, -pose.backFoot.y, 22 * body.legThickness, '#0c0f13');
   ctx.fillStyle = '#252a30';
   ctx.fillRect(frontKnee.x - 14, -frontKnee.y - 10, 19, 15);
   ctx.fillRect(backKnee.x - 6, -backKnee.y - 10, 19, 15);
@@ -224,11 +228,11 @@ export function drawElToro(
   ctx.strokeStyle = '#2a2d31';
   ctx.lineWidth = 3;
   ctx.beginPath();
-  ctx.moveTo(-43, torsoY - 36);
-  ctx.quadraticCurveTo(-57, torsoY - 18, -49, torsoY + 40);
-  ctx.quadraticCurveTo(0, torsoY + 51, 52, torsoY + 38);
-  ctx.quadraticCurveTo(58, torsoY - 18, 42, torsoY - 37);
-  ctx.quadraticCurveTo(0, torsoY - 53, -43, torsoY - 36);
+  ctx.moveTo(-43 * body.shoulderWidth, torsoY - 36 * body.torsoLength);
+  ctx.quadraticCurveTo(-57 * body.torsoWidth, torsoY - 18 * body.torsoLength, -49 * body.torsoWidth, torsoY + 40 * body.torsoLength);
+  ctx.quadraticCurveTo(0, torsoY + 51 * body.torsoLength, 52 * body.torsoWidth, torsoY + 38 * body.torsoLength);
+  ctx.quadraticCurveTo(58 * body.torsoWidth, torsoY - 18 * body.torsoLength, 42 * body.shoulderWidth, torsoY - 37 * body.torsoLength);
+  ctx.quadraticCurveTo(0, torsoY - 53 * body.torsoLength, -43 * body.shoulderWidth, torsoY - 36 * body.torsoLength);
   ctx.closePath();
   ctx.fill();
   ctx.stroke();
@@ -258,17 +262,17 @@ export function drawElToro(
 
   const shoulderY = torsoY - 23;
   const frontElbow = {
-    x: lerp(torsoX + 30, pose.frontHand.x, 0.52),
+    x: lerp(torsoX + 30 * body.shoulderWidth, pose.frontHand.x, 0.52),
     y: lerp(126 - pose.drop * 0.45, pose.frontHand.y, 0.52),
   };
   const backElbow = {
-    x: lerp(torsoX - 30, pose.backHand.x, 0.52),
+    x: lerp(torsoX - 30 * body.shoulderWidth, pose.backHand.x, 0.52),
     y: lerp(124 - pose.drop * 0.45, pose.backHand.y, 0.52),
   };
-  roundedLine(ctx, torsoX + 32, shoulderY, frontElbow.x, -frontElbow.y, 20, '#eeeDE7');
-  roundedLine(ctx, frontElbow.x, -frontElbow.y, pose.frontHand.x, -pose.frontHand.y, 15, '#bf805f');
-  roundedLine(ctx, torsoX - 32, shoulderY + 2, backElbow.x, -backElbow.y, 20, '#e7e6df');
-  roundedLine(ctx, backElbow.x, -backElbow.y, pose.backHand.x, -pose.backHand.y, 15, '#b97858');
+  roundedLine(ctx, torsoX + 32 * body.shoulderWidth, shoulderY, frontElbow.x, -frontElbow.y, 20 * body.armThickness, '#eeeDE7');
+  roundedLine(ctx, frontElbow.x, -frontElbow.y, pose.frontHand.x, -pose.frontHand.y, 15 * body.forearmThickness, '#bf805f');
+  roundedLine(ctx, torsoX - 32 * body.shoulderWidth, shoulderY + 2, backElbow.x, -backElbow.y, 20 * body.armThickness, '#e7e6df');
+  roundedLine(ctx, backElbow.x, -backElbow.y, pose.backHand.x, -pose.backHand.y, 15 * body.forearmThickness, '#b97858');
 
   // Blue hand/wrist wraps.
   roundedLine(ctx, pose.frontHand.x - 6, -pose.frontHand.y, pose.frontHand.x + 4, -pose.frontHand.y, 10, '#2f74c7');
@@ -278,7 +282,7 @@ export function drawElToro(
 
   const headX = anchors.head.x + torsoX * 0.14;
   const headY = -anchors.head.y + idle;
-  ellipse(ctx, headX, headY, 37, 40, '#c88a66', -0.02, '#57382c', 2.4);
+  ellipse(ctx, headX, headY, 37 * body.headWidth, 40 * body.headHeight, '#c88a66', -0.02, '#57382c', 2.4);
 
   // Shaggy dark-brown hair.
   ctx.save();

@@ -97,3 +97,5 @@ After meaningful rendering/animation work, review whether a stable visual-engine
 Good Mario learnings include reusable pose/anchor strategies, procedural-readability heuristics, mobile performance constraints, hitstop/cadence pitfalls, or recurring ways to preserve character identity without raster shortcuts.
 
 Do not store transient art tweaks or fighter-specific tuning that belongs in character/spec files.
+
+- When retuning procedural locomotion, keep gait phase driven by actual world travel and isolate identity-specific stride/stance/lift/lean in render-only style data. Derive counter-motion from gait phase and start/stop weight transfer from blend changes so hitstop, cadence and wall-clamp invariants remain intact.

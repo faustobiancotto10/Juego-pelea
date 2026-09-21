@@ -283,3 +283,42 @@ This is a release gate, not a reopened product-code blocker.
 - production root remains V0.6.
 
 The old preview is superseded. The only remaining release gate is user physical-phone acceptance of this rebuilt preview.
+
+
+## PENDING GATE — rebuilt V0.7 preview is ready for physical-phone acceptance
+
+Owner: Gonza / user-facing V7-10 gate  
+Status: OPEN — PHYSICAL PHONE ACCEPTANCE REQUIRED
+
+This replaces the historical rejected-preview gate.
+
+Approved product source:
+- `f34760948cb2024c0c83f4a02202117a8ad3bf2f`
+- Germinator G2 verdict: `APPROVE — CHARACTER PIPELINE REPAIR GREEN`
+
+Rebuilt-preview evidence:
+- standalone verification run `35575811935`: SUCCESS;
+- full tests/typecheck/build: PASS;
+- rebuilt 844x390 browser smoke: PASS;
+- runtime reference-raster guard: PASS;
+- standalone SHA-256: `b0326df090a4847dff43d43f9d3280937ffe8b2113fea97a5590a7070d5d3be3`;
+- exact preview blob: `40135c2db0b908bf9a901fa50b08de2b239f5014`;
+- gh-pages publish SHA: `3b58ff4c416e1a98b6b27414bb16723e97594fff`;
+- Pages run `35576000562`: SUCCESS;
+- preview URL: https://faustobiancotto10.github.io/Juego-pelea/v07-preview/;
+- production root remains V0.6 and was not promoted.
+
+Physical phone acceptance must be performed against this rebuilt preview, not the historical rejected one.
+
+Required user checks:
+1. four portraits and fighter identity/readability, especially El Toro vs Juanchi;
+2. Easy / Normal / Hard selector;
+3. Lengua counterplay sanity;
+4. Juanchi walk/backwalk and genuine red rage aura;
+5. El Toro Topete / Shawarmazo / Super Eructo readability;
+6. Ultimate Clash readability;
+7. Tramontana and Cancha 56;
+8. result/rematch/input interruption;
+9. clipping, unreachable controls or severe performance problems.
+
+If accepted, Gonza resumes Z1 and promotes this exact rebuilt standalone to production root after final release-composition CI. If rejected, production root remains V0.6 and the finding routes to the owning repair lane.

@@ -7,6 +7,7 @@ import type { FighterId, RegisteredFighterId } from '../types.js';
 import { CAMALEONI_CHARACTER_CONTENT } from './characters/camaleoni.js';
 import { SUPERNARIZ_CHARACTER_CONTENT } from './characters/supernariz.js';
 import { JUANCHI_CHARACTER_CONTENT } from './characters/juanchi.js';
+import { EL_TORO_CHARACTER_CONTENT } from './characters/elToro.js';
 
 export interface FighterPresentationDefinition {
   rigKey: string;
@@ -575,9 +576,10 @@ export const RELEASED_CHARACTER_PACKAGES: readonly CombatCharacterContent[] = Ob
   CAMALEONI_CHARACTER_CONTENT,
   SUPERNARIZ_CHARACTER_CONTENT,
   JUANCHI_CHARACTER_CONTENT,
+  EL_TORO_CHARACTER_CONTENT,
 ]);
 
 export const DEFAULT_CHARACTER_COMPOSITION = composeCharacterContent(
   RELEASED_CHARACTER_PACKAGES,
-  ['chameleon', 'supernariz', 'juanchi'],
+  ['chameleon', 'supernariz', 'juanchi', 'el-toro'],
 );

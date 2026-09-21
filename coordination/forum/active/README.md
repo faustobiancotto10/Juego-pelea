@@ -7,6 +7,7 @@ Execution: AUTO_CHAIN
 - [R005 frozen contract](r005-contract.md)
 - [R005 findings / blockers](r005-findings.md)
 - [R005 final integration](r005-integration.md)
+- [R005 Mario multi-instance squad](r005-mario-squad.md)
 
 Normal green progress belongs in task/handoff files, not a progress diary.
 

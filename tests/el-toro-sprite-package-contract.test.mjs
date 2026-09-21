@@ -135,3 +135,39 @@ test('El Toro package maps resolver states and kit roles without hardcoding unkn
     assert.equal(semanticKeys.has(semantic), true, `move role maps to unknown semantic ${semantic}`);
   }
 });
+
+
+test('El Toro resolver-role map covers every frozen V0.7 move role without missing runtime keys', () => {
+  const pkg = loadPackage();
+  assert.deepEqual(pkg.resolverMap.moveRoleToSemantic, {
+    standing: 'basic-attack',
+    chain: 'topete',
+    low: 'low-attack',
+    air: 'jump',
+    closeSpecial: 'topete',
+    rangedSpecial: 'shawarmazo',
+    ultimate: 'super-eructo',
+  });
+  assert.deepEqual(pkg.resolverMap.pilotAliases, {
+    chain: {
+      semanticKey: 'topete',
+      rationale: 'procedural toroShoulder is a shoulder/lean body drive closest to IMG-10 Topete body language',
+      requiresGameplayScaleReview: true,
+    },
+    air: {
+      semanticKey: 'jump',
+      rationale: 'procedural toroAir is primarily an airborne leg/posture variation closest to IMG-05 Jump',
+      requiresGameplayScaleReview: true,
+    },
+  });
+});
+
+test('Super Eructo maps the contractual 10-frame sheet to the reachable forwardBlast phases', () => {
+  const pkg = loadPackage();
+  assert.deepEqual(pkg.resolverMap.ultimatePhaseWindows, {
+    startup: { semanticKey: 'super-eructo', firstFrame: 1, lastFrame: 4 },
+    capture: { semanticKey: 'super-eructo', firstFrame: 5, lastFrame: 7 },
+    recovery: { semanticKey: 'super-eructo', firstFrame: 8, lastFrame: 10 },
+  });
+  assert.equal(pkg.resolverMap.unreachableUltimatePhase, 'sequence');
+});

@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<style>
+*{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#080b10;color:#fff;font-family:system-ui,sans-serif}
+body{padding:8px}.grid{display:grid;grid-template-columns:repeat(4,1fr);grid-template-rows:142px 218px;gap:7px;height:374px}
+.card{position:relative;border:1px solid #3d4654;border-radius:12px;overflow:hidden;background:#10151e}
+.card b{position:absolute;left:8px;top:6px;z-index:2;font-size:10px;letter-spacing:.08em;background:#090d13cc;padding:3px 6px;border-radius:5px}
+canvas{width:100%;height:100%;display:block}
+.jgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;height:374px}
+.jcard{position:relative;border:1px solid #3d4654;border-radius:12px;overflow:hidden;background:#10151e}
+.jcard b{position:absolute;left:8px;top:6px;z-index:2;font-size:11px;letter-spacing:.08em;background:#090d13cc;padding:4px 7px;border-radius:5px}
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script type="module">
+import { drawFighterPortrait } from '../game/render/PortraitRenderer.js';
+import { drawElToro } from '../game/render/ElToroRig.js';
+import { drawJuanchi } from '../game/render/JuanchiRig.js';
+import {
+  drawTopeteDrive,
+  drawToroGroundImpact,
+  drawShawarmaProjectile,
+  drawShawarmaImpact,
+  drawSuperEructoBlast,
+} from '../game/render/CombatEffects.js';
+
+const mode = new URLSearchParams(location.search).get('mode') || 'toro';
+const root = document.querySelector('#root');
+
+const toroBase={
+  id:'el-toro',x:300,y:0,vx:0,vy:0,facing:1,health:1100,maxHealth:1100,guard:100,maxGuard:100,
+  guardRegenDelay:0,guardBreakFrames:0,grounded:true,jumpStartupFrames:0,airborneTicks:0,crouching:false,
+  blocking:false,stunFrames:0,blockstunFrames:0,moveId:null,moveFrame:0,comboCount:0,moveContact:'none',
+  chilledFrames:0,projectileCooldown:0,projectileCooldownMax:96,rangedAvailability:'ready',rangedRecoveryFrames:0,
+  dashKind:null,dashFrame:0,landingRecoveryFrames:0,pushGuardRecoveryFrames:0,superMeter:100,maxSuper:100,
+  superReady:true,ultimatePhase:'idle',ultimatePhaseFrame:0,ultimateConnected:false,ultimateTarget:null,
+  ultimateEffectiveTick:null,ultimateProbe:null,captureAnchorX:null,clashRecoveryFrames:0,capturedBy:null,roundWins:0
+};
+const toroLocomotion={
+  phase:.25,frontFoot:{x:18,y:0},backFoot:{x:-18,y:2},pelvisDrop:1,torsoLean:.045,
+  preparation:0,extension:0,tuck:0,descentBrace:0,landingAbsorption:0,movementBlend:1,
+  dashCompression:0,dashDrive:0,clashBrace:0,clashRecoil:0,travelIntent:'forward',actualTravel:4,
+  hipCounterRotation:.018,chestCounterRotation:-.026,freeArmSwing:-6,weightTransfer:2
+};
+const juanchiBase={
+  id:'juanchi',x:430,y:0,vx:0,vy:0,facing:1,health:1000,maxHealth:1000,guard:100,maxGuard:100,
+  guardRegenDelay:0,guardBreakFrames:0,grounded:true,jumpStartupFrames:0,airborneTicks:0,crouching:false,
+  blocking:false,stunFrames:0,blockstunFrames:0,moveId:null,moveFrame:0,comboCount:0,moveContact:'none',
+  chilledFrames:0,projectileCooldown:0,projectileCooldownMax:120,rangedAvailability:'ready',rangedRecoveryFrames:0,
+  dashKind:null,dashFrame:0,landingRecoveryFrames:0,pushGuardRecoveryFrames:0,superMeter:100,maxSuper:100,
+  superReady:true,ultimatePhase:'idle',ultimatePhaseFrame:0,ultimateConnected:false,ultimateTarget:null,
+  ultimateEffectiveTick:null,ultimateProbe:null,captureAnchorX:null,clashRecoveryFrames:0,capturedBy:null,roundWins:0
+};
+const neutralLocomotion={
+  phase:.22,frontFoot:{x:18,y:0},backFoot:{x:-18,y:3},pelvisDrop:1,torsoLean:.035,
+  preparation:0,extension:0,tuck:0,descentBrace:0,landingAbsorption:0,movementBlend:1,
+  dashCompression:0,dashDrive:0,clashBrace:0,clashRecoil:0,travelIntent:'forward',actualTravel:4,
+  hipCounterRotation:.03,chestCounterRotation:-.043,freeArmSwing:-11,weightTransfer:1.6
+};
+
+function prep(canvas){
+  const ctx=canvas.getContext('2d');
+  ctx.setTransform(1,0,0,1,0,0);
+  ctx.fillStyle='#111721';
+  ctx.fillRect(0,0,canvas.width,canvas.height);
+  return ctx;
+}
+function world(ctx, scale=.30, offsetY=8){ctx.setTransform(scale,0,0,scale,0,offsetY)}
+function cardCanvas(id){return document.querySelector(id).getContext('2d')}
+
+if(mode==='toro'){
+  root.innerHTML=`
+    <div class="grid">
+      <div class="card"><b>CAMALEONI</b><canvas id="p0" width="200" height="142"></canvas></div>
+      <div class="card"><b>SUPERNARIZ</b><canvas id="p1" width="200" height="142"></canvas></div>
+      <div class="card"><b>JUANCHI</b><canvas id="p2" width="200" height="142"></canvas></div>
+      <div class="card"><b>EL TORO</b><canvas id="p3" width="200" height="142"></canvas></div>
+      <div class="card"><b>TOPETE</b><canvas id="m0" width="200" height="218"></canvas></div>
+      <div class="card"><b>SHAWARMAZO</b><canvas id="m1" width="200" height="218"></canvas></div>
+      <div class="card"><b>SUPER ERUCTO</b><canvas id="m2" width="200" height="218"></canvas></div>
+      <div class="card"><b>HEAVY RIG</b><canvas id="m3" width="200" height="218"></canvas></div>
+    </div>`;
+  ['chameleon','supernariz','juanchi','el-toro'].forEach((key,i)=>{
+    drawFighterPortrait(cardCanvas('#p'+i),key,200,142);
+  });
+
+  let ctx=prep(document.querySelector('#m0')); world(ctx);
+  drawTopeteDrive(ctx,250,650,1,1);
+  drawToroGroundImpact(ctx,405,650,1,.95);
+  drawElToro(ctx,{...toroBase,x:255,moveId:'topete',moveFrame:13},{...toroLocomotion,torsoLean:.18},.7);
+
+  ctx=prep(document.querySelector('#m1')); world(ctx);
+  drawElToro(ctx,{...toroBase,x:225,moveId:'shawarmazoThrow',moveFrame:11},toroLocomotion,.7);
+  drawShawarmaProjectile(ctx,440,575,7.6,14);
+  drawShawarmaImpact(ctx,535,575,1,.82);
+
+  ctx=prep(document.querySelector('#m2')); world(ctx);
+  drawElToro(ctx,{...toroBase,x:185,moveId:'superEructo',moveFrame:36,ultimatePhase:'sequence',ultimatePhaseFrame:8},toroLocomotion,.7);
+  drawSuperEructoBlast(ctx,250,650,1,.72,390);
+
+  ctx=prep(document.querySelector('#m3')); world(ctx);
+  drawElToro(ctx,{...toroBase,x:330},toroLocomotion,1.2);
+} else {
+  root.innerHTML=`
+    <div class="jgrid">
+      <div class="jcard"><b>JUANCHI · FORWARD GAIT</b><canvas id="j0" width="276" height="374"></canvas></div>
+      <div class="jcard"><b>JUANCHI · BACKWALK</b><canvas id="j1" width="276" height="374"></canvas></div>
+      <div class="jcard"><b>JUANCHI · RED RAGE AURA</b><canvas id="j2" width="276" height="374"></canvas></div>
+    </div>`;
+
+  let ctx=prep(document.querySelector('#j0')); world(ctx,.48,45);
+  drawJuanchi(ctx,{...juanchiBase,x:285},{...neutralLocomotion,travelIntent:'forward',torsoLean:.035,freeArmSwing:-11},1.1);
+
+  ctx=prep(document.querySelector('#j1')); world(ctx,.48,45);
+  drawJuanchi(ctx,{...juanchiBase,x:285},{...neutralLocomotion,phase:.72,travelIntent:'back',torsoLean:-.055,frontFoot:{x:-12,y:4},backFoot:{x:20,y:0},hipCounterRotation:-.03,chestCounterRotation:.043,freeArmSwing:11},1.1);
+
+  ctx=prep(document.querySelector('#j2')); world(ctx,.48,45);
+  drawJuanchi(ctx,{
+    ...juanchiBase,x:285,moveId:'policeCapRage',moveFrame:24,
+    ultimatePhase:'sequence',ultimatePhaseFrame:15,ultimateConnected:true,ultimateTarget:1
+  },{...neutralLocomotion,movementBlend:0,travelIntent:'idle',actualTravel:0,freeArmSwing:0},1.1);
+}
+document.body.dataset.ready='true';
+</script>
+</body>
+</html>

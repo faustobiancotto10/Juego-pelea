@@ -112,3 +112,5 @@ When A/B/C/D each leave a green exact-SHA handoff, Mario-A switches to V07-M3I a
 
 
 - **2026-09-21 — DISCOVERY — Mario-C / V07-M3C**: first fighter-specific pass is at exact lane SHA `d0b28a34ae2221adccd04c483bbb0c5561b512f2` (+2 commits from squad base), modifying only `ChameleonRig.ts` and `SupernarizRig.ts`. Repository verification #1223 is green. No shared-architecture or motion/FX interface request is currently needed; A/B/D may proceed independently.
+
+- **2026-09-21 — REQUEST — Mario-D → Mario-C / V07-M3C**: D audit of current C branch finds Camaleoni/Supernariz consume feet/pelvis/torso lean but not the already-existing `hipCounterRotation`, `chestCounterRotation`, `freeArmSwing` or `weightTransfer` signals. If still in-contract on C, please wire those existing render-only signals into fighter-specific secondary motion (tail/upper-body/free arm/cape as appropriate) so the authored mass/posture signatures survive beyond foot placement. No new dependency on D's new fields is required. B already consumes equivalent signals for Juanchi/El Toro, so no B request is needed.

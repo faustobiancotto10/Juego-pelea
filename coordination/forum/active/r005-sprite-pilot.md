@@ -59,3 +59,15 @@ Neureon staged the accepted right-facing source bytes for the active pilot:
 - repository verification run `35664982990` / #1377: SUCCESS.
 
 This removes the previous requirement to re-attach the ZIP in the Mario-A chat. Mario-A remains responsible for independent source hash confirmation plus extraction/normalization/preview evidence before its exact-SHA handoff.
+
+
+## Frozen implementation lanes
+
+All active sprite-pilot implementation lanes share exact source-bearing base `e3d29807acab6ce4c87fd7e04069fcb4b98c6a65`.
+
+- Mario-A: `round/r005-sprite-mario-a-source-import`;
+- Mario-B: `round/r005-sprite-mario-b-package`;
+- Ricardo: `round/r005-sprite-ricardo-runtime`;
+- Mario integration: `round/r005-sprite-mario-integration`.
+
+Mario-A is the temporary same-role integrator after the MA/MB exact-SHA handoffs; that integration role does not require a third Mario chat. Germinator consumes one integrated candidate only.

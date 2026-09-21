@@ -3,9 +3,11 @@ import { getCharacterStructure } from './CharacterStructure.js';
 import {
   drawCargoPocket,
   drawFabricGrain,
+  drawFacePlanes,
   drawHairStrands,
   drawScaleField,
   drawScarfFringe,
+  drawShadedEllipse,
   drawStitchLine,
 } from './ReferenceDetailPrimitives.js';
 
@@ -62,7 +64,7 @@ function drawCamaleoniPortrait(ctx: CanvasRenderingContext2D, width: number, hei
     ctx.stroke();
     ctx.restore();
 
-    ellipse(ctx, 0, -53, 28 * body.torsoWidth, 50 * body.torsoLength, '#4f8f38', -0.02, '#274f2c', 2.5);
+    drawShadedEllipse(ctx, 0, -53, 28 * body.torsoWidth, 50 * body.torsoLength, '#4f8f38', '#86bf5e', '#244f2b', -0.02, '#274f2c', 2.5);
     drawScaleField(ctx, 0, -53, 20 * body.torsoWidth, 37 * body.torsoLength, '#244b2b', 0.24, 7);
     roundedLine(ctx, -10, -36, -36, -22, 8 * body.armThickness, '#62a444');
     roundedLine(ctx, 10, -36, 34, -22, 8 * body.armThickness, '#62a444');
@@ -71,7 +73,8 @@ function drawCamaleoniPortrait(ctx: CanvasRenderingContext2D, width: number, hei
 
     ellipse(ctx, 0, -101, 15 * body.neckWidth, 31, '#4f8f38', 0, '#274f2c', 2);
     drawScaleField(ctx, 0, -101, 11 * body.neckWidth, 24, '#244b2b', 0.22, 7);
-    ellipse(ctx, 1, -142, 38 * body.headWidth, 37 * body.headHeight, '#c98f68', -0.03, '#633f31', 2.3);
+    drawShadedEllipse(ctx, 1, -142, 38 * body.headWidth, 37 * body.headHeight, '#c98f68', '#efb28d', '#895746', -0.03, '#633f31', 2.3);
+    drawFacePlanes(ctx, 1, -142, Math.min(1.15, body.headWidth), '#ffd0ad', '#754539');
     ellipse(ctx, -31, -139, 6, 10, '#b97c58');
     ctx.fillStyle = '#171918';
     for (const [x,y,r] of [[-29,-169,11],[-16,-181,12],[-1,-184,13],[14,-181,12],[28,-171,11],[-32,-157,9]] as const) {
@@ -107,7 +110,7 @@ function drawSupernarizPortrait(ctx: CanvasRenderingContext2D, width: number, he
     ctx.fill();
     ctx.stroke();
 
-    ellipse(ctx, 0, -57, 31 * body.torsoWidth, 54 * body.torsoLength, '#2d61bd', -0.03, '#16376f', 2.6);
+    drawShadedEllipse(ctx, 0, -57, 31 * body.torsoWidth, 54 * body.torsoLength, '#2d61bd', '#5e91e5', '#17356b', -0.03, '#16376f', 2.6);
     drawFabricGrain(ctx, 0, -57, 52, 88, '#8fb1ef', 0.11, 9);
     roundedLine(ctx, -28, -23, 28, -23, 7, '#8c2530');
     ellipse(ctx, 0, -24, 10, 7, '#d8b45a', 0, '#6f5122', 1.2);
@@ -122,7 +125,8 @@ function drawSupernarizPortrait(ctx: CanvasRenderingContext2D, width: number, he
     ctx.bezierCurveTo(17,-53,22,-65,16,-74); ctx.bezierCurveTo(13,-80,10,-83,5,-82);
     ctx.closePath(); ctx.fill(); ctx.stroke();
 
-    ellipse(ctx, 1, -126, 33 * body.headWidth, 38 * body.headHeight, '#d7a17e', -0.02, '#704936', 2.2);
+    drawShadedEllipse(ctx, 1, -126, 33 * body.headWidth, 38 * body.headHeight, '#d7a17e', '#efbf9c', '#925f49', -0.02, '#704936', 2.2);
+    drawFacePlanes(ctx, 1, -126, body.headWidth, '#ffd6b7', '#815040');
     ctx.fillStyle = '#2b211d';
     ctx.beginPath();
     ctx.moveTo(-30,-143); ctx.bezierCurveTo(-23,-170,20,-172,29,-145);
@@ -175,7 +179,8 @@ function drawJuanchiPortrait(ctx: CanvasRenderingContext2D, width: number, heigh
     ctx.beginPath(); ctx.moveTo(30,-34); ctx.lineTo(15,4); ctx.lineTo(4,-32); ctx.closePath(); ctx.fill(); ctx.stroke();
     drawCargoPocket(ctx, 33, -10, 22, 16, '#1c2026', '#07090c', '#d8b65c');
 
-    ellipse(ctx, 2, -129, 32 * body.headWidth, 37 * body.headHeight, '#c88c68', -0.03, '#5c382a', 2.3);
+    drawShadedEllipse(ctx, 2, -129, 32 * body.headWidth, 37 * body.headHeight, '#c88c68', '#edb18d', '#875744', -0.03, '#5c382a', 2.3);
+    drawFacePlanes(ctx, 2, -129, body.headWidth, '#ffd0ad', '#754437');
     ctx.fillStyle = '#171819';
     for (const [x,y,r] of [[-22,-156,10],[-9,-167,11],[5,-170,12],[19,-166,11],[29,-154,9],[-27,-146,8]] as const) {
       ctx.beginPath(); ctx.arc(x,y,r,0,Math.PI*2); ctx.fill();
@@ -227,7 +232,8 @@ function drawElToroPortrait(ctx: CanvasRenderingContext2D, width: number, height
     ctx.fillStyle = '#d8a45f'; ctx.strokeStyle = '#5f3c24';
     ctx.beginPath(); ctx.moveTo(-28,-16); ctx.lineTo(-11,-13); ctx.lineTo(-15,3); ctx.lineTo(-29,0); ctx.closePath(); ctx.fill(); ctx.stroke();
 
-    ellipse(ctx, 3, -132, 36 * body.headWidth, 39 * body.headHeight, '#c88a66', -0.02, '#57382c', 2.4);
+    drawShadedEllipse(ctx, 3, -132, 36 * body.headWidth, 39 * body.headHeight, '#c88a66', '#efb08b', '#8d5b47', -0.02, '#57382c', 2.4);
+    drawFacePlanes(ctx, 3, -132, body.headWidth, '#ffd0ae', '#7e493b');
     // Mullet rear mass first, then crown.
     ctx.fillStyle = '#2b211d';
     ctx.beginPath(); ctx.moveTo(-29,-144); ctx.quadraticCurveTo(-43,-112,-27,-88); ctx.quadraticCurveTo(-15,-99,-12,-126); ctx.closePath(); ctx.fill();

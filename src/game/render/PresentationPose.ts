@@ -57,6 +57,89 @@ export function getMovePresentationPhase(fighter: FighterSnapshot): MovePresenta
   };
 }
 
+export interface AttackPresentationTiming {
+  anticipation: number;
+  strike: number;
+  followThrough: number;
+  recovery: number;
+  trail: number;
+  actionPhase: number;
+}
+
+const ZERO_ATTACK_TIMING: AttackPresentationTiming = Object.freeze({
+  anticipation: 0,
+  strike: 0,
+  followThrough: 0,
+  recovery: 0,
+  trail: 0,
+  actionPhase: 0,
+});
+
+function smoothstep01(value: number): number {
+  const t = clamp01(value);
+  return t * t * (3 - 2 * t);
+}
+
+/**
+ * Render-only attack timing envelope derived from the authoritative move frame.
+ *
+ * Unlike the older fixed moveFrame/14 renderer pulse, this envelope respects
+ * each move's authored active window and recovery. It never changes move
+ * legality, collision, damage or hit timing; it only tells presentation when
+ * to build, strike, follow through and visually settle.
+ */
+export function getAttackPresentationTiming(
+  fighter: FighterSnapshot,
+): AttackPresentationTiming {
+  if (!fighter.moveId || fighter.ultimatePhase !== 'idle') return ZERO_ATTACK_TIMING;
+
+  const move = getMoveDefinition(fighter.id, fighter.moveId);
+  const frame = Math.max(0, fighter.moveFrame);
+  const total = Math.max(1, move.totalFrames);
+  const hitbox = move.hitbox;
+
+  const strikeStart = hitbox
+    ? Math.max(1, hitbox.start)
+    : Math.max(1, Math.round(total * 0.40));
+  const strikeEnd = hitbox
+    ? Math.max(strikeStart, hitbox.end)
+    : Math.min(total, strikeStart + Math.max(1, Math.round(total * 0.12)));
+
+  const anticipation = frame < strikeStart
+    ? smoothstep01(frame / strikeStart)
+    : 0;
+
+  const strikeSpan = Math.max(1, strikeEnd - strikeStart + 1);
+  const strikeProgress = clamp01((frame - strikeStart) / strikeSpan);
+  const strike = frame >= strikeStart && frame <= strikeEnd
+    ? 1 - strikeProgress * 0.18
+    : 0;
+
+  const recoverySpan = Math.max(1, total - strikeEnd);
+  const recoveryProgress = frame > strikeEnd
+    ? clamp01((frame - strikeEnd) / recoverySpan)
+    : 0;
+  const followThrough = frame > strikeEnd
+    ? 1 - smoothstep01(recoveryProgress / 0.48)
+    : 0;
+  const recovery = smoothstep01(recoveryProgress);
+
+  const actionPhase = frame < strikeStart
+    ? 0.5 * clamp01(frame / strikeStart)
+    : frame <= strikeEnd
+      ? 0.5 + 0.24 * strikeProgress
+      : 0.74 + 0.26 * recoveryProgress;
+
+  return {
+    anticipation,
+    strike,
+    followThrough,
+    recovery,
+    trail: clamp01(anticipation * 0.22 + strike + followThrough * 0.72),
+    actionPhase: clamp01(actionPhase),
+  };
+}
+
 export function getAirPresentationPose(fighter: FighterSnapshot): AirPresentationPose {
   if (fighter.grounded) {
     const landingFrame = Math.max(0, Math.min(4, fighter.landingRecoveryFrames));

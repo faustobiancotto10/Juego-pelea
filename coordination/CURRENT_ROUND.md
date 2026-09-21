@@ -175,6 +175,19 @@ The supplied `SPRITES TORO.zip` contains an accepted right-facing El Toro source
 
 El Toro is **not mirror-safe** because his costume contains readable/directional text and marks. Production completion therefore requires a genuinely authored LEFT-FACING IMG-00 + IMG-01..12 set. Runtime horizontal mirroring is not an acceptable shipping substitute for text-bearing body art.
 
+### Sprite-pilot branch freeze
+
+Common implementation base containing the accepted right-facing source bytes:
+`e3d29807acab6ce4c87fd7e04069fcb4b98c6a65`
+
+Frozen lanes:
+- Mario-A / V07-SPR-MA: `round/r005-sprite-mario-a-source-import` — continue source validation, extraction and normalization from the common base;
+- Mario-B / V07-SPR-MB: `round/r005-sprite-mario-b-package` — El Toro derived package lane;
+- Ricardo / V07-SPR-R1: `round/r005-sprite-ricardo-runtime` — generic sprite runtime lane;
+- Mario integration: `round/r005-sprite-mario-integration` — Mario-A becomes the temporary same-role integrator after MA/MB handoffs; no third Mario chat is required for integration.
+
+The branches are isolated and start from the same exact source-bearing SHA. Shared-interface changes are coordinated through `coordination/forum/active/r005-sprite-pilot.md`.
+
 ### Sprite-pilot AUTO_CHAIN
 
 Immediately eligible in parallel after agent activation:

@@ -1,6 +1,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { resolveSpriteAnimation } from '../dist/game/render/sprites/AnimationResolver.js';
+import { sampleSpriteFrame } from '../dist/game/render/sprites/SpriteFrameSampler.js';
+import { sampleSpriteAnchor } from '../dist/game/render/sprites/SpriteAnchorSampler.js';
 
 function fighter(overrides = {}) {
   return {
@@ -103,4 +105,57 @@ test('resolver is stable when authoritative time is held', () => {
   const first = resolveSpriteAnimation(snapshot, 333);
   const second = resolveSpriteAnimation(snapshot, 333);
   assert.deepEqual(second, first);
+});
+
+
+test('frame sampler uses cumulative integer durations and deterministic looping', () => {
+  const animation = {
+    loop: true,
+    frames: [
+      { x: 0, y: 0, width: 10, height: 20, pivotX: 5, pivotY: 20, durationTicks: 2 },
+      { x: 10, y: 0, width: 10, height: 20, pivotX: 5, pivotY: 20, durationTicks: 3 },
+      { x: 20, y: 0, width: 10, height: 20, pivotX: 5, pivotY: 20, durationTicks: 1 },
+    ],
+  };
+
+  assert.equal(sampleSpriteFrame(animation, -5).frameIndex, 0);
+  assert.equal(sampleSpriteFrame(animation, 0).frameIndex, 0);
+  assert.equal(sampleSpriteFrame(animation, 1).frameIndex, 0);
+  assert.equal(sampleSpriteFrame(animation, 2).frameIndex, 1);
+  assert.equal(sampleSpriteFrame(animation, 4).frameIndex, 1);
+  assert.equal(sampleSpriteFrame(animation, 5).frameIndex, 2);
+  assert.equal(sampleSpriteFrame(animation, 6).frameIndex, 0);
+  assert.equal(sampleSpriteFrame(animation, 8).frameIndex, 1);
+});
+
+test('frame sampler holds the final frame for non-looping animations', () => {
+  const animation = {
+    loop: false,
+    frames: [
+      { x: 0, y: 0, width: 10, height: 20, pivotX: 5, pivotY: 20, durationTicks: 2 },
+      { x: 10, y: 0, width: 10, height: 20, pivotX: 5, pivotY: 20, durationTicks: 2 },
+    ],
+  };
+  assert.equal(sampleSpriteFrame(animation, 999).frameIndex, 1);
+});
+
+test('anchor sampler returns exact named frame anchors without fallback invention', () => {
+  const frame = {
+    x: 0,
+    y: 0,
+    width: 10,
+    height: 20,
+    pivotX: 5,
+    pivotY: 20,
+    durationTicks: 2,
+    anchors: {
+      frontHand: { x: 8, y: 7 },
+      belt: { x: 5, y: 14 },
+    },
+  };
+
+  assert.deepEqual(sampleSpriteAnchor(frame, 'frontHand'), { x: 8, y: 7 });
+  assert.deepEqual(sampleSpriteAnchor(frame, 'belt'), { x: 5, y: 14 });
+  assert.equal(sampleSpriteAnchor(frame, 'missing'), null);
+  assert.equal(sampleSpriteAnchor({ ...frame, anchors: undefined }, 'frontHand'), null);
 });

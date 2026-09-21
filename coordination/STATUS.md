@@ -15,7 +15,7 @@ Execution: AUTO_CHAIN / MULTI-INSTANCE MARIO SQUAD
 | ↳ Mario-D | Temporary lane — Motion / Presentation / FX | V07-M3D | HANDOFF_READY | GREEN at `b6dbe3ecb99d17a302477f3d63440555b5d8c135`. |
 | Germinator | Auditor / QA | V07-G1→G2 | VERIFIED | `APPROVE — CHARACTER PIPELINE REPAIR GREEN`; Repository #1341 + Pipeline #56 green. Available for targeted QA. |
 | Brancaforte | UI / Input / UX Engineer | V07-B1 | VERIFIED | Existing UI lane remains frozen; available only for a real portrait/UI contract blocker. |
-| Gonza | Integration / Release | V07-Z0→Z1 | READY | Rebuild and re-publish the isolated V0.7 preview from exact M3I candidate `f34760948cb2024c0c83f4a02202117a8ad3bf2f`. Do not promote production root before user physical-phone acceptance. |
+| Gonza | Integration / Release | V07-Z0→Z1 | BLOCKED | rebuilt preview is green; waiting only for user physical-phone acceptance before root promotion | rebuilt preview from f3476094 deployed at /v07-preview/; Pages d7358cd3 / run 35575920696 SUCCESS; root V0.6 preserved |
 
 Active repair order: **Mario squad/M3I → Germinator G2 (VERIFIED) → Gonza rebuilt preview → user phone acceptance → final Z1 production promotion**.
 

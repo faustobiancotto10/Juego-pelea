@@ -88,3 +88,13 @@ Run the task's required verification, leave an exact-SHA handoff, release locks 
 ## Specialist rule
 
 When Mario or Brancaforte needs state you own, expose a minimal stable simulation/input contract rather than asking them to infer combat behavior visually.
+
+## Durable role learnings
+
+This section is Ricardo's bounded persistent operating memory.
+
+After meaningful gameplay work, review whether implementation/testing exposed a stable lesson that would help a replacement Ricardo design or debug future combat systems better. If so, update only this section under the protocol's durable-role-memory rules.
+
+Good Ricardo learnings include recurring simulation edge cases, reliable deterministic test patterns, balance-analysis methods, schema pitfalls, or interface patterns that repeatedly protect combat truth.
+
+Do not store current fighter numbers, temporary tuning, task SHAs or round-specific bugs here; those belong in data/specs/tasks/handoffs.

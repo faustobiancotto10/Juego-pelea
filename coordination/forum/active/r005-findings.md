@@ -46,11 +46,11 @@ Resolution: Mario V07-M2 is GREEN at exact SHA `a47326093ae004c602e00112ac2ed222
 - Durable coordination lesson: parallel instances of one identity must partition files/subtasks or use distinct branches; shared identity/context alone does not make same-file writes safe.
 
 
-## BLOCK_RELEASE — V07-Z1 physical-phone gate
+## SUPERSEDED — old V07-Z1 physical-phone gate
 
 Owner: Gonza  
-Candidate: `65bbb4122be526b0b878c214137192c7243db3ab`  
-Status: OPEN / USER PHYSICAL EVIDENCE REQUIRED
+Historical candidate: `65bbb4122be526b0b878c214137192c7243db3ab`  
+Status: SUPERSEDED BY USER VISUAL REJECTION
 
 Automated release evidence is green, but frozen acceptance V7-10 explicitly requires physical-device/user-facing visual/play checks.
 
@@ -78,10 +78,10 @@ Release policy:
 - if any check fails, keep BLOCK_RELEASE and route bounded evidence to the owning agent.
 
 
-## BLOCK_RELEASE — V07-Z1 physical phone smoke pending
+## SUPERSEDED — old V07-Z1 physical phone smoke pending
 
 Task/owner: V07-Z1 / Gonza  
-Exact product candidate: `65bbb4122be526b0b878c214137192c7243db3ab`  
+Historical product candidate: `65bbb4122be526b0b878c214137192c7243db3ab`  
 Standalone SHA-256: `b64b18ed408c67eec48f5b60b78e4ed5520c07eabd4ce7ff7a4822cc3524da28`
 
 Technical evidence is green:
@@ -249,3 +249,22 @@ No user scope decision is required for this repair because it stays inside the a
 - rejected first integration→refreshed integration: ~7.70% normal color, ~4.13% neutral silhouette, ~9.46% phone landscape.
 
 Direct artifact review shows materially stronger structural separation: Camaleoni long-neck/tail silhouette, Supernariz nose/cape silhouette, narrow athletic Juanchi, and broad/heavy planted El Toro. V07-M3I is HANDOFF_READY and Germinator G2 is unlocked. Metrics are diagnostic evidence of change, not artistic scores.
+
+
+## PENDING GATE — rebuilt preview physical-phone acceptance
+
+Owner: Gonza / user-facing V7-10 gate  
+Approved product input: `f34760948cb2024c0c83f4a02202117a8ad3bf2f`  
+G2 verdict: `APPROVE — CHARACTER PIPELINE REPAIR GREEN`
+
+The old preview `65bbb4122be526b0b878c214137192c7243db3ab` is rejected/historical. Its earlier phone-smoke gate cannot be reused as release acceptance for the repaired visuals.
+
+Next evidence must come from a newly rebuilt isolated `/v07-preview/` artifact based on the G2-approved M3I candidate. Gonza may publish that isolated preview now, but production root remains V0.6 until the user tests the rebuilt preview on a physical phone and accepts:
+- character identity/portraits;
+- difficulty/Lengua sanity;
+- Juanchi locomotion + aura;
+- El Toro signature actions;
+- Clash, both stages, rematch/input;
+- clipping/control reachability/performance.
+
+This is a release gate, not a reopened product-code blocker.

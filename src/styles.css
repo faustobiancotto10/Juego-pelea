@@ -750,6 +750,7 @@ button:focus-visible {
   font:900 clamp(54px,8vw,92px)/1 Impact,'Arial Black',sans-serif;
   pointer-events:none;
 }
+.fighter-portrait-v07[data-portrait-rendered="true"] .fighter-portrait-fallback { opacity:0; }
 .roster-tile-portrait { width:100%; max-width:128px; }
 .fighter-info-portrait { width:min(14vw,145px); margin:0 0 6px; }
 .roster-tile-mark--accent,.fighter-info-mark--accent { position:absolute; opacity:.16; pointer-events:none; }

@@ -12,6 +12,7 @@ import {
   beginSelection,
   changeFighters,
   changeStage,
+  chooseCpuDifficulty,
   chooseFighter,
   chooseStage,
   finishFight,
@@ -118,6 +119,7 @@ export class AppController {
         cpu: 'supernariz',
         stage: DEFAULT_STAGE,
         winner: null,
+        cpuDifficulty: 'normal',
       };
       this.autoplayPlayer = true;
       this.showVs(250);
@@ -177,6 +179,7 @@ export class AppController {
     const selectedId = this.pendingFighter;
     const selected = fighterDefinition(selectedId);
     const selectedPresentation = fighterPresentation(selectedId).select;
+    const difficulty = this.flow.cpuDifficulty;
 
     this.root.innerHTML = `
       <main class="roster-screen" data-game-phase="${selectingCpu ? 'select-cpu' : 'select-player'}">
@@ -191,10 +194,12 @@ export class AppController {
           </div>
           <aside class="fighter-info" style="--fighter-accent:${fighterPresentation(selectedId).accent}">
             <span class="fighter-info-kicker">${selectedPresentation.kicker}</span>
-            <div class="fighter-info-mark" aria-hidden="true">${selectedPresentation.mark}</div>
+            ${this.fighterPortrait(selectedId, 'fighter-info-portrait')}
+            <div class="fighter-info-mark fighter-info-mark--accent" aria-hidden="true">${selectedPresentation.mark}</div>
             <h2>${selected.displayName}</h2>
             <strong>${selectedPresentation.role}</strong>
             <p>${selectedPresentation.moves}</p>
+            ${selectingCpu ? this.difficultySelector(difficulty) : ''}
             <div class="fighter-info-actions">
               <button class="primary-button" data-fighter-confirm data-primary type="button">
                 ${selectingCpu ? 'CONFIRMAR RIVAL' : 'CONFIRMAR LUCHADOR'}
@@ -217,6 +222,15 @@ export class AppController {
         const id = playableFighterId(button.dataset.fighter);
         if (!id) throw new Error(`Unknown playable fighter ${String(button.dataset.fighter)}`);
         this.pendingFighter = id;
+        this.showRosterSelect();
+      });
+    }
+
+    for (const button of this.root.querySelectorAll<HTMLButtonElement>('[data-difficulty]')) {
+      button.addEventListener('click', () => {
+        const difficulty = button.dataset.difficulty;
+        if (difficulty !== 'easy' && difficulty !== 'normal' && difficulty !== 'hard') return;
+        this.flow = chooseCpuDifficulty(this.flow, difficulty);
         this.showRosterSelect();
       });
     }
@@ -255,11 +269,22 @@ export class AppController {
         style="--fighter-accent:${info.accent}"
       >
         <span class="roster-tile-kicker">${info.select.kicker}</span>
-        <span class="roster-tile-mark" aria-hidden="true">${info.select.mark}</span>
+        ${this.fighterPortrait(id, 'roster-tile-portrait')}
+        <span class="roster-tile-mark roster-tile-mark--accent" aria-hidden="true">${info.select.mark}</span>
         <strong>${fighterDefinition(id).displayName}</strong>
         <span>${info.select.role}</span>
       </button>
     `;
+  }
+
+  private fighterPortrait(id: FighterId, extraClass: string): string {
+    const portraitKey = fighterPresentation(id).portraitKey;
+    return `<span class="fighter-portrait-v07 ${extraClass}" data-portrait-key="${portraitKey}" aria-hidden="true"><i class="portrait-body"></i><i class="portrait-head"></i><i class="portrait-detail"></i></span>`;
+  }
+
+  private difficultySelector(selected: 'easy' | 'normal' | 'hard'): string {
+    const options = [['easy', 'FÁCIL'], ['normal', 'NORMAL'], ['hard', 'DIFÍCIL']] as const;
+    return `<fieldset class="difficulty-selector" aria-label="Dificultad CPU"><legend>DIFICULTAD CPU</legend><div>${options.map(([value, label]) => `<button type="button" data-difficulty="${value}" class="${value === selected ? 'is-selected' : ''}" aria-pressed="${value === selected}">${label}</button>`).join('')}</div></fieldset>`;
   }
 
   private showStageSelect(): void {
@@ -338,13 +363,15 @@ export class AppController {
         <div class="vs-stage" data-stage-name>${stage.label}</div>
         <div class="vs-side vs-side--left fighter-card--${p1}">
           <span class="vs-label">JUGADOR</span>
+          ${this.fighterPortrait(p1, 'vs-portrait')}
           <span class="vs-portrait-mark" aria-hidden="true">${fighterPresentation(p1).select.mark}</span>
           <strong>${fighterDefinition(p1).displayName}</strong>
           <span>${fighterPresentation(p1).select.role}</span>
         </div>
         <div class="vs-mark">VS</div>
         <div class="vs-side vs-side--right fighter-card--${p2}">
-          <span class="vs-label">CPU</span>
+          <span class="vs-label">CPU · ${this.flow.cpuDifficulty.toUpperCase()}</span>
+          ${this.fighterPortrait(p2, 'vs-portrait')}
           <span class="vs-portrait-mark" aria-hidden="true">${fighterPresentation(p2).select.mark}</span>
           <strong>${fighterDefinition(p2).displayName}</strong>
           <span>${fighterPresentation(p2).select.role}</span>
@@ -408,7 +435,7 @@ export class AppController {
 
     const simulation = new CombatSimulation(this.flow.player, this.flow.cpu);
     const renderer = new FightRenderer(canvas, DEFAULT_STAGE_REGISTRY.get(this.flow.stage));
-    const cpu = new CpuController(1);
+    const cpu = new CpuController(1, { difficulty: this.flow.cpuDifficulty });
     const playerCpu = this.autoplayPlayer ? new CpuController(0) : null;
     this.input = new GameInput(touchRoot, {
       onReset: () => simulation.resetInputState(),

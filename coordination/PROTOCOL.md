@@ -268,6 +268,31 @@ The identity-learning review must never delay downstream AUTO_CHAIN work merely 
 
 Replacement chats inherit accumulated role experience by reading the identity file during normal activation.
 
-## 18. Runtime isolation
+## 18. Multi-instance role squads
+
+A round may explicitly authorize multiple disposable chat instances of the same durable identity to work concurrently.
+
+All instances:
+- inherit the same durable role identity, ownership boundaries and prohibitions;
+- use temporary instance labels only for execution coordination (for example `Mario-A`, `Mario-B`);
+- must register their lane in the round/task/forum before material edits;
+- must use distinct branches unless the round explicitly proves same-branch work safe;
+- must partition file/subsystem ownership before editing and obey LOCKS;
+- may communicate through the active forum to request interfaces, challenge decisions and coordinate integration;
+- may not broaden the durable role's authority merely because several instances exist.
+
+Parallelization is appropriate only when lanes are meaningfully separable. Do not split work when agents would repeatedly require the same mutable files or when one lane's implementation must be understood before another can safely proceed.
+
+A round may designate one temporary **squad architect/integrator**. This is execution authority only:
+- it may define same-role shared interfaces inside the durable role's existing ownership;
+- it may coordinate same-role cross-lane decisions;
+- it may compose exact accepted lane deltas into a candidate;
+- it may not override Neureon, Germinator, another durable role, frozen product contracts or user authority.
+
+Each lane must leave an exact-SHA handoff. Downstream QA/integration consumes the explicitly integrated squad candidate, not arbitrary moving lane heads.
+
+If two instances collide on the same file/subsystem, stop the conflicting edits, record the collision, resolve ownership in the forum and continue only after the write boundary is unambiguous.
+
+## 19. Runtime isolation
 
 Everything under `coordination/` is coordination data only. Never import, bundle or execute it from the game runtime.

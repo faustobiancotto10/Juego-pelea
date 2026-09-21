@@ -4,6 +4,13 @@ Round: R005-V07-GAMEPLAY-PRESENTATION-EXPANSION
 Owner: Mario-A  
 Status: READY
 
+## Execution branch
+
+- branch: `round/r005-sprite-mario-a-source-import`
+- exact starting SHA: `e3d29807acab6ce4c87fd7e04069fcb4b98c6a65`
+- lane ownership: admitted source validation/extraction/normalization
+- later integration role: Mario-A becomes the temporary Mario integrator on `round/r005-sprite-mario-integration` after both Mario lanes hand off.
+
 ## Goal
 
 Continue from the exact staged El Toro right-facing source bytes in PR #50, independently re-verify the intake hashes, validate extraction/alpha/layout, and establish the normalized sprite-source package that Mario-B and Ricardo can consume.

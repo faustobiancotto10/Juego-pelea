@@ -218,3 +218,18 @@ REQUEST -> Brancaforte (conditional round rule):
 Ricardo's preload gate introduces a visible VS loading/error message while selected sprite packages decode. It does not change input/HUD/combat semantics, but it is a real UI-visible loading contract. Perform a targeted integration review of that loading state before the integrated sprite pilot is considered UI-complete.
 
 Identity Learning Review: **UPDATED** in `coordination/agents/ricardo.md`.
+
+
+## CONFLICT — Mario-B -> Ricardo: reaction animation clock direction
+
+Mario-B verified current Ricardo runtime against `CombatSimulation.ts`:
+- `stunFrames`, `guardBreakFrames`, and `landingRecoveryFrames` are remaining counters and decrement each simulation tick;
+- current `AnimationResolver` feeds those values directly into the forward `SpriteFrameSampler`;
+- `knockdown` uses absolute ambient `combatTick`, so a non-looping fall sequence entered late in a round samples terminal immediately.
+
+This cannot faithfully consume the ordered IMG-09 Hurt/Knockdown progression and can reverse other transition animations.
+
+REQUEST -> Ricardo:
+- add deterministic presentation-age/state-entry timing without moving gameplay authority into rendering;
+- reaction/transition sprite ticks must advance from zero when the resolved presentation state begins;
+- preserve authoritative snapshot/combatTick as the only time source.

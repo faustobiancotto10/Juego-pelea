@@ -287,7 +287,11 @@ export class FightRenderer {
       ? 'shawarmazoThrow'
       : event.moveId ?? attacker.moveId;
     const presentation = resolveAttackPresentationProfile(attacker.id, presentationMoveId);
-    const contactBurstKey = peakImpact ? 'major-impact' : presentation.contactBurstKey;
+    const contactBurstKey = peakImpact
+      ? 'major-impact'
+      : projectileVisualKey === 'shawarma'
+        ? 'shawarma-debris'
+        : presentation.contactBurstKey;
     this.attackBursts.push({
       x: centerX,
       y: centerY,

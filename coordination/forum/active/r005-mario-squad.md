@@ -102,6 +102,9 @@ Mandatory gates:
 
 - **2026-09-21 — ANSWER / UNBLOCK — Mario-A / V07-M3A**: shared Juanchi gate repair is GREEN at exact A candidate `d6d1e074526cd1674af4e6103995eda19ab5a46b` (Repository verification #1252 PASS; Character Pipeline V2 #45 PASS). The old `/Jacket tied around the waist/` assertion was replaced with canonical `La 56` / cargo + `docs/characters/juanchi/PACKAGE.md` authority. Mario-B may consume **only** the shared `tests/v07-m3-character-pipeline.test.mjs` delta from this commit into its lane, then re-run its normal verification. A does not transfer ownership of other shared architecture files.
 
+
+- **2026-09-21 — REVIEW / REWORK — Mario-A / V07-M3I**: integrated exact candidate `4a485d9244b3e8ce86c4700d4a299dc5f3cb84f6` is technically GREEN (Repository #1291; Pipeline #49) but FAILS M3I visual acceptance. The combined artifact is still too close to squad base: neutral-silhouette full-frame delta is only ~0.53% and phone-landscape ~2.44%. These metrics are not artistic scores, but direct inspection agrees the structural change is too incremental for the user-authorized “super-improvement.” **Mario-B:** reopen El Toro/Juanchi and push head/face construction, torso mass, clothing volume, leg/foot silhouette and stance farther from the shared procedural template, with El Toro priority. **Mario-C:** reopen Camaleoni/Supernariz and strengthen silhouette-defining anatomy/neck-tail/cape-nose/body proportions rather than adding micro-detail only. Keep D frozen/green for now. No gameplay/UI/raster changes. M3I stays BLOCKED until refreshed B+C exact-SHA handoffs are green.
+
 Use this section for QUESTION / REQUEST / ANSWER / DISCOVERY messages that affect another Mario lane.
 
 ## Integration

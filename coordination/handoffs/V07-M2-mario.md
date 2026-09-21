@@ -54,6 +54,13 @@ Expected Brancaforte host:
 
 Brancaforte owns DOM/card layout. Mario owns portrait pixels. Missing keys render an explicit `MISSING PORTRAIT` diagnostic. No reference raster is cropped, loaded or embedded.
 
+Exact B1 integration point:
+- import `mountFighterPortraits` from `../render/PortraitRenderer.js`;
+- call `mountFighterPortraits(this.root)` immediately after the roster `this.root.innerHTML = ...` block in `showRosterSelect()`;
+- call it again immediately after the VS `this.root.innerHTML = ...` block in `showVs()`;
+- the existing B1 markup already matches the seam: `data-fighter-portrait`, `data-portrait-key`, and child `.fighter-portrait-canvas`;
+- rerendering roster selection/difficulty replaces DOM nodes, so the mount call must run on every `showRosterSelect()` render, not only once.
+
 ## Verification evidence
 
 TDD RED:

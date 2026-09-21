@@ -1,5 +1,6 @@
 import type { FighterSnapshot } from '../types.js';
 import type { LocomotionPose } from './LocomotionPose.js';
+import { getCharacterStructure } from './CharacterStructure.js';
 import { getAirPresentationPose, getMovePresentationPhase } from './PresentationPose.js';
 import { GROUND_Y, ellipse, lerp, polygon, pulse, roundedLine } from './drawUtils.js';
 
@@ -17,6 +18,8 @@ export function drawSupernariz(
   locomotion: LocomotionPose,
   time: number,
 ): void {
+  const structure = getCharacterStructure('supernariz');
+  const { body, stance } = structure;
   const feetY = GROUND_Y - f.y;
   const idle = Math.sin(time * 5.8 + f.x * 0.01) * 1.2;
   const crouch = f.crouching ? 1 : 0;
@@ -51,6 +54,7 @@ export function drawSupernariz(
     - ultimateCapture * 0.16
     + ultimateSequence * 0.15
     + locomotion.torsoLean
+    + stance.forwardLean * 0.16
     + hurtLean
     - ko * 1.08;
   const bodyDrop =
@@ -73,7 +77,8 @@ export function drawSupernariz(
   ctx.restore();
 
   const hipY = -60 + bodyDrop;
-  const shoulderY = -126 + bodyDrop * 0.45 + idle;
+  const shoulderY = -126 - (body.torsoLength - 1) * 46 + bodyDrop * 0.45 + idle;
+  const hipSpan = 12 * body.hipWidth * stance.width;
   const jumpTuck = locomotion.tuck * 25 + locomotion.descentBrace * 10;
   const backFootX = locomotion.backFoot.x;
   const frontFootX = locomotion.frontFoot.x;
@@ -107,17 +112,17 @@ export function drawSupernariz(
   ctx.restore();
 
   // Legs and boots follow root travel rather than a wall-time oscillator.
-  const backKneeX = lerp(-12, backFootX, 0.54) - 6;
-  const frontKneeX = lerp(12, frontFootX, 0.54) + 6;
-  roundedLine(ctx, -12, hipY, backKneeX, -30 + knee + backFootY * 0.34, 19, '#2f5fb2');
-  roundedLine(ctx, backKneeX, -30 + knee + backFootY * 0.34, backFootX, backFootY - 5, 15, '#376dc8');
-  roundedLine(ctx, 12, hipY, frontKneeX, -29 + knee + frontFootY * 0.34, 19, '#2f5fb2');
-  roundedLine(ctx, frontKneeX, -29 + knee + frontFootY * 0.34, frontFootX, frontFootY - 5, 15, '#376dc8');
+  const backKneeX = lerp(-hipSpan, backFootX, 0.54) - 6;
+  const frontKneeX = lerp(hipSpan, frontFootX, 0.54) + 6;
+  roundedLine(ctx, -hipSpan, hipY, backKneeX, -30 + knee + backFootY * 0.34, 19 * body.legThickness, '#2f5fb2');
+  roundedLine(ctx, backKneeX, -30 + knee + backFootY * 0.34, backFootX, backFootY - 5, 15 * body.legThickness, '#376dc8');
+  roundedLine(ctx, hipSpan, hipY, frontKneeX, -29 + knee + frontFootY * 0.34, 19 * body.legThickness, '#2f5fb2');
+  roundedLine(ctx, frontKneeX, -29 + knee + frontFootY * 0.34, frontFootX, frontFootY - 5, 15 * body.legThickness, '#376dc8');
   roundedLine(ctx, backFootX - 9, backFootY - 4, backFootX + 10, backFootY - 4, 10, '#a62b34');
   roundedLine(ctx, frontFootX - 9, frontFootY - 4, frontFootX + 11, frontFootY - 4, 10, '#a62b34');
 
   // Slim suit torso.
-  ellipse(ctx, 0, -94 + bodyDrop * 0.62, 29, 51 - crouch * 8, '#2d61bd', -0.03, '#16376f', 3);
+  ellipse(ctx, 0, -94 + bodyDrop * 0.62, 29 * body.torsoWidth, (51 - crouch * 8) * body.torsoLength, '#2d61bd', -0.03, '#16376f', 3);
   // Chest nose insignia.
   ellipse(ctx, 7, -106 + bodyDrop * 0.58, 16, 8, '#d9a17e', 0.05, '#784b3b', 1.5);
   roundedLine(ctx, -25, -70 + bodyDrop * 0.65, 25, -70 + bodyDrop * 0.65, 8, '#8c2530');
@@ -146,9 +151,10 @@ export function drawSupernariz(
     - inhaleBrace * 24
     - nazazoDrive * 12
     - block * 26;
-  roundedLine(ctx, 17, shoulderY + 3, frontHandX, frontHandY, 13, '#2e65c3');
+  const shoulderSpan = 17 * body.shoulderWidth;
+  roundedLine(ctx, shoulderSpan, shoulderY + 3, frontHandX, frontHandY, 13 * body.armThickness, '#2e65c3');
   ellipse(ctx, frontHandX + 2, frontHandY, 8, 8, '#a92d37');
-  roundedLine(ctx, -17, shoulderY + 6, -30 + block * 23, shoulderY + 26 - block * 30, 13, '#285aa9');
+  roundedLine(ctx, -shoulderSpan, shoulderY + 6, -30 + block * 23, shoulderY + 26 - block * 30, 13 * body.armThickness, '#285aa9');
   ellipse(ctx, -31 + block * 23, shoulderY + 26 - block * 30, 8, 8, '#a52b35');
 
   // Stylized head and hair.
@@ -160,7 +166,7 @@ export function drawSupernariz(
     - motion.ascent * 5
     + motion.apex * 3
     + motion.descent * 7;
-  ellipse(ctx, headX, headY, 36, 39, '#d4a07f', -0.03, '#694435', 2.4);
+  ellipse(ctx, headX, headY, 36 * body.headWidth, 39 * body.headHeight, '#d4a07f', -0.03, '#694435', 2.4);
   ctx.save();
   ctx.fillStyle = '#191a1b';
   ctx.beginPath();

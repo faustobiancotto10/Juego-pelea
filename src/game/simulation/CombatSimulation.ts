@@ -1712,7 +1712,11 @@ export class CombatSimulation {
         plannedCenters[index] = this.boundedX(
           fighter.x + fighter.ultimateFacing * (definition.dashSpeed ?? 0),
         );
-      } else if (definition.kind !== 'suctionCapture' && definition.kind !== 'capCapture') {
+      } else if (
+        definition.kind !== 'suctionCapture'
+        && definition.kind !== 'capCapture'
+        && definition.kind !== 'forwardBlast'
+      ) {
         const exhaustive: never = definition.kind;
         throw new Error(`Unsupported Ultimate proposal kind ${String(exhaustive)}`);
       }
@@ -1798,8 +1802,9 @@ export class CombatSimulation {
         );
         wouldCapture = front && contactT !== null;
       } else {
-        const exhaustive: never = definition.kind;
-        throw new Error(`Unsupported Ultimate proposal kind ${String(exhaustive)}`);
+        // forwardBlast is schema-authorized in R0 but has no runtime proposal
+        // until V07-R2 implements Super Eructo.
+        throw new Error('forwardBlast runtime is not active before V07-R2');
       }
 
       return {

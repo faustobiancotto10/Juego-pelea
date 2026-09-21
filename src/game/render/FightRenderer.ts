@@ -1,5 +1,6 @@
 import type { CombatEvent, MatchSnapshot, ProjectileSnapshot } from '../types.js';
 import { DEFAULT_FIGHTER_PRESENTATION_REGISTRY } from '../data/presentationRegistry.js';
+import { ULTIMATES } from '../data/ultimates.js';
 import { resolveAttackPresentationProfile } from './AttackPresentation.js';
 import {
   drawAttackContactBurst,
@@ -18,6 +19,11 @@ import {
   drawRugbyCatchAccent,
   drawSuctionField,
   drawSupernarizInhalePulse,
+  drawSuperEructoBlast,
+  drawShawarmaImpact,
+  drawShawarmaProjectile,
+  drawToroGroundImpact,
+  drawTopeteDrive,
   drawUltimateClashEffect,
   drawUltimateImpact,
   getColetazoPresentation,
@@ -393,6 +399,27 @@ export class FightRenderer {
     }
 
     for (const fighter of snapshot.fighters) {
+      if (fighter.id !== 'el-toro' || fighter.moveId !== 'topete') continue;
+      const topeteBeat = Math.max(0, 1 - Math.abs(fighter.moveFrame - 13) / 9);
+      drawTopeteDrive(
+        ctx,
+        fighter.x,
+        GROUND_Y - fighter.y,
+        fighter.facing,
+        topeteBeat,
+      );
+      if (fighter.moveFrame >= 10 && fighter.moveFrame <= 18) {
+        drawToroGroundImpact(
+          ctx,
+          fighter.x + fighter.facing * 42,
+          GROUND_Y - fighter.y,
+          fighter.facing,
+          Math.max(0.25, topeteBeat),
+        );
+      }
+    }
+
+    for (const fighter of snapshot.fighters) {
       if (fighter.moveId !== 'coletazo') continue;
       drawColetazoTrail(
         ctx,
@@ -498,10 +525,32 @@ export class FightRenderer {
     for (const attackerIndex of [0, 1] as const) {
       const fighter = snapshot.fighters[attackerIndex];
       if (fighter.ultimatePhase === 'idle') continue;
-      if (fighter.id !== 'chameleon' && fighter.id !== 'supernariz' && fighter.id !== 'juanchi') continue;
+      if (
+        fighter.id !== 'chameleon'
+        && fighter.id !== 'supernariz'
+        && fighter.id !== 'juanchi'
+        && fighter.id !== 'el-toro'
+      ) continue;
 
       const feetY = GROUND_Y - fighter.y;
       const accent = this.accentForFighter(fighter.id);
+
+      if (fighter.id === 'el-toro') {
+        const toroDefinition = ULTIMATES.toroSuperEructo;
+        const blastRange = toroDefinition?.blastRange ?? 390;
+        if (fighter.ultimatePhase === 'startup') {
+          const charge = Math.min(1, fighter.ultimatePhaseFrame / Math.max(1, toroDefinition?.startupFrames ?? 26));
+          drawSuperEructoBlast(ctx, fighter.x + fighter.facing * 18, feetY, fighter.facing, charge * 0.22, blastRange);
+        } else if (fighter.ultimatePhase === 'sequence') {
+          const blastFrames = Math.max(1, toroDefinition?.blastFrames ?? 18);
+          const progress = Math.min(1, (fighter.ultimatePhaseFrame + 1) / blastFrames);
+          drawSuperEructoBlast(ctx, fighter.x + fighter.facing * 18, feetY, fighter.facing, progress, blastRange);
+        } else if (fighter.ultimatePhase === 'recovery') {
+          const fade = Math.max(0, 1 - fighter.ultimatePhaseFrame / 10);
+          drawSuperEructoBlast(ctx, fighter.x + fighter.facing * 18, feetY, fighter.facing, fade * 0.28, blastRange);
+        }
+        continue;
+      }
       const target = fighter.ultimateTarget === null ? null : snapshot.fighters[fighter.ultimateTarget];
       const targetIsAuthoritativelyCaptured =
         target !== null
@@ -637,15 +686,19 @@ export class FightRenderer {
       if (burst.life <= 0) continue;
       burstKept.push(burst);
       const progress = 1 - burst.life / burst.maxLife;
-      drawAttackContactBurst(
-        ctx,
-        burst.x,
-        burst.y,
-        burst.facing,
-        burst.key,
-        burst.intensity,
-        progress,
-      );
+      if (burst.key === 'shawarma-debris') {
+        drawShawarmaImpact(ctx, burst.x, burst.y, burst.facing, (1 - progress) * burst.intensity);
+      } else {
+        drawAttackContactBurst(
+          ctx,
+          burst.x,
+          burst.y,
+          burst.facing,
+          burst.key,
+          burst.intensity,
+          progress,
+        );
+      }
     }
     this.attackBursts = burstKept;
 
@@ -674,6 +727,24 @@ export class FightRenderer {
 
   private drawProjectile(projectile: ProjectileSnapshot): void {
     const y = GROUND_Y - projectile.y;
+    if (projectile.visualKey === 'shawarma') {
+      const ctx = this.ctx;
+      ctx.save();
+      ctx.globalAlpha = 0.24;
+      ctx.strokeStyle = '#ff9d4c';
+      ctx.lineWidth = 3.5;
+      ctx.lineCap = 'round';
+      const direction = projectile.vx >= 0 ? -1 : 1;
+      for (let i = 1; i <= 3; i += 1) {
+        ctx.beginPath();
+        ctx.moveTo(projectile.x + direction * i * 11, y + i * 2);
+        ctx.lineTo(projectile.x + direction * i * 25, y + i * 4);
+        ctx.stroke();
+      }
+      ctx.restore();
+      drawShawarmaProjectile(ctx, projectile.x, y, projectile.vx, projectile.age);
+      return;
+    }
     if (projectile.visualKey === 'rugby-ball') {
       const ctx = this.ctx;
       if (projectile.phase === 'outbound') {

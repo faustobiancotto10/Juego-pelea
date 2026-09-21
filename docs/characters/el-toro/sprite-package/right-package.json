@@ -190,5 +190,35 @@
     "sourceSheetsAllowed": false,
     "leftFacingRequiredForShipping": true,
     "horizontalMirrorAllowedForBodyShipping": false
+  },
+  "resolverMap": {
+    "stateToSemantic": {
+      "idle": "idle",
+      "crouch": "crouch",
+      "walk-forward": "walk-forward",
+      "walk-back": "walk-back",
+      "dash-forward": "walk-forward",
+      "dash-back": "walk-back",
+      "jump-startup": "jump",
+      "jump-ascent": "jump",
+      "jump-apex": "jump",
+      "jump-descent": "jump",
+      "land": "jump",
+      "block": "block",
+      "block-crouch": "block",
+      "hurt": "hurt-knockdown",
+      "guard-break": "hurt-knockdown",
+      "knockdown": "hurt-knockdown",
+      "captured": "hurt-knockdown"
+    },
+    "moveRoleToSemantic": {
+      "standing": "basic-attack",
+      "low": "low-attack",
+      "closeSpecial": "topete",
+      "rangedSpecial": "shawarmazo",
+      "ultimate": "super-eructo"
+    },
+    "moveKeyPolicy": "derive-from-fighter-kit-at-integration",
+    "ultimatePhasePolicy": "derive-from-fighter-kit-ultimate-at-integration"
   }
 }

@@ -716,3 +716,34 @@ button:focus-visible {
   .roster-tile,
   .stage-tile { transition:none; }
 }
+
+
+/* V0.7 fighter-select portraits + CPU difficulty */
+.fighter-portrait-v07 { position:relative; display:block; width:min(100%,150px); aspect-ratio:1.15; margin:4px auto 8px; overflow:hidden; border-radius:10px; background:radial-gradient(circle at 50% 35%,color-mix(in srgb,var(--fighter-accent,var(--accent,#777)) 32%,#fff),rgba(7,9,14,.95) 70%); box-shadow:inset 0 0 0 1px rgba(255,255,255,.12); }
+.fighter-portrait-v07 i { position:absolute; display:block; }
+.fighter-portrait-v07 .portrait-body { width:58%; height:55%; left:21%; bottom:-12%; border-radius:45% 45% 18% 18%; background:var(--fighter-accent,var(--accent,#777)); filter:brightness(.72); }
+.fighter-portrait-v07 .portrait-head { width:38%; height:42%; left:31%; top:17%; border-radius:48% 48% 44% 44%; background:#d8aa87; box-shadow:0 5px 0 rgba(0,0,0,.2); }
+.fighter-portrait-v07 .portrait-detail { left:50%; top:20%; transform:translateX(-50%); }
+.fighter-portrait-v07[data-portrait-key="chameleon"] .portrait-head { background:#78a95b; border-radius:55% 45% 55% 42%; }
+.fighter-portrait-v07[data-portrait-key="chameleon"] .portrait-detail { width:58%; height:30%; border:7px solid #92c66f; border-left-color:transparent; border-bottom-color:transparent; border-radius:50%; transform:translateX(-44%) rotate(16deg); }
+.fighter-portrait-v07[data-portrait-key="supernariz"] .portrait-detail { width:36%; height:12%; left:61%; top:35%; border-radius:70% 100% 100% 70%; background:#c68f73; transform:rotate(-8deg); }
+.fighter-portrait-v07[data-portrait-key="juanchi"] .portrait-body { background:#9b2028; }
+.fighter-portrait-v07[data-portrait-key="juanchi"] .portrait-detail { width:46%; height:12%; top:12%; border-radius:50% 50% 18% 18%; background:#19191d; box-shadow:0 8px 0 #7c151c; }
+.fighter-portrait-v07[data-portrait-key="el-toro"] .portrait-body { width:68%; left:16%; background:#253b55; }
+.fighter-portrait-v07[data-portrait-key="el-toro"] .portrait-head { width:44%; left:28%; border-radius:44% 44% 50% 50%; }
+.fighter-portrait-v07[data-portrait-key="el-toro"] .portrait-detail { width:54%; height:16%; top:10%; border-radius:50% 50% 25% 25%; background:#241b17; box-shadow:0 10px 0 -3px #241b17; }
+.roster-tile-portrait { width:100%; max-width:128px; }
+.fighter-info-portrait { width:min(14vw,145px); margin:0 0 6px; }
+.roster-tile-mark--accent,.fighter-info-mark--accent { position:absolute; opacity:.16; pointer-events:none; }
+.vs-portrait { width:min(18vw,190px); margin:8px 0; }
+.difficulty-selector { border:0; padding:0; margin:10px 0 12px; min-width:0; }
+.difficulty-selector legend { margin-bottom:6px; color:#aeb4c0; font:800 10px/1 system-ui,sans-serif; letter-spacing:.14em; }
+.difficulty-selector > div { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:5px; }
+.difficulty-selector button { min-height:34px; border:1px solid rgba(255,255,255,.18); border-radius:4px; background:rgba(0,0,0,.24); color:#cdd0d6; font-size:10px; font-weight:900; letter-spacing:.08em; cursor:pointer; }
+.difficulty-selector button.is-selected,.difficulty-selector button:focus-visible { border-color:var(--fighter-accent,var(--gold)); background:color-mix(in srgb,var(--fighter-accent,var(--gold)) 22%,#0b0d12); color:#fff; outline:none; }
+@media (max-height:520px) {
+  .fighter-portrait-v07 { max-height:92px; width:105px; }
+  .fighter-info-portrait { width:92px; }
+  .difficulty-selector { margin:5px 0 7px; }
+  .difficulty-selector button { min-height:30px; }
+}

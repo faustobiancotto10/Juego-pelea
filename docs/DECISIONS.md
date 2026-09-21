@@ -48,3 +48,9 @@
 
 - 2026-09-20: V0.6 is the official published release from main product merge `60f30d4a100f3d853e2408e3eee7bbde4e2170fe`, with Pages publish `93d2fdd6f4b764a49fa70ad1ff6ac1f348fb85cc`. R004 is archived and no implementation round is currently active.
 - 2026-09-20: Post-release human playtest evidence is not overridden by green automated QA. The next audit must address Lengua dominance, weak CPU/difficulty, Juanchi locomotion quality, attack/effects presentation quality and requested fourth fighter El Toro.
+
+- 2026-09-20: V0.7 is bounded around five post-release problems: Lengua counterplay, CPU difficulty, Juanchi locomotion, attack/effect quality, and El Toro as fighter four; fighter-select cards also gain procedural in-game portraits/icons.
+- 2026-09-20: V0.7 CPU difficulty ships exactly Easy/Normal/Hard with Normal default. Difficulty changes fair delayed policy quality only; it never grants current raw input, future state, fighter stat boosts or illegal resources.
+- 2026-09-20: El Toro is a heavy bruiser/line-breaker. Shawarmazo reuses the linear projectile lifecycle; Topete uses a bounded data-driven committed-movement Special primitive; Super Eructo introduces one bounded non-capture `forwardBlast` Ultimate primitive and participates in Universal Ultimate Clash.
+- 2026-09-20: Fighter-select portraits/icons are procedural game representations keyed by presentation metadata. Uploaded/source character references remain authoring-only and may never be cropped/loaded into runtime cards.
+- 2026-09-20: V0.7 does not add an El Toro stage, fifth action button, generic ECS/scripting/animation graph, online/story/shop systems or a long-combo redesign.

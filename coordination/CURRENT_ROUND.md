@@ -154,3 +154,52 @@ Germinator V07-G2 is VERIFIED with `APPROVE — CHARACTER PIPELINE REPAIR GREEN`
 Gonza is now eligible to rebuild/re-publish the **isolated V0.7 preview** from that exact candidate. Production-root promotion remains blocked until the rebuilt preview passes user physical-phone acceptance and final Z1 release verification.
 
 Existing V0.7 gameplay contracts remain frozen. No Mario instance may change gameplay/balance or silently migrate the renderer/runtime architecture.
+
+
+## User-authorized sprite-pilot extension — 2026-09-21
+
+The user explicitly reopened R005 scope to begin the already-approved sprite migration now, using the supplied El Toro sprite package as the first production pilot.
+
+This extension supersedes the old procedural-preview phone gate as the active visual path. The existing procedural V0.7 candidate remains historical green evidence, but **no production-root promotion from that procedural preview is authorized while this sprite pilot is active**.
+
+Authoritative sprite documents:
+- `docs/SPRITE_PRODUCTION_CONTRACT.md`;
+- `docs/characters/el-toro/SPRITE_INTAKE_2026-09-21.md`;
+- `docs/characters/el-toro/LEFT_FACING_SET_PROMPT.md`;
+- `docs/superpowers/specs/2026-09-21-sprite-scale-agent-architecture-design.md`;
+- `docs/superpowers/plans/2026-09-21-sprite-runtime-migration-plan.md`.
+
+### Intake result
+
+The supplied `SPRITES TORO.zip` contains an accepted right-facing El Toro source set of exactly 84 contractual body sprites plus IMG-00 and FX-01..04 after excluding one superseded alternate idle-like sheet.
+
+El Toro is **not mirror-safe** because his costume contains readable/directional text and marks. Production completion therefore requires a genuinely authored LEFT-FACING IMG-00 + IMG-01..12 set. Runtime horizontal mirroring is not an acceptable shipping substitute for text-bearing body art.
+
+### Sprite-pilot AUTO_CHAIN
+
+Immediately eligible in parallel after agent activation:
+- `V07-SPR-MA` — Mario-A — source import / validation / normalization lead;
+- `V07-SPR-MB` — Mario-B — El Toro package lane; right-facing work may begin, but all-facing completion is blocked on LEFT-FACING source delivery;
+- `V07-SPR-R1` — Ricardo — generic sprite runtime backend.
+
+Then:
+- Mario integrated El Toro pilot + Ricardo runtime candidate → `V07-SPR-G1` Germinator;
+- Germinator approval → `V07-SPR-Z0` Gonza isolated preview;
+- user/device acceptance → explicit production-cutover decision.
+
+Brancaforte is not required unless the sprite-loading path introduces a real UI/loading/input contract change.
+
+The canonical user AUTO_CHAIN pulse is **`.`**. On `.`, an eligible agent synchronizes repository state and immediately continues its highest-priority assigned task. The pulse never bypasses missing assets, locks, QA blockers or user/device gates.
+
+### Binary source handoff
+
+The first Mario-A instance must receive the same user-provided `SPRITES TORO.zip` attachment. The connected Neureon GitHub write surface cannot directly transfer this local binary ZIP/PNG payload into repository content. Mario-A must commit the exact accepted source bytes after verifying the SHA-256 identities recorded in the intake audit.
+
+### Production blockers
+
+No full-roster sprite fan-out and no production fighter-body cutover until:
+1. El Toro LEFT-FACING body set is complete and contract-green;
+2. the El Toro pilot is integrated and independently audited;
+3. the pilot is a clear visual win at gameplay scale;
+4. target-device memory/performance is acceptable;
+5. user physical-device acceptance is green.

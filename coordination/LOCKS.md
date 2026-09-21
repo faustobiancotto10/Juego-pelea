@@ -5,6 +5,7 @@
 | `src/game/types.ts` | Ricardo | V07-R2 | Register released fighter four ID contract. |
 | `src/game/data/characterContent.ts` | Ricardo | V07-R2 | Register El Toro package as released content. |
 | `src/game/simulation/CombatSimulation.ts` | Ricardo | V07-R2 | Topete movement and forwardBlast authoritative runtime. |
+| `src/game/simulation/moves.ts` | Ricardo | V07-R2 | Expose optional block knockback already consumed by simulation for Topete. |
 | `src/game/simulation/ultimateArbitration.ts` | Ricardo | V07-R2 | forwardBlast confrontation volume / Clash symmetry. |
 | `src/game/data/characters/elToro.ts` | Ricardo | V07-R2 | New fighter package. |
 

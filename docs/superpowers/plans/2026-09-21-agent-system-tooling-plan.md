@@ -74,11 +74,12 @@ test('identity learning is mandatory and leaves an explicit receipt', () => {
 Add a test:
 
 ```js
-test('all durable identities advertise reusable closeout learning', () => {
+test('all durable identities advertise reusable closeout learning and tooling discovery', () => {
   for (const file of ['neureon', 'ricardo', 'mario', 'brancaforte', 'germinator', 'gonza']) {
     const content = read(`coordination/agents/${file}.md`);
     assert.match(content, /Identity Learning Review/);
     assert.match(content, /Durable role learnings/);
+    assert.match(content, /coordination\/TOOLING\.md/);
   }
 });
 ```
@@ -319,6 +320,8 @@ Add under acceptance criteria:
 
 - [ ] **Step 4: Update all six identity files**
 
+In every identity's activation sequence, read `coordination/TOOLING.md` immediately after `coordination/PROTOCOL.md`.
+
 In each identity's `After own task finishes` section, insert before handoff completion:
 
 ```markdown
@@ -349,6 +352,7 @@ git commit -m "coordination: require identity learning receipts"
 **Files:**
 - Create: `coordination/templates/squad-lane.md`
 - Modify: `coordination/PROTOCOL.md`
+- Modify: `coordination/README.md`
 - Modify: `coordination/agents/neureon.md`
 - Modify: `coordination/agents/mario.md`
 - Modify: `coordination/agents/ricardo.md`
@@ -441,7 +445,11 @@ Add a short `Multi-instance execution` section to Ricardo, Brancaforte, Germinat
 
 For Mario, replace the current R005-specific framing with a generic rule plus a note that current R005 A/B/C/D labels are round state, not permanent identity semantics.
 
-- [ ] **Step 5: Run coordination test**
+- [ ] **Step 5: Update coordination README**
+
+State explicitly that durable identity is separate from temporary instances, that any role may scale to N safely isolated lanes, and that `templates/squad-lane.md` is the canonical lane contract.
+
+- [ ] **Step 6: Run coordination test**
 
 ```bash
 node --test tests/coordination-contract.test.mjs
@@ -449,10 +457,10 @@ node --test tests/coordination-contract.test.mjs
 
 Expected: PASS.
 
-- [ ] **Step 6: Commit**
+- [ ] **Step 7: Commit**
 
 ```bash
-git add coordination/PROTOCOL.md coordination/templates/squad-lane.md coordination/agents
+git add coordination/PROTOCOL.md coordination/README.md coordination/templates/squad-lane.md coordination/agents
 git commit -m "coordination: generalize same-role multi-instance squads"
 ```
 
@@ -463,6 +471,7 @@ git commit -m "coordination: generalize same-role multi-instance squads"
 **Files:**
 - Modify: `docs/DECISIONS.md`
 - Modify: `docs/CURRENT_MILESTONE.md`
+- Modify: `coordination/agents/mario.md`
 
 **Interfaces:**
 - Consumes: approved design spec.
@@ -491,7 +500,19 @@ Append a section named `Approved post-R005 architecture` that:
 
 Do not alter current R005 status, SHAs, task eligibility or phone acceptance language.
 
-- [ ] **Step 3: Run coordination test**
+- [ ] **Step 3: Update Mario's durable visual authority**
+
+Replace the procedural-only permanent wording with a two-phase contract:
+- R005 remains procedural until closure;
+- after R005, derived normalized sprite packages are the approved fighter-body migration direction;
+- source/reference sheets remain authoring-only;
+- Mario owns sprite normalization/manifest/render integration when assigned;
+- generic procedural FX/stages may remain Canvas2D;
+- Mario must not move combat truth into sprite timing.
+
+Broaden Mario's durable-learning examples from only procedural-rig lessons to reusable character rendering, sprite pipeline, anchor, atlas, mobile-memory and presentation lessons.
+
+- [ ] **Step 4: Run coordination test**
 
 ```bash
 node --test tests/coordination-contract.test.mjs
@@ -499,10 +520,10 @@ node --test tests/coordination-contract.test.mjs
 
 Expected: PASS.
 
-- [ ] **Step 4: Commit**
+- [ ] **Step 5: Commit**
 
 ```bash
-git add docs/DECISIONS.md docs/CURRENT_MILESTONE.md
+git add docs/DECISIONS.md docs/CURRENT_MILESTONE.md coordination/agents/mario.md
 git commit -m "docs: record post-V07 sprite and scaling decisions"
 ```
 

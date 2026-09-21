@@ -6,8 +6,8 @@ From: Mario
 To: Germinator V07-G2  
 Branch: `repair/v07-character-pipeline-v2`  
 Rejected preview base: `65bbb4122be526b0b878c214137192c7243db3ab`  
-Exact candidate SHA: `e053e0b187acff3b4555ce8d537e9fd9ca616303`  
-Status: GREEN / READY FOR INDEPENDENT G2 AUDIT
+Exact candidate SHA: `032b1bb28c5dd4421e5772cc40ab007f42e4d462`  
+Status: GREEN / USER-DIRECTED REFERENCE-FIDELITY CANDIDATE / READY FOR INDEPENDENT G2 AUDIT
 
 ## Files changed from rejected preview base
 
@@ -87,9 +87,9 @@ CI-only PR #39 on that commit:
 
 This proves the V07-M3 test was red before structural implementation landed.
 
-### Final exact-SHA suite/build
+### Initial structural M3 suite/build — historical
 
-Exact candidate:
+Initial structural candidate (superseded by the reference-fidelity repair below):
 `e053e0b187acff3b4555ce8d537e9fd9ca616303`
 
 Repository verification:
@@ -170,6 +170,53 @@ None requiring scope or gameplay changes. Visual acceptance is intentionally del
 
 ## Downstream eligibility
 
-- V07-M3 is GREEN at exact SHA `e053e0b187acff3b4555ce8d537e9fd9ca616303`.
+- V07-M3 is GREEN at current exact SHA `032b1bb28c5dd4421e5772cc40ab007f42e4d462`.
 - Germinator V07-G2 is immediately eligible under AUTO_CHAIN.
 - Gonza remains blocked until G2 independently approves the repaired candidate.
+
+
+## Superseding reference-fidelity repair — current audit target
+
+The user supplied new authoritative visual references for **El Toro, Juanchi, Supernariz and Camaleoni** and directed Mario to continue M3 so the playable designs resemble those references as closely as practical without dropping their animated treatment, signature details or material texture.
+
+Current exact candidate:
+`032b1bb28c5dd4421e5772cc40ab007f42e4d462`
+
+Additional/updated runtime files:
+- `src/game/render/ReferenceDetailPrimitives.ts`
+- `src/game/render/CharacterStructure.ts`
+- `src/game/render/ChameleonRig.ts`
+- `src/game/render/SupernarizRig.ts`
+- `src/game/render/JuanchiRig.ts`
+- `src/game/render/ElToroRig.ts`
+- `src/game/render/PortraitRenderer.ts`
+
+Reference-driven changes:
+- **El Toro:** human-heavy proportions closer to the master; long/mullet hair mass; white oversized shirt and readable mark; Scotland scarf with saltire/fringe; blue wraps; wide cargo pockets/seams; South Africa belt/tag; shawarma cue; layered skin/fabric shading.
+- **Juanchi:** athletic proportions; curly high hair; black/gold La 56 streetwear; chain/cross/crown cue; tied jacket sleeves; cargo pocket/zip cues; rugby-ball and police-cap equipment identity; layered shading.
+- **Supernariz:** taller/slimmer superhero proportions; red cape/boots/gloves and blue suit; bulbous chest-nose emblem; belt/sausage props; canonical long projecting nose; suit folds/texture and facial shading.
+- **Camaleoni:** oversized human curly head retained by design; cheek texture; long scaled green neck/body; procedural scale field; claws/toes; rounded spiral tail with volume highlight; tongue mechanics retained.
+- **Shared visual language:** procedural fabric grain, seam/stitch lines, cloth folds, hair strands, scale fields, shaded ellipses and face-plane lighting. Portraits consume the same structural authority and the same reference-driven motifs.
+
+Runtime policy remains intact:
+- no uploaded/reference raster is loaded at runtime;
+- no `drawImage` / `new Image` fighter dependency;
+- no gameplay, hitbox, damage, stun, movement-authority or legality change.
+
+Latest verification:
+- Character Pipeline V2 run #36: `35567747782`;
+- job: `106232842903`;
+- **336/336 tests PASS**, 0 fail, 0 skipped;
+- build/typecheck PASS;
+- visual evidence capture PASS;
+- runtime raster/reference guard PASS.
+
+Latest visual artifact:
+- name: `v07-m3-visual-evidence`;
+- ID: `10625370497`;
+- SHA-256: `cbf9628b612e04acfe23ad4dcfc9b988b81b9f5c49612d325be40fe360e437f3`;
+- contains `normal-color.png`, `neutral-silhouette.png`, `juanchi-vs-el-toro.png`, `el-toro-actions.png`, and `phone-landscape.png`.
+
+Mario inspected the generated latest artifact. Compared with the earlier M3 candidate, the three human fighters now have substantially less oversized/cartoon-head anatomy and more of the proportions present in the supplied masters; character-specific clothing/props and procedural surface treatment are also materially richer. The evidence still represents a deliberately procedural Canvas2D interpretation rather than raster reproduction, which Germinator must treat as a visual-quality audit point rather than accepting by assertion.
+
+**Germinator V07-G2 must audit `032b1bb28c5dd4421e5772cc40ab007f42e4d462`, not the historical `e053e0b1...` candidate.**

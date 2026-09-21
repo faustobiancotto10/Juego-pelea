@@ -368,7 +368,7 @@ export function drawChameleon(
     - motion.ascent * 5
     + motion.apex * 3
     + motion.descent * 7;
-  // Long S-curved neck creates a clearly non-human top-heavy silhouette.
+  // Long scaled neck: the S-curve creates a clearly non-human top-heavy silhouette.
   drawLongChameleonNeck(ctx, -4, shoulderY + 9, headX, headY, body.neckWidth);
   drawShadedEllipse(ctx, headX, headY, 48 * body.headWidth, 43 * body.headHeight, '#c98f68', '#efb28d', '#895746', -0.04, '#633f31', 2.8);
   drawFacePlanes(ctx, headX, headY, Math.min(1.15, body.headWidth), '#ffd0ad', '#754539');

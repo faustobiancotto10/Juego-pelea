@@ -2,7 +2,6 @@
 
 | Path / subsystem | Owner | Task | Reason |
 | --- | --- | --- | --- |
-| `tests/v07-m3-character-pipeline.test.mjs` | Mario-A | V07-M3A | Repair obsolete Juanchi reference-fidelity assertion blocking Mario-B. |
 | `src/game/render/FightRenderer.ts` | Mario-D | V07-M3D | Shared dispatch for render-only attack timing envelopes/telegraphs. |
 | `tests/v07-m3d-motion-fx.test.mjs` | Mario-D | V07-M3D | Lane-specific regression coverage for motion signatures and FX envelopes. |
 | `src/game/render/LocomotionPose.ts` | Mario-D | V07-M3D | Shared travel-driven gait and fighter-specific motion signatures. |

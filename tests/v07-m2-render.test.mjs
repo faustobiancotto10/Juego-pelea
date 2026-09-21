@@ -84,6 +84,7 @@ test('El Toro ordinary, Special and Ultimate moves have bounded attack-presentat
   }
 
   assert.equal(resolveAttackPresentationProfile('el-toro', 'topete').trailKey, 'topete-drive');
+  assert.equal(resolveAttackPresentationProfile('el-toro', 'topete').contactBurstKey, 'topete-drive');
   assert.equal(resolveAttackPresentationProfile('el-toro', 'shawarmazoThrow').contactBurstKey, 'shawarma-debris');
   assert.equal(resolveAttackPresentationProfile('el-toro', 'superEructo').auraKey, 'super-eructo-gas');
 });
@@ -172,7 +173,8 @@ test('Shawarmazo contact burst preserves authoritative projectile visual identit
   assert.match(fight, /event\.type === 'projectile'[\s\S]{0,520}snapshot\.projectiles\.find/);
   assert.match(fight, /projectileVisualKeys\.set/);
   assert.match(fight, /event\.projectileId[\s\S]{0,360}projectileVisualKeys\.get/);
-  assert.match(fight, /visualKey === 'shawarma'[\s\S]{0,240}'shawarma-debris'/);
+  assert.match(fight, /projectileVisualKey === 'shawarma'[\s\S]{0,240}'shawarmazoThrow'/);
+  assert.match(fight, /projectileVisualKey === 'shawarma'[\s\S]{0,520}'shawarma-debris'/);
 });
 
 test('Topete turf impact is contact-event driven and never emitted by move-frame timing alone', () => {

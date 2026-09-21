@@ -37,3 +37,8 @@ If evidence requires changing a frozen product meaning or expanding scope, BLOCK
 ## Ricardo R0 consumer contract
 
 V07-R0 exposes `CpuDifficulty`, `portraitKey`, bounded forward move movement, and the `forwardBlast` schema. The R0 simulation compatibility patch only recognizes `forwardBlast` as a reserved schema kind so TypeScript remains exhaustive; Super Eructo collision/damage/Clash runtime is intentionally deferred to V07-R2. No V0.6 runtime behavior changes in R0.
+
+
+## Ricardo R3 exact gameplay candidate
+
+Ricardo completed V07-R0→R3 at exact SHA `94ee24898855f55787e8e077c64f259e2d7a4972`. Repository verification run #1030 is green: 299/299 tests plus build. This SHA is now frozen as Germinator V07-G1 audit input. Presentation work remains blocked until Germinator returns `APPROVE — PRESENTATION LANE UNLOCKED`.

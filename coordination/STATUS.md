@@ -8,10 +8,10 @@ Canonical continuation pulse: `.`
 | Agent / Instance | Role | Active task | State | Next |
 | --- | --- | --- | --- | --- |
 | Neureon | Lead / Coordinator | V07-SPR-N0 | VERIFIED | Intake, contract and dependency graph established; remain coordinator. |
-| Ricardo | Gameplay / runtime engineer | V07-SPR-R1 | READY | Implement generic presentation-only sprite backend without changing combat truth. |
+| Ricardo | Gameplay / runtime engineer | V07-SPR-R1 | READY | Work on `round/r005-sprite-ricardo-runtime` from exact SHA `e3d29807...`; implement presentation-only sprite backend without changing combat truth. |
 | Mario | Character / Rendering Engineer | V07-SPR-MA + V07-SPR-MB | READY | Run two isolated sprite-pilot lanes and converge through one Mario integration point. |
-| ↳ Mario-A | Sprite source / pipeline lead | V07-SPR-MA | READY | Consume exact staged source SHA `e3d29807acab6ce4c87fd7e04069fcb4b98c6a65` from PR #50; re-verify, extract and normalize. |
-| ↳ Mario-B | El Toro sprite package | V07-SPR-MB | READY | Build right-facing package/manifest as interfaces become available; all-facing completion remains blocked on authored LEFT-facing set. |
+| ↳ Mario-A | Sprite source / pipeline lead | V07-SPR-MA | READY | Work on `round/r005-sprite-mario-a-source-import` from exact SHA `e3d29807...`; re-verify, extract and normalize. |
+| ↳ Mario-B | El Toro sprite package | V07-SPR-MB | READY | Work on `round/r005-sprite-mario-b-package` from exact SHA `e3d29807...`; build right-facing package while LEFT-facing remains a shipping blocker. |
 | Brancaforte | UI / Input / UX | standby | OFF_ROUND | Activate only if a real loading/menu/HUD/input contract changes. |
 | Germinator | Independent QA | V07-SPR-G1 | WAITING_DEPENDENCY | Wait for one integrated El Toro sprite-pilot candidate. |
 | Gonza | Integration / release | V07-SPR-Z0 | WAITING_DEPENDENCY | Wait for Germinator approval; then publish isolated sprite preview only. |

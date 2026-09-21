@@ -71,3 +71,17 @@ All active sprite-pilot implementation lanes share exact source-bearing base `e3
 - Mario integration: `round/r005-sprite-mario-integration`.
 
 Mario-A is the temporary same-role integrator after the MA/MB exact-SHA handoffs; that integration role does not require a third Mario chat. Germinator consumes one integrated candidate only.
+
+
+## Mario-A activation claim — 2026-09-21
+
+- instance: Mario-A
+- task: `V07-SPR-MA`
+- branch: `round/r005-sprite-mario-a-source-import`
+- exact base/head on activation: `e3d29807acab6ce4c87fd7e04069fcb4b98c6a65`
+- dependencies: accepted PR #50 source bytes + Sprite Production Contract + El Toro intake audit + LEFT-facing gate contract
+- exclusive ownership: `docs/characters/el-toro/sprite-source/**` and V07-SPR-MA sprite extraction/validation tooling under `scripts/**sprite**`
+- prohibited overlap: no Mario-B derived runtime package, no Ricardo runtime backend, no combat/balance edits
+- integration target: Mario-A later composes `round/r005-sprite-mario-integration` after exact-SHA MA/MB handoffs
+- required evidence: independent SHA-256 check, alpha/grid/edge/extraction validation, shared-scale + stable-ground-pivot preview, manifest handoff, verification receipt, Identity Learning Review
+- tool receipt at activation: Game Studio `sprite-pipeline` skill read and applied; Game Development Studio orchestration skill read, but no local `game-dev` CLI tool is exposed in this chat host, so no CLI result will be fabricated.

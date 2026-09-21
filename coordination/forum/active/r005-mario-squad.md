@@ -77,6 +77,10 @@ Mandatory gates:
 3. Gameplay-scale gate.
 4. Effects-off action-readability gate.
 
+## Active lane claims
+
+- Mario-A — V07-M3A — CLAIMED — branch `round/r005-mario-squad-architect` — initial lock scope: `src/game/render/CharacterStructure.ts`, `src/game/render/ReferenceDetailPrimitives.ts`, `src/game/render/RigAnchors.ts`, plus visual-quality harness files after concrete inspection. Instance activated by user on 2026-09-21.
+
 ## Cross-instance requests
 
 Use this section for QUESTION / REQUEST / ANSWER / DISCOVERY messages that affect another Mario lane.

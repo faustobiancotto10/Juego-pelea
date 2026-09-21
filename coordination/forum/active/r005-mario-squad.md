@@ -83,6 +83,9 @@ Mandatory gates:
 
 ## Cross-instance requests
 
+- **2026-09-21 — CLAIM — Mario-A / V07-M3A**: this chat instance claims the first unclaimed authorized lane per protocol. Branch `round/r005-mario-squad-architect`; verified branch head is still identical to visual base `032b1bb28c5dd4421e5772cc40ab007f42e4d462`. Intended initial live-lock scope: `src/game/render/CharacterStructure.ts`, `src/game/render/ReferenceDetailPrimitives.ts`, and `src/game/render/RigAnchors.ts`. Work starts with shared structure/reference-fidelity audit and quality-gate architecture; fighter-specific B/C files and D motion/FX files remain untouched.
+
+
 Use this section for QUESTION / REQUEST / ANSWER / DISCOVERY messages that affect another Mario lane.
 
 ## Integration

@@ -92,6 +92,14 @@ test('V07-M3D locomotion signatures include stance spread and swing-arc mass wit
   assert.equal(neutral.frontFoot.x, toro.neutralFootSpread);
   assert.equal(neutral.backFoot.x, -toro.neutralFootSpread);
 
+  const moving = { ...base, x: base.x + 6, vx: 6 };
+  const start = tracker.sample(0, moving, 1, 1);
+  const stop = tracker.sample(0, { ...moving, vx: 0 }, 2, 2);
+  assert.ok(start.startDrive > 0.9, 'movement start must visibly load into travel');
+  assert.ok(start.pelvisDrop > neutral.pelvisDrop, 'start drive must compress the body before stride settles');
+  assert.ok(stop.stopSettle > 0.9, 'movement stop must visibly settle weight');
+  assert.ok(stop.pelvisDrop > neutral.pelvisDrop, 'stop settle must retain a short body compression');
+
   const source = readFileSync('src/game/render/LocomotionPose.ts', 'utf8');
   assert.doesNotMatch(source, /damage\s*=|health\s*=|captureReach\s*=|hitbox\s*=|collision\s*=/i);
 });

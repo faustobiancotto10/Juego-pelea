@@ -82,3 +82,17 @@ Game Development Studio visual-debugging / asset-production workflows are author
 - **Mario-B / V07-M3B:** READY to revalidate its El Toro + Juanchi reconstruction after consuming Mario-A's test-only shared gate repair. The obsolete Juanchi tied-jacket assertion was removed in favor of the authoritative `La 56` / cargo package cues.
 - **Mario-D / V07-M3D:** WORKING on locomotion, presentation and FX.
 - **V07-M3I:** still blocked until B and D also produce green exact-SHA handoffs; Germinator and Gonza remain downstream.
+
+
+### M3I visual acceptance review — 2026-09-21
+
+Mario-A composed the exact green A/B/C/D lane deltas into integration candidate `4a485d9244b3e8ce86c4700d4a299dc5f3cb84f6`.
+
+Technical verification:
+- Repository verification #1291 / `35571839137`: PASS;
+- Character Pipeline V2 #49 / `35571839119`: PASS;
+- artifact ID `10626296792`, digest `sha256:5021f824cef2f2a3042174a55dc4358507bdd2bfbed03ad8b1eb647e948960df`;
+- all 14 integrated file blobs matched their accepted lane source blobs exactly;
+- runtime raster/reference guard: PASS.
+
+Mario-A did **not** promote the candidate to Germinator. Direct artifact inspection plus baseline raster comparison showed the visual delta remained too incremental for the user-authorized “super-improvement” acceptance, especially in silhouette/head/body construction. V07-M3B and V07-M3C are reopened for bounded stronger structural/reference passes. V07-M3D remains green. V07-M3I, Germinator G2 and Gonza remain blocked until refreshed B+C exact-SHA handoffs are green.

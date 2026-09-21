@@ -91,3 +91,20 @@ Evidence:
 - production root remains V0.6 blob `bda2d2a1...`.
 
 Per frozen V7-10 acceptance, automated/mobile-viewport smoke cannot substitute for the required physical-phone/user-facing check. Z1 is therefore BLOCKED from root promotion until that evidence is supplied.
+
+
+## V07-Z1 PREVIEW READY — production promotion held for physical gate
+
+Exact preview candidate:
+- Z0 source: `65bbb4122be526b0b878c214137192c7243db3ab`;
+- standalone SHA-256: `b64b18ed408c67eec48f5b60b78e4ed5520c07eabd4ce7ff7a4822cc3524da28`;
+- gh-pages preview publish: `2b583b14a8c903142dbb56c8f0b7f949aaf23c16`;
+- Pages run `35562586454`: SUCCESS;
+- preview/source blob parity: `51eba287c535782f9fc72a9528169edf3b5c7de2`.
+
+Preview URL:
+https://faustobiancotto10.github.io/Juego-pelea/v07-preview/
+
+Production root is intentionally still V0.6.
+
+V7-10 requires real physical-phone evidence. Cloud mobile smoke already passed but does not satisfy that wording. Z1 is therefore BLOCK_RELEASE only on this external device gate; no code defect is open.

@@ -265,11 +265,19 @@ export class FightRenderer {
     const majorImpact = ultimateHit && event.majorImpact === true;
     const peakImpact = majorImpact || ultimateFinisher;
     const presentation = resolveAttackPresentationProfile(attacker.id, event.moveId ?? attacker.moveId);
+    const projectileVisualKey = event.projectileId === undefined
+      ? null
+      : snapshot.projectiles.find((projectile) => projectile.id === event.projectileId)?.visualKey ?? null;
+    const contactBurstKey = peakImpact
+      ? 'major-impact'
+      : projectileVisualKey === 'shawarma'
+        ? 'shawarma-debris'
+        : presentation.contactBurstKey;
     this.attackBursts.push({
       x: centerX,
       y: centerY,
       facing: attacker.facing,
-      key: peakImpact ? 'major-impact' : presentation.contactBurstKey,
+      key: contactBurstKey,
       intensity: presentation.intensity * (event.blocked ? 0.55 : event.strong ? 1 : 0.82),
       life: peakImpact ? 18 : 12,
       maxLife: peakImpact ? 18 : 12,
@@ -408,15 +416,6 @@ export class FightRenderer {
         fighter.facing,
         topeteBeat,
       );
-      if (fighter.moveFrame >= 10 && fighter.moveFrame <= 18) {
-        drawToroGroundImpact(
-          ctx,
-          fighter.x + fighter.facing * 42,
-          GROUND_Y - fighter.y,
-          fighter.facing,
-          Math.max(0.25, topeteBeat),
-        );
-      }
     }
 
     for (const fighter of snapshot.fighters) {
@@ -688,6 +687,9 @@ export class FightRenderer {
       const progress = 1 - burst.life / burst.maxLife;
       if (burst.key === 'shawarma-debris') {
         drawShawarmaImpact(ctx, burst.x, burst.y, burst.facing, (1 - progress) * burst.intensity);
+      } else if (burst.key === 'topete-drive') {
+        drawAttackContactBurst(ctx, burst.x, burst.y, burst.facing, burst.key, burst.intensity, progress);
+        drawToroGroundImpact(ctx, burst.x, GROUND_Y, burst.facing, (1 - progress) * burst.intensity);
       } else {
         drawAttackContactBurst(
           ctx,

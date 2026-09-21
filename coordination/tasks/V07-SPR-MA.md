@@ -6,11 +6,21 @@ Status: READY
 
 ## Goal
 
-Import the accepted El Toro right-facing source bytes from the user's `SPRITES TORO.zip`, rename them to contract IDs, validate extraction/alpha/layout, and establish the normalized sprite-source package that Mario-B and Ricardo can consume.
+Continue from the exact staged El Toro right-facing source bytes in PR #50, independently re-verify the intake hashes, validate extraction/alpha/layout, and establish the normalized sprite-source package that Mario-B and Ricardo can consume.
+
+## Source handoff
+
+- branch: `round/r005-sprite-mario-a-source-import`
+- exact SHA: `e3d29807acab6ce4c87fd7e04069fcb4b98c6a65`
+- PR: #50
+- import workflow: GitHub Actions run `35664899123` — SUCCESS
+- repository verification: run `35664982990` / #1377 — SUCCESS
+- accepted source files present: 17 PNGs + `SOURCE_MANIFEST.md`
+- rejected `13F1BB3E-C57C-4649-B9E7-07664E5E8BE8.PNG`: absent from admitted source path
 
 ## Dependencies
 
-- User-provided `SPRITES TORO.zip` must be attached to this Mario instance.
+- Accepted source bytes are staged on branch `round/r005-sprite-mario-a-source-import` at exact SHA `e3d29807acab6ce4c87fd7e04069fcb4b98c6a65` in PR #50; no chat re-attachment is required.
 - Read `docs/SPRITE_PRODUCTION_CONTRACT.md`.
 - Read `docs/characters/el-toro/SPRITE_INTAKE_2026-09-21.md`.
 - Read `docs/characters/el-toro/LEFT_FACING_SET_PROMPT.md`.

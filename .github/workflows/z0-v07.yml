@@ -1,6 +1,9 @@
 name: Z0 V0.7 final integration verification
 
 on:
+  push:
+    branches:
+      - ci/r005-z0-verify
   pull_request:
 
 jobs:

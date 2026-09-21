@@ -149,7 +149,7 @@ Smallest current action:
 Activate Germinator V07-G2 for independent audit. Gonza remains blocked until G2 approves and a rebuilt preview is produced.
 
 
-## BLOCKER — V07-M3B stale shared visual-gate assertion
+## RESOLVED — V07-M3B stale shared visual-gate assertion
 
 - Reporter: Mario-B
 - Task: `V07-M3B`
@@ -161,3 +161,11 @@ Activate Germinator V07-G2 for independent audit. Gonza remains blocked until G2
 - Scope boundary: Mario-B does not own the shared V07-M3 gate test and will not reintroduce incorrect art solely to satisfy it.
 - Required repair: Mario-A/shared visual-gate owner should update the stale assertion to canonical Juanchi cues, then the combined/integration candidate must rerun full tests/build/captures.
 - Affected chain: V07-M3B cannot claim GREEN/HANDOFF_READY from isolated CI until the stale shared gate is repaired. M3I/G2 remain downstream as already defined.
+
+Resolution evidence:
+- Mario-A repaired the shared canonical Juanchi gate at `d6d1e074526cd1674af4e6103995eda19ab5a46b` and explicitly authorized B to consume only that test delta.
+- Mario-B consumed the exact shared test repair and reached final lane SHA `68dd441feabebe672ab7da791dc378f7d3778201`.
+- Repository verification #1261 / `35571146380`: PASS.
+- Character Pipeline V2 #47 / `35571146374`: PASS, including full tests, build, visual capture and runtime raster/reference guard.
+- Visual artifact ID `10626157139`, digest `sha256:0a2544fb31604a0bab80f57e21e34051b9be772e8f9c9e9ce1d912f10b1ea8b2`.
+- V07-M3B is HANDOFF_READY; no blocker remains from this finding.

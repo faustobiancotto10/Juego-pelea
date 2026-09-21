@@ -8,7 +8,7 @@ Canonical continuation pulse: `.`
 | Agent / Instance | Role | Active task | State | Next |
 | --- | --- | --- | --- | --- |
 | Neureon | Lead / Coordinator | V07-SPR-N0 | VERIFIED | Intake, contract and dependency graph established; remain coordinator. |
-| Ricardo | Gameplay / runtime engineer | V07-SPR-R1 | WORKING | Claimed `round/r005-sprite-ricardo-runtime`; implementing the generic presentation-only sprite backend from exact SHA `e3d29807...` with TDD. |
+| Ricardo | Gameplay / runtime engineer | V07-SPR-R1 | HANDOFF_READY | Green exact SHA `d07cba1231fbb571dfe5d344487251f88dec797c`; 306/306 tests + build PASS; handoff to Mario-A integrator/Germinator published. |
 | Mario | Character / Rendering Engineer | V07-SPR-MA + V07-SPR-MB | READY | Run two isolated sprite-pilot lanes and converge through one Mario integration point. |
 | ↳ Mario-A | Sprite source / pipeline lead | V07-SPR-MA | HANDOFF_READY | Exact SHA `45cbf8ab...` green on run `35667742014`; normalization/extraction contract handed to Mario-B/Ricardo. Wait for Mario-B handoff, then perform designated Mario integration. |
 | ↳ Mario-B | El Toro sprite package | V07-SPR-MB | READY | Work on `round/r005-sprite-mario-b-package` from exact SHA `e3d29807...`; build right-facing package while LEFT-facing remains a shipping blocker. |

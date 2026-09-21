@@ -7,6 +7,7 @@ function manifest() {
   return {
     version: 1,
     atlas: 'body.webp',
+    mirrorSafe: true,
     animations: {
       idle: {
         loop: true,

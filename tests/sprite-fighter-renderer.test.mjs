@@ -72,7 +72,7 @@ function frame(overrides = {}) {
 }
 
 test('sprite draw placement preserves source rect and anchors trimmed frame pivot to fighter world position', () => {
-  const placement = computeSpriteDrawPlacement(fighter(), frame());
+  const placement = computeSpriteDrawPlacement(fighter(), frame(), false);
   assert.deepEqual(placement, {
     translateX: 500,
     translateY: GROUND_Y - 20,
@@ -83,8 +83,8 @@ test('sprite draw placement preserves source rect and anchors trimmed frame pivo
 });
 
 test('facing flip mirrors around the same authoritative world anchor without shifting it', () => {
-  const right = computeSpriteDrawPlacement(fighter({ facing: 1 }), frame());
-  const left = computeSpriteDrawPlacement(fighter({ facing: -1 }), frame());
+  const right = computeSpriteDrawPlacement(fighter({ facing: 1 }), frame(), true);
+  const left = computeSpriteDrawPlacement(fighter({ facing: -1 }), frame(), true);
   assert.equal(right.translateX, left.translateX);
   assert.equal(right.translateY, left.translateY);
   assert.equal(right.dest.x, left.dest.x);
@@ -98,7 +98,7 @@ test('different trimmed crouch/lunge frames remain pivot-anchored', () => {
     height: 72,
     pivotX: 54,
     pivotY: 67,
-  }));
+  }), false);
   assert.equal(crouch.translateX, 500);
   assert.equal(crouch.translateY, GROUND_Y - 20);
   assert.deepEqual(crouch.dest, { x: -54, y: -67, width: 112, height: 72 });
@@ -115,6 +115,7 @@ test('sprite renderer resolves animation from snapshot, samples frame and draws 
         manifest: {
           version: 1,
           atlas: 'body.webp',
+          mirrorSafe: true,
           animations: { idle: { loop: true, frames: [sampledFrame] } },
         },
       };
@@ -150,6 +151,7 @@ test('sprite renderer fails visibly on a missing resolved animation and exposes 
     manifest: {
       version: 1,
       atlas: 'body.webp',
+      mirrorSafe: true,
       animations: { idle: { loop: true, frames: [sampledFrame] } },
     },
   };
@@ -170,4 +172,76 @@ test('sprite renderer fails visibly on a missing resolved animation and exposes 
     () => broken.sampleAnchor(fighter(), 'pkg', 2, 'head'),
     /missing sprite animation.*idle/i,
   );
+});
+
+
+test('non-mirror-safe LEFT fighters select authored left frames without canvas mirroring', () => {
+  const rightFrame = frame();
+  const leftFrame = frame({
+    x: 107,
+    pivotX: 57,
+    anchors: { head: { x: 40, y: 18 } },
+  });
+  const image = { id: 'authored-facing-atlas' };
+  const loaded = {
+    image,
+    manifest: {
+      version: 1,
+      atlas: 'body.webp',
+      mirrorSafe: false,
+      animations: { idle: { loop: true, frames: [rightFrame] } },
+      leftAnimations: { idle: { loop: true, frames: [leftFrame] } },
+    },
+  };
+  const calls = [];
+  const ctx = {
+    globalAlpha: 1,
+    save() { calls.push(['save']); },
+    restore() { calls.push(['restore']); },
+    translate(x, y) { calls.push(['translate', x, y]); },
+    scale(x, y) { calls.push(['scale', x, y]); },
+    drawImage(...args) { calls.push(['drawImage', ...args]); },
+  };
+  const renderer = new SpriteFighterRenderer({ get: () => loaded });
+  const leftFighter = fighter({ facing: -1 });
+
+  renderer.draw(ctx, leftFighter, 'pkg-authored', 10);
+
+  assert.deepEqual(calls[2], ['scale', 1, 1], 'authored LEFT art must not be mirrored');
+  assert.deepEqual(
+    calls[3],
+    ['drawImage', image, 107, 11, 80, 100, -57, -94, 80, 100],
+  );
+  assert.deepEqual(
+    renderer.sampleAnchor(leftFighter, 'pkg-authored', 10, 'head'),
+    { x: 17, y: 76 },
+    'authored LEFT anchor must normalize to canonical fighter-local coordinates',
+  );
+});
+
+test('mirror-safe LEFT fighters explicitly reuse right frames with a horizontal flip', () => {
+  const sampledFrame = frame();
+  const loaded = {
+    image: {},
+    manifest: {
+      version: 1,
+      atlas: 'body.webp',
+      mirrorSafe: true,
+      animations: { idle: { loop: true, frames: [sampledFrame] } },
+    },
+  };
+  const calls = [];
+  const ctx = {
+    globalAlpha: 1,
+    save() { calls.push(['save']); },
+    restore() { calls.push(['restore']); },
+    translate(x, y) { calls.push(['translate', x, y]); },
+    scale(x, y) { calls.push(['scale', x, y]); },
+    drawImage(...args) { calls.push(['drawImage', ...args]); },
+  };
+
+  new SpriteFighterRenderer({ get: () => loaded })
+    .draw(ctx, fighter({ facing: -1 }), 'pkg-mirror-safe', 10);
+
+  assert.deepEqual(calls[2], ['scale', -1, 1]);
 });

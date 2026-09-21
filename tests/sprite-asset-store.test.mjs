@@ -10,6 +10,7 @@ function manifest(key = 'idle') {
   return {
     version: 1,
     atlas: 'body.webp',
+    mirrorSafe: true,
     animations: {
       [key]: {
         loop: true,

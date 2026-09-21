@@ -8,6 +8,7 @@ function validManifest() {
   return {
     version: 1,
     atlas: 'assets/fighters/el-toro/body.webp',
+    mirrorSafe: true,
     animations: {
       idle: {
         loop: true,
@@ -39,6 +40,38 @@ test('sprite manifest validator rejects malformed version, atlas and animation m
   assert.throws(
     () => validateSpriteAnimationSet({ ...validManifest(), animations: { '': validManifest().animations.idle } }),
     /animation.*key|animations/i,
+  );
+});
+
+test('sprite manifest requires explicit mirroring policy and authored-left parity when mirroring is unsafe', () => {
+  const base = validManifest();
+  const { mirrorSafe: _mirrorSafe, ...withoutMirrorPolicy } = base;
+  assert.throws(
+    () => validateSpriteAnimationSet(withoutMirrorPolicy),
+    /mirrorSafe/i,
+  );
+
+  assert.throws(
+    () => validateSpriteAnimationSet({ ...base, mirrorSafe: false }),
+    /leftAnimations/i,
+  );
+
+  const authored = {
+    ...base,
+    mirrorSafe: false,
+    leftAnimations: structuredClone(base.animations),
+  };
+  assert.doesNotThrow(() => validateSpriteAnimationSet(authored));
+
+  assert.throws(
+    () => validateSpriteAnimationSet({
+      ...authored,
+      leftAnimations: {
+        ...authored.leftAnimations,
+        extra: authored.leftAnimations.idle,
+      },
+    }),
+    /leftAnimations.*keys|animation.*keys/i,
   );
 });
 

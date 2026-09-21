@@ -11,6 +11,6 @@ Execution: AUTO_CHAIN
 | Germinator | Auditor / QA | V07-G1 | VERIFIED | APPROVE — PRESENTATION LANE UNLOCKED. QA run #1041 green; available for targeted reviews/repairs. |
 | Mario | Character / Rendering Engineer | V07-M1→M2 | VERIFIED | V07-M2 green at a4732609; 314/314 + build (#1113). Available for targeted render repairs/reviews. |
 | Brancaforte | UI / Input / UX Engineer | V07-B1 | VERIFIED | Green exact SHA 9688764c; Mario M2 a4732609 is an ancestor; run #1127 success. Available for targeted repairs. |
-| Gonza | Integration / Release | V07-Z0→Z1 | WORKING | none | V07-Z0 started from accepted B1 aggregate 9688764c + exact G1 adversarial test |
+| Gonza | Integration / Release | V07-Z0→Z1 | WORKING | none | Z0 VERIFIED at 65bbb412; AUTO_CHAIN started V07-Z1 final release verification |
 
 Canonical order: **Ricardo → Germinator → Mario + Brancaforte → Gonza**.

@@ -1,6 +1,11 @@
 import type { FighterSnapshot } from '../types.js';
 import type { LocomotionPose } from './LocomotionPose.js';
 import { getCharacterStructure } from './CharacterStructure.js';
+import {
+  drawFabricGrain,
+  drawHairStrands,
+  drawStitchLine,
+} from './ReferenceDetailPrimitives.js';
 import { getAirPresentationPose, getMovePresentationPhase } from './PresentationPose.js';
 import { GROUND_Y, ellipse, lerp, polygon, pulse, roundedLine } from './drawUtils.js';
 
@@ -109,6 +114,8 @@ export function drawSupernariz(
   ctx.closePath();
   ctx.fill();
   ctx.stroke();
+  drawStitchLine(ctx, -27, shoulderY + 19, -43, -43 + bodyDrop * 0.45, '#c84750', 1, [5, 5], 0.38);
+  drawStitchLine(ctx, -17, shoulderY + 17, -29, -38 + bodyDrop * 0.45, '#7f1822', 1, [5, 5], 0.45);
   ctx.restore();
 
   // Legs and boots follow root travel rather than a wall-time oscillator.
@@ -121,16 +128,34 @@ export function drawSupernariz(
   roundedLine(ctx, backFootX - 9, backFootY - 4, backFootX + 10, backFootY - 4, 10, '#a62b34');
   roundedLine(ctx, frontFootX - 9, frontFootY - 4, frontFootX + 11, frontFootY - 4, 10, '#a62b34');
 
-  // Slim suit torso.
+  // Slim textured superhero suit from the supplied master.
   ellipse(ctx, 0, -94 + bodyDrop * 0.62, 29 * body.torsoWidth, (51 - crouch * 8) * body.torsoLength, '#2d61bd', -0.03, '#16376f', 3);
-  // Chest nose insignia.
-  ellipse(ctx, 7, -106 + bodyDrop * 0.58, 16, 8, '#d9a17e', 0.05, '#784b3b', 1.5);
+  drawFabricGrain(ctx, 0, -94 + bodyDrop * 0.62, 52 * body.torsoWidth, 90 * body.torsoLength, '#8fb1ef', 0.10, 9);
+  // Chest nose emblem: deliberately reads as a bulbous nose, not a generic oval.
+  ctx.save();
+  ctx.fillStyle = '#d29a77';
+  ctx.strokeStyle = '#754638';
+  ctx.lineWidth = 1.7;
+  ctx.beginPath();
+  ctx.moveTo(6, -119 + bodyDrop * 0.58);
+  ctx.bezierCurveTo(-5, -111 + bodyDrop * 0.58, -8, -93 + bodyDrop * 0.58, 4, -90 + bodyDrop * 0.58);
+  ctx.bezierCurveTo(18, -89 + bodyDrop * 0.58, 24, -101 + bodyDrop * 0.58, 17, -110 + bodyDrop * 0.58);
+  ctx.bezierCurveTo(14, -116 + bodyDrop * 0.58, 11, -120 + bodyDrop * 0.58, 6, -119 + bodyDrop * 0.58);
+  ctx.closePath();
+  ctx.fill();
+  ctx.stroke();
+  ellipse(ctx, 0, -95 + bodyDrop * 0.58, 5, 3, '#bd7b60');
+  ellipse(ctx, 13, -95 + bodyDrop * 0.58, 5, 3, '#bd7b60');
+  ctx.restore();
   roundedLine(ctx, -25, -70 + bodyDrop * 0.65, 25, -70 + bodyDrop * 0.65, 8, '#8c2530');
+  drawStitchLine(ctx, -22, -75 + bodyDrop * 0.65, 22, -75 + bodyDrop * 0.65, '#cf6f75', 0.9, [4, 4], 0.45);
 
-  // Belt decorations are programmatic sausage-shaped beads.
-  for (const bx of [-18, 0, 18]) {
-    ellipse(ctx, bx, -65 + bodyDrop * 0.65, 7, 4, '#c46d42', 0.15);
-    roundedLine(ctx, bx - 5, -65 + bodyDrop * 0.65, bx + 5, -65 + bodyDrop * 0.65, 2, '#f0b17f');
+  // Belt buckle and hanging sausage props from the master.
+  ellipse(ctx, 0, -65 + bodyDrop * 0.65, 11, 8, '#d8b45a', 0, '#6f5122', 1.5);
+  roundedLine(ctx, -18, -65 + bodyDrop * 0.65, 18, -65 + bodyDrop * 0.65, 5, '#6e4a2c');
+  for (const bx of [17, 26]) {
+    ellipse(ctx, bx, -55 + bodyDrop * 0.65, 5, 10, '#c46d42', 0.18, '#7a3e2c', 1);
+    roundedLine(ctx, bx - 3, -58 + bodyDrop * 0.65, bx + 3, -55 + bodyDrop * 0.65, 1.4, '#f0b17f');
   }
 
   // Arms. Throwing arm swings forward for the chorizo special.
@@ -174,6 +199,12 @@ export function drawSupernariz(
   ctx.bezierCurveTo(headX - 26, headY - 52, headX + 18, headY - 53, headX + 31, headY - 23);
   ctx.bezierCurveTo(headX + 13, headY - 35, headX - 8, headY - 30, headX - 33, headY - 18);
   ctx.fill();
+  drawHairStrands(ctx, [
+    [headX - 23, headY - 34, headX - 15, headY - 20],
+    [headX - 8, headY - 42, headX - 2, headY - 25],
+    [headX + 8, headY - 42, headX + 13, headY - 26],
+    [headX + 21, headY - 34, headX + 24, headY - 19],
+  ], '#655047', 0.28);
   ctx.restore();
   roundedLine(ctx, headX + 4, headY - 7, headX + 17, headY - 8, 3, '#4a3127');
   ellipse(ctx, headX + 14, headY - 1, 2.5, 2.2, '#101317');
@@ -203,8 +234,8 @@ export function drawSupernariz(
   ctx.lineWidth = 2.2;
   ctx.beginPath();
   ctx.moveTo(headX + 18, headY + 3);
-  ctx.quadraticCurveTo(headX + noseLength * 0.45, headY - 10 + noseLift, headX + noseLength, headY + 5 + noseLift);
-  ctx.quadraticCurveTo(headX + noseLength * 0.55, headY + 19 + noseLift, headX + 18, headY + 16);
+  ctx.quadraticCurveTo(headX + noseLength * 0.42, headY - 7 + noseLift, headX + noseLength, headY + 4 + noseLift);
+  ctx.quadraticCurveTo(headX + noseLength * 0.56, headY + 17 + noseLift, headX + 18, headY + 16);
   ctx.closePath();
   ctx.fill();
   ctx.stroke();

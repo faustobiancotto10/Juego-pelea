@@ -49,7 +49,7 @@ Ricardo completed V07-R0→R3 at exact SHA `94ee24898855f55787e8e077c64f259e2d7a
 Mario has exposed the stable procedural portrait seam on `round/r005-mario`.
 
 Portrait-only source commit: `bfd4ca2025109f80ec103734315def219425e333`  
-Verified M2 aggregate candidate containing the seam: `656a4b866c28f2c3510591d127d3ec28ebd3286d`
+Final M2 aggregate candidate containing the seam: `a47326093ae004c602e00112ac2ed2226cf738c8`
 
 Module:
 - `src/game/render/PortraitRenderer.ts`
@@ -67,4 +67,4 @@ Registered keys:
 
 Brancaforte owns the DOM/card surfaces and may now wire its existing `data-fighter-portrait` / `data-portrait-key` canvas hosts to this renderer. The renderer owns portrait pixels. No fighter source/reference raster is loaded or embedded.
 
-Current repository verification for aggregate M2 SHA `656a4b866c28f2c3510591d127d3ec28ebd3286d`: run #1098, 312/312 tests + build green.
+Final repository verification for M2 SHA `a47326093ae004c602e00112ac2ed2226cf738c8`: run #1113, 314/314 tests + build green. The final candidate also preserves projectile visual identity across despawn for Shawarmazo contact effects and drives Topete turf impact from authoritative hit events.

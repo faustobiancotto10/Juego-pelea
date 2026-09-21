@@ -41,24 +41,24 @@ function drawTailSpiral(
   ctx.save();
   ctx.lineCap = 'round';
   ctx.strokeStyle = '#477f35';
-  ctx.lineWidth = 11;
+  ctx.lineWidth = 14;
   ctx.beginPath();
   ctx.moveTo(tipX, tipY);
   ctx.bezierCurveTo(
-    tipX + 20 * dir * curl,
-    tipY - 18 * curl,
-    tipX + 28 * dir * curl,
-    tipY + 16 * curl,
-    tipX + 10 * dir * curl,
-    tipY + 22 * curl,
+    tipX + 30 * dir * curl,
+    tipY - 28 * curl,
+    tipX + 45 * dir * curl,
+    tipY + 19 * curl,
+    tipX + 19 * dir * curl,
+    tipY + 32 * curl,
   );
   ctx.bezierCurveTo(
-    tipX - 7 * dir * curl,
-    tipY + 28 * curl,
-    tipX - 12 * dir * curl,
-    tipY + 6 * curl,
-    tipX + 1 * dir * curl,
-    tipY + 6 * curl,
+    tipX - 10 * dir * curl,
+    tipY + 39 * curl,
+    tipX - 22 * dir * curl,
+    tipY + 7 * curl,
+    tipX + 2 * dir * curl,
+    tipY + 5 * curl,
   );
   ctx.stroke();
   ctx.globalAlpha = 0.48;
@@ -76,6 +76,54 @@ function drawTailSpiral(
   );
   ctx.stroke();
   ctx.restore();
+}
+
+function drawLongChameleonNeck(
+  ctx: CanvasRenderingContext2D,
+  baseX: number,
+  baseY: number,
+  headX: number,
+  headY: number,
+  neckScale: number,
+): void {
+  const half = 14 * neckScale;
+  ctx.save();
+  ctx.fillStyle = '#4f8f38';
+  ctx.strokeStyle = '#274f2c';
+  ctx.lineWidth = 2.4;
+  ctx.beginPath();
+  ctx.moveTo(baseX - half, baseY);
+  ctx.bezierCurveTo(
+    baseX - 18,
+    baseY - 24,
+    headX - 25,
+    headY + 65,
+    headX - 18,
+    headY + 34,
+  );
+  ctx.quadraticCurveTo(headX - 10, headY + 24, headX + 3, headY + 31);
+  ctx.bezierCurveTo(
+    headX + 13,
+    headY + 48,
+    baseX + 19,
+    baseY - 19,
+    baseX + half,
+    baseY,
+  );
+  ctx.closePath();
+  ctx.fill();
+  ctx.stroke();
+
+  ctx.globalAlpha = 0.34;
+  ctx.strokeStyle = '#a4cf77';
+  ctx.lineWidth = 2.2;
+  ctx.beginPath();
+  ctx.moveTo(baseX + 3, baseY - 2);
+  ctx.bezierCurveTo(baseX + 9, baseY - 27, headX + 2, headY + 61, headX - 1, headY + 34);
+  ctx.stroke();
+  ctx.restore();
+
+  drawScaleField(ctx, headX - 7, headY + 55, 13 * neckScale, 39, '#244b2b', 0.22, 7);
 }
 
 export function drawChameleon(
@@ -171,13 +219,13 @@ export function drawChameleon(
     - freeArmSwing * 0.52
     - weightShift * 0.65;
   const sweep = coletazo.sweep;
-  const tailMidX = sweep < 0 ? lerp(-67, -104, -sweep / 0.58) : lerp(-67, 84, sweep);
-  const tailMidY = sweep < 0 ? lerp(-10 + tailCounter * 0.18, -48, -sweep / 0.58) : lerp(-10 + tailCounter * 0.18, -91, sweep);
-  const tailTipX = sweep < 0 ? lerp(-49, -136, -sweep / 0.58) : lerp(-49, 136, sweep);
-  const tailTipY = sweep < 0 ? lerp(-40 + tailCounter * 0.35, -86, -sweep / 0.58) : lerp(-40 + tailCounter * 0.35, -60, sweep);
+  const tailMidX = sweep < 0 ? lerp(-86, -118, -sweep / 0.58) : lerp(-86, 92, sweep);
+  const tailMidY = sweep < 0 ? lerp(-18 + tailCounter * 0.18, -53, -sweep / 0.58) : lerp(-18 + tailCounter * 0.18, -96, sweep);
+  const tailTipX = sweep < 0 ? lerp(-102, -154, -sweep / 0.58) : lerp(-102, 148, sweep);
+  const tailTipY = sweep < 0 ? lerp(-52 + tailCounter * 0.35, -91, -sweep / 0.58) : lerp(-52 + tailCounter * 0.35, -66, sweep);
   ctx.save();
   ctx.strokeStyle = '#315f2d';
-  ctx.lineWidth = 22;
+  ctx.lineWidth = 28;
   ctx.lineCap = 'round';
   ctx.beginPath();
   ctx.moveTo(-20, -73 + bodyDrop * 0.35);
@@ -185,7 +233,7 @@ export function drawChameleon(
   ctx.bezierCurveTo(sweep < 0 ? lerp(-39, -118, -sweep / 0.58) : lerp(-39, 106, sweep), sweep < 0 ? lerp(10 + tailCounter * 0.12, -104, -sweep / 0.58) : lerp(10 + tailCounter * 0.12, -106, sweep), sweep < 0 ? lerp(-23, -148, -sweep / 0.58) : lerp(-23, 142, sweep), sweep < 0 ? lerp(-30 + tailCounter * 0.32, -92, -sweep / 0.58) : lerp(-30 + tailCounter * 0.32, -80, sweep), tailTipX, tailTipY);
   ctx.stroke();
   ctx.strokeStyle = '#6cae42';
-  ctx.lineWidth = 11;
+  ctx.lineWidth = 14;
   ctx.beginPath();
   ctx.moveTo(-20, -73 + bodyDrop * 0.35);
   ctx.bezierCurveTo(sweep < 0 ? lerp(-78, -112, -sweep / 0.58) : lerp(-78, -56, sweep), sweep < 0 ? lerp(-70, -74, -sweep / 0.58) : lerp(-70, -52, sweep), sweep < 0 ? lerp(-94, -142, -sweep / 0.58) : lerp(-94, 32, sweep), sweep < 0 ? lerp(-24 + tailCounter * 0.15, -74, -sweep / 0.58) : lerp(-24 + tailCounter * 0.15, -98, sweep), tailMidX, tailMidY);
@@ -245,11 +293,11 @@ export function drawChameleon(
   ctx.lineWidth = 1.4;
   ctx.beginPath();
   ctx.moveTo(-24, -61 + bodyDrop * 0.56);
-  ctx.lineTo(-38, -76 + bodyDrop * 0.54);
-  ctx.lineTo(-27, -82 + bodyDrop * 0.52);
-  ctx.lineTo(-43, -95 + bodyDrop * 0.48);
-  ctx.lineTo(-27, -101 + bodyDrop * 0.45);
-  ctx.lineTo(-39, shoulderY + 7);
+  ctx.lineTo(-49, -75 + bodyDrop * 0.54);
+  ctx.lineTo(-28, -83 + bodyDrop * 0.52);
+  ctx.lineTo(-57, -98 + bodyDrop * 0.48);
+  ctx.lineTo(-29, -105 + bodyDrop * 0.45);
+  ctx.lineTo(-50, shoulderY + 5);
   ctx.lineTo(-23, shoulderY + 1);
   ctx.lineTo(-17, -63 + bodyDrop * 0.55);
   ctx.closePath();
@@ -258,9 +306,9 @@ export function drawChameleon(
   ctx.restore();
 
   // Torso with a lighter segmented belly plate.
-  drawShadedEllipse(ctx, 0, -84 + bodyDrop * 0.65, 31 * body.torsoWidth, (49 - crouch * 9) * body.torsoLength, '#4f8f38', '#86bf5e', '#244f2b', -0.05, '#274f2c', 3);
-  ellipse(ctx, 8 * body.torsoWidth, -82 + bodyDrop * 0.65, 16 * body.torsoWidth, (35 - crouch * 7) * body.torsoLength, '#79b654', -0.06);
-  drawScaleField(ctx, 0, -84 + bodyDrop * 0.65, 24 * body.torsoWidth, 38 * body.torsoLength, '#244b2b', 0.22, 8);
+  drawShadedEllipse(ctx, -3, -84 + bodyDrop * 0.65, 27 * body.torsoWidth, (51 - crouch * 9) * body.torsoLength, '#4f8f38', '#86bf5e', '#244f2b', -0.09, '#274f2c', 3);
+  ellipse(ctx, 7 * body.torsoWidth, -82 + bodyDrop * 0.65, 14 * body.torsoWidth, (37 - crouch * 7) * body.torsoLength, '#79b654', -0.08);
+  drawScaleField(ctx, -2, -84 + bodyDrop * 0.65, 21 * body.torsoWidth, 40 * body.torsoLength, '#244b2b', 0.22, 8);
   ctx.save();
   ctx.globalAlpha = 0.34;
   ctx.strokeStyle = '#315f32';
@@ -314,20 +362,19 @@ export function drawChameleon(
     + chestTwist * 52
     + weightShift * 0.22;
   const headY =
-    -155
+    -180
     + bodyDrop * 0.43
     + idle
     - motion.ascent * 5
     + motion.apex * 3
     + motion.descent * 7;
-  // Long scaled neck bridges the intentionally oversized human head into the lizard body.
-  drawShadedEllipse(ctx, headX - 5, headY + 48, 16 * body.neckWidth, 39, '#4f8f38', '#83bb59', '#244c2a', -0.02, '#274f2c', 2);
-  drawScaleField(ctx, headX - 5, headY + 49, 13 * body.neckWidth, 31, '#244b2b', 0.23, 7);
-  drawShadedEllipse(ctx, headX, headY, 42 * body.headWidth, 39 * body.headHeight, '#c98f68', '#efb28d', '#895746', -0.04, '#633f31', 2.5);
+  // Long scaled neck: the S-curve creates a clearly non-human top-heavy silhouette.
+  drawLongChameleonNeck(ctx, -4, shoulderY + 9, headX, headY, body.neckWidth);
+  drawShadedEllipse(ctx, headX, headY, 48 * body.headWidth, 43 * body.headHeight, '#c98f68', '#efb28d', '#895746', -0.04, '#633f31', 2.8);
   drawFacePlanes(ctx, headX, headY, Math.min(1.15, body.headWidth), '#ffd0ad', '#754539');
   // Ear and cheek contour.
-  ellipse(ctx, headX - 37, headY + 2, 7, 11, '#b97c58');
-  ellipse(ctx, headX + 10, headY + 10, 28, 21, '#d19a72', -0.08);
+  ellipse(ctx, headX - 43, headY + 2, 8, 12, '#b97c58');
+  ellipse(ctx, headX + 12, headY + 11, 31, 23, '#d19a72', -0.08);
 
   // Curly hair: many small vector locks create a stable silhouette without an image asset.
   ctx.fillStyle = '#161918';

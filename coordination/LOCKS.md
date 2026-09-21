@@ -2,6 +2,8 @@
 
 | Path / subsystem | Owner | Task | Reason |
 | --- | --- | --- | --- |
+| `src/game/render/ChameleonRig.ts` | Mario-C | V07-M3C | Targeted secondary-motion wiring from existing locomotion signals. |
+| `src/game/render/SupernarizRig.ts` | Mario-C | V07-M3C | Targeted secondary-motion wiring from existing locomotion signals. |
 | `src/game/render/FightRenderer.ts` | Mario-D | V07-M3D | Shared dispatch for render-only attack timing envelopes/telegraphs. |
 | `tests/v07-m3d-motion-fx.test.mjs` | Mario-D | V07-M3D | Lane-specific regression coverage for motion signatures and FX envelopes. |
 | `src/game/render/LocomotionPose.ts` | Mario-D | V07-M3D | Shared travel-driven gait and fighter-specific motion signatures. |

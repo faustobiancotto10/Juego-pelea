@@ -27,6 +27,57 @@ function clawFactor(f: FighterSnapshot): number {
   return pulse(f.moveFrame, 1, 6, 14);
 }
 
+function drawTailSpiral(
+  ctx: CanvasRenderingContext2D,
+  tipX: number,
+  tipY: number,
+  sweep: number,
+): void {
+  // The master silhouette reads as a curled chameleon tail even before motion/effects.
+  // Uncoil it slightly during a tail strike, but preserve the identity cue.
+  const strike = Math.min(1, Math.abs(sweep));
+  const curl = 1 - strike * 0.58;
+  const dir = sweep > 0.25 ? 1 : -1;
+  ctx.save();
+  ctx.lineCap = 'round';
+  ctx.strokeStyle = '#477f35';
+  ctx.lineWidth = 11;
+  ctx.beginPath();
+  ctx.moveTo(tipX, tipY);
+  ctx.bezierCurveTo(
+    tipX + 20 * dir * curl,
+    tipY - 18 * curl,
+    tipX + 28 * dir * curl,
+    tipY + 16 * curl,
+    tipX + 10 * dir * curl,
+    tipY + 22 * curl,
+  );
+  ctx.bezierCurveTo(
+    tipX - 7 * dir * curl,
+    tipY + 28 * curl,
+    tipX - 12 * dir * curl,
+    tipY + 6 * curl,
+    tipX + 1 * dir * curl,
+    tipY + 6 * curl,
+  );
+  ctx.stroke();
+  ctx.globalAlpha = 0.48;
+  ctx.strokeStyle = '#a4cf77';
+  ctx.lineWidth = 2.4;
+  ctx.beginPath();
+  ctx.moveTo(tipX + 1 * dir, tipY - 2);
+  ctx.bezierCurveTo(
+    tipX + 17 * dir * curl,
+    tipY - 14 * curl,
+    tipX + 20 * dir * curl,
+    tipY + 11 * curl,
+    tipX + 9 * dir * curl,
+    tipY + 15 * curl,
+  );
+  ctx.stroke();
+  ctx.restore();
+}
+
 export function drawChameleon(
   ctx: CanvasRenderingContext2D,
   f: FighterSnapshot,
@@ -61,6 +112,12 @@ export function drawChameleon(
   const airClaw = f.moveId === 'airClaw' ? Math.max(claw, movePhase.active) : 0;
   const airTilt = -motion.ascent * 0.07 + motion.descent * 0.09;
   const landingCompression = locomotion.landingAbsorption * 4;
+  // Existing travel-driven secondary-motion channels from LocomotionPose.
+  // These are render-only and stay inert outside ordinary locomotion.
+  const hipTwist = locomotion.hipCounterRotation * 180;
+  const chestTwist = locomotion.chestCounterRotation;
+  const freeArmSwing = locomotion.freeArmSwing;
+  const weightShift = locomotion.weightTransfer;
   const forwardLean =
     tongue * 0.12
     + claw * 0.07
@@ -74,6 +131,7 @@ export function drawChameleon(
     + dashDrive * 0.24
     + comboBeat * 0.16
     + locomotion.torsoLean
+    + chestTwist * 0.24
     + stance.forwardLean * 0.16
     + hurtLean
     - ko * 1.16;
@@ -105,7 +163,13 @@ export function drawChameleon(
     comboBeat * Math.sin(time * 21) * 30
     - vanishCoil * 20
     + dashDrive * 18;
-  const tailCounter = -tongue * 28 - claw * 12 + ultimateTailBeat + Math.sin(time * 2.8) * 5;
+  const tailCounter =
+    -tongue * 28
+    - claw * 12
+    + ultimateTailBeat
+    + Math.sin(time * 2.8) * 5
+    - freeArmSwing * 0.52
+    - weightShift * 0.65;
   const sweep = coletazo.sweep;
   const tailMidX = sweep < 0 ? lerp(-67, -104, -sweep / 0.58) : lerp(-67, 84, sweep);
   const tailMidY = sweep < 0 ? lerp(-10 + tailCounter * 0.18, -48, -sweep / 0.58) : lerp(-10 + tailCounter * 0.18, -91, sweep);
@@ -135,12 +199,18 @@ export function drawChameleon(
   ctx.moveTo(-22, -79 + bodyDrop * 0.35);
   ctx.bezierCurveTo(-72, -88, tailMidX - 7, tailMidY - 8, tailTipX - 5, tailTipY - 7);
   ctx.stroke();
+  drawTailSpiral(ctx, tailTipX, tailTipY, sweep);
   ctx.restore();
 
   const hipY = -54 + bodyDrop;
   const shoulderY = -112 - (body.torsoLength - 1) * 44 + bodyDrop * 0.45 + idle;
   const hipSpan = 13 * body.hipWidth * stance.width;
-  const hipCounter = coletazo.windup * -13 + coletazo.strike * 11 + coletazo.followThrough * 7;
+  const hipCounter =
+    coletazo.windup * -13
+    + coletazo.strike * 11
+    + coletazo.followThrough * 7
+    + hipTwist
+    + weightShift * 0.42;
 
   // Travel-driven feet keep a support foot near its world anchor instead of
   // oscillating from wall time / velocity while clamped.
@@ -168,10 +238,41 @@ export function drawChameleon(
     roundedLine(ctx, footX + 2, -4 + (footX === backFootX ? backFootY : frontFootY), footX + 8, 1 + (footX === backFootX ? backFootY : frontFootY), 1.5, '#d5df9a');
   }
 
-  // Torso with a lighter belly plate.
+  // A jagged dorsal crest makes the neutral silhouette unmistakably reptilian.
+  ctx.save();
+  ctx.fillStyle = '#3a7434';
+  ctx.strokeStyle = '#214b28';
+  ctx.lineWidth = 1.4;
+  ctx.beginPath();
+  ctx.moveTo(-24, -61 + bodyDrop * 0.56);
+  ctx.lineTo(-38, -76 + bodyDrop * 0.54);
+  ctx.lineTo(-27, -82 + bodyDrop * 0.52);
+  ctx.lineTo(-43, -95 + bodyDrop * 0.48);
+  ctx.lineTo(-27, -101 + bodyDrop * 0.45);
+  ctx.lineTo(-39, shoulderY + 7);
+  ctx.lineTo(-23, shoulderY + 1);
+  ctx.lineTo(-17, -63 + bodyDrop * 0.55);
+  ctx.closePath();
+  ctx.fill();
+  ctx.stroke();
+  ctx.restore();
+
+  // Torso with a lighter segmented belly plate.
   drawShadedEllipse(ctx, 0, -84 + bodyDrop * 0.65, 31 * body.torsoWidth, (49 - crouch * 9) * body.torsoLength, '#4f8f38', '#86bf5e', '#244f2b', -0.05, '#274f2c', 3);
   ellipse(ctx, 8 * body.torsoWidth, -82 + bodyDrop * 0.65, 16 * body.torsoWidth, (35 - crouch * 7) * body.torsoLength, '#79b654', -0.06);
   drawScaleField(ctx, 0, -84 + bodyDrop * 0.65, 24 * body.torsoWidth, 38 * body.torsoLength, '#244b2b', 0.22, 8);
+  ctx.save();
+  ctx.globalAlpha = 0.34;
+  ctx.strokeStyle = '#315f32';
+  ctx.lineWidth = 1.6;
+  for (let plate = 0; plate < 5; plate += 1) {
+    const plateY = -105 + plate * 12 + bodyDrop * 0.64;
+    ctx.beginPath();
+    ctx.moveTo(-1, plateY);
+    ctx.quadraticCurveTo(8, plateY + 4, 18, plateY + 1);
+    ctx.stroke();
+  }
+  ctx.restore();
 
   // Tiny arms are intentionally very short: this is part of the fighter's gameplay identity.
   const frontReach =
@@ -180,7 +281,8 @@ export function drawChameleon(
     + lowClaw * 31
     - vanishCoil * 9
     + dashDrive * 24
-    + comboBeat * 34;
+    + comboBeat * 34
+    + freeArmSwing * 0.20;
   const frontY =
     shoulderY
     + block * 16
@@ -196,8 +298,10 @@ export function drawChameleon(
   roundedLine(ctx, frontReach + 5, frontY - 1, frontReach + 12, frontY - 5, 1.5, '#c6d98c');
   roundedLine(ctx, frontReach + 5, frontY + 1, frontReach + 13, frontY + 1, 1.5, '#c6d98c');
   roundedLine(ctx, frontReach + 4, frontY + 3, frontReach + 11, frontY + 6, 1.5, '#c6d98c');
-  roundedLine(ctx, -shoulderSpan, shoulderY + 4, -24 + block * 13, shoulderY + 18 - block * 25, 10 * body.armThickness, '#568f3a');
-  ellipse(ctx, -25 + block * 13, shoulderY + 18 - block * 25, 7, 6, '#80b75a');
+  const rearHandX = -24 + block * 13 - freeArmSwing * 0.34;
+  const rearHandY = shoulderY + 18 - block * 25 + Math.abs(freeArmSwing) * 0.10;
+  roundedLine(ctx, -shoulderSpan, shoulderY + 4, rearHandX, rearHandY, 10 * body.armThickness, '#568f3a');
+  ellipse(ctx, rearHandX - 1, rearHandY, 7, 6, '#80b75a');
 
   // Oversized stylized human-like head from the reference concept, reconstructed with vector forms.
   const headX =
@@ -206,7 +310,9 @@ export function drawChameleon(
     - vanishCoil * 8
     + dashDrive * 14
     + comboBeat * 9
-    + block * -3;
+    + block * -3
+    + chestTwist * 52
+    + weightShift * 0.22;
   const headY =
     -155
     + bodyDrop * 0.43

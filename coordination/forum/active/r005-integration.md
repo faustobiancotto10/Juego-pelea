@@ -41,3 +41,20 @@ Z0 composition plan:
 - generate standalone from that exact source;
 - run full recursive suite/typecheck/build + runtime raster scan + integrated four-fighter/difficulty/stage/move/portrait smoke;
 - no coordination content from feature branches will be integrated.
+
+
+## V07-Z0 GREEN — Gonza
+
+Exact clean candidate: `65bbb4122be526b0b878c214137192c7243db3ab`.
+
+Evidence:
+- accepted ancestry Ricardo `94ee2489` → Mario `a4732609` → B1 `9688764c`;
+- exact G1 adversarial QA test included;
+- Z0 run `35562321601`: SUCCESS;
+- merge-ref Repository verification #1138 / `35562414551`: SUCCESS;
+- full suite/typecheck/build + targeted V0.7 + raster scan + integrated mobile browser smoke: PASS;
+- source fingerprint `5c039c2a...`;
+- standalone SHA-256 `b64b18ed...`;
+- final diff contains no temporary workflow or feature-branch coordination.
+
+AUTO_CHAIN condition for V07-Z1 is satisfied. Final release verification starts now.

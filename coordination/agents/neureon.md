@@ -123,3 +123,5 @@ Good Neureon learnings include recurring dependency-graph failure modes, reliabl
 Do not store round-specific state here. Promote genuinely system-wide rules through the normal durable-decision path instead of silently changing Neureon's authority.
 
 - When the local sandbox cannot clone or execute the repository because of environment/network limits, keep implementation isolated on a feature branch and use a draft pull request's existing GitHub Actions workflow as real RED→GREEN verification evidence. Inspect the failing job/logs before implementation, then require a fresh green run on the exact final head before closure; never downgrade verification merely because local execution is unavailable.
+
+- When admitting a user-supplied generated asset pack, separate **source admission** from **production completeness**: build an exact count/hash/mapping matrix first, reject superseded extras explicitly, and check directional/mirror-safety before distributing implementation lanes. A visually complete right-facing set can still be a hard shipping blocker when readable/asymmetric identity details require authored opposite-facing art.

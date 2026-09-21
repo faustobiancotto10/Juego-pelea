@@ -122,3 +122,24 @@ The user approved the post-R005 sprite/content/agent scaling architecture on 202
 This approval does **not** change the current R005/V0.7 runtime, candidate SHA, task eligibility, preview, phone-acceptance gate or production release state. Procedural fighter bodies remain the R005 production contract.
 
 The next sprite/scalability implementation round opens only after R005 reaches `ROUND_COMPLETE` and V0.7 production promotion is finished, unless the user explicitly reopens R005 scope. That future round begins with the El Toro sprite vertical slice and may fan out to same-role Mario ×N lanes only after the slice passes user/device acceptance.
+
+
+## R005 sprite pilot activated — 2026-09-21
+
+The user explicitly reopened R005 scope to start the approved fighter-sprite architecture before the former procedural-preview phone gate.
+
+El Toro source intake is now the first pilot:
+- accepted right-facing source: IMG-00 + exactly 84 body sprites + FX-01..04;
+- one alternate idle-like 8-frame sheet is superseded/rejected;
+- all accepted source hashes and mappings are recorded in `docs/characters/el-toro/SPRITE_INTAKE_2026-09-21.md`;
+- the global standard is `docs/SPRITE_PRODUCTION_CONTRACT.md`.
+
+El Toro is not mirror-safe because of readable/directional costume details. The missing authored LEFT-facing IMG-00 + IMG-01..12 set is therefore a hard shipping blocker. Generation instructions live in `docs/characters/el-toro/LEFT_FACING_SET_PROMPT.md`.
+
+The former procedural-preview physical-phone gate is superseded as the active next step. No production-root promotion occurs from that candidate while the sprite pilot is active.
+
+Current pilot execution:
+
+**Mario-A source pipeline + Mario-B El Toro package + Ricardo generic runtime (parallel) → Germinator audit → Gonza isolated preview → user/device gate.**
+
+Full-roster sprite production remains blocked until the El Toro pilot demonstrates a clear visual improvement and acceptable target-device memory/performance.

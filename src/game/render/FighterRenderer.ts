@@ -2,6 +2,7 @@ import type { FighterIndex, FighterSnapshot } from '../types.js';
 import { ULTIMATES } from '../data/ultimates.js';
 import { DEFAULT_FIGHTER_PRESENTATION_REGISTRY } from '../data/presentationRegistry.js';
 import { drawChameleon } from './ChameleonRig.js';
+import { drawElToro, sampleElToroAnchors } from './ElToroRig.js';
 import { drawJuanchi, sampleJuanchiAnchors } from './JuanchiRig.js';
 import { LocomotionPoseTracker, type LocomotionPose } from './LocomotionPose.js';
 import { sampleBaseRigAnchors, type RigAnchors } from './RigAnchors.js';
@@ -19,6 +20,7 @@ const RIGS: Readonly<Record<string, RigRenderer>> = Object.freeze({
   chameleon: drawChameleon,
   supernariz: drawSupernariz,
   juanchi: drawJuanchi,
+  'el-toro': drawElToro,
 });
 
 const locomotionTracker = new LocomotionPoseTracker();
@@ -105,6 +107,7 @@ export function sampleFighterAnchors(
   if (!rigKey) return null;
   const locomotion = sampleFighterLocomotion(slot, fighter, frame, combatTick);
   if (rigKey === 'juanchi') return sampleJuanchiAnchors(fighter, locomotion);
+  if (rigKey === 'el-toro') return sampleElToroAnchors(fighter, locomotion);
   if (!RIGS[rigKey]) return null;
   return sampleBaseRigAnchors(rigKey, locomotion);
 }

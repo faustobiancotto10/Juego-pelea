@@ -10,7 +10,7 @@ Execution: AUTO_CHAIN / MULTI-INSTANCE MARIO SQUAD
 | Ricardo | Gameplay Engineer | V07-R0→R1→R2→R3 | VERIFIED | Gameplay/core frozen; available only for requested renderer-facing contract repairs. |
 | Mario | Character / Rendering Engineer | V07-M3A/B/C/D→M3I | WORKING | Multi-instance squad active; four temporary Mario lanes are authorized in parallel, then Mario-A integrates. |
 | ↳ Mario-A | Temporary lane — Visual Architect / Lead | V07-M3A→M3I | BLOCKED | Integrated candidate `4a485d9244b3e8ce86c4700d4a299dc5f3cb84f6` technically green but visual delta too incremental; waits for stronger B+C handoffs. |
-| ↳ Mario-B | Temporary lane — El Toro + Juanchi | V07-M3B | WORKING | Reopened after M3I visual rejection; pushing a stronger structural/reference pass with El Toro priority. |
+| ↳ Mario-B | Temporary lane — El Toro + Juanchi | V07-M3B | HANDOFF_READY | Refreshed structural pass GREEN at `cc75a56a1c56d9c6a988a3144880719a3515c4e9`; Repository #1307 + Pipeline #51 PASS; prior B SHA is historical only. |
 | ↳ Mario-C | Temporary lane — Camaleoni + Supernariz | V07-M3C | WORKING | Second structural pass active: stronger Camaleoni neck/tail/body proportions and Supernariz nose/cape/head/body silhouette. |
 | ↳ Mario-D | Temporary lane — Motion / Presentation / FX | V07-M3D | HANDOFF_READY | GREEN at `b6dbe3ecb99d17a302477f3d63440555b5d8c135`; exact handoff published for V07-M3I. |
 | Germinator | Auditor / QA | V07-G1→G2 | WAITING_DEPENDENCY | Audit only the integrated V07-M3I squad candidate after A+B+C+D are green and M3I is composed. |

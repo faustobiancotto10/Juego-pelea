@@ -89,3 +89,13 @@ Run the task's required verification, leave an exact-SHA handoff, release locks 
 ## UX rule
 
 If a mechanic cannot be explained or controlled cleanly, raise a forum QUESTION/PROPOSAL instead of silently changing its gameplay meaning.
+
+## Durable role learnings
+
+This section is Brancaforte's bounded persistent operating memory.
+
+After meaningful UI/input/UX work, review whether a stable lesson would help a replacement Brancaforte preserve usability and game-state clarity in future rounds. If so, update only this section under the protocol's durable-role-memory rules.
+
+Good Brancaforte learnings include mobile-landscape layout constraints, safe-area/input lifecycle pitfalls, scalable roster/menu patterns, accessibility findings, or reliable ways to expose gameplay state without duplicating simulation truth.
+
+Do not store current screen copy, one-off CSS fixes or round-specific UI state here.

@@ -129,8 +129,12 @@ test('reference-fidelity pass preserves canonical visible cues and procedural te
   assert.match(files.chameleon, /Long scaled neck/);
   assert.match(files.supernariz, /Chest nose emblem/);
   assert.match(files.supernariz, /drawFabricGrain/);
-  assert.match(files.juanchi, /Jacket tied around the waist/);
+  const juanchiPackage = readFileSync('docs/characters/juanchi/PACKAGE.md', 'utf8');
+  assert.match(files.juanchi, /La 56/);
   assert.match(files.juanchi, /drawCargoPocket/);
+  assert.match(juanchiPackage, /oversized black `La 56` shirt/i);
+  assert.match(juanchiPackage, /black cargo pants/i);
+  assert.match(juanchiPackage, /police-style cap stored at belt/i);
   assert.match(files.toro, /Reference mullet/);
   assert.match(files.toro, /Scotland scarf/);
   assert.match(files.toro, /South Africa belt band/);

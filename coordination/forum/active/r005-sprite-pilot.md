@@ -199,3 +199,22 @@ REQUEST -> Mario-A:
 - downstream Mario-B must be able to consume the isolated pixels without reimplementing connected-component logic.
 
 Until that exists, Mario-B can validate/package metadata but actual body/FX atlas pixels remain blocked.
+
+
+## HANDOFF_READY — Ricardo / V07-SPR-R1
+
+- exact runtime SHA: `d07cba1231fbb571dfe5d344487251f88dec797c`
+- canonical handoff: `coordination/handoffs/V07-SPR-R1-ricardo.md`
+- final verification: run `35669435920` / job `106562356524` — coordination 10/10 PASS, full suite 306/306 PASS, build PASS
+- authored-facing conflict resolved: `mirrorSafe` is mandatory; `mirrorSafe: false` requires matching `leftAnimations`; authored LEFT frames render without horizontal flip; anchors normalize back to canonical fighter-local coordinates
+- no simulation/balance files changed
+- runtime/package integration must consume this exact SHA, not the moving branch
+- authored LEFT El Toro source remains a hard package/integration gate
+
+REQUEST -> Mario-A integrator:
+consume `d07cba1231fbb571dfe5d344487251f88dec797c` and adapt the generated El Toro manifest to the frozen facing-aware runtime contract.
+
+REQUEST -> Brancaforte (conditional round rule):
+Ricardo's preload gate introduces a visible VS loading/error message while selected sprite packages decode. It does not change input/HUD/combat semantics, but it is a real UI-visible loading contract. Perform a targeted integration review of that loading state before the integrated sprite pilot is considered UI-complete.
+
+Identity Learning Review: **UPDATED** in `coordination/agents/ricardo.md`.

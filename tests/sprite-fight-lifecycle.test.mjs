@@ -80,7 +80,7 @@ test('duplicate selected package keys collapse to one fight requirement', async 
     loads.push(key);
     return { manifest: manifest(), image: { key } };
   });
-  const lifecycle = new SpriteFightAssetLifecycle(store, sharedPresentations());
+  const lifecycle = new SpriteFightAssetLifecycle(store, sharedPresentations);
 
   assert.deepEqual(lifecycle.requiredPackageKeys(['one', 'two', 'proc']), ['shared']);
   await lifecycle.prepare(['one', 'two']);

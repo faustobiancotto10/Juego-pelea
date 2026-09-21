@@ -102,3 +102,4 @@ Good Germinator learnings include recurring blind spots in green tests, high-yie
 Do not turn one bug into a permanent assumption. Keep only patterns supported by repeated or structurally reusable evidence.
 
 - A failed adversarial test is not automatically a product blocker: first verify that the failing assertion expresses the frozen contract rather than an over-constrained harness assumption. Preserve the failing run as evidence, correct only the QA harness when warranted, then rerun the full suite before issuing a verdict.
+- For visual QA, independently inspect exact CI artifacts at neutral silhouette, normal color and target device scale, then verify artifact-byte parity after QA-only changes. Use pixel/bounding-box deltas only as diagnostics of structural change—not artistic scores—and keep automated visual approval separate from physical-device/user acceptance.

@@ -529,6 +529,157 @@ export function drawClashOpposingTrails(
 }
 
 
+export function drawAttackTelegraph(
+  ctx: CanvasRenderingContext2D,
+  x: number,
+  y: number,
+  facing: -1 | 1,
+  telegraphKey: string,
+  intensity: number,
+  build: number,
+): void {
+  const b = clamp01(build);
+  const t = clamp01(intensity) * b;
+  if (t <= 0.01 || telegraphKey === 'none') return;
+
+  ctx.save();
+  ctx.translate(x, y);
+  ctx.scale(facing, 1);
+  ctx.lineCap = 'round';
+
+  if (telegraphKey === 'diagnostic-missing') {
+    ctx.globalAlpha = 0.55 * t;
+    ctx.strokeStyle = '#ff3bd4';
+    ctx.lineWidth = 2.5;
+    ctx.setLineDash([5, 4]);
+    ctx.strokeRect(-34, -168, 68, 132);
+    ctx.setLineDash([]);
+    ctx.restore();
+    return;
+  }
+
+  const chameleon = telegraphKey.startsWith('claw')
+    || telegraphKey.startsWith('tongue')
+    || telegraphKey.startsWith('tail')
+    || telegraphKey === 'camaleoni-veil';
+  const supernariz = telegraphKey.startsWith('nose')
+    || telegraphKey.startsWith('wind')
+    || telegraphKey.startsWith('suction');
+  const juanchi = telegraphKey.startsWith('juanchi')
+    || telegraphKey.startsWith('shoulder')
+    || telegraphKey.startsWith('rage')
+    || telegraphKey === 'friccion-load';
+  const toro = telegraphKey.startsWith('toro')
+    || telegraphKey.startsWith('topete')
+    || telegraphKey.startsWith('shawarma')
+    || telegraphKey.startsWith('eructo');
+
+  const accent = chameleon
+    ? '#9df38d'
+    : supernariz
+      ? '#d9efff'
+      : juanchi
+        ? '#f3d06d'
+        : toro
+          ? '#79b6ff'
+          : '#f4f0dc';
+  const secondary = telegraphKey.startsWith('rage')
+    ? '#db334f'
+    : telegraphKey.startsWith('shawarma')
+      ? '#ff9d4c'
+      : telegraphKey.startsWith('eructo')
+        ? '#9bd86e'
+        : chameleon && telegraphKey.startsWith('tongue')
+          ? '#ff9eb3'
+          : accent;
+
+  const heavy = telegraphKey === 'tail-load'
+    || telegraphKey === 'shoulder-load'
+    || telegraphKey === 'toro-heavy-ready'
+    || telegraphKey === 'toro-heavy-load'
+    || telegraphKey === 'topete-load';
+  const projectile = telegraphKey === 'throw-load' || telegraphKey === 'shawarma-load';
+  const field = telegraphKey === 'wind-load'
+    || telegraphKey === 'suction-load'
+    || telegraphKey === 'rage-load'
+    || telegraphKey === 'eructo-load'
+    || telegraphKey === 'camaleoni-veil';
+
+  if (field) {
+    const radius = lerp(58, 38, b);
+    for (let i = 0; i < 3; i += 1) {
+      ctx.globalAlpha = t * (0.20 + i * 0.07);
+      ctx.strokeStyle = i === 1 ? secondary : accent;
+      ctx.lineWidth = 2.5 + (2 - i) * 0.6;
+      ctx.beginPath();
+      ctx.arc(2, -108, radius + i * 16, -1.1, 1.1);
+      ctx.stroke();
+    }
+  } else if (heavy) {
+    ctx.globalAlpha = 0.22 + t * 0.42;
+    ctx.strokeStyle = accent;
+    for (let i = 0; i < 3; i += 1) {
+      const back = 42 + i * 17;
+      ctx.lineWidth = 5 - i * 0.8;
+      ctx.beginPath();
+      ctx.moveTo(-back, -146 + i * 28);
+      ctx.lineTo(-18 - i * 3, -132 + i * 22);
+      ctx.stroke();
+    }
+    ctx.globalAlpha = 0.18 + t * 0.28;
+    ctx.strokeStyle = secondary;
+    ctx.lineWidth = 4;
+    ctx.beginPath();
+    ctx.arc(0, -2, lerp(52, 34, b), Math.PI * 1.08, Math.PI * 1.92);
+    ctx.stroke();
+  } else if (projectile) {
+    const handX = 38;
+    const handY = -112;
+    ctx.globalAlpha = 0.24 + t * 0.46;
+    ctx.strokeStyle = secondary;
+    ctx.lineWidth = 3;
+    for (let i = 0; i < 2; i += 1) {
+      ctx.beginPath();
+      ctx.arc(handX, handY, lerp(26 + i * 9, 13 + i * 5, b), -1.15, 1.15);
+      ctx.stroke();
+    }
+    ctx.globalAlpha = 0.16 + t * 0.24;
+    ctx.strokeStyle = accent;
+    ctx.beginPath();
+    ctx.moveTo(-4, -128);
+    ctx.quadraticCurveTo(18, -142, 34, -122);
+    ctx.stroke();
+  } else {
+    const low = telegraphKey.includes('low');
+    const air = telegraphKey.includes('air');
+    const cy = low ? -72 : air ? -136 : -112;
+    ctx.globalAlpha = 0.18 + t * 0.42;
+    ctx.strokeStyle = accent;
+    ctx.lineWidth = 4;
+    ctx.beginPath();
+    ctx.arc(26, cy, lerp(42, 28, b), -1.32, 0.28);
+    ctx.stroke();
+    ctx.globalAlpha *= 0.72;
+    ctx.strokeStyle = secondary;
+    ctx.lineWidth = 2.2;
+    ctx.beginPath();
+    ctx.arc(25, cy, lerp(52, 34, b), -1.22, 0.18);
+    ctx.stroke();
+  }
+
+  if (telegraphKey === 'tongue-load') {
+    ctx.globalAlpha = 0.2 + t * 0.35;
+    ctx.strokeStyle = '#ff9eb3';
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    ctx.moveTo(24, -119);
+    ctx.quadraticCurveTo(39, -127, lerp(52, 38, b), -118);
+    ctx.stroke();
+  }
+
+  ctx.restore();
+}
+
 export function drawAttackMotionAccent(
   ctx: CanvasRenderingContext2D,
   x: number,

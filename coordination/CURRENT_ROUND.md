@@ -149,6 +149,8 @@ The squad uses isolated branches and explicit file/subsystem ownership. Same-fil
 
 **Mario-A + Mario-B + Mario-C + Mario-D (parallel) → Mario-A V07-M3I integration → Germinator V07-G2 → Gonza rebuilt preview → user physical-phone acceptance → Z1**
 
-Germinator V07-G2 is no longer eligible from the previous M3 candidate; it waits for M3I. Gonza remains blocked.
+Germinator V07-G2 is VERIFIED with `APPROVE — CHARACTER PIPELINE REPAIR GREEN` on exact M3I candidate `f34760948cb2024c0c83f4a02202117a8ad3bf2f`.
+
+Gonza is now eligible to rebuild/re-publish the **isolated V0.7 preview** from that exact candidate. Production-root promotion remains blocked until the rebuilt preview passes user physical-phone acceptance and final Z1 release verification.
 
 Existing V0.7 gameplay contracts remain frozen. No Mario instance may change gameplay/balance or silently migrate the renderer/runtime architecture.

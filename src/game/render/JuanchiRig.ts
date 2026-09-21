@@ -506,10 +506,10 @@ export function drawJuanchi(
   // "La 56" is drawn in an unmirrored local subpass so both facings stay readable.
   ctx.save();
   ctx.fillStyle = '#f1f1e9';
-  ctx.font = '800 17px system-ui, sans-serif';
+  ctx.font = '900 14px system-ui, sans-serif';
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
-  drawFacingReadableText(ctx, fighter.facing, 7, torsoY + 3, 'La 56');
+  drawFacingReadableText(ctx, fighter.facing, 3, torsoY + 3, 'La 56');
   ctx.restore();
   // Gold brush slash/crown cue under the shirt mark.
   roundedLine(ctx, -20, torsoY + 17, 27, torsoY + 10, 3, '#c49a39');

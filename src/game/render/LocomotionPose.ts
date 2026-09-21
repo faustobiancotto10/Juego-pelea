@@ -30,6 +30,8 @@ export interface LocomotionPose {
   chestCounterRotation: number;
   freeArmSwing: number;
   weightTransfer: number;
+  startDrive: number;
+  stopSettle: number;
 }
 
 interface TrackerState {
@@ -55,6 +57,8 @@ export interface LocomotionStyle {
   chestCounterRotationAmplitude: number;
   freeArmSwingAmplitude: number;
   weightTransferScale: number;
+  neutralFootSpread: number;
+  swingArcPower: number;
 }
 
 const DEFAULT_LOCOMOTION_STYLE: LocomotionStyle = Object.freeze({
@@ -69,6 +73,8 @@ const DEFAULT_LOCOMOTION_STYLE: LocomotionStyle = Object.freeze({
   chestCounterRotationAmplitude: 0,
   freeArmSwingAmplitude: 0,
   weightTransferScale: 0,
+  neutralFootSpread: 16,
+  swingArcPower: 1,
 });
 
 export const LOCOMOTION_STYLES: Readonly<Record<string, LocomotionStyle>> = Object.freeze({
@@ -84,6 +90,8 @@ export const LOCOMOTION_STYLES: Readonly<Record<string, LocomotionStyle>> = Obje
     chestCounterRotationAmplitude: 0.055,
     freeArmSwingAmplitude: 15,
     weightTransferScale: 6,
+    neutralFootSpread: 14,
+    swingArcPower: 0.82,
   }),
   supernariz: Object.freeze({
     stride: 72,
@@ -97,6 +105,8 @@ export const LOCOMOTION_STYLES: Readonly<Record<string, LocomotionStyle>> = Obje
     chestCounterRotationAmplitude: 0.032,
     freeArmSwingAmplitude: 10,
     weightTransferScale: 5,
+    neutralFootSpread: 15,
+    swingArcPower: 1.04,
   }),
   juanchi: Object.freeze({
     stride: 54,
@@ -110,6 +120,8 @@ export const LOCOMOTION_STYLES: Readonly<Record<string, LocomotionStyle>> = Obje
     chestCounterRotationAmplitude: 0.046,
     freeArmSwingAmplitude: 12,
     weightTransferScale: 8,
+    neutralFootSpread: 17,
+    swingArcPower: 0.94,
   }),
   'el-toro': Object.freeze({
     stride: 48,
@@ -123,15 +135,14 @@ export const LOCOMOTION_STYLES: Readonly<Record<string, LocomotionStyle>> = Obje
     chestCounterRotationAmplitude: 0.032,
     freeArmSwingAmplitude: 8,
     weightTransferScale: 10,
+    neutralFootSpread: 22,
+    swingArcPower: 1.34,
   }),
 });
 
 export function getLocomotionStyle(fighterId: string): LocomotionStyle {
   return LOCOMOTION_STYLES[fighterId] ?? DEFAULT_LOCOMOTION_STYLE;
 }
-
-const NEUTRAL_FRONT_X = 16;
-const NEUTRAL_BACK_X = -16;
 
 function mod1(value: number): number {
   return ((value % 1) + 1) % 1;
@@ -146,6 +157,7 @@ function footForCycle(
   neutralX: number,
   stanceFraction: number,
   swingFootLift: number,
+  swingArcPower: number,
 ): Point2 {
   if (travelSign === 0 || movementBlend <= 0.0001) return { x: neutralX, y: 0 };
 
@@ -163,7 +175,7 @@ function footForCycle(
   } else {
     const t = (u - stanceFraction) / (1 - stanceFraction);
     x = travelSign * lerp(-halfTravel, halfTravel, t);
-    y = Math.sin(Math.PI * t) * swingFootLift;
+    y = Math.pow(Math.max(0, Math.sin(Math.PI * t)), swingArcPower) * swingFootLift;
   }
 
   return {
@@ -173,6 +185,7 @@ function footForCycle(
 }
 
 function neutralPose(fighter: FighterSnapshot): LocomotionPose {
+  const style = getLocomotionStyle(fighter.id);
   const clashBrace = fighter.clashRecoveryFrames > 0 && fighter.y <= 0.001 ? 1 : 0;
   const clashRecoil = fighter.clashRecoveryFrames > 0 && fighter.y > 0.001 ? 1 : 0;
   const preparation = !clashBrace && fighter.grounded && fighter.jumpStartupFrames > 0
@@ -193,8 +206,8 @@ function neutralPose(fighter: FighterSnapshot): LocomotionPose {
     : 0;
   return {
     phase: 0,
-    frontFoot: { x: NEUTRAL_FRONT_X, y: 0 },
-    backFoot: { x: NEUTRAL_BACK_X, y: 0 },
+    frontFoot: { x: style.neutralFootSpread, y: 0 },
+    backFoot: { x: -style.neutralFootSpread, y: 0 },
     pelvisDrop: preparation * 18 + landingAbsorption * 20 + tuck * 5 + clashBrace * 11,
     torsoLean: descentBrace * 0.035 + clashBrace * 0.13 - clashRecoil * 0.11,
     preparation,
@@ -213,6 +226,8 @@ function neutralPose(fighter: FighterSnapshot): LocomotionPose {
     chestCounterRotation: 0,
     freeArmSwing: 0,
     weightTransfer: 0,
+    startDrive: 0,
+    stopSettle: 0,
   };
 }
 
@@ -301,9 +316,10 @@ export class LocomotionPoseTracker {
       effectiveStride,
       state.travelSign,
       state.movementBlend,
-      NEUTRAL_FRONT_X,
+      style.neutralFootSpread,
       style.stanceFraction,
       style.swingFootLift,
+      style.swingArcPower,
     );
     const backFoot = footForCycle(
       phase,
@@ -311,9 +327,10 @@ export class LocomotionPoseTracker {
       effectiveStride,
       state.travelSign,
       state.movementBlend,
-      NEUTRAL_BACK_X,
+      -style.neutralFootSpread,
       style.stanceFraction,
       style.swingFootLift,
+      style.swingArcPower,
     );
 
     const clashBrace = fighter.clashRecoveryFrames > 0 && fighter.y <= 0.001 ? 1 : 0;
@@ -350,8 +367,11 @@ export class LocomotionPoseTracker {
     const gaitWave = Math.sin(phase * Math.PI * 2) * state.movementBlend;
     const hipCounterRotation = gaitWave * style.hipCounterRotationAmplitude;
     const chestCounterRotation = -gaitWave * style.chestCounterRotationAmplitude;
-    const freeArmSwing = -gaitWave * style.freeArmSwingAmplitude;
+    const backwardArmRestraint = state.travelSign < 0 ? 0.68 : 1;
+    const freeArmSwing = -gaitWave * style.freeArmSwingAmplitude * backwardArmRestraint;
     const weightTransfer = blendDelta * style.weightTransferScale * (state.travelSign || 1);
+    const startDrive = clamp01(Math.max(0, blendDelta) * 3);
+    const stopSettle = clamp01(Math.max(0, -blendDelta) * 4);
     const dashLean = fighter.dashKind === 'forward'
       ? 0.16 * dashDrive
       : fighter.dashKind === 'back'
@@ -368,7 +388,9 @@ export class LocomotionPoseTracker {
         + landingAbsorption * 20
         + tuck * 5
         + dashCompression * 10
-        + clashBrace * 11,
+        + clashBrace * 11
+        + startDrive * style.weightTransferScale * 0.32
+        + stopSettle * style.weightTransferScale * 0.42,
       torsoLean:
         travelLean
         + dashLean
@@ -377,7 +399,7 @@ export class LocomotionPoseTracker {
         - preparation * 0.035
         + extension * 0.045
         + descentBrace * 0.04
-        + weightTransfer * 0.006,
+        + weightTransfer * 0.012,
       preparation,
       extension,
       tuck,
@@ -395,6 +417,8 @@ export class LocomotionPoseTracker {
       chestCounterRotation,
       freeArmSwing,
       weightTransfer,
+      startDrive,
+      stopSettle,
     };
 
     state.lastFrame = frame;

@@ -2,8 +2,11 @@ import type { FighterSnapshot } from '../types.js';
 import type { LocomotionPose } from './LocomotionPose.js';
 import { getCharacterStructure } from './CharacterStructure.js';
 import {
+  drawClothFold,
   drawFabricGrain,
+  drawFacePlanes,
   drawHairStrands,
+  drawShadedEllipse,
   drawStitchLine,
 } from './ReferenceDetailPrimitives.js';
 import { getAirPresentationPose, getMovePresentationPhase } from './PresentationPose.js';
@@ -129,8 +132,10 @@ export function drawSupernariz(
   roundedLine(ctx, frontFootX - 9, frontFootY - 4, frontFootX + 11, frontFootY - 4, 10, '#a62b34');
 
   // Slim textured superhero suit from the supplied master.
-  ellipse(ctx, 0, -112 + bodyDrop * 0.62, 29 * body.torsoWidth, (55 - crouch * 8) * body.torsoLength, '#2d61bd', -0.03, '#16376f', 3);
+  drawShadedEllipse(ctx, 0, -112 + bodyDrop * 0.62, 29 * body.torsoWidth, (55 - crouch * 8) * body.torsoLength, '#2d61bd', '#5e91e5', '#17356b', -0.03, '#16376f', 3);
   drawFabricGrain(ctx, 0, -112 + bodyDrop * 0.62, 52 * body.torsoWidth, 98 * body.torsoLength, '#8fb1ef', 0.10, 9);
+  drawClothFold(ctx, -13, -139 + bodyDrop * 0.6, -18, -112 + bodyDrop * 0.62, -11, -80 + bodyDrop * 0.64, '#87acf0', '#0f2c61', 0.24);
+  drawClothFold(ctx, 17, -135 + bodyDrop * 0.6, 10, -110 + bodyDrop * 0.62, 16, -82 + bodyDrop * 0.64, '#7ba4ea', '#102e64', 0.22);
   // Chest nose emblem: deliberately reads as a bulbous nose, not a generic oval.
   ctx.save();
   ctx.fillStyle = '#d29a77';
@@ -191,7 +196,9 @@ export function drawSupernariz(
     - motion.ascent * 5
     + motion.apex * 3
     + motion.descent * 7;
-  ellipse(ctx, headX, headY, 36 * body.headWidth, 39 * body.headHeight, '#d4a07f', -0.03, '#694435', 2.4);
+  drawShadedEllipse(ctx, headX, headY, 36 * body.headWidth, 39 * body.headHeight, '#d4a07f', '#efbf9c', '#925f49', -0.03, '#694435', 2.4);
+  drawFacePlanes(ctx, headX, headY, body.headWidth, '#ffd6b7', '#815040');
+  ellipse(ctx, headX - 29 * body.headWidth, headY + 1, 5.2, 8, '#c58d6e', -0.08, '#70483a', 1);
   ctx.save();
   ctx.fillStyle = '#191a1b';
   ctx.beginPath();
@@ -206,9 +213,17 @@ export function drawSupernariz(
     [headX + 21, headY - 34, headX + 24, headY - 19],
   ], '#655047', 0.28);
   ctx.restore();
-  roundedLine(ctx, headX + 4, headY - 7, headX + 17, headY - 8, 3, '#4a3127');
-  ellipse(ctx, headX + 14, headY - 1, 2.5, 2.2, '#101317');
-  roundedLine(ctx, headX + 8, headY + 23, headX + 22, headY + 23, 2.3, '#6b302e');
+  roundedLine(ctx, headX + 3, headY - 8, headX + 16, headY - 9, 2.5, '#4a3127');
+  ellipse(ctx, headX + 13, headY - 2, 2.3, 2.0, '#101317');
+  ctx.save();
+  ctx.strokeStyle = '#7b4d3c';
+  ctx.lineWidth = 1.4;
+  ctx.beginPath();
+  ctx.moveTo(headX + 11, headY + 3);
+  ctx.quadraticCurveTo(headX + 17, headY + 7, headX + 16, headY + 12);
+  ctx.stroke();
+  ctx.restore();
+  roundedLine(ctx, headX + 7, headY + 20, headX + 20, headY + 20, 2.0, '#6b302e');
 
   // The nose is an articulated tapered vector path; combo moves change its length and arc.
   const noseLength = lerp(

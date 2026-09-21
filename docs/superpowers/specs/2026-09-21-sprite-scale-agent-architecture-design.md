@@ -1,6 +1,6 @@
 # Sprite Runtime + Scalable Content + Agent Operating System — Design
 
-Status: **DRAFT FOR USER REVIEW**  
+Status: **APPROVED BY USER — IMPLEMENTATION PLANNING AUTHORIZED**  
 Date: 2026-09-21  
 Owner: Neureon  
 Applies after: R005 / V0.7 production acceptance, unless the user explicitly reopens that round.

@@ -102,6 +102,9 @@ Do not store transient art tweaks or fighter-specific tuning that belongs in cha
 - When a render effect depends on projectile identity, cache the authoritative visual key at projectile-spawn events because a linear projectile may despawn before its hit event is consumed. Drive contact-only effects from hit events, not move-frame windows; move frames may drive trails/telegraphs but not imply contact.
 
 
+- In multi-instance character rebuilds, make shared architecture additive: expose identity layers and anatomy-derived attachment anchors without rewriting specialist fighter files. Treat metadata/silhouette thresholds as regression gates only; reference likeness still requires rendered phone-scale evidence and human visual acceptance.
+
+
 ## Multi-instance squad behavior
 
 When CURRENT_ROUND authorizes a Mario multi-instance squad, this durable identity may be executed by several temporary chat instances.

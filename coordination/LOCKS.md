@@ -1,7 +1,5 @@
 # Active Locks
 
-| Path | Owner | Task | Reason |
-| --- | --- | --- | --- |
-| `tests/v07-r3-gameplay-candidate.test.mjs` | Ricardo | V07-R3 | Complete four-fighter gameplay/core acceptance matrix. |
+No active file locks.
 
-No production shared-file lock is held at R3 start. Any reproduced gameplay defect must acquire the affected path before repair.
+Ricardo V07-R0→R3 is green at exact candidate `94ee24898855f55787e8e077c64f259e2d7a4972`. Germinator V07-G1 is the next eligible task and audits without production edits unless a separately coordinated QA repair is explicitly assigned.

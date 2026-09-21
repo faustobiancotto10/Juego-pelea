@@ -76,3 +76,33 @@ Required physical phone checks:
 Release policy:
 - if checks pass, Gonza resumes Z1, composes exact candidate over current main coordination, reruns merge-ref CI, promotes exact standalone to Pages root and verifies source/public parity;
 - if any check fails, keep BLOCK_RELEASE and route bounded evidence to the owning agent.
+
+
+## BLOCK_RELEASE — V07-Z1 physical phone smoke pending
+
+Task/owner: V07-Z1 / Gonza  
+Exact product candidate: `65bbb4122be526b0b878c214137192c7243db3ab`  
+Standalone SHA-256: `b64b18ed408c67eec48f5b60b78e4ed5520c07eabd4ce7ff7a4822cc3524da28`
+
+Technical evidence is green:
+- Z0 run `35562321601`: SUCCESS;
+- merge-ref Repository verification #1138 / `35562414551`: SUCCESS;
+- full suite/typecheck/build + targeted V0.7 + raster scan + mobile browser smoke: PASS;
+- exact preview deployed at `/Juego-pelea/v07-preview/`;
+- gh-pages preview SHA `2b583b14a8c903142dbb56c8f0b7f949aaf23c16`;
+- Pages run `35562586454`: SUCCESS;
+- preview blob `51eba287c535782f9fc72a9528169edf3b5c7de2` equals exact Z0 `play.html`;
+- production root remains V0.6 and was not overwritten.
+
+Expected:
+V7-10 requires physical phone smoke for portraits, difficulty, Lengua sanity, Juanchi walk/aura, El Toro signature moves, Clash, both stages, rematch/input interruption.
+
+Actual:
+Only cloud/browser evidence exists so far. Gonza cannot honestly manufacture physical-device evidence from the cloud environment.
+
+Affected dependency:
+- final V0.7 production promotion only;
+- no product/code lane is blocked or reopened.
+
+Recovery:
+Run the exact isolated preview on a physical phone and report whether the listed V7-10 checks pass. If accepted, Gonza may promote the already-verified artifact without feature edits.

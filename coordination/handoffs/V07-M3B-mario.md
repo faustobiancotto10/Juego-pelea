@@ -6,10 +6,14 @@ Sender: Mario-B (durable identity: Mario)
 Recipient: Mario-A / V07-M3I  
 Status: HANDOFF_READY  
 Branch: `round/r005-mario-squad-toro-juanchi`  
-Exact product SHA: `68dd441feabebe672ab7da791dc378f7d3778201`  
+Exact product SHA: `cc75a56a1c56d9c6a988a3144880719a3515c4e9`  
 Squad base: `032b1bb28c5dd4421e5772cc40ab007f42e4d462`
 
-## Files changed
+## Rework reason
+
+The first B handoff `68dd441feabebe672ab7da791dc378f7d3778201` was technically green but M3I rejected the integrated visual result as too incremental. This refreshed handoff responds directly to that review by changing structural silhouette rather than adding micro-detail.
+
+## Files changed from squad base
 
 Exact base-to-head diff contains only:
 
@@ -17,60 +21,60 @@ Exact base-to-head diff contains only:
 - `src/game/render/JuanchiRig.ts`
 - `tests/v07-m3-character-pipeline.test.mjs`
 
-The test-file delta is the exact shared Juanchi gate repair explicitly authorized by Mario-A from A candidate `d6d1e074526cd1674af4e6103995eda19ab5a46b`. No A architecture files, C fighter files, D motion/FX files, gameplay files, UI files or runtime raster assets changed.
+The test-file delta remains the exact shared Juanchi canonical-gate repair previously authorized by Mario-A. No A architecture files, C fighter files, D motion/FX files, gameplay files, UI files or runtime raster assets changed.
 
-## El Toro reconstruction
+## El Toro structural rework
 
-- broader/heavier planted torso treatment with a less rectangular shirt silhouette;
-- thicker neck/trapezius bridge so the head no longer floats over the shirt at phone scale;
-- richer Scotland scarf construction with knot, twin tails, saltire marks and fringe;
-- layered blue wrist/hand wraps;
-- cargo knee/seam treatment;
-- layered black/white/blue sneaker construction;
-- stronger jaw/sideburn/hair contour while preserving the procedural articulated rig;
-- South Africa/rugby/shawarma identity cues remain present.
+- neutral render stance widened through presentation-only foot placement;
+- hip span substantially widened and leg/cargo masses thickened;
+- footwear footprint enlarged to reinforce planted weight;
+- oversized white shirt broadened and deepened at shoulder, belly and hem;
+- neck/trapezius bridge enlarged;
+- Scotland scarf mass, tails and fringe enlarged so it contributes to silhouette;
+- upper arms and forearms thickened;
+- head broadened and mullet extended farther back/down the neck;
+- existing blue wraps, South Africa/rugby/shawarma identity cues retained;
+- simulation/world movement authority remains untouched.
 
-## Juanchi reconstruction
+## Juanchi structural rework
 
-- canonical oversized black `La 56` streetwear retained;
-- legacy tied-jacket waist cue removed because it conflicts with the authoritative package;
-- cargo waistband, belt loops, gold hardware/chain treatment added instead;
-- police-cap and rugby-ball props refined;
-- layered black/white/gold sneaker construction;
-- athletic shirt/neck/collar treatment separated from El Toro's heavy build;
-- fade/jaw/hair detailing strengthened while preserving procedural runtime rendering.
+- neutral render stance tightened to contrast Toro's planted base;
+- hip span, legs and forearms slimmed into a more athletic build;
+- oversized black shirt made longer and more tapered instead of box-like;
+- head narrowed while the curly top was made more vertical;
+- footwear and cargo details remain recognizable without borrowing Toro mass;
+- canonical `La 56`, black cargo, gold details, rugby ball and belt-stored police cap retained.
 
 ## Verification evidence
 
 Repository verification:
-- run #1261 / `35571146380`: SUCCESS.
+- run #1307 / `35573393158`: SUCCESS.
 
 Character Pipeline V2:
-- run #47 / `35571146374`: SUCCESS;
+- run #51 / `35573393175`: SUCCESS;
 - full tests: PASS;
 - build: PASS;
 - deterministic visual evidence capture: PASS;
 - runtime raster/reference guard: PASS;
-- artifact: `v07-m3-visual-evidence`, ID `10626157139`;
-- artifact digest: `sha256:0a2544fb31604a0bab80f57e21e34051b9be772e8f9c9e9ce1d912f10b1ea8b2`;
-- artifact head SHA matches `68dd441feabebe672ab7da791dc378f7d3778201`.
+- artifact: `v07-m3-visual-evidence`, ID `10627565392`;
+- artifact digest: `sha256:fa589635f451c76bdc09e5a8deb899a8e87997e608054f5d3c82e0d6d080a710`;
+- artifact head SHA matches `cc75a56a1c56d9c6a988a3144880719a3515c4e9`.
 
-## Visual evidence
+## Visual-delta evidence
 
-The exact artifact includes:
-- neutral black silhouettes for all four fighters;
-- same-gameplay-scale Juanchi-vs-El-Toro comparison;
-- normal-color roster evidence;
-- El Toro neutral / normal / Topete / ultimate-startup body-pose evidence;
-- 844×390 phone-landscape readability capture.
+Static pixel-delta measurements are evidence of non-trivial image change, not artistic quality scores.
 
-Observed on the exact B artifact:
-- El Toro remains clearly broader/heavier than Juanchi in black silhouette;
-- Juanchi retains a narrower athletic black/gold identity at the same gameplay scale;
-- Toro's scarf, white shirt mass, wraps and footwear remain readable in the 844×390 capture;
-- Juanchi's `La 56`, gold details and streetwear remain readable at phone scale.
+Compared with the first B handoff artifact:
+- neutral silhouette changed on ~2.06% of full-frame pixels (>3 RGB threshold);
+- 844×390 phone-landscape changed on ~3.19%;
+- Juanchi-vs-El-Toro same-scale comparison changed on ~3.03%;
+- El Toro action sheet changed on ~8.09%.
 
-This evidence is static and does not replace integrated human artistic acceptance after A/D composition.
+Compared with the frozen squad base:
+- neutral silhouette changed on ~2.19%;
+- phone-landscape changed on ~3.57%.
+
+Direct inspection of the exact artifact shows El Toro now occupies a materially broader/heavier silhouette while Juanchi remains narrower and more vertical at the same gameplay scale.
 
 ## Scope / contract
 
@@ -78,14 +82,14 @@ This evidence is static and does not replace integrated human artistic acceptanc
 - no runtime `drawImage`/reference-image fighter path introduced;
 - no raster sticker fighters;
 - no renderer-architecture migration;
-- shared test repair is canonical-package validation only.
+- render stance offsets are presentation-only.
 
 ## Unresolved questions
 
-None blocking this lane.
+None blocking this lane. Integrated human artistic acceptance still belongs to M3I/G2/user review.
 
 ## Downstream eligibility
 
-V07-M3B is GREEN / HANDOFF_READY. Mario-A V07-M3I may consume exact SHA `68dd441feabebe672ab7da791dc378f7d3778201`.
+V07-M3B refreshed rework is GREEN / HANDOFF_READY. Mario-A V07-M3I should consume exact SHA `cc75a56a1c56d9c6a988a3144880719a3515c4e9` and treat the prior B SHA as historical only.
 
-Draft PR #42 is validation-only and must not be merged directly.
+Draft PR #42 remains validation-only and must not be merged directly.

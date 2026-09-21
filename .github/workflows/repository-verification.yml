@@ -30,3 +30,29 @@ jobs:
 
       - name: Build
         run: npm run build
+
+      - name: Capture final V07-M2 phone evidence
+        run: |
+          mkdir -p dist/qa artifacts
+          cp qa/v07-m2-final.html dist/qa/v07-m2-final.html
+          python3 -m http.server 4173 -d dist >/tmp/m2-final-http.log 2>&1 &
+          SERVER_PID=$!
+          trap 'kill $SERVER_PID 2>/dev/null || true' EXIT
+          for i in {1..30}; do
+            curl -fsS http://127.0.0.1:4173/qa/v07-m2-final.html >/dev/null && break
+            sleep 0.2
+          done
+          BROWSER="$(command -v google-chrome || command -v chromium || command -v chromium-browser || true)"
+          test -n "$BROWSER"
+          "$BROWSER" --headless=new --disable-gpu --no-sandbox --hide-scrollbars --force-device-scale-factor=1 --window-size=844,390 --virtual-time-budget=1800 --screenshot="$GITHUB_WORKSPACE/artifacts/v07-m2-el-toro-phone.png" "http://127.0.0.1:4173/qa/v07-m2-final.html?mode=toro"
+          "$BROWSER" --headless=new --disable-gpu --no-sandbox --hide-scrollbars --force-device-scale-factor=1 --window-size=844,390 --virtual-time-budget=1800 --screenshot="$GITHUB_WORKSPACE/artifacts/v07-m1-juanchi-phone.png" "http://127.0.0.1:4173/qa/v07-m2-final.html?mode=juanchi"
+          test -s artifacts/v07-m2-el-toro-phone.png
+          test -s artifacts/v07-m1-juanchi-phone.png
+
+      - name: Upload final V07-M2 phone evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: v07-m2-final-phone-evidence
+          path: artifacts/*.png
+          if-no-files-found: error
+          retention-days: 90

@@ -8,12 +8,12 @@ Execution: AUTO_CHAIN / MULTI-INSTANCE MARIO SQUAD
 | --- | --- | --- | --- | --- |
 | Neureon | Lead / Coordinator | V07-N0 | VERIFIED | Multi-instance Mario squad authorized and frozen; no per-lane stage gate. |
 | Ricardo | Gameplay Engineer | V07-R0→R1→R2→R3 | VERIFIED | Gameplay/core frozen; available only for requested renderer-facing contract repairs. |
-| Mario | Character / Rendering Engineer | V07-M3A/B/C/D→M3I | WORKING | Multi-instance squad active; four temporary Mario lanes are authorized in parallel, then Mario-A integrates. |
-| ↳ Mario-A | Temporary lane — Visual Architect / Lead | V07-M3A→M3I | WORKING | Refreshed B+C handoffs are GREEN; recomposing M3I with B `cc75a56a...` + C `3131bbef...`, A/D frozen. |
+| Mario | Character / Rendering Engineer | V07-M3A/B/C/D→M3I | HANDOFF_READY | Refreshed squad integration GREEN at `f34760948cb2024c0c83f4a02202117a8ad3bf2f`; handed to Germinator G2. |
+| ↳ Mario-A | Temporary lane — Visual Architect / Lead | V07-M3A→M3I | HANDOFF_READY | M3I GREEN at `f34760948cb2024c0c83f4a02202117a8ad3bf2f`; Repository #1326 + Pipeline #54 PASS; integration handoff published. |
 | ↳ Mario-B | Temporary lane — El Toro + Juanchi | V07-M3B | HANDOFF_READY | Refreshed structural pass GREEN at `cc75a56a1c56d9c6a988a3144880719a3515c4e9`; Repository #1307 + Pipeline #51 PASS; prior B SHA is historical only. |
 | ↳ Mario-C | Temporary lane — Camaleoni + Supernariz | V07-M3C | HANDOFF_READY | Strong structural pass GREEN at `3131bbef6a517785722d48a255e2d8a0daf10e7b`; Repository #1310 + Pipeline #53 PASS; silhouette/phone deltas materially exceed prior C. |
 | ↳ Mario-D | Temporary lane — Motion / Presentation / FX | V07-M3D | HANDOFF_READY | GREEN at `b6dbe3ecb99d17a302477f3d63440555b5d8c135`; exact handoff published for V07-M3I. |
-| Germinator | Auditor / QA | V07-G1→G2 | WAITING_DEPENDENCY | Audit only the integrated V07-M3I squad candidate after A+B+C+D are green and M3I is composed. |
+| Germinator | Auditor / QA | V07-G1→G2 | READY | Audit exact M3I candidate `f34760948cb2024c0c83f4a02202117a8ad3bf2f` using `coordination/handoffs/V07-M3I-mario.md`. |
 | Brancaforte | UI / Input / UX Engineer | V07-B1 | VERIFIED | Existing UI lane remains frozen; available only if squad finds a real portrait/UI contract blocker. |
 | Gonza | Integration / Release | V07-Z0→Z1 | BLOCKED | Do not rebuild/publish until Germinator G2 approves the integrated Mario squad candidate. |
 

@@ -56,3 +56,20 @@ Current first eligible task:
 AUTO_CHAIN is active. Green handoffs unlock downstream tasks automatically; no per-step Neureon authorization is required.
 
 If a frozen contract is contradicted by evidence, the affected agent stops its dependency chain, records the blocker and tells the user.
+
+
+## Multi-instance Mario visual super-improvement
+
+The first V0.7 preview failed user-facing visual acceptance, and the later single-Mario reference-fidelity candidate `032b1bb28c5dd4421e5772cc40ab007f42e4d462` is now the baseline for a stronger authorized multi-instance visual experiment.
+
+Active parallel lanes:
+- Mario-A — shared visual architecture / lead;
+- Mario-B — El Toro + Juanchi reconstruction;
+- Mario-C — Camaleoni + Supernariz reconstruction;
+- Mario-D — motion / presentation / FX.
+
+After all four lanes are green, Mario-A integrates them in V07-M3I. Germinator V07-G2 then audits the integrated candidate. Gonza remains blocked until G2 approval.
+
+All visual squad lanes begin from `032b1bb28c5dd4421e5772cc40ab007f42e4d462`.
+
+Game Development Studio visual-debugging / asset-production workflows are authorized as bounded authoring and evidence support. Runtime and gameplay contracts remain unchanged unless a separately reported blocker requires user/Neureon re-planning.

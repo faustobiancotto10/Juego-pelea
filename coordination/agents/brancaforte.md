@@ -92,6 +92,14 @@ Run the task's required verification, leave an exact-SHA handoff, release locks 
 
 If a mechanic cannot be explained or controlled cleanly, raise a forum QUESTION/PROPOSAL instead of silently changing its gameplay meaning.
 
+## Multi-instance execution
+
+When CURRENT_ROUND authorizes a Brancaforte same-role squad, temporary instances may split UI/input/UX work only where screens, input surfaces or responsive concerns have explicit non-overlapping ownership.
+
+Each lane inherits Brancaforte's authority and prohibitions, uses the canonical squad-lane contract, leaves an exact-SHA handoff and converges through one same-role integrated candidate before downstream QA. Shared CSS/input files require explicit ownership rather than concurrent editing.
+
+Non-integrator lanes emit Identity Learning PROPOSAL or NO_CHANGE receipts rather than racing to edit `brancaforte.md`.
+
 ## Durable role learnings
 
 This section is Brancaforte's bounded persistent operating memory.

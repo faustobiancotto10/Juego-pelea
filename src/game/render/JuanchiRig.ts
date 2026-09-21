@@ -221,8 +221,12 @@ function computeActionPose(fighter: FighterSnapshot, locomotion: LocomotionPose)
     backHand = { x: -22, y: 154 + ultimate.rage * 15 };
   }
 
-  const frontFoot = withAirLegPose(locomotion.frontFoot, 1, locomotion, air);
-  const backFoot = withAirLegPose(locomotion.backFoot, -1, locomotion, air * 0.45);
+  const frontFootBase = withAirLegPose(locomotion.frontFoot, 1, locomotion, air);
+  const backFootBase = withAirLegPose(locomotion.backFoot, -1, locomotion, air * 0.45);
+  // Juanchi keeps a tighter, athletic neutral stance than El Toro. Rendering
+  // offsets are presentation-only and do not alter world movement.
+  const frontFoot = { ...frontFootBase, x: frontFootBase.x - 4 };
+  const backFoot = { ...backFootBase, x: backFootBase.x + 4 };
 
   return {
     lean:
@@ -411,7 +415,7 @@ export function drawJuanchi(
   ctx.save();
   ctx.rotate(-action.lean);
   ctx.globalAlpha = 0.23 * (1 - Math.min(0.68, fighter.y / 260));
-  ellipse(ctx, 0, fighter.y, 49, 10, '#030407');
+  ellipse(ctx, 0, fighter.y, 44, 9, '#030407');
   ctx.restore();
 
   drawJuanchiRageAura(ctx,
@@ -422,19 +426,19 @@ export function drawJuanchi(
   );
 
   const hipTwist = locomotion.hipCounterRotation * 42;
-  const hipSpan = 12.5 * body.hipWidth * stance.width;
+  const hipSpan = 10.5 * body.hipWidth * stance.width;
   const frontHip: Point2 = { x: hipSpan + hipTwist, y: 82 - action.drop };
   const backHip: Point2 = { x: -hipSpan - hipTwist, y: 82 - action.drop };
   const frontKnee = solveTwoBoneLeg(frontHip, action.frontFoot, 39 * body.legLength, 41 * body.legLength, 1);
   const backKnee = solveTwoBoneLeg(backHip, action.backFoot, 39 * body.legLength, 41 * body.legLength, -1);
 
   // Black cargo pants: thicker thighs, articulated knees and visible pocket/gold accents.
-  roundedLine(ctx, frontHip.x, -frontHip.y, frontKnee.x, -frontKnee.y, 22 * body.legThickness, '#171a1e');
-  roundedLine(ctx, frontKnee.x, -frontKnee.y, action.frontFoot.x, -action.frontFoot.y, 18 * body.legThickness, '#111419');
-  roundedLine(ctx, backHip.x, -backHip.y, backKnee.x, -backKnee.y, 22 * body.legThickness, '#121519');
-  roundedLine(ctx, backKnee.x, -backKnee.y, action.backFoot.x, -action.backFoot.y, 18 * body.legThickness, '#0d1014');
-  drawCargoPocket(ctx, frontKnee.x + 4, -frontKnee.y + 2, 22, 17, '#20242a', '#080a0d', '#d8b65c');
-  drawCargoPocket(ctx, backKnee.x - 4, -backKnee.y + 2, 22, 17, '#1c2026', '#080a0d', '#c9a44f');
+  roundedLine(ctx, frontHip.x, -frontHip.y, frontKnee.x, -frontKnee.y, 20 * body.legThickness, '#171a1e');
+  roundedLine(ctx, frontKnee.x, -frontKnee.y, action.frontFoot.x, -action.frontFoot.y, 15.5 * body.legThickness, '#111419');
+  roundedLine(ctx, backHip.x, -backHip.y, backKnee.x, -backKnee.y, 20 * body.legThickness, '#121519');
+  roundedLine(ctx, backKnee.x, -backKnee.y, action.backFoot.x, -action.backFoot.y, 15.5 * body.legThickness, '#0d1014');
+  drawCargoPocket(ctx, frontKnee.x + 4, -frontKnee.y + 2, 20, 16, '#20242a', '#080a0d', '#d8b65c');
+  drawCargoPocket(ctx, backKnee.x - 4, -backKnee.y + 2, 20, 16, '#1c2026', '#080a0d', '#c9a44f');
   drawStitchLine(ctx, frontHip.x, -frontHip.y + 4, frontKnee.x + 2, -frontKnee.y + 5, '#545a62', 0.9, [3, 4], 0.35);
   drawStitchLine(ctx, backHip.x, -backHip.y + 4, backKnee.x - 2, -backKnee.y + 5, '#4e545b', 0.9, [3, 4], 0.32);
   roundedLine(ctx, frontKnee.x - 11, -frontKnee.y + 13, frontKnee.x + 11, -frontKnee.y + 13, 2.8, '#2b3036');
@@ -454,13 +458,13 @@ export function drawJuanchi(
   drawStitchLine(ctx, -30, -71 + action.drop, 30, -71 + action.drop, '#4d535b', 0.8, [4, 4], 0.36);
 
   // Black/white sneakers with a restrained gold stripe.
-  roundedLine(ctx, action.frontFoot.x - 12, -action.frontFoot.y + 4, action.frontFoot.x + 21, -action.frontFoot.y + 4, 5.5, '#080a0d');
-  ellipse(ctx, action.frontFoot.x + 5, -action.frontFoot.y + 0.5, 19, 7, '#f4f5f2', 0.03, '#090b0e', 2);
+  roundedLine(ctx, action.frontFoot.x - 11, -action.frontFoot.y + 4, action.frontFoot.x + 21, -action.frontFoot.y + 4, 5.2, '#080a0d');
+  ellipse(ctx, action.frontFoot.x + 5, -action.frontFoot.y + 0.5, 18, 6.5, '#f4f5f2', 0.03, '#090b0e', 2);
   ellipse(ctx, action.frontFoot.x + 1, -action.frontFoot.y - 2, 14, 5, '#171a1f', 0.02);
   ellipse(ctx, action.frontFoot.x - 7, -action.frontFoot.y - 1, 5.5, 5, '#262b31');
   roundedLine(ctx, action.frontFoot.x - 7, -action.frontFoot.y - 3, action.frontFoot.x + 9, -action.frontFoot.y - 1, 2.4, '#d8b65c');
-  roundedLine(ctx, action.backFoot.x - 12, -action.backFoot.y + 4, action.backFoot.x + 21, -action.backFoot.y + 4, 5.5, '#080a0d');
-  ellipse(ctx, action.backFoot.x + 5, -action.backFoot.y + 0.5, 19, 7, '#f4f5f2', 0.03, '#090b0e', 2);
+  roundedLine(ctx, action.backFoot.x - 11, -action.backFoot.y + 4, action.backFoot.x + 21, -action.backFoot.y + 4, 5.2, '#080a0d');
+  ellipse(ctx, action.backFoot.x + 5, -action.backFoot.y + 0.5, 18, 6.5, '#f4f5f2', 0.03, '#090b0e', 2);
   ellipse(ctx, action.backFoot.x + 1, -action.backFoot.y - 2, 14, 5, '#15181d', 0.02);
   ellipse(ctx, action.backFoot.x - 7, -action.backFoot.y - 1, 5.5, 5, '#24292f');
   roundedLine(ctx, action.backFoot.x - 7, -action.backFoot.y - 3, action.backFoot.x + 9, -action.backFoot.y - 1, 2.4, '#c6a553');
@@ -481,18 +485,18 @@ export function drawJuanchi(
   ctx.strokeStyle = '#05070a';
   ctx.lineWidth = 3;
   ctx.beginPath();
-  ctx.moveTo(-38 * body.shoulderWidth, torsoY - 34 * body.torsoLength);
-  ctx.quadraticCurveTo(-49 * body.torsoWidth, torsoY - 26 * body.torsoLength, -49 * body.torsoWidth, torsoY - 3 * body.torsoLength);
-  ctx.quadraticCurveTo(-48 * body.torsoWidth, torsoY + 25 * body.torsoLength, -39 * body.torsoWidth, torsoY + 39 * body.torsoLength);
-  ctx.quadraticCurveTo(0, torsoY + 47 * body.torsoLength, 41 * body.torsoWidth, torsoY + 38 * body.torsoLength);
-  ctx.quadraticCurveTo(49 * body.torsoWidth, torsoY + 22 * body.torsoLength, 49 * body.torsoWidth, torsoY - 6 * body.torsoLength);
-  ctx.quadraticCurveTo(48 * body.torsoWidth, torsoY - 25 * body.torsoLength, 37 * body.shoulderWidth, torsoY - 35 * body.torsoLength);
-  ctx.quadraticCurveTo(0, torsoY - 47 * body.torsoLength, -38 * body.shoulderWidth, torsoY - 34 * body.torsoLength);
+  ctx.moveTo(-41 * body.shoulderWidth, torsoY - 35 * body.torsoLength);
+  ctx.quadraticCurveTo(-47 * body.torsoWidth, torsoY - 27 * body.torsoLength, -46 * body.torsoWidth, torsoY - 4 * body.torsoLength);
+  ctx.quadraticCurveTo(-44 * body.torsoWidth, torsoY + 27 * body.torsoLength, -35 * body.torsoWidth, torsoY + 44 * body.torsoLength);
+  ctx.quadraticCurveTo(0, torsoY + 54 * body.torsoLength, 36 * body.torsoWidth, torsoY + 43 * body.torsoLength);
+  ctx.quadraticCurveTo(44 * body.torsoWidth, torsoY + 25 * body.torsoLength, 46 * body.torsoWidth, torsoY - 7 * body.torsoLength);
+  ctx.quadraticCurveTo(47 * body.torsoWidth, torsoY - 26 * body.torsoLength, 40 * body.shoulderWidth, torsoY - 36 * body.torsoLength);
+  ctx.quadraticCurveTo(0, torsoY - 49 * body.torsoLength, -41 * body.shoulderWidth, torsoY - 35 * body.torsoLength);
   ctx.closePath();
   ctx.fill();
   ctx.stroke();
   ctx.restore();
-  drawFabricGrain(ctx, 0, torsoY + 2, 86 * body.torsoWidth, 78 * body.torsoLength, '#676d76', 0.10, 10);
+  drawFabricGrain(ctx, 0, torsoY + 5, 78 * body.torsoWidth, 88 * body.torsoLength, '#676d76', 0.10, 10);
   drawStitchLine(ctx, -29, torsoY - 13, -34, torsoY + 27, '#30353c', 0.9, [4, 4], 0.45);
   drawStitchLine(ctx, 29, torsoY - 13, 35, torsoY + 27, '#30353c', 0.9, [4, 4], 0.45);
   drawClothFold(ctx, -16, torsoY - 18, -20, torsoY + 3, -12, torsoY + 29, '#5c6168', '#020304', 0.28);
@@ -502,13 +506,13 @@ export function drawJuanchi(
   ctx.strokeStyle = '#3a4048';
   ctx.lineWidth = 1.5;
   ctx.beginPath();
-  ctx.moveTo(-35 * body.torsoWidth, torsoY + 35 * body.torsoLength);
-  ctx.quadraticCurveTo(0, torsoY + 43 * body.torsoLength, 37 * body.torsoWidth, torsoY + 34 * body.torsoLength);
+  ctx.moveTo(-31 * body.torsoWidth, torsoY + 41 * body.torsoLength);
+  ctx.quadraticCurveTo(0, torsoY + 50 * body.torsoLength, 32 * body.torsoWidth, torsoY + 40 * body.torsoLength);
   ctx.stroke();
   ctx.restore();
 
   // Exposed neck and ribbed collar connect the compact head to an athletic torso.
-  drawShadedEllipse(ctx, 1, torsoY - 43, 13 * body.neckWidth, 16, '#b97a5a', '#e1a07c', '#7b4c3b', 0, '#4d2f26', 1.2);
+  drawShadedEllipse(ctx, 1, torsoY - 44, 11.5 * body.neckWidth, 17, '#b97a5a', '#e1a07c', '#7b4c3b', 0, '#4d2f26', 1.2);
   ctx.save();
   ctx.strokeStyle = '#2d3239';
   ctx.lineWidth = 5;
@@ -563,12 +567,12 @@ export function drawJuanchi(
     y: lerp(126 - action.drop * 0.45, action.backHand.y, 0.5),
   };
 
-  roundedLine(ctx, 26 * body.shoulderWidth, shoulderY, frontElbow.x, -frontElbow.y, 17 * body.armThickness, '#111419');
-  roundedLine(ctx, 27 * body.shoulderWidth, shoulderY - 2, frontElbow.x - 2, -frontElbow.y - 2, 2.0, '#383d45');
-  roundedLine(ctx, frontElbow.x, -frontElbow.y, action.frontHand.x, -action.frontHand.y, 13 * body.forearmThickness, '#bd805f');
-  roundedLine(ctx, -26 * body.shoulderWidth, shoulderY + 2, backElbow.x, -backElbow.y, 17 * body.armThickness, '#0d1014');
-  roundedLine(ctx, -27 * body.shoulderWidth, shoulderY, backElbow.x + 2, -backElbow.y - 2, 2.0, '#30363e');
-  roundedLine(ctx, backElbow.x, -backElbow.y, action.backHand.x, -action.backHand.y, 13 * body.forearmThickness, '#b87859');
+  roundedLine(ctx, 27 * body.shoulderWidth, shoulderY, frontElbow.x, -frontElbow.y, 15.5 * body.armThickness, '#111419');
+  roundedLine(ctx, 28 * body.shoulderWidth, shoulderY - 2, frontElbow.x - 2, -frontElbow.y - 2, 1.8, '#383d45');
+  roundedLine(ctx, frontElbow.x, -frontElbow.y, action.frontHand.x, -action.frontHand.y, 11.5 * body.forearmThickness, '#bd805f');
+  roundedLine(ctx, -27 * body.shoulderWidth, shoulderY + 2, backElbow.x, -backElbow.y, 15.5 * body.armThickness, '#0d1014');
+  roundedLine(ctx, -28 * body.shoulderWidth, shoulderY, backElbow.x + 2, -backElbow.y - 2, 1.8, '#30363e');
+  roundedLine(ctx, backElbow.x, -backElbow.y, action.backHand.x, -action.backHand.y, 11.5 * body.forearmThickness, '#b87859');
   ellipse(ctx, action.frontHand.x, -action.frontHand.y, 7.5, 7, '#c98a67');
   ellipse(ctx, action.backHand.x, -action.backHand.y, 7.5, 7, '#c38563');
   // Watch and bracelet remain visible at normal gameplay scale.
@@ -612,7 +616,7 @@ export function drawJuanchi(
 
   const headX = anchors.head.x + action.shoulderDrive * 4;
   const headY = -anchors.head.y + idle;
-  drawShadedEllipse(ctx, headX, headY, 35 * body.headWidth, 39 * body.headHeight, '#c88c68', '#edb18d', '#875744', -0.035, '#5c382a', 2.3);
+  drawShadedEllipse(ctx, headX + 1, headY, 31 * body.headWidth, 40 * body.headHeight, '#c88c68', '#edb18d', '#875744', -0.035, '#5c382a', 2.3);
   drawFacePlanes(ctx, headX, headY, body.headWidth, '#ffd0ad', '#754437');
   ellipse(ctx, headX - 29 * body.headWidth, headY + 2, 5.5, 8.5, '#b97b5b', -0.08, '#654035', 1.1);
 
@@ -620,14 +624,14 @@ export function drawJuanchi(
   ctx.save();
   ctx.fillStyle = '#171819';
   ctx.beginPath();
-  ctx.moveTo(headX - 34, headY - 19);
-  ctx.quadraticCurveTo(headX - 26, headY - 41, headX - 17, headY - 43);
-  ctx.lineTo(headX - 13, headY - 9);
-  ctx.quadraticCurveTo(headX - 27, headY - 8, headX - 34, headY - 19);
+  ctx.moveTo(headX - 29, headY - 18);
+  ctx.quadraticCurveTo(headX - 22, headY - 44, headX - 14, headY - 47);
+  ctx.lineTo(headX - 11, headY - 8);
+  ctx.quadraticCurveTo(headX - 23, headY - 7, headX - 29, headY - 18);
   ctx.fill();
   const curls: readonly [number, number, number][] = [
-    [-22, -38, 10], [-10, -45, 11], [3, -48, 12], [17, -44, 11], [28, -35, 10],
-    [-28, -29, 9], [-15, -31, 11], [0, -34, 12], [15, -32, 11], [30, -24, 8],
+    [-18, -42, 9], [-8, -51, 10], [3, -55, 11], [14, -51, 10], [23, -41, 9],
+    [-24, -31, 8], [-12, -35, 9], [1, -38, 10], [14, -35, 9], [25, -28, 7],
   ];
   for (const [dx, dy, radius] of curls) {
     ctx.beginPath();
@@ -635,23 +639,23 @@ export function drawJuanchi(
     ctx.fill();
   }
   drawHairStrands(ctx, [
-    [headX - 19, headY - 38, headX - 14, headY - 27],
-    [headX - 6, headY - 45, headX - 2, headY - 31],
-    [headX + 8, headY - 44, headX + 13, headY - 30],
-    [headX + 21, headY - 36, headX + 23, headY - 25],
+    [headX - 16, headY - 42, headX - 12, headY - 28],
+    [headX - 5, headY - 51, headX - 1, headY - 34],
+    [headX + 7, headY - 51, headX + 11, headY - 33],
+    [headX + 18, headY - 42, headX + 21, headY - 27],
   ], '#5a4b45', 0.31);
   // Fade boundary remains skin-readable under the dense curls.
   ctx.globalAlpha = 0.36;
   ctx.strokeStyle = '#57443a';
   ctx.lineWidth = 2.1;
   ctx.beginPath();
-  ctx.moveTo(headX - 29, headY - 20);
-  ctx.quadraticCurveTo(headX - 24, headY - 8, headX - 23, headY + 2);
+  ctx.moveTo(headX - 25, headY - 20);
+  ctx.quadraticCurveTo(headX - 21, headY - 8, headX - 20, headY + 2);
   ctx.stroke();
   ctx.restore();
 
-  roundedLine(ctx, headX - 22, headY + 13, headX - 13, headY + 27, 1.8, '#774a3a');
-  roundedLine(ctx, headX - 13, headY + 27, headX + 8, headY + 29, 1.5, '#684133');
+  roundedLine(ctx, headX - 19, headY + 13, headX - 11, headY + 28, 1.7, '#774a3a');
+  roundedLine(ctx, headX - 11, headY + 28, headX + 7, headY + 30, 1.4, '#684133');
   roundedLine(ctx, headX + 3, headY - 8, headX + 17, headY - 9, 2.6, '#432b24');
   ellipse(ctx, headX + 14, headY - 2, 2.4, 2.0, '#0b0e12');
   ctx.save();

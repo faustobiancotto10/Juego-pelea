@@ -2,6 +2,8 @@
 
 | Path / subsystem | Owner | Task | Reason |
 | --- | --- | --- | --- |
+| `src/game/render/ChameleonRig.ts` | Mario-C | V07-M3C | Fighter-specific Camaleoni reference-fidelity reconstruction. |
+| `src/game/render/SupernarizRig.ts` | Mario-C | V07-M3C | Fighter-specific Supernariz reference-fidelity reconstruction. |
 | `src/game/render/CharacterStructure.ts` | Mario-A | V07-M3A | Shared character-structure/anatomy primitives audit and improvement. |
 | `src/game/render/ReferenceDetailPrimitives.ts` | Mario-A | V07-M3A | Shared material/detail primitives for reference fidelity. |
 | `src/game/render/RigAnchors.ts` | Mario-A | V07-M3A | Shared structural anchor contract; cross-lane anchor requests route through Mario-A. |

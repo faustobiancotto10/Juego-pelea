@@ -9,7 +9,7 @@ Execution: AUTO_CHAIN / MULTI-INSTANCE MARIO SQUAD
 | Neureon | Lead / Coordinator | V07-N0 | VERIFIED | Multi-instance Mario squad authorized and frozen; no per-lane stage gate. |
 | Ricardo | Gameplay Engineer | V07-R0→R1→R2→R3 | VERIFIED | Gameplay/core frozen; available only for requested renderer-facing contract repairs. |
 | Mario | Character / Rendering Engineer | V07-M3A/B/C/D→M3I | WORKING | Multi-instance squad active; four temporary Mario lanes are authorized in parallel, then Mario-A integrates. |
-| ↳ Mario-A | Temporary lane — Visual Architect / Lead | V07-M3A→M3I | HANDOFF_READY | M3A GREEN at `d6d1e074526cd1674af4e6103995eda19ab5a46b`; shared Juanchi gate repaired; waits for M3B+D before M3I. |
+| ↳ Mario-A | Temporary lane — Visual Architect / Lead | V07-M3A→M3I | WORKING | All A/B/C/D inputs GREEN; composing exact accepted deltas on `round/r005-mario-squad-integration`. |
 | ↳ Mario-B | Temporary lane — El Toro + Juanchi | V07-M3B | HANDOFF_READY | GREEN at `68dd441feabebe672ab7da791dc378f7d3778201`; Repository verification #1261 + Character Pipeline V2 #47 PASS; handoff published for V07-M3I. |
 | ↳ Mario-C | Temporary lane — Camaleoni + Supernariz | V07-M3C | HANDOFF_READY | Secondary-motion request resolved; GREEN at `2deec5d38471404acaaa491835980c3fa80b21e9`, Repository #1273 + Pipeline #48 PASS. |
 | ↳ Mario-D | Temporary lane — Motion / Presentation / FX | V07-M3D | HANDOFF_READY | GREEN at `b6dbe3ecb99d17a302477f3d63440555b5d8c135`; exact handoff published for V07-M3I. |

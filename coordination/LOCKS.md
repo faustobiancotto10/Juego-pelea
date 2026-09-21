@@ -2,6 +2,9 @@
 
 | Path / subsystem | Owner | Task | Reason |
 | --- | --- | --- | --- |
+| `src/game/render/CharacterStructure.ts` | Mario-A | V07-M3A | Shared character-structure/anatomy primitives audit and improvement. |
+| `src/game/render/ReferenceDetailPrimitives.ts` | Mario-A | V07-M3A | Shared material/detail primitives for reference fidelity. |
+| `src/game/render/RigAnchors.ts` | Mario-A | V07-M3A | Shared structural anchor contract; cross-lane anchor requests route through Mario-A. |
 | `src/game/render/CharacterStructure.ts` | Mario-A | V07-M3A | Shared character structure / anatomy architecture audit and improvement. |
 | `src/game/render/ReferenceDetailPrimitives.ts` | Mario-A | V07-M3A | Shared reusable visual-detail/material primitives. |
 | `src/game/render/RigAnchors.ts` | Mario-A | V07-M3A | Shared renderer anchor contract inspection; no gameplay authority. |

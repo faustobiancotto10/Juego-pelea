@@ -60,6 +60,7 @@ Create `tests/sprite-manifest.test.mjs` that imports compiled JS after `tsc` and
 - every animation has at least one frame;
 - frame rect width/height > 0;
 - `pivotX`/`pivotY` are finite;
+- optional named anchor x/y values are finite;
 - `durationTicks` is an integer >= 1;
 - duplicate/empty animation keys are rejected by construction;
 - sprite backend requires a sprite package key;
@@ -97,6 +98,11 @@ In `SpriteManifest.ts` define:
 ```ts
 export type FighterBodyBackend = 'procedural' | 'sprite';
 
+export interface SpriteAnchorPoint {
+  x: number;
+  y: number;
+}
+
 export interface SpriteFrameDefinition {
   x: number;
   y: number;
@@ -105,6 +111,7 @@ export interface SpriteFrameDefinition {
   pivotX: number;
   pivotY: number;
   durationTicks: number;
+  anchors?: Readonly<Record<string, SpriteAnchorPoint>>;
 }
 
 export interface SpriteAnimationDefinition {
@@ -234,6 +241,7 @@ git commit -m "feat: resolve fighter sprite animations from snapshots"
 
 **Files:**
 - Create: `src/game/render/sprites/SpriteFrameSampler.ts`
+- Create: `src/game/render/sprites/SpriteAnchorSampler.ts`
 - Extend: `tests/sprite-animation-resolver.test.mjs`
 
 **Interfaces:**
@@ -246,16 +254,18 @@ export interface SampledSpriteFrame {
   frameIndex: number;
 }
 export function sampleSpriteFrame(animation: SpriteAnimationDefinition, tick: number): SampledSpriteFrame;
+export function sampleSpriteAnchor(frame: SpriteFrameDefinition, name: string): SpriteAnchorPoint | null;
 ```
 
-- [ ] **Step 1: Write failing frame-timing tests**
+- [ ] **Step 1: Write failing frame-timing and anchor tests**
 
 Test:
 - variable frame durations;
 - looping animation wraps by total tick duration;
 - non-looping animation holds final frame;
 - negative tick clamps to zero;
-- hitstop behavior is stable because repeated authoritative tick returns same frame.
+- hitstop behavior is stable because repeated authoritative tick returns same frame;
+- named anchors return exact local coordinates when present and null when absent.
 
 - [ ] **Step 2: Run RED**
 
@@ -263,9 +273,9 @@ Test:
 npm run clean && tsc && node --test tests/sprite-animation-resolver.test.mjs
 ```
 
-- [ ] **Step 3: Implement cumulative-duration sampling**
+- [ ] **Step 3: Implement cumulative-duration and anchor sampling**
 
-Use integer ticks only. No `performance.now()`, `Date.now()`, or render-frame counter.
+Use integer ticks only. No `performance.now()`, `Date.now()`, or render-frame counter. Anchor lookup is pure data access and never infers combat state.
 
 - [ ] **Step 4: Run GREEN**
 
@@ -274,7 +284,7 @@ Same command, expected PASS.
 - [ ] **Step 5: Commit**
 
 ```bash
-git add src/game/render/sprites/SpriteFrameSampler.ts tests/sprite-animation-resolver.test.mjs
+git add src/game/render/sprites/SpriteFrameSampler.ts src/game/render/sprites/SpriteAnchorSampler.ts tests/sprite-animation-resolver.test.mjs
 git commit -m "feat: sample sprite frames from simulation ticks"
 ```
 
@@ -367,7 +377,9 @@ git commit -m "feat: load fight-scoped fighter sprite packages"
 
 **Files:**
 - Create: `src/game/render/sprites/SpriteFighterRenderer.ts`
+- Create: `src/game/render/props/JuanchiProps.ts`
 - Modify: `src/game/render/FighterRenderer.ts`
+- Modify: `src/game/render/FightRenderer.ts`
 - Create: `tests/sprite-fighter-renderer.test.mjs`
 
 **Interfaces:**
@@ -430,7 +442,9 @@ if ((presentation.bodyBackend ?? 'procedural') === 'sprite') {
 drawProceduralRig(...);
 ```
 
-Do not change `FightRenderer` combat effects yet.
+Preserve presentation attachment behavior. Add a generic render-only anchor accessor that reads named anchors from the sampled sprite frame for sprite-backed fighters and keeps current rig anchors for procedural fighters. Update `FightRenderer` call sites for head/back-hand attachments to use that backend-neutral accessor.
+
+Extract `drawPoliceCapProp` and `drawRugbyBallProp` from `JuanchiRig.ts` into `src/game/render/props/JuanchiProps.ts` so projectile/Ultimate props survive eventual body-rig deletion.
 
 - [ ] **Step 5: Run GREEN + existing visual architecture tests**
 
@@ -445,7 +459,7 @@ Expected: all PASS.
 - [ ] **Step 6: Commit**
 
 ```bash
-git add src/game/render/sprites/SpriteFighterRenderer.ts src/game/render/FighterRenderer.ts tests/sprite-fighter-renderer.test.mjs
+git add src/game/render/sprites/SpriteFighterRenderer.ts src/game/render/props/JuanchiProps.ts src/game/render/FighterRenderer.ts src/game/render/FightRenderer.ts tests/sprite-fighter-renderer.test.mjs
 git commit -m "feat: add temporary dual fighter body renderer"
 ```
 
@@ -651,12 +665,19 @@ If accepted, commit the pilot and open the full-roster squad tasks.
 
 **Files:**
 - Create per fighter:
-  - `assets/fighters/camaleoni/*`
-  - `assets/fighters/supernariz/*`
-  - `assets/fighters/juanchi/*`
-  - complete `assets/fighters/el-toro/*`
-- Modify each fighter presentation package under `src/game/data/characters/`.
-- Add fighter-specific package completeness tests.
+  - `assets/fighters/camaleoni/body.webp`
+  - `assets/fighters/camaleoni/animations.json`
+  - `assets/fighters/supernariz/body.webp`
+  - `assets/fighters/supernariz/animations.json`
+  - `assets/fighters/juanchi/body.webp`
+  - `assets/fighters/juanchi/animations.json`
+  - complete `assets/fighters/el-toro/body.webp`
+  - complete `assets/fighters/el-toro/animations.json`
+- Modify: `src/game/data/characters/camaleoni.ts`
+- Modify: `src/game/data/characters/supernariz.ts`
+- Modify: `src/game/data/characters/juanchi.ts`
+- Modify: `src/game/data/characters/elToro.ts`
+- Create: `tests/sprite-roster-completeness.test.mjs`.
 
 **Interfaces:**
 - Consumes: accepted pilot manifest/renderer contract.
@@ -712,13 +733,18 @@ feat: migrate full playable roster to sprite bodies
 ### Task 10: Independent QA, mobile/performance gate, and production cutover
 
 **Files:**
-- Modify as needed from verified findings only.
-- Eventually remove/retire production use of:
+- Modify: `src/game/render/FighterRenderer.ts`
+- Modify: `src/game/data/characters/camaleoni.ts`
+- Modify: `src/game/data/characters/supernariz.ts`
+- Modify: `src/game/data/characters/juanchi.ts`
+- Modify: `src/game/data/characters/elToro.ts`
+- Modify: `tests/sprite-roster-completeness.test.mjs`
+- Delete only after zero-import verification:
   - `src/game/render/ChameleonRig.ts`
   - `src/game/render/SupernarizRig.ts`
   - `src/game/render/JuanchiRig.ts`
   - `src/game/render/ElToroRig.ts`
-  - obsolete body-only procedural helpers.
+- Keep shared procedural FX/stage helpers that are still imported.
 
 **Interfaces:**
 - Consumes: one integrated all-sprite roster candidate.

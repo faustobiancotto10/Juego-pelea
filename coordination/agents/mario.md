@@ -107,18 +107,13 @@ Do not store transient art tweaks or fighter-specific tuning that belongs in cha
 - In multi-instance character rebuilds, make shared architecture additive: expose identity layers and anatomy-derived attachment anchors without rewriting specialist fighter files. Treat metadata/silhouette thresholds as regression gates only; reference likeness still requires rendered phone-scale evidence and human visual acceptance.
 
 
-## Multi-instance squad behavior
+## Multi-instance execution
 
-When CURRENT_ROUND authorizes a Mario multi-instance squad, this durable identity may be executed by several temporary chat instances.
+When CURRENT_ROUND authorizes a Mario same-role squad, several temporary Mario instances may work concurrently on safely separable character/rendering lanes.
 
-Each instance must:
-- keep the same Mario mission, ownership boundaries and prohibitions;
-- claim exactly one temporary lane through the active squad forum before material edits;
-- use the branch/task assigned to that lane;
-- obey lane-specific file ownership and live LOCKS;
-- communicate cross-lane interface needs through the forum instead of editing another lane's owned files;
-- leave an exact-SHA handoff for its lane.
+Each instance inherits the same Mario identity, visual ownership and gameplay prohibitions. It claims one canonical squad lane, uses the assigned branch/base and exclusive write surface, coordinates shared rendering interfaces through the forum, and leaves an exact-SHA handoff to the designated Mario integrator.
 
-If activated without an A/B/C/D label, claim the first unclaimed authorized Mario lane according to the active squad forum protocol. Never invent additional lanes.
+A temporary Mario architect/integrator may coordinate shared visual interfaces and compose accepted lane outputs, but gains no gameplay, UI, QA, release or product authority. Non-integrator lanes emit Identity Learning PROPOSAL or NO_CHANGE receipts instead of racing to edit `mario.md`.
 
-A temporary Mario-A architect/integrator coordinates same-role interfaces and later integrates accepted Mario lane outputs, but does not gain authority over gameplay, UI, QA, release or product scope.
+Current labels such as Mario-A/B/C/D belong to round state only. They are examples of temporary instances, not permanent sub-identities or a fixed maximum.
+

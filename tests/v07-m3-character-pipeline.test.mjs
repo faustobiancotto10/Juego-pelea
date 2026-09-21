@@ -49,12 +49,14 @@ test('El Toro is structurally broader, heavier and more planted than Juanchi wit
 
   assert.equal(toro.silhouette.primaryMass, 'top-heavy');
   assert.equal(toro.stance.centerOfMass, 'low-forward');
-  assert.ok(toro.body.shoulderWidth >= juanchi.body.shoulderWidth * 1.24);
-  assert.ok(toro.body.torsoWidth >= juanchi.body.torsoWidth * 1.24);
-  assert.ok(toro.body.armThickness >= juanchi.body.armThickness * 1.24);
-  assert.ok(toro.body.forearmThickness >= juanchi.body.forearmThickness * 1.24);
-  assert.ok(toro.body.legThickness >= juanchi.body.legThickness * 1.15);
-  assert.ok(toro.stance.width >= juanchi.stance.width * 1.22);
+  // Supplied masters show El Toro as broader/heavier but still human-proportioned,
+  // while Juanchi is an athletic build rather than the same body scaled down.
+  assert.ok(toro.body.shoulderWidth >= juanchi.body.shoulderWidth * 1.18);
+  assert.ok(toro.body.torsoWidth >= juanchi.body.torsoWidth * 1.22);
+  assert.ok(toro.body.armThickness >= juanchi.body.armThickness * 1.08);
+  assert.ok(toro.body.forearmThickness >= juanchi.body.forearmThickness * 1.10);
+  assert.ok(toro.body.legThickness >= juanchi.body.legThickness * 1.06);
+  assert.ok(toro.stance.width >= juanchi.stance.width * 1.15);
   assert.ok(toro.body.legLength < juanchi.body.legLength);
   assert.notEqual(toro.silhouette.headProfile, juanchi.silhouette.headProfile);
 });
@@ -111,6 +113,34 @@ test('locomotion styles encode four different masses/postures rather than defaul
   assert.ok(toro.swingFootLift < juanchi.swingFootLift);
   assert.ok(toro.pelvisBobAmplitude < juanchi.pelvisBobAmplitude);
   assert.ok(toro.weightTransferScale > juanchi.weightTransferScale);
+});
+
+
+test('reference-fidelity pass preserves canonical visible cues and procedural texture detail', () => {
+  const files = {
+    chameleon: readFileSync('src/game/render/ChameleonRig.ts', 'utf8'),
+    supernariz: readFileSync('src/game/render/SupernarizRig.ts', 'utf8'),
+    juanchi: readFileSync('src/game/render/JuanchiRig.ts', 'utf8'),
+    toro: readFileSync('src/game/render/ElToroRig.ts', 'utf8'),
+    portrait: readFileSync('src/game/render/PortraitRenderer.ts', 'utf8'),
+  };
+
+  assert.match(files.chameleon, /drawScaleField/);
+  assert.match(files.chameleon, /Long scaled neck/);
+  assert.match(files.supernariz, /Chest nose emblem/);
+  assert.match(files.supernariz, /drawFabricGrain/);
+  assert.match(files.juanchi, /Jacket tied around the waist/);
+  assert.match(files.juanchi, /drawCargoPocket/);
+  assert.match(files.toro, /Reference mullet/);
+  assert.match(files.toro, /Scotland scarf/);
+  assert.match(files.toro, /South Africa belt band/);
+  assert.match(files.portrait, /oversized human head on a narrow scaled chameleon body/);
+  assert.match(files.portrait, /Blue suit \/ red cape \/ giant nose/);
+  assert.match(files.portrait, /Athletic black\/gold streetwear silhouette/);
+  assert.match(files.portrait, /Scotland scarf with saltire/);
+
+  const runtime = Object.values(files).join('\n');
+  assert.doesNotMatch(runtime, /drawImage\(|new Image\(|identity-master-reference|action-sheet-reference/i);
 });
 
 test('Character Pipeline V2 remains runtime procedural and authoring tools stay non-runtime', () => {

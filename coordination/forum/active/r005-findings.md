@@ -106,3 +106,35 @@ Affected dependency:
 
 Recovery:
 Run the exact isolated preview on a physical phone and report whether the listed V7-10 checks pass. If accepted, Gonza may promote the already-verified artifact without feature edits.
+
+
+## BLOCK_RELEASE — character visual identity rejected by user
+
+Owner: Mario / V07-M3  
+Rejected candidate: `65bbb4122be526b0b878c214137192c7243db3ab`  
+Status: OPEN / REPAIR AUTHORIZED
+
+Physical/user-facing evidence:
+- El Toro reads as a near-reskin of Juanchi rather than a distinct fighter;
+- body construction, head/face language, stance and neutral silhouette are too similar;
+- identity is carried too heavily by shirt/accessory/color changes;
+- user requires the same structural visual-quality review across Camaleoni, Supernariz and Juanchi.
+
+Expected:
+Each released fighter must have character-specific body structure, silhouette, posture and motion while remaining a procedural articulated Canvas2D rig.
+
+Actual:
+The rejected preview demonstrates insufficient structural differentiation, most visibly El Toro vs Juanchi.
+
+Affected dependency:
+- V07-Z1 production-root promotion remains blocked;
+- previous automated green evidence does not override failed physical/user-facing acceptance;
+- no gameplay contract is reopened.
+
+Authorized in-contract repair:
+- V07-M3 on `repair/v07-character-pipeline-v2`;
+- free authoring toolchain bootstrap is present under `tools/character-pipeline-v2/`;
+- Germinator V07-G2 independently audits the repair before Gonza rebuilds the preview.
+
+Smallest current action:
+Activate Mario. No Gonza release work should resume until M3 and G2 are green.

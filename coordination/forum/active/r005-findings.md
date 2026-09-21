@@ -169,3 +169,49 @@ Resolution evidence:
 - Character Pipeline V2 #47 / `35571146374`: PASS, including full tests, build, visual capture and runtime raster/reference guard.
 - Visual artifact ID `10626157139`, digest `sha256:0a2544fb31604a0bab80f57e21e34051b9be772e8f9c9e9ce1d912f10b1ea8b2`.
 - V07-M3B is HANDOFF_READY; no blocker remains from this finding.
+
+
+## BLOCKER — V07-M3I integrated visual delta is too small for super-improvement acceptance
+
+Owner: Mario-A / V07-M3I  
+Integrated candidate: `4a485d9244b3e8ce86c4700d4a299dc5f3cb84f6`  
+Status: OPEN / TARGETED B+C REWORK REQUIRED
+
+Technical evidence is green:
+- Repository verification #1291 / run `35571839137`: PASS;
+- Character Pipeline V2 #49 / run `35571839119`: PASS;
+- integrated visual artifact ID `10626296792`, digest `sha256:5021f824cef2f2a3042174a55dc4358507bdd2bfbed03ad8b1eb647e948960df`;
+- all 14 integrated file blobs exactly match accepted A/B/C/D lane blobs;
+- runtime raster/reference guard: PASS.
+
+Visual acceptance check against squad base `032b1bb28c5dd4421e5772cc40ab007f42e4d462`:
+- full-frame normal-color changed pixels: ~1.96%;
+- neutral-silhouette changed pixels: ~0.53%;
+- phone-landscape changed pixels: ~2.44%;
+- normal-color fighter-crop changed pixels: Camaleoni ~2.66%, Supernariz ~5.17%, Juanchi ~8.84%, El Toro ~6.79%;
+- silhouette fighter-crop changed pixels: Camaleoni ~0.95%, Supernariz ~1.30%, Juanchi ~2.39%, El Toro ~1.77%.
+
+These raster deltas are diagnostic only, not an artistic score. However, combined with direct inspection they show the candidate remains much closer to the rejected baseline than the term “super-improvement” implies. Most identity improvement is detail-level rather than a substantial reconstruction of silhouette/head/body language. El Toro and Juanchi are more distinct than before, but still share too much of the same procedural head/torso language at phone scale.
+
+Expected:
+- materially stronger reference identity at normal and phone scale;
+- El Toro substantially richer and more structurally distinct than the rejected preview;
+- clear four-fighter silhouette separation that does not depend mainly on color/text/accessories.
+
+Actual:
+- CI/build/runtime constraints are correct;
+- visible improvement exists but is too incremental for V07-M3I acceptance;
+- forwarding this candidate to Germinator would knowingly lower the task's own visual acceptance bar.
+
+Affected chain:
+- V07-M3I is BLOCKED from HANDOFF_READY;
+- Germinator V07-G2 remains WAITING_DEPENDENCY;
+- Gonza remains blocked.
+
+Authorized in-contract repair:
+- reopen V07-M3B for a stronger El Toro + Juanchi structural/reference pass;
+- reopen V07-M3C for stronger Camaleoni + Supernariz silhouette/detail pass;
+- keep V07-M3D green unless the next integrated capture shows motion/FX-specific regression;
+- no gameplay, balance, UI or renderer-architecture expansion is authorized.
+
+No user scope decision is required for this repair because it stays inside the already-authorized multi-instance visual super-improvement contract.

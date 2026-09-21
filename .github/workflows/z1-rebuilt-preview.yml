@@ -1,0 +1,123 @@
+name: Z1 rebuilt V0.7 preview verification
+
+on:
+  push:
+    branches:
+      - ci/r005-z1-rebuilt-preview
+
+permissions:
+  contents: write
+
+jobs:
+  preview:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout approved M3I candidate
+        uses: actions/checkout@v4
+        with:
+          ref: ci/r005-z1-rebuilt-preview
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Install tools
+        run: |
+          npm install --global typescript@latest esbuild@latest
+          npm install --no-save playwright@latest
+          npx playwright install --with-deps chromium
+
+      - name: Full verification
+        run: |
+          npm test
+          npm run typecheck
+          npm run build
+
+      - name: Rebuild exact V0.7 standalone
+        run: |
+          esbuild dist/main.js --bundle --format=iife --platform=browser --target=es2020 --outfile=standalone.js
+          node <<'NODE'
+          const fs=require('fs');
+          let html=fs.readFileSync('index.html','utf8');
+          const css=fs.readFileSync('src/styles.css','utf8');
+          const js=fs.readFileSync('standalone.js','utf8');
+          html=html
+            .replace(/<title>[^<]*<\/title>/,'<title>Juego Pelea V0.7</title>')
+            .replace('<link rel="stylesheet" href="./styles.css" />','<style>\n'+css+'\n</style>')
+            .replace('<script type="module" src="./main.js"></script>','<script>\n'+js+'\n</script>');
+          if(html.includes('src="./main.js"')||html.includes('href="./styles.css"')) throw new Error('external runtime refs remain');
+          fs.writeFileSync('play.rebuilt.html',html);
+          NODE
+          echo "REBUILT_SHA256=$(sha256sum play.rebuilt.html | cut -d' ' -f1)"
+          echo "SOURCE_TREE_SHA=f34760948cb2024c0c83f4a02202117a8ad3bf2f"
+
+      - name: Rebuilt preview mobile smoke
+        run: |
+          cp play.rebuilt.html preview.html
+          python3 -m http.server 4173 >/tmp/v07-preview-http.log 2>&1 &
+          SERVER_PID=$!
+          trap "kill $SERVER_PID" EXIT
+          node <<'NODE'
+          const { chromium }=require('playwright');
+          (async()=>{
+            const browser=await chromium.launch({headless:true});
+            const page=await browser.newPage({viewport:{width:844,height:390}});
+            const errors=[];
+            page.on('pageerror',e=>errors.push('pageerror:'+e.message));
+            page.on('console',m=>{if(m.type()==='error')errors.push('console:'+m.text())});
+            await page.goto('http://127.0.0.1:4173/preview.html');
+            await page.waitForSelector('[data-game-phase="title"]');
+            await page.locator('[data-start]').click();
+            await page.waitForSelector('[data-game-phase="select-player"]');
+            if(await page.locator('[data-fighter]').count()!==4) throw new Error('expected 4 fighters');
+            if(await page.locator('[data-fighter-portrait][data-portrait-rendered="true"]').count()<4) throw new Error('four procedural portraits not mounted');
+            await page.locator('[data-fighter="el-toro"]').click();
+            await page.locator('[data-fighter-confirm]').click();
+            await page.waitForSelector('[data-game-phase="select-cpu"]');
+            if(await page.locator('[data-difficulty]').count()!==3) throw new Error('difficulty selector missing');
+            await page.locator('[data-difficulty="hard"]').click();
+            await page.locator('[data-fighter="juanchi"]').click();
+            await page.locator('[data-fighter-confirm]').click();
+            await page.waitForSelector('[data-game-phase="select-stage"]');
+            await page.locator('[data-stage="cancha-56"]').click();
+            await page.locator('[data-stage-confirm]').click();
+            await page.waitForSelector('[data-game-phase="vs"]');
+            await page.waitForSelector('[data-game-phase="fight"]',{timeout:7000});
+            if(await page.locator('.fight-shell').getAttribute('data-stage')!=='cancha-56') throw new Error('stage lost');
+            await page.waitForTimeout(750);
+            if(errors.length) throw new Error(errors.join(' | '));
+            console.log('rebuilt V0.7 844x390 preview smoke PASS');
+            await browser.close();
+          })().catch(e=>{console.error(e);process.exit(1)});
+          NODE
+
+      - name: Runtime reference-raster guard
+        run: |
+          node <<'NODE'
+          const fs=require('fs'),path=require('path');
+          const bad=[];
+          function walk(d){for(const e of fs.readdirSync(d,{withFileTypes:true})){const p=path.join(d,e.name);if(e.isDirectory())walk(p);else if(/\.(ts|js|mjs|css|html)$/.test(p)){const s=fs.readFileSync(p,'utf8');if(/docs\/characters\/.*references|identity-master-reference|action-sheet-reference/i.test(s))bad.push(p)}}}
+          walk('src');
+          if(bad.length){console.error(bad.join('\n'));process.exit(1)}
+          console.log('runtime reference-raster guard PASS');
+          NODE
+
+      - name: Commit rebuilt standalone on CI branch
+        run: |
+          cp play.rebuilt.html play.html
+          if git diff --quiet -- play.html; then
+            echo "play.html already exact"
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add play.html
+          git commit -m "preview: rebuild V0.7 standalone after M3/G2 repair"
+          git push origin HEAD:ci/r005-z1-rebuilt-preview
+
+      - name: Upload rebuilt preview
+        uses: actions/upload-artifact@v4
+        with:
+          name: v07-rebuilt-preview
+          path: play.rebuilt.html

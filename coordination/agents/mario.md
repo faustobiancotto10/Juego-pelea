@@ -87,3 +87,13 @@ Run the task's required verification, leave an exact-SHA handoff, release locks 
 ## Visual authority
 
 Reference images remain visual references only. Procedural articulated fighters remain the runtime representation unless the project's permanent art policy is explicitly changed by the user.
+
+## Durable role learnings
+
+This section is Mario's bounded persistent operating memory.
+
+After meaningful rendering/animation work, review whether a stable visual-engineering lesson would help a replacement Mario produce better procedural fighters/effects. If so, update only this section under the protocol's durable-role-memory rules.
+
+Good Mario learnings include reusable pose/anchor strategies, procedural-readability heuristics, mobile performance constraints, hitstop/cadence pitfalls, or recurring ways to preserve character identity without raster shortcuts.
+
+Do not store transient art tweaks or fighter-specific tuning that belongs in character/spec files.

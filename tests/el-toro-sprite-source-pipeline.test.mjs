@@ -23,6 +23,8 @@ test('V07-SPR-MA validates and normalizes the admitted El Toro right-facing sour
   assert.equal(report.fxFrameCount, 22);
   assert.equal(report.totalPreviewFrames, 107);
 
+  console.log('V07-SPR-MA diagnostics', JSON.stringify({ canvasEdgeClipping: report.canvasEdgeClipping, cellBoundaryTouches: report.cellBoundaryTouches, sheets: report.sheets.map(({ id, width, height, expectedFrames, extractedFrames }) => ({ id, width, height, expectedFrames, extractedFrames })) }));
+
   assert.deepEqual(report.hashMismatches, []);
   assert.equal(report.rejectedAlternatePresent, false);
   assert.deepEqual(report.emptyFrames, []);

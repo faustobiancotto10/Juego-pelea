@@ -93,6 +93,19 @@ export const LOCOMOTION_STYLES: Readonly<Record<string, LocomotionStyle>> = Obje
     freeArmSwingAmplitude: 12,
     weightTransferScale: 8,
   }),
+  'el-toro': Object.freeze({
+    stride: 48,
+    backStrideMultiplier: 0.76,
+    stanceFraction: 0.68,
+    swingFootLift: 4.8,
+    pelvisBobAmplitude: 0.85,
+    forwardTorsoLean: 0.048,
+    backwardTorsoLean: -0.038,
+    hipCounterRotationAmplitude: 0.022,
+    chestCounterRotationAmplitude: 0.032,
+    freeArmSwingAmplitude: 8,
+    weightTransferScale: 10,
+  }),
 });
 
 export function getLocomotionStyle(fighterId: string): LocomotionStyle {

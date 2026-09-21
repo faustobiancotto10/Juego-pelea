@@ -91,8 +91,8 @@ export function drawSupernariz(
   ellipse(ctx, 0, f.y, 46, 10, '#05070a');
   ctx.restore();
 
-  const hipY = -72 + bodyDrop;
-  const shoulderY = -151 - (body.torsoLength - 1) * 46 + bodyDrop * 0.45 + idle;
+  const hipY = -76 + bodyDrop;
+  const shoulderY = -160 - (body.torsoLength - 1) * 50 + bodyDrop * 0.45 + idle;
   const hipSpan = 12 * body.hipWidth * stance.width;
   const jumpTuck = locomotion.tuck * 25 + locomotion.descentBrace * 10;
   const backFootX = locomotion.backFoot.x;
@@ -111,16 +111,16 @@ export function drawSupernariz(
   ctx.strokeStyle = '#56131a';
   ctx.lineWidth = 2;
   ctx.beginPath();
-  ctx.moveTo(-18, shoulderY + 5);
+  ctx.moveTo(-23, shoulderY + 3);
   ctx.bezierCurveTo(
-    -52 - Math.abs(f.vx) * 2 - inhaleBrace * 24 - freeArmSwing * 0.22,
-    shoulderY + 18 - inhaleBrace * 10 - weightShift * 0.18,
-    -65 - Math.sin(time * 3) * 10 - inhaleBrace * 34 + nazazoDrive * 16 - freeArmSwing * 0.48,
-    -62 + bodyDrop * 0.4 - inhaleBrace * 12 - weightShift * 0.30,
-    -35 - inhaleBrace * 18 + nazazoDrive * 12 - freeArmSwing * 0.20,
-    -34 + bodyDrop * 0.5,
+    -75 - Math.abs(f.vx) * 2.3 - inhaleBrace * 28 - freeArmSwing * 0.26,
+    shoulderY + 19 - inhaleBrace * 12 - weightShift * 0.20,
+    -104 - Math.sin(time * 3) * 12 - inhaleBrace * 42 + nazazoDrive * 19 - freeArmSwing * 0.58,
+    -54 + bodyDrop * 0.4 - inhaleBrace * 14 - weightShift * 0.34,
+    -67 - inhaleBrace * 22 + nazazoDrive * 15 - freeArmSwing * 0.25,
+    -18 + bodyDrop * 0.5,
   );
-  ctx.lineTo(-8, -72 + bodyDrop * 0.45);
+  ctx.lineTo(-10, -76 + bodyDrop * 0.45);
   ctx.closePath();
   ctx.fill();
   ctx.stroke();
@@ -159,8 +159,19 @@ export function drawSupernariz(
   roundedLine(ctx, backFootX - 8, backFootY + 1, backFootX + 12, backFootY + 1, 2.5, '#4d151a');
   roundedLine(ctx, frontFootX - 8, frontFootY + 1, frontFootX + 13, frontFootY + 1, 2.5, '#4d151a');
 
+  // Broad shoulders taper into a narrow superhero waist before costume surface detail.
+  polygon(ctx, [
+    [-36 * body.shoulderWidth, shoulderY + 7],
+    [36 * body.shoulderWidth, shoulderY + 7],
+    [27 * body.torsoWidth, -96 + bodyDrop * 0.61],
+    [17 * body.torsoWidth, -70 + bodyDrop * 0.65],
+    [-17 * body.torsoWidth, -70 + bodyDrop * 0.65],
+    [-27 * body.torsoWidth, -96 + bodyDrop * 0.61],
+  ], '#244f9e');
+  roundedLine(ctx, -33 * body.shoulderWidth, shoulderY + 10, 33 * body.shoulderWidth, shoulderY + 10, 5, '#17386f');
+
   // Slim textured superhero suit from the supplied master.
-  drawShadedEllipse(ctx, 0, -112 + bodyDrop * 0.62, 29 * body.torsoWidth, (55 - crouch * 8) * body.torsoLength, '#2d61bd', '#5e91e5', '#17356b', -0.03, '#16376f', 3);
+  drawShadedEllipse(ctx, 0, -116 + bodyDrop * 0.62, 26 * body.torsoWidth, (60 - crouch * 8) * body.torsoLength, '#2d61bd', '#5e91e5', '#17356b', -0.03, '#16376f', 3);
   drawFabricGrain(ctx, 0, -112 + bodyDrop * 0.62, 52 * body.torsoWidth, 98 * body.torsoLength, '#8fb1ef', 0.10, 9);
   drawClothFold(ctx, -13, -139 + bodyDrop * 0.6, -18, -112 + bodyDrop * 0.62, -11, -80 + bodyDrop * 0.64, '#87acf0', '#0f2c61', 0.24);
   drawClothFold(ctx, 17, -135 + bodyDrop * 0.6, 10, -110 + bodyDrop * 0.62, 16, -82 + bodyDrop * 0.64, '#7ba4ea', '#102e64', 0.22);
@@ -209,7 +220,7 @@ export function drawSupernariz(
 
   // Arms. Throwing arm swings forward for the chorizo special.
   const frontHandX =
-    30
+    38
     + throwPose * 38
     + tramontana * 24
     + lowNose * 22
@@ -226,10 +237,10 @@ export function drawSupernariz(
     - inhaleBrace * 24
     - nazazoDrive * 12
     - block * 26;
-  const shoulderSpan = 17 * body.shoulderWidth;
+  const shoulderSpan = 23 * body.shoulderWidth;
   roundedLine(ctx, shoulderSpan, shoulderY + 3, frontHandX, frontHandY, 13 * body.armThickness, '#2e65c3');
   ellipse(ctx, frontHandX + 2, frontHandY, 8, 8, '#a92d37');
-  const rearHandX = -30 + block * 23 - freeArmSwing * 0.42;
+  const rearHandX = -38 + block * 25 - freeArmSwing * 0.42;
   const rearHandY = shoulderY + 26 - block * 30 + Math.abs(freeArmSwing) * 0.08;
   roundedLine(ctx, -shoulderSpan, shoulderY + 6, rearHandX, rearHandY, 13 * body.armThickness, '#285aa9');
   ellipse(ctx, rearHandX - 1, rearHandY, 8, 8, '#a52b35');
@@ -243,13 +254,13 @@ export function drawSupernariz(
     + chestTwist * 44
     + weightShift * 0.18;
   const headY =
-    -205
+    -222
     + bodyDrop * 0.42
     + idle
     - motion.ascent * 5
     + motion.apex * 3
     + motion.descent * 7;
-  drawShadedEllipse(ctx, headX, headY, 36 * body.headWidth, 39 * body.headHeight, '#d4a07f', '#efbf9c', '#925f49', -0.03, '#694435', 2.4);
+  drawShadedEllipse(ctx, headX, headY, 42 * body.headWidth, 46 * body.headHeight, '#d4a07f', '#efbf9c', '#925f49', -0.03, '#694435', 2.7);
   drawFacePlanes(ctx, headX, headY, body.headWidth, '#ffd6b7', '#815040');
   ellipse(ctx, headX - 29 * body.headWidth, headY + 1, 5.2, 8, '#c58d6e', -0.08, '#70483a', 1);
   ctx.save();
@@ -280,8 +291,8 @@ export function drawSupernariz(
 
   // The nose is an articulated tapered vector path; combo moves change its length and arc.
   const noseLength = lerp(
-    52,
-    f.moveId === 'nose3' ? 148 : f.moveId === 'airNose' ? 134 : f.moveId === 'noseLow' ? 114 : 124,
+    76,
+    f.moveId === 'nose3' ? 166 : f.moveId === 'airNose' ? 150 : f.moveId === 'noseLow' ? 130 : 142,
     Math.max(nose, lowNose),
   ) + nazazoDrive * 24 - inhaleBrace * 8;
   const noseLift =
@@ -311,12 +322,12 @@ export function drawSupernariz(
     headY + 4 + noseLift,
   );
   ctx.bezierCurveTo(
-    headX + noseLength + 9,
+    headX + noseLength + 13,
     headY + 9 + noseLift,
-    headX + noseLength + 2,
-    headY + 19 + noseLift,
-    headX + noseLength - 9,
-    headY + 18 + noseLift,
+    headX + noseLength + 5,
+    headY + 23 + noseLift,
+    headX + noseLength - 11,
+    headY + 21 + noseLift,
   );
   ctx.bezierCurveTo(
     headX + noseLength * 0.58,
@@ -329,7 +340,7 @@ export function drawSupernariz(
   ctx.closePath();
   ctx.fill();
   ctx.stroke();
-  ellipse(ctx, headX + noseLength - 1, headY + 10 + noseLift, 10.5, 9.5, '#bd775c', -0.05, '#754635', 1.2);
+  ellipse(ctx, headX + noseLength - 1, headY + 12 + noseLift, 14, 12, '#bd775c', -0.05, '#754635', 1.3);
   ellipse(ctx, headX + noseLength + 2, headY + 10 + noseLift, 2.3, 1.8, '#5f3a31');
   ctx.globalAlpha = 0.32;
   ellipse(ctx, headX + noseLength - 5, headY + 5 + noseLift, 4.5, 2.4, '#f2b294');

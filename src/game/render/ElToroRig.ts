@@ -1,0 +1,327 @@
+import type { FighterSnapshot } from '../types.js';
+import type { LocomotionPose, Point2 } from './LocomotionPose.js';
+import {
+  drawFacingReadableText,
+  sampleBaseRigAnchors,
+  solveTwoBoneLeg,
+  type RigAnchors,
+} from './RigAnchors.js';
+import { GROUND_Y, clamp01, ellipse, lerp, pulse, roundedLine } from './drawUtils.js';
+
+interface ToroPose {
+  lean: number;
+  drop: number;
+  frontHand: Point2;
+  backHand: Point2;
+  frontFoot: Point2;
+  backFoot: Point2;
+  jab: number;
+  shoulder: number;
+  low: number;
+  air: number;
+  topete: number;
+  shawarmaThrow: number;
+  eructoCharge: number;
+  eructoRelease: number;
+}
+
+function movePulse(fighter: FighterSnapshot, id: string, start: number, peak: number, end: number): number {
+  return fighter.moveId === id ? pulse(fighter.moveFrame, start, peak, end) : 0;
+}
+
+function computeToroPose(fighter: FighterSnapshot, locomotion: LocomotionPose): ToroPose {
+  const jab = movePulse(fighter, 'toroJab', 1, 7, 18);
+  const shoulder = movePulse(fighter, 'toroShoulder', 1, 9, 24);
+  const low = movePulse(fighter, 'toroLow', 1, 9, 24);
+  const air = movePulse(fighter, 'toroAir', 1, 8, 22);
+  const topete = movePulse(fighter, 'topete', 1, 13, 34);
+  const shawarmaThrow = movePulse(fighter, 'shawarmazoThrow', 1, 13, 34);
+
+  let eructoCharge = 0;
+  let eructoRelease = 0;
+  if (fighter.moveId === 'superEructo' || fighter.ultimatePhase !== 'idle') {
+    if (fighter.ultimatePhase === 'startup') {
+      eructoCharge = clamp01(fighter.ultimatePhaseFrame / 26);
+    } else if (fighter.ultimatePhase === 'sequence') {
+      eructoCharge = Math.max(0.18, 1 - fighter.ultimatePhaseFrame / 18);
+      eructoRelease = clamp01(fighter.ultimatePhaseFrame / 5);
+    } else if (fighter.ultimatePhase === 'recovery') {
+      eructoRelease = Math.max(0, 1 - fighter.ultimatePhaseFrame / 16);
+    }
+  }
+
+  const baseFront = { x: 34, y: 106 };
+  const baseBack = { x: -30, y: 104 };
+  const frontHand = {
+    x: baseFront.x
+      + jab * 52
+      + shoulder * 42
+      + low * 35
+      + topete * 30
+      + shawarmaThrow * 54
+      + eructoRelease * 18,
+    y: baseFront.y
+      + jab * 3
+      + shoulder * 3
+      - low * 42
+      - topete * 10
+      + shawarmaThrow * 30
+      + eructoCharge * 18,
+  };
+  const backHand = {
+    x: baseBack.x
+      + shoulder * 28
+      + topete * 46
+      + shawarmaThrow * 38
+      + eructoCharge * 32,
+    y: baseBack.y
+      + shoulder * 4
+      - low * 10
+      - topete * 8
+      + shawarmaThrow * 18
+      + eructoCharge * 24,
+  };
+
+  const airLift = locomotion.tuck * 25 + locomotion.descentBrace * 8;
+  const frontFoot = {
+    x: locomotion.frontFoot.x + low * 48 + air * 34,
+    y: locomotion.frontFoot.y + airLift + air * 19,
+  };
+  const backFoot = {
+    x: locomotion.backFoot.x - low * 8 - air * 14,
+    y: locomotion.backFoot.y + airLift + air * 10,
+  };
+
+  return {
+    lean:
+      locomotion.torsoLean
+      + locomotion.chestCounterRotation
+      + jab * 0.055
+      + shoulder * 0.13
+      + low * 0.07
+      + topete * 0.24
+      + shawarmaThrow * 0.1
+      - eructoCharge * 0.08
+      + eructoRelease * 0.1
+      - (fighter.stunFrames > 0 ? 0.12 : 0)
+      - (fighter.health <= 0 ? 0.95 : 0),
+    drop:
+      locomotion.pelvisDrop
+      + (fighter.crouching ? 27 : 0)
+      + low * 21
+      + topete * 20
+      + eructoCharge * 7
+      + (fighter.health <= 0 ? 40 : 0),
+    frontHand,
+    backHand,
+    frontFoot,
+    backFoot,
+    jab,
+    shoulder,
+    low,
+    air,
+    topete,
+    shawarmaThrow,
+    eructoCharge,
+    eructoRelease,
+  };
+}
+
+export function sampleElToroAnchors(
+  fighter: FighterSnapshot,
+  locomotion: LocomotionPose,
+): RigAnchors {
+  const pose = computeToroPose(fighter, locomotion);
+  const base = sampleBaseRigAnchors('el-toro', locomotion);
+  return {
+    ...base,
+    head: { x: 5 + pose.shoulder * 7 + pose.topete * 10, y: 174 - pose.drop * 0.32 },
+    chest: { x: pose.shoulder * 7 + pose.topete * 12, y: 114 - pose.drop * 0.54 },
+    frontHand: pose.frontHand,
+    backHand: pose.backHand,
+    belt: { x: 0, y: 66 - pose.drop * 0.8 },
+    frontFoot: pose.frontFoot,
+    backFoot: pose.backFoot,
+  };
+}
+
+function drawShawarmaProp(
+  ctx: CanvasRenderingContext2D,
+  x: number,
+  y: number,
+  angle = 0,
+): void {
+  ctx.save();
+  ctx.translate(x, y);
+  ctx.rotate(angle);
+  ctx.fillStyle = '#d8a45f';
+  ctx.strokeStyle = '#5f3c24';
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.moveTo(-13, -9);
+  ctx.lineTo(14, -7);
+  ctx.lineTo(10, 10);
+  ctx.lineTo(-11, 9);
+  ctx.closePath();
+  ctx.fill();
+  ctx.stroke();
+  roundedLine(ctx, -7, -3, 8, 2, 3, '#7e3b2c');
+  roundedLine(ctx, -5, 3, 7, 5, 2, '#5c9a45');
+  ctx.restore();
+}
+
+export function drawElToro(
+  ctx: CanvasRenderingContext2D,
+  fighter: FighterSnapshot,
+  locomotion: LocomotionPose,
+  combatTimeSeconds: number,
+): void {
+  const feetY = GROUND_Y - fighter.y;
+  const pose = computeToroPose(fighter, locomotion);
+  const anchors = sampleElToroAnchors(fighter, locomotion);
+  const idle = Math.sin(combatTimeSeconds * 3.8 + fighter.x * 0.003) * 0.8;
+
+  ctx.save();
+  ctx.translate(fighter.x, feetY);
+  ctx.scale(fighter.facing, 1);
+  ctx.rotate(pose.lean);
+
+  ctx.save();
+  ctx.rotate(-pose.lean);
+  ctx.globalAlpha = 0.25 * (1 - Math.min(0.7, fighter.y / 260));
+  ellipse(ctx, 0, fighter.y, 56, 11, '#030407');
+  ctx.restore();
+
+  const hipTwist = locomotion.hipCounterRotation * 36;
+  const chestTwist = locomotion.chestCounterRotation * 34;
+  const frontHip: Point2 = { x: 16 + hipTwist, y: 67 - pose.drop };
+  const backHip: Point2 = { x: -16 - hipTwist, y: 67 - pose.drop };
+  const frontKnee = solveTwoBoneLeg(frontHip, pose.frontFoot, 39, 42, 1);
+  const backKnee = solveTwoBoneLeg(backHip, pose.backFoot, 39, 42, -1);
+
+  // Loose black cargo pants: broad thighs and oversized pockets sell the heavy silhouette.
+  roundedLine(ctx, frontHip.x, -frontHip.y, frontKnee.x, -frontKnee.y, 27, '#16191d');
+  roundedLine(ctx, frontKnee.x, -frontKnee.y, pose.frontFoot.x, -pose.frontFoot.y, 22, '#101317');
+  roundedLine(ctx, backHip.x, -backHip.y, backKnee.x, -backKnee.y, 27, '#121519');
+  roundedLine(ctx, backKnee.x, -backKnee.y, pose.backFoot.x, -pose.backFoot.y, 22, '#0c0f13');
+  ctx.fillStyle = '#252a30';
+  ctx.fillRect(frontKnee.x - 14, -frontKnee.y - 10, 19, 15);
+  ctx.fillRect(backKnee.x - 6, -backKnee.y - 10, 19, 15);
+
+  // Black/white sneakers with blue trim.
+  ellipse(ctx, pose.frontFoot.x + 6, -pose.frontFoot.y + 1, 21, 8, '#f2f3f4', 0.03, '#090b0d', 2);
+  roundedLine(ctx, pose.frontFoot.x - 8, -pose.frontFoot.y - 2, pose.frontFoot.x + 13, -pose.frontFoot.y - 1, 2.3, '#377bc9');
+  ellipse(ctx, pose.backFoot.x + 6, -pose.backFoot.y + 1, 21, 8, '#eceeef', 0.03, '#090b0d', 2);
+  roundedLine(ctx, pose.backFoot.x - 8, -pose.backFoot.y - 2, pose.backFoot.x + 13, -pose.backFoot.y - 1, 2.3, '#2f69ad');
+
+  const torsoY = -115 + pose.drop * 0.56 + idle;
+  const torsoX = chestTwist + pose.topete * 4;
+
+  // Oversized white shirt; text is drawn facing-readable below.
+  ctx.save();
+  ctx.translate(torsoX, 0);
+  ctx.fillStyle = '#f0efe8';
+  ctx.strokeStyle = '#2a2d31';
+  ctx.lineWidth = 3;
+  ctx.beginPath();
+  ctx.moveTo(-43, torsoY - 36);
+  ctx.quadraticCurveTo(-57, torsoY - 18, -49, torsoY + 40);
+  ctx.quadraticCurveTo(0, torsoY + 51, 52, torsoY + 38);
+  ctx.quadraticCurveTo(58, torsoY - 18, 42, torsoY - 37);
+  ctx.quadraticCurveTo(0, torsoY - 53, -43, torsoY - 36);
+  ctx.closePath();
+  ctx.fill();
+  ctx.stroke();
+  ctx.restore();
+
+  // Scotland scarf: blue/white bands and two loose tails with secondary sway.
+  const scarfSway = Math.sin(combatTimeSeconds * 5.2) * 4 + locomotion.actualTravel * 0.22;
+  ctx.save();
+  ctx.translate(torsoX, 0);
+  roundedLine(ctx, -25, torsoY - 35, 29, torsoY - 33, 11, '#2d67ad');
+  roundedLine(ctx, -22, torsoY - 35, 26, torsoY - 33, 3, '#f5f7f8');
+  roundedLine(ctx, -18, torsoY - 28, -31 - scarfSway, torsoY + 29, 10, '#2d67ad');
+  roundedLine(ctx, -18, torsoY - 18, -31 - scarfSway, torsoY + 23, 2.5, '#f5f7f8');
+  ctx.restore();
+
+  ctx.save();
+  ctx.fillStyle = '#101317';
+  ctx.font = '900 12px system-ui, sans-serif';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  drawFacingReadableText(ctx, fighter.facing, torsoX + 4, torsoY + 2, 'TE VOY A CHOCAR');
+  ctx.restore();
+
+  // Small Springboks/South Africa cue plus shawarma waist charm.
+  ellipse(ctx, torsoX + 30, torsoY + 22, 8, 5, '#17764a', -0.12, '#d9b64b', 1.2);
+  drawShawarmaProp(ctx, anchors.belt.x - 17, -anchors.belt.y + 5, -0.25);
+
+  const shoulderY = torsoY - 23;
+  const frontElbow = {
+    x: lerp(torsoX + 30, pose.frontHand.x, 0.52),
+    y: lerp(126 - pose.drop * 0.45, pose.frontHand.y, 0.52),
+  };
+  const backElbow = {
+    x: lerp(torsoX - 30, pose.backHand.x, 0.52),
+    y: lerp(124 - pose.drop * 0.45, pose.backHand.y, 0.52),
+  };
+  roundedLine(ctx, torsoX + 32, shoulderY, frontElbow.x, -frontElbow.y, 20, '#eeeDE7');
+  roundedLine(ctx, frontElbow.x, -frontElbow.y, pose.frontHand.x, -pose.frontHand.y, 15, '#bf805f');
+  roundedLine(ctx, torsoX - 32, shoulderY + 2, backElbow.x, -backElbow.y, 20, '#e7e6df');
+  roundedLine(ctx, backElbow.x, -backElbow.y, pose.backHand.x, -pose.backHand.y, 15, '#b97858');
+
+  // Blue hand/wrist wraps.
+  roundedLine(ctx, pose.frontHand.x - 6, -pose.frontHand.y, pose.frontHand.x + 4, -pose.frontHand.y, 10, '#2f74c7');
+  roundedLine(ctx, pose.backHand.x - 6, -pose.backHand.y, pose.backHand.x + 4, -pose.backHand.y, 10, '#285f9f');
+  ellipse(ctx, pose.frontHand.x + 6, -pose.frontHand.y, 8, 7, '#c88b67');
+  ellipse(ctx, pose.backHand.x + 6, -pose.backHand.y, 8, 7, '#c08160');
+
+  const headX = anchors.head.x + torsoX * 0.14;
+  const headY = -anchors.head.y + idle;
+  ellipse(ctx, headX, headY, 37, 40, '#c88a66', -0.02, '#57382c', 2.4);
+
+  // Shaggy dark-brown hair.
+  ctx.save();
+  ctx.fillStyle = '#2b211d';
+  const locks: readonly [number, number, number][] = [
+    [-29,-31,10],[-17,-42,11],[-3,-46,12],[12,-44,12],[27,-35,11],
+    [-32,-20,9],[-18,-27,10],[-2,-31,11],[14,-29,10],[31,-22,9],
+  ];
+  for (const [dx,dy,r] of locks) {
+    ctx.beginPath();
+    ctx.arc(headX + dx, headY + dy, r, 0, Math.PI * 2);
+    ctx.fill();
+  }
+  ctx.restore();
+  roundedLine(ctx, headX + 4, headY - 7, headX + 19, headY - 8, 3, '#4a3027');
+  ellipse(ctx, headX + 16, headY - 1, 2.6, 2.2, '#0b0d10');
+
+  if (pose.eructoCharge > 0.05 || pose.eructoRelease > 0.05) {
+    const open = Math.max(pose.eructoCharge * 0.65, pose.eructoRelease);
+    ellipse(ctx, headX + 22, headY + 18, 7 + open * 3, 5 + open * 5, '#4c1917', 0.04, '#1a0909', 1.5);
+    ctx.save();
+    ctx.globalAlpha = 0.16 + open * 0.2;
+    ellipse(ctx, headX + 31, headY + 17, 13 + open * 8, 7 + open * 4, '#86c95b');
+    ctx.restore();
+  } else {
+    roundedLine(ctx, headX + 8, headY + 21, headX + 23, headY + 21, 2.5, '#5a302b');
+  }
+
+  // During the throw, the authored shawarma is visibly in the hand before simulation spawns the projectile.
+  if (fighter.moveId === 'shawarmazoThrow' && fighter.moveFrame <= 13) {
+    drawShawarmaProp(ctx, pose.frontHand.x + 4, -pose.frontHand.y - 5, -0.25 + pose.shawarmaThrow * 0.7);
+  }
+
+  if (fighter.blocking) {
+    ctx.save();
+    ctx.globalAlpha = 0.28;
+    ctx.strokeStyle = '#8fc0ff';
+    ctx.lineWidth = 4;
+    ctx.beginPath();
+    ctx.arc(18, torsoY - 2, 54, -1.08, 1.05);
+    ctx.stroke();
+    ctx.restore();
+  }
+
+  ctx.restore();
+}

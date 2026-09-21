@@ -6,6 +6,14 @@ export type AttackLevel = 'mid' | 'low' | 'overhead';
 export type MoveCategory = 'normal' | 'special' | 'projectile' | 'ultimate';
 export type BindingRole = 'standing' | 'low' | 'chain' | 'air' | 'rangedSpecial' | 'closeSpecial' | 'ultimate';
 
+export interface MoveMovementDefinition {
+  start: number;
+  end: number;
+  speed: number;
+  kind: 'forward';
+  stopAtWall: true;
+}
+
 export interface HitboxSpec {
   start: number;
   end: number;
@@ -22,11 +30,11 @@ export interface HitboxSpec {
   level: AttackLevel;
   strong: boolean;
   guardDamage: number;
+  blockKnockback?: number;
 }
 
 export interface MoveHitWindow extends HitboxSpec {
   hitId: string;
-  blockKnockback?: number;
 }
 
 export interface MoveDefinition {
@@ -34,6 +42,7 @@ export interface MoveDefinition {
   category: MoveCategory;
   bindingRole: BindingRole;
   totalFrames: number;
+  movement?: MoveMovementDefinition;
   hitbox?: HitboxSpec;
   hits?: readonly MoveHitWindow[];
   cancelStart?: number;

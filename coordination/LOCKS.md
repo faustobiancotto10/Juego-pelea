@@ -2,8 +2,6 @@
 
 | Path / subsystem | Owner | Task | Reason |
 | --- | --- | --- | --- |
-| `src/game/render/ChameleonRig.ts` | Mario-C | V07-M3C | Targeted secondary-motion wiring from existing locomotion signals. |
-| `src/game/render/SupernarizRig.ts` | Mario-C | V07-M3C | Targeted secondary-motion wiring from existing locomotion signals. |
 | `src/game/render/ElToroRig.ts` | Mario-B | V07-M3B | Fighter-specific El Toro reference-fidelity reconstruction. |
 | `src/game/render/JuanchiRig.ts` | Mario-B | V07-M3B | Fighter-specific Juanchi reference-fidelity reconstruction. |
 

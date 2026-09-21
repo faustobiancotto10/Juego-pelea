@@ -266,11 +266,11 @@ export function sampleJuanchiAnchors(
   const base = sampleBaseRigAnchors('juanchi', locomotion);
   return {
     ...base,
-    head: { x: 3 + action.shoulderDrive * 8 + action.finisher * 10, y: 181 - action.drop * 0.34 },
-    chest: { x: action.shoulderDrive * 8 + action.finisher * 7, y: 126 - action.drop * 0.55 },
+    head: { x: 3 + action.shoulderDrive * 8 + action.finisher * 10, y: 207 - action.drop * 0.34 },
+    chest: { x: action.shoulderDrive * 8 + action.finisher * 7, y: 146 - action.drop * 0.55 },
     frontHand: action.frontHand,
     backHand: action.backHand,
-    belt: { x: -17, y: 72 - action.drop * 0.82 },
+    belt: { x: -17, y: 82 - action.drop * 0.82 },
     frontFoot: action.frontFoot,
     backFoot: action.backFoot,
   };
@@ -408,8 +408,8 @@ export function drawJuanchi(
 
   const hipTwist = locomotion.hipCounterRotation * 42;
   const hipSpan = 12.5 * body.hipWidth * stance.width;
-  const frontHip: Point2 = { x: hipSpan + hipTwist, y: 72 - action.drop };
-  const backHip: Point2 = { x: -hipSpan - hipTwist, y: 72 - action.drop };
+  const frontHip: Point2 = { x: hipSpan + hipTwist, y: 82 - action.drop };
+  const backHip: Point2 = { x: -hipSpan - hipTwist, y: 82 - action.drop };
   const frontKnee = solveTwoBoneLeg(frontHip, action.frontFoot, 39 * body.legLength, 41 * body.legLength, 1);
   const backKnee = solveTwoBoneLeg(backHip, action.backFoot, 39 * body.legLength, 41 * body.legLength, -1);
 
@@ -462,7 +462,7 @@ export function drawJuanchi(
   ctx.rotate(locomotion.chestCounterRotation);
   ctx.translate(0, 94);
 
-  const torsoY = -119 + action.drop * 0.58 + idle;
+  const torsoY = -141 + action.drop * 0.58 + idle;
   // Oversized black shirt silhouette.
   ctx.save();
   ctx.fillStyle = '#101318';
@@ -516,7 +516,7 @@ export function drawJuanchi(
   ctx.stroke();
   ctx.restore();
 
-  const shoulderY = torsoY - 23;
+  const shoulderY = torsoY - 26;
   const frontElbow = {
     x: lerp(21, action.frontHand.x, 0.52),
     y: lerp(128 - action.drop * 0.45, action.frontHand.y, 0.5),

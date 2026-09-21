@@ -1,29 +1,105 @@
 # Current Round
 
-Status: IDLE  
-Round: none  
-Execution mode: none  
-Goal: none
-Planned agents: none
+Status: ACTIVE  
+Round: R005-V07-GAMEPLAY-PRESENTATION-EXPANSION  
+Execution mode: AUTO_CHAIN  
+Goal: fix V0.6's human-reported balance/challenge/presentation problems and expand the roster with El Toro.
 
-Start token: none  
-Completion token: `ROUND_COMPLETE — R004-V06-CONTENT-EXPANSION`
+Planned agents: Neureon, Ricardo, Germinator, Mario, Brancaforte, Gonza
 
-## Last closed round
+Start token: `START_ROUND — AUTO_CHAIN`  
+Issued: 2026-09-20  
+Per-task Neureon gates: disabled  
+Completion token: not issued
 
-`R004-V06-CONTENT-EXPANSION` is archived at:
-- `coordination/archive/R004-V06-CONTENT-EXPANSION.md`
+## Exact frozen base
 
-V0.6 is officially released:
-- product merge `60f30d4a100f3d853e2408e3eee7bbde4e2170fe`
-- Pages publish `93d2fdd6f4b764a49fa70ad1ff6ac1f348fb85cc`
+All R005 feature branches start from:
+`378a991d55bed03e6237a03fdf6dfe96653fae72`
 
-## Current planning state
+This base contains official V0.6 runtime plus the completed V0.7 planning package and El Toro authoring references.
 
-No implementation round is active.
+Branches:
+- Ricardo: `round/r005-ricardo`
+- Germinator: `round/r005-germinator`
+- Mario: `round/r005-mario`
+- Brancaforte: `round/r005-brancaforte`
+- Gonza/integration: `round/r005-integration`
 
-Authoritative next-version inputs:
-- `docs/feedback/2026-09-20-v06-post-release-playtest.md`
+## Frozen V0.7 scope
+
+1. Camaleoni Lengua counterplay correction.
+2. CPU Easy / Normal / Hard, Normal default, no cheating/stat boosts.
+3. Juanchi locomotion repair.
+4. Shared procedural attack/effects quality pass across the roster.
+5. Genuine Juanchi red rage aura.
+6. El Toro as fourth player/CPU fighter:
+   - Topete;
+   - Shawarmazo;
+   - Super Eructo.
+7. Universal Ultimate Clash support for El Toro.
+8. Fighter-select cards with procedural in-game portrait/icon for all four fighters.
+9. Final mobile/device + deterministic build/release parity.
+
+Out of scope:
+- new El Toro stage;
+- online/story/shop/account systems;
+- fifth gameplay action;
+- generic ECS/scripting/animation graph;
+- long-combo redesign;
+- runtime use of uploaded/reference fighter images.
+
+## Authoritative design
+
+- `docs/superpowers/specs/2026-09-20-v07-post-v06-master-audit.md`
+- `docs/superpowers/specs/2026-09-20-v07-lengua-balance-contract.md`
+- `docs/superpowers/specs/2026-09-20-v07-cpu-difficulty-contract.md`
+- `docs/superpowers/specs/2026-09-20-v07-animation-effects-quality-contract.md`
+- `docs/superpowers/specs/2026-09-20-v07-el-toro-character-contract.md`
+- `docs/superpowers/specs/2026-09-20-v07-content-design.md`
+- `docs/superpowers/plans/2026-09-20-v07-implementation-plan.md`
 - `docs/characters/el-toro/PACKAGE.md`
 
-The next requested activity is an external Astra audit/planning pass. That planning work does **not** activate V0.7 or authorize production code.
+## El Toro visual authority
+
+Original source hashes:
+- identity master: `86f2eee15ae055ebe72a4ea2d476e6a5c6bc20fcfe9f6809001621e9a098f8c5`
+- action sheet: `d368d5fde8737cfaa3a8ec1a209114b0666c7806ef2c4e9cfb800ffcf5373393`
+
+Repository authoring copies:
+- `docs/characters/el-toro/references/identity-master-reference.webp`
+- `docs/characters/el-toro/references/action-sheet-reference.webp`
+
+These are authoring-only and prohibited from runtime.
+
+## AUTO_CHAIN — authoritative sequence
+
+**Ricardo → Germinator → Mario + Brancaforte → Gonza**
+
+Immediately eligible:
+- V07-R0 — Ricardo.
+
+Then automatically:
+- Ricardo R0 → R1 → R2 → R3.
+- R3 green unlocks Germinator G1.
+- G1 `APPROVE — PRESENTATION LANE UNLOCKED` unlocks Mario M1→M2 and Brancaforte B1 in parallel.
+- G1 + M2 + B1 green unlock Gonza Z0.
+- Z0 green unlocks Gonza Z1.
+
+No PRESENT/check-in and no Neureon stage token is required on the normal path.
+
+## Deviation rule
+
+If an agent discovers:
+- reproducible blocker/regression;
+- frozen-contract contradiction;
+- missing authoritative input;
+- required scope/interface change outside its written task;
+
+it stops affected dependents, records the finding, marks BLOCKED and tells the user. The user decides whether Neureon audits/replans.
+
+Local bugs inside the authorized contract are repaired by the owner without ceremonial escalation.
+
+## Completion
+
+Only after Z1 publication/parity evidence does Neureon archive R005 and issue ROUND_COMPLETE.

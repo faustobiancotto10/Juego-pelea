@@ -79,9 +79,17 @@ Final exact-SHA verification:
 - diff from M1 contains only render-layer files plus M2 render tests.
 
 Phone-landscape visual evidence:
-- 844×390 evidence run #1101 verified the four procedural portraits and in-fight El Toro presentation surfaces;
-- 844×390 visual harness run #1108 verified the four portrait identities and Topete / Shawarmazo / Super Eructo procedural effect primitives;
-- final post-visual repairs only changed authoritative contact dispatch/profile resolution; final run #1113 proves those repairs green without changing rig/portrait artwork.
+- definitive evidence-only branch starts from exact green product SHA `a47326093ae004c602e00112ac2ed2226cf738c8`;
+- PR #35 / repository verification run #1120: PASS after full suite + build;
+- artifact `v07-m2-final-phone-evidence` at 844×390 contains:
+  - all four procedural portrait identities;
+  - El Toro integrated Topete pose/drive + turf contact presentation;
+  - Shawarmazo throw with visible procedural shawarma/debris;
+  - Super Eructo forward green blast;
+  - neutral El Toro heavy rig;
+  - deferred Juanchi forward gait, backwalk and red rage-aura visual proof;
+- the evidence branch adds only QA harness/workflow capture files and is not a product integration candidate;
+- earlier #1101/#1108 artifacts were exploratory and are superseded by #1120.
 
 ## Known risks
 

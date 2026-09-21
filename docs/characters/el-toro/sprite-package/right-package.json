@@ -213,12 +213,44 @@
     },
     "moveRoleToSemantic": {
       "standing": "basic-attack",
+      "chain": "topete",
       "low": "low-attack",
+      "air": "jump",
       "closeSpecial": "topete",
       "rangedSpecial": "shawarmazo",
       "ultimate": "super-eructo"
     },
     "moveKeyPolicy": "derive-from-fighter-kit-at-integration",
-    "ultimatePhasePolicy": "derive-from-fighter-kit-ultimate-at-integration"
+    "ultimatePhasePolicy": "derive-from-fighter-kit-ultimate-at-integration",
+    "pilotAliases": {
+      "chain": {
+        "semanticKey": "topete",
+        "rationale": "procedural toroShoulder is a shoulder/lean body drive closest to IMG-10 Topete body language",
+        "requiresGameplayScaleReview": true
+      },
+      "air": {
+        "semanticKey": "jump",
+        "rationale": "procedural toroAir is primarily an airborne leg/posture variation closest to IMG-05 Jump",
+        "requiresGameplayScaleReview": true
+      }
+    },
+    "ultimatePhaseWindows": {
+      "startup": {
+        "semanticKey": "super-eructo",
+        "firstFrame": 1,
+        "lastFrame": 4
+      },
+      "capture": {
+        "semanticKey": "super-eructo",
+        "firstFrame": 5,
+        "lastFrame": 7
+      },
+      "recovery": {
+        "semanticKey": "super-eructo",
+        "firstFrame": 8,
+        "lastFrame": 10
+      }
+    },
+    "unreachableUltimatePhase": "sequence"
   }
 }

@@ -88,12 +88,12 @@ test('resolver maps ordinary moves and Ultimate phases to explicit keys', () => 
   for (const phase of ['startup', 'capture', 'sequence', 'recovery']) {
     assert.deepEqual(
       resolveSpriteAnimation(fighter({
-        moveId: 'camaleoniUltimate',
+        moveId: 'ultimateCamaleoni',
         moveFrame: 22,
         ultimatePhase: phase,
         ultimatePhaseFrame: 6,
       }), 200),
-      { key: `ultimate:camaleoniUltimate:${phase}`, tick: 6 },
+      { key: `ultimate:ultimateCamaleoni:${phase}`, tick: 6 },
     );
   }
 });

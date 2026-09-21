@@ -58,3 +58,22 @@ Evidence:
 - final diff contains no temporary workflow or feature-branch coordination.
 
 AUTO_CHAIN condition for V07-Z1 is satisfied. Final release verification starts now.
+
+
+## V07-Z0 GREEN — Gonza
+
+Exact clean candidate: `65bbb4122be526b0b878c214137192c7243db3ab`.
+
+Automated evidence is complete:
+- Z0 run `35562321601`: SUCCESS;
+- Repository verification #1137/#1138: SUCCESS;
+- full suite/typecheck/build: PASS;
+- targeted V0.7 suite: PASS;
+- runtime raster prohibition scan: PASS;
+- source fingerprint `5c039c2a...`;
+- standalone SHA-256 `b64b18ed...`;
+- four portraits / four fighters / Easy-Normal-Hard / both stages mobile-browser smoke: PASS.
+
+AUTO_CHAIN advances to V07-Z1.
+
+The V0.7 spec explicitly retains physical phone smoke as a separate human/device release gate. Z1 will publish an isolated exact-candidate preview first; production root remains unchanged until that gate passes.

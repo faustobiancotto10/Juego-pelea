@@ -1,22 +1,34 @@
 # Agent Status
 
 Round: `R005-V07-GAMEPLAY-PRESENTATION-EXPANSION`  
-Global state: ACTIVE  
-Execution: AUTO_CHAIN / MULTI-INSTANCE MARIO SQUAD
+Global state: ACTIVE — SPRITE PILOT EXTENSION  
+Execution: AUTO_CHAIN / SAME-ROLE MARIO SQUAD  
+Canonical continuation pulse: `.`
 
-| Agent / Instance | Role | Tasks | State | Next |
+| Agent / Instance | Role | Active task | State | Next |
 | --- | --- | --- | --- | --- |
-| Neureon | Lead / Coordinator | V07-N0 | VERIFIED | Multi-instance Mario squad authorized and frozen; no per-lane stage gate. |
-| Ricardo | Gameplay Engineer | V07-R0→R1→R2→R3 | VERIFIED | Gameplay/core frozen; available only for requested renderer-facing contract repairs. |
-| Mario | Character / Rendering Engineer | V07-M3A/B/C/D→M3I | HANDOFF_READY | Refreshed squad integration GREEN at `f34760948cb2024c0c83f4a02202117a8ad3bf2f`; G2 independently approved it. |
-| ↳ Mario-A | Temporary lane — Visual Architect / Lead | V07-M3A→M3I | HANDOFF_READY | M3I GREEN at `f34760948cb2024c0c83f4a02202117a8ad3bf2f`; Repository #1326 + Pipeline #54 PASS. |
-| ↳ Mario-B | Temporary lane — El Toro + Juanchi | V07-M3B | HANDOFF_READY | Refreshed structural pass GREEN at `cc75a56a1c56d9c6a988a3144880719a3515c4e9`. |
-| ↳ Mario-C | Temporary lane — Camaleoni + Supernariz | V07-M3C | HANDOFF_READY | Structural pass GREEN at `3131bbef6a517785722d48a255e2d8a0daf10e7b`. |
-| ↳ Mario-D | Temporary lane — Motion / Presentation / FX | V07-M3D | HANDOFF_READY | GREEN at `b6dbe3ecb99d17a302477f3d63440555b5d8c135`. |
-| Germinator | Auditor / QA | V07-G1→G2 | VERIFIED | `APPROVE — CHARACTER PIPELINE REPAIR GREEN`; Repository #1341 + Pipeline #56 green. Available for targeted QA. |
-| Brancaforte | UI / Input / UX Engineer | V07-B1 | VERIFIED | Existing UI lane remains frozen; available only for a real portrait/UI contract blocker. |
-| Gonza | Integration / Release | V07-Z0→Z1 | BLOCKED | rebuilt preview is green; waiting only for user physical-phone acceptance before root promotion | rebuilt preview from f3476094 deployed at /v07-preview/; Pages d7358cd3 / run 35575920696 SUCCESS; root V0.6 preserved |
+| Neureon | Lead / Coordinator | V07-SPR-N0 | VERIFIED | Intake, contract and dependency graph established; remain coordinator. |
+| Mario-A | Sprite source / pipeline lead | V07-SPR-MA | READY | Receive the same `SPRITES TORO.zip`, verify hashes, import accepted source bytes, validate/extract/normalize. |
+| Mario-B | El Toro sprite package | V07-SPR-MB | READY_WITH_INPUT_BLOCKER | Build right-facing package/manifest as interfaces become available; production-complete status waits for authored LEFT-facing set. |
+| Ricardo | Gameplay / runtime engineer | V07-SPR-R1 | READY | Implement generic presentation-only sprite backend without changing combat truth. |
+| Germinator | Independent QA | V07-SPR-G1 | WAITING_DEPENDENCIES | Wait for one integrated El Toro sprite-pilot candidate. |
+| Gonza | Integration / release | V07-SPR-Z0 | WAITING_DEPENDENCIES | Wait for Germinator approval; then publish isolated sprite preview only. |
+| Brancaforte | UI / Input / UX | standby | NOT_REQUIRED | Activate only if a real loading/menu/HUD/input contract changes. |
 
-Active repair order: **Mario squad/M3I → Germinator G2 (VERIFIED) → Gonza rebuilt preview → user phone acceptance → final Z1 production promotion**.
+## Current asset gate
 
-Visual squad base: `032b1bb28c5dd4421e5772cc40ab007f42e4d462`.
+Right-facing El Toro source intake: **CONDITIONALLY ACCEPTED FOR PILOT**.
+
+- accepted: IMG-00, exact 84-body IMG-01..12 set, FX-01..04;
+- rejected/superseded: `13F1BB3E-C57C-4649-B9E7-07664E5E8BE8.PNG`;
+- blocker: authored LEFT-facing IMG-00 + IMG-01..12 because El Toro is not mirror-safe.
+
+Canonical audit: `docs/characters/el-toro/SPRITE_INTAKE_2026-09-21.md`.
+
+## Superseded old preview path
+
+The prior procedural V0.7 preview remains historical green evidence, but its pending physical-phone gate is no longer the active next action. Production-root promotion from that preview is blocked while the user-authorized sprite pilot runs.
+
+Active order:
+
+**Mario-A + Mario-B + Ricardo (parallel) → integrated El Toro sprite pilot → Germinator → Gonza isolated preview → user/device acceptance → production-cutover decision**

@@ -126,3 +126,22 @@ REQUEST -> Ricardo:
 - preserve mirror support only as an explicit opt-in for mirror-safe packages, not as an unconditional renderer transform.
 
 Mario-B will not fabricate a left-facing atlas or mark the package production-complete while this runtime conflict remains.
+
+
+## ANSWER — Ricardo -> Mario-B: facing-aware runtime contract accepted
+
+The conflict is valid. Ricardo will not hand off the current unconditional-mirror implementation.
+
+Frozen runtime amendment for V07-SPR-R1:
+- runtime sprite manifests declare `mirrorSafe: boolean` explicitly; absence is invalid, so mirroring is never an implicit default;
+- `animations` is the authored RIGHT-facing animation map;
+- when `mirrorSafe: false`, the manifest must also provide `leftAnimations` with the same animation-key set;
+- both facing maps reference source rectangles in the same packed runtime atlas for this v1 contract;
+- RIGHT uses `animations` without a flip;
+- LEFT + `mirrorSafe: true` may reuse `animations` with a horizontal canvas flip;
+- LEFT + `mirrorSafe: false` uses `leftAnimations` with no horizontal flip;
+- sprite attachment anchors are normalized back into canonical fighter-local coordinates so backend-neutral prop placement remains correct for authored LEFT frames.
+
+This aligns with Mario-B's existing `mirrorSafe: false` package contract and keeps authored LEFT content as the shipping gate. Ricardo will add RED/GREEN tests for this amendment before publishing the exact runtime SHA.
+
+Current SHA `d9789d3248df0731120ea048f6dc570cf07e41c2` is therefore an intermediate checkpoint, not the integration handoff.

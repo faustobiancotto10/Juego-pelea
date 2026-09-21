@@ -42,3 +42,13 @@ Build the production-intended El Toro sprite package from Mario-A's admitted/nor
 - [ ] Action reads at gameplay scale with generic FX disabled.
 - [ ] Source sheets are not imported directly by runtime.
 - [ ] Identity Learning Receipt recorded.
+
+
+## Active checkpoint — 2026-09-21
+
+- right-facing package contract frozen/tested at `45de7965dd7b55278f8758d44151fc4afbd27f57`
+- PR #52 targets Mario-A integration branch
+- CI run `35666619713`: full suite + build PASS
+- waiting dependency for atlas packing: Mario-A generated normalization manifest / exact-SHA handoff
+- waiting integration interface freeze: Ricardo generic sprite runtime exact-SHA handoff
+- production-complete remains blocked on authored LEFT-facing IMG-00 + IMG-01..12

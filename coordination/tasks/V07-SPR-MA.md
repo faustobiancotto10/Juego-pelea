@@ -2,7 +2,7 @@
 
 Round: R005-V07-GAMEPLAY-PRESENTATION-EXPANSION  
 Owner: Mario-A  
-Status: READY
+Status: HANDOFF_READY
 
 ## Execution branch
 
@@ -58,10 +58,19 @@ Continue from the exact staged El Toro right-facing source bytes in PR #50, inde
 
 ## Acceptance criteria
 
-- [ ] Exactly the accepted right-facing Master + IMG-01..12 + FX-01..04 are committed.
-- [ ] SHA-256 values match the audit before any derived normalization.
-- [ ] Rejected alternate is absent from admitted source paths.
-- [ ] Normalized preview exposes no clipped body/FX frames.
-- [ ] No source/reference sheet is wired directly into runtime.
-- [ ] Exact-SHA handoff to Mario-B and Ricardo.
-- [ ] Identity Learning Receipt recorded.
+- [x] Exactly the accepted right-facing Master + IMG-01..12 + FX-01..04 are committed.
+- [x] SHA-256 values match the audit before any derived normalization.
+- [x] Rejected alternate is absent from admitted source paths.
+- [x] Normalized preview exposes no hard outer-canvas clipping; component-preserving extraction prevents nominal-grid clipping.
+- [x] No source/reference sheet is wired directly into runtime.
+- [x] Exact-SHA handoff to Mario-B and Ricardo: `45cbf8ab88bc654fa7c64c91297496662ef1809c`.
+- [x] Identity Learning Receipt recorded: `PROPOSAL` in `coordination/handoffs/V07-SPR-MA-mario-a.md`.
+
+
+## Completion handoff
+
+- state: `HANDOFF_READY`
+- exact product SHA: `45cbf8ab88bc654fa7c64c91297496662ef1809c`
+- final repository verification: run `35667742014` / #1440 — SUCCESS
+- canonical handoff: `coordination/handoffs/V07-SPR-MA-mario-a.md`
+- downstream: Mario-B + Ricardo may consume the exact contract; later Mario-A integration consumes this exact SHA after the sibling Mario lane is ready.

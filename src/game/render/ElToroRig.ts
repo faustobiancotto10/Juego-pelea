@@ -7,6 +7,13 @@ import {
   type RigAnchors,
 } from './RigAnchors.js';
 import { getCharacterStructure } from './CharacterStructure.js';
+import {
+  drawCargoPocket,
+  drawFabricGrain,
+  drawHairStrands,
+  drawScarfFringe,
+  drawStitchLine,
+} from './ReferenceDetailPrimitives.js';
 import { GROUND_Y, clamp01, ellipse, lerp, pulse, roundedLine } from './drawUtils.js';
 
 interface ToroPose {
@@ -208,9 +215,11 @@ export function drawElToro(
   roundedLine(ctx, frontKnee.x, -frontKnee.y, pose.frontFoot.x, -pose.frontFoot.y, 22 * body.legThickness, '#101317');
   roundedLine(ctx, backHip.x, -backHip.y, backKnee.x, -backKnee.y, 27 * body.legThickness, '#121519');
   roundedLine(ctx, backKnee.x, -backKnee.y, pose.backFoot.x, -pose.backFoot.y, 22 * body.legThickness, '#0c0f13');
-  ctx.fillStyle = '#252a30';
-  ctx.fillRect(frontKnee.x - 14, -frontKnee.y - 10, 19, 15);
-  ctx.fillRect(backKnee.x - 6, -backKnee.y - 10, 19, 15);
+  // Reference cargo silhouette: oversized flap pockets, zips and stitched seams.
+  drawCargoPocket(ctx, frontKnee.x - 4, -frontKnee.y - 5, 24, 19, '#24282e', '#090b0e', '#d5a64d');
+  drawCargoPocket(ctx, backKnee.x + 4, -backKnee.y - 5, 24, 19, '#20242a', '#090b0e', '#c99a43');
+  drawStitchLine(ctx, frontHip.x - 3, -frontHip.y + 2, frontKnee.x - 1, -frontKnee.y + 7, '#5c6269', 0.9, [3, 4], 0.34);
+  drawStitchLine(ctx, backHip.x + 3, -backHip.y + 2, backKnee.x + 1, -backKnee.y + 7, '#555b62', 0.9, [3, 4], 0.32);
 
   // Black/white sneakers with blue trim.
   ellipse(ctx, pose.frontFoot.x + 6, -pose.frontFoot.y + 1, 21, 8, '#f2f3f4', 0.03, '#090b0d', 2);
@@ -237,8 +246,11 @@ export function drawElToro(
   ctx.fill();
   ctx.stroke();
   ctx.restore();
+  drawFabricGrain(ctx, torsoX, torsoY + 1, 98 * body.torsoWidth, 80 * body.torsoLength, '#9d978d', 0.10, 12);
+  drawStitchLine(ctx, torsoX - 31, torsoY - 16, torsoX - 37, torsoY + 31, '#c7c3bb', 1, [5, 4], 0.45);
+  drawStitchLine(ctx, torsoX + 31, torsoY - 16, torsoX + 38, torsoY + 31, '#c7c3bb', 1, [5, 4], 0.45);
 
-  // Scotland scarf: blue/white bands and two loose tails with secondary sway.
+  // Scotland scarf: blue/white saltire bands, fringe and two loose tails with secondary sway.
   const scarfSway = Math.sin(combatTimeSeconds * 5.2) * 4 + locomotion.actualTravel * 0.22;
   ctx.save();
   ctx.translate(torsoX, 0);
@@ -246,6 +258,10 @@ export function drawElToro(
   roundedLine(ctx, -22, torsoY - 35, 26, torsoY - 33, 3, '#f5f7f8');
   roundedLine(ctx, -18, torsoY - 28, -31 - scarfSway, torsoY + 29, 10, '#2d67ad');
   roundedLine(ctx, -18, torsoY - 18, -31 - scarfSway, torsoY + 23, 2.5, '#f5f7f8');
+  // Small crossing white strokes evoke the Saltire at gameplay scale.
+  roundedLine(ctx, -27, torsoY + 2, -17, torsoY + 14, 2.3, '#f5f7f8');
+  roundedLine(ctx, -18, torsoY + 2, -28, torsoY + 14, 2.3, '#f5f7f8');
+  drawScarfFringe(ctx, -37 - scarfSway, torsoY + 28, -1, '#f5f7f8');
   ctx.restore();
 
   ctx.save();
@@ -256,9 +272,20 @@ export function drawElToro(
   drawFacingReadableText(ctx, fighter.facing, torsoX + 4, torsoY + 2, 'TE VOY A CHOCAR');
   ctx.restore();
 
-  // Small Springboks/South Africa cue plus shawarma waist charm.
+  // South Africa belt band, Springbok cue, hanging tag and shawarma waist charm.
+  roundedLine(ctx, -27, -anchors.belt.y + 1, 29, -anchors.belt.y + 1, 7, '#176b42');
+  roundedLine(ctx, -18, -anchors.belt.y + 1, -3, -anchors.belt.y + 1, 2.4, '#f1c84b');
+  roundedLine(ctx, 3, -anchors.belt.y + 1, 19, -anchors.belt.y + 1, 2.4, '#c8443c');
   ellipse(ctx, torsoX + 30, torsoY + 22, 8, 5, '#17764a', -0.12, '#d9b64b', 1.2);
-  drawShawarmaProp(ctx, anchors.belt.x - 17, -anchors.belt.y + 5, -0.25);
+  roundedLine(ctx, anchors.belt.x - 4, -anchors.belt.y + 5, anchors.belt.x - 4, -anchors.belt.y + 20, 1.6, '#c6c9cc');
+  ctx.save();
+  ctx.fillStyle = '#2a8a59';
+  ctx.strokeStyle = '#d7bf58';
+  ctx.lineWidth = 1.2;
+  ctx.fillRect(anchors.belt.x - 10, -anchors.belt.y + 18, 12, 14);
+  ctx.strokeRect(anchors.belt.x - 10, -anchors.belt.y + 18, 12, 14);
+  ctx.restore();
+  drawShawarmaProp(ctx, anchors.belt.x - 20, -anchors.belt.y + 5, -0.25);
 
   const shoulderY = torsoY - 23;
   const frontElbow = {
@@ -284,9 +311,15 @@ export function drawElToro(
   const headY = -anchors.head.y + idle;
   ellipse(ctx, headX, headY, 37 * body.headWidth, 40 * body.headHeight, '#c88a66', -0.02, '#57382c', 2.4);
 
-  // Shaggy dark-brown hair.
+  // Reference mullet: heavy crown plus longer rear locks down the neck.
   ctx.save();
   ctx.fillStyle = '#2b211d';
+  ctx.beginPath();
+  ctx.moveTo(headX - 31, headY - 9);
+  ctx.quadraticCurveTo(headX - 43, headY + 17, headX - 29, headY + 42);
+  ctx.quadraticCurveTo(headX - 17, headY + 34, headX - 13, headY + 8);
+  ctx.closePath();
+  ctx.fill();
   const locks: readonly [number, number, number][] = [
     [-29,-31,10],[-17,-42,11],[-3,-46,12],[12,-44,12],[27,-35,11],
     [-32,-20,9],[-18,-27,10],[-2,-31,11],[14,-29,10],[31,-22,9],
@@ -296,9 +329,22 @@ export function drawElToro(
     ctx.arc(headX + dx, headY + dy, r, 0, Math.PI * 2);
     ctx.fill();
   }
+  drawHairStrands(ctx, [
+    [headX - 25, headY - 35, headX - 17, headY - 15],
+    [headX - 8, headY - 43, headX - 3, headY - 20],
+    [headX + 10, headY - 41, headX + 17, headY - 18],
+    [headX - 31, headY + 2, headX - 27, headY + 31],
+  ], '#8a6657', 0.28);
   ctx.restore();
   roundedLine(ctx, headX + 4, headY - 7, headX + 19, headY - 8, 3, '#4a3027');
   ellipse(ctx, headX + 16, headY - 1, 2.6, 2.2, '#0b0d10');
+  // Warm cheek/nose treatment from the master art.
+  ctx.save();
+  ctx.globalAlpha = 0.18;
+  ellipse(ctx, headX + 22, headY + 8, 10, 7, '#d56f5f');
+  ellipse(ctx, headX + 8, headY + 5, 7, 5, '#d56f5f');
+  ctx.restore();
+  roundedLine(ctx, headX + 15, headY + 6, headX + 24, headY + 12, 1.4, '#7b4d3d');
 
   if (pose.eructoCharge > 0.05 || pose.eructoRelease > 0.05) {
     const open = Math.max(pose.eructoCharge * 0.65, pose.eructoRelease);

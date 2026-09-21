@@ -1,7 +1,12 @@
 import type { FighterSnapshot } from '../types.js';
 import type { LocomotionPose } from './LocomotionPose.js';
 import { getCharacterStructure } from './CharacterStructure.js';
-import { drawHairStrands, drawScaleField } from './ReferenceDetailPrimitives.js';
+import {
+  drawFacePlanes,
+  drawHairStrands,
+  drawScaleField,
+  drawShadedEllipse,
+} from './ReferenceDetailPrimitives.js';
 import { getColetazoPresentation } from './CombatEffects.js';
 import { getAirPresentationPose, getMovePresentationPhase } from './PresentationPose.js';
 import { GROUND_Y, clamp01, ellipse, lerp, pulse, roundedLine } from './drawUtils.js';
@@ -164,7 +169,7 @@ export function drawChameleon(
   }
 
   // Torso with a lighter belly plate.
-  ellipse(ctx, 0, -84 + bodyDrop * 0.65, 31 * body.torsoWidth, (49 - crouch * 9) * body.torsoLength, '#4f8f38', -0.05, '#274f2c', 3);
+  drawShadedEllipse(ctx, 0, -84 + bodyDrop * 0.65, 31 * body.torsoWidth, (49 - crouch * 9) * body.torsoLength, '#4f8f38', '#86bf5e', '#244f2b', -0.05, '#274f2c', 3);
   ellipse(ctx, 8 * body.torsoWidth, -82 + bodyDrop * 0.65, 16 * body.torsoWidth, (35 - crouch * 7) * body.torsoLength, '#79b654', -0.06);
   drawScaleField(ctx, 0, -84 + bodyDrop * 0.65, 24 * body.torsoWidth, 38 * body.torsoLength, '#244b2b', 0.22, 8);
 
@@ -210,9 +215,10 @@ export function drawChameleon(
     + motion.apex * 3
     + motion.descent * 7;
   // Long scaled neck bridges the intentionally oversized human head into the lizard body.
-  ellipse(ctx, headX - 5, headY + 48, 16 * body.neckWidth, 39, '#4f8f38', -0.02, '#274f2c', 2);
+  drawShadedEllipse(ctx, headX - 5, headY + 48, 16 * body.neckWidth, 39, '#4f8f38', '#83bb59', '#244c2a', -0.02, '#274f2c', 2);
   drawScaleField(ctx, headX - 5, headY + 49, 13 * body.neckWidth, 31, '#244b2b', 0.23, 7);
-  ellipse(ctx, headX, headY, 42 * body.headWidth, 39 * body.headHeight, '#c98f68', -0.04, '#633f31', 2.5);
+  drawShadedEllipse(ctx, headX, headY, 42 * body.headWidth, 39 * body.headHeight, '#c98f68', '#efb28d', '#895746', -0.04, '#633f31', 2.5);
+  drawFacePlanes(ctx, headX, headY, Math.min(1.15, body.headWidth), '#ffd0ad', '#754539');
   // Ear and cheek contour.
   ellipse(ctx, headX - 37, headY + 2, 7, 11, '#b97c58');
   ellipse(ctx, headX + 10, headY + 10, 28, 21, '#d19a72', -0.08);

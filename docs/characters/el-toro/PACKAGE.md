@@ -2,8 +2,8 @@
 
 ID: `el-toro`  
 Display name: **EL TORO**  
-Status: CONTRACT_READY / VISUAL_REFERENCE_SUPPLIED  
-Implementation: NOT STARTED  
+Status: IN_IMPLEMENTATION / VISUAL_REFERENCE_SUPPLIED  
+Implementation: R005 ACTIVE — gameplay starts at V07-R2 after schema/difficulty work  
 Target: V0.7 / R005
 
 ## Authoritative visual references

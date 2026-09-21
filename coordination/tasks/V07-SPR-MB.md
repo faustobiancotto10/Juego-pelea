@@ -4,6 +4,13 @@ Round: R005-V07-GAMEPLAY-PRESENTATION-EXPANSION
 Owner: Mario-B  
 Status: READY_WITH_LEFT_FACING_BLOCKER
 
+## Execution branch
+
+- branch: `round/r005-sprite-mario-b-package`
+- exact starting SHA: `e3d29807acab6ce4c87fd7e04069fcb4b98c6a65`
+- lane ownership: El Toro derived package / manifest / fighter-specific presentation assets
+- integration target: `round/r005-sprite-mario-integration` after exact-SHA handoff to Mario-A.
+
 ## Goal
 
 Build the production-intended El Toro sprite package from Mario-A's admitted/normalized source, including body/FX atlases, animation metadata, stable pivots/anchors and gameplay-scale previews.

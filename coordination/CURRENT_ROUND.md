@@ -193,7 +193,15 @@ The canonical user AUTO_CHAIN pulse is **`.`**. On `.`, an eligible agent synchr
 
 ### Binary source handoff
 
-The first Mario-A instance must receive the same user-provided `SPRITES TORO.zip` attachment. The connected Neureon GitHub write surface cannot directly transfer this local binary ZIP/PNG payload into repository content. Mario-A must commit the exact accepted source bytes after verifying the SHA-256 identities recorded in the intake audit.
+The accepted user-provided binary source set has now been staged in GitHub for Mario-A:
+- branch: `round/r005-sprite-mario-a-source-import`;
+- exact source-handoff SHA: `e3d29807acab6ce4c87fd7e04069fcb4b98c6a65`;
+- PR: #50;
+- 17 accepted PNGs are under `docs/characters/el-toro/sprite-source/right/`;
+- the rejected alternate is absent;
+- import hash verification and repository CI are green.
+
+Mario-A must consume that exact SHA, independently re-verify the recorded source hashes, and continue normalization/extraction. A second chat attachment is no longer required.
 
 ### Production blockers
 

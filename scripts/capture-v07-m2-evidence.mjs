@@ -160,7 +160,7 @@ try {
     screenHeight: 390,
   });
 
-  await selector(cdp, '#app');
+  await selector(cdp, '[data-game-phase="title"]');
 
   // Portrait source surface: real PortraitRenderer at phone landscape size.
   const portraitOk = await evaluate(cdp, `(async () => {
@@ -206,7 +206,9 @@ try {
   await click(cdp, '[data-stage="cancha-56"]');
   await click(cdp, '[data-stage-confirm]');
   await selector(cdp, '[data-game-phase="fight"]', 12000);
-  await sleep(350);
+  // data-game-phase is already "fight" during the round intro; wait until the
+  // simulation-owned PREPARADOS countdown has cleared before sending commands.
+  await sleep(1750);
 
   // Topete is the close Special: down + SPECIAL. Capture during committed drive.
   await key(cdp, 'KeyS', 's', true);
@@ -223,19 +225,25 @@ try {
   await sleep(300);
 
   // Authoritative presentation snapshot through the real FightRenderer for Super Eructo.
+  // Use a dedicated overlay canvas so the live AppController RAF cannot overwrite
+  // the evidence frame between Runtime.evaluate and Page.captureScreenshot.
   const ultimateOk = await evaluate(cdp, `(async () => {
     const [{ CombatSimulation }, { FightRenderer }, stageRegistry] = await Promise.all([
       import('/game/simulation/CombatSimulation.js'),
       import('/game/render/FightRenderer.js'),
       import('/game/render/StageRegistry.js'),
     ]);
-    const canvas = document.querySelector('[data-fight-canvas]');
-    if (!canvas) return false;
+    document.querySelector('#v07-m2-evidence-canvas')?.remove();
+    const canvas = document.createElement('canvas');
+    canvas.id = 'v07-m2-evidence-canvas';
+    canvas.style.cssText = 'position:fixed;inset:0;width:844px;height:390px;z-index:99999;background:#07090e';
+    document.body.appendChild(canvas);
+
     const sim = new CombatSimulation('el-toro', 'juanchi', { skipIntro: true });
     const base = sim.getSnapshot();
     const toro = {
       ...base.fighters[0],
-      x: 410,
+      x: 360,
       facing: 1,
       grounded: true,
       y: 0,
@@ -277,9 +285,10 @@ try {
     };
     const renderer = new FightRenderer(canvas, stageRegistry.DEFAULT_STAGE_REGISTRY.get('cancha-56'));
     renderer.render(snapshot, 2);
-    return true;
+    return canvas.width > 0 && canvas.height > 0;
   })()`);
   if (!ultimateOk) throw new Error('Super Eructo presentation proof failed');
+  await sleep(80);
   await shot(cdp, 'el-toro-super-eructo-phone');
 
   console.log('Captured V07-M2 phone evidence.');

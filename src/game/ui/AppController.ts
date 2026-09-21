@@ -278,8 +278,18 @@ export class AppController {
   }
 
   private fighterPortrait(id: FighterId, extraClass: string): string {
-    const portraitKey = fighterPresentation(id).portraitKey;
-    return `<span class="fighter-portrait-v07 ${extraClass}" data-portrait-key="${portraitKey}" aria-hidden="true"><i class="portrait-body"></i><i class="portrait-head"></i><i class="portrait-detail"></i></span>`;
+    const presentation = fighterPresentation(id);
+    return `
+      <span
+        class="fighter-portrait-v07 ${extraClass}"
+        data-fighter-portrait
+        data-portrait-key="${presentation.portraitKey}"
+        aria-hidden="true"
+      >
+        <span class="fighter-portrait-fallback">${presentation.select.mark}</span>
+        <canvas class="fighter-portrait-canvas" width="192" height="168"></canvas>
+      </span>
+    `;
   }
 
   private difficultySelector(selected: 'easy' | 'normal' | 'hard'): string {

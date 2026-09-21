@@ -90,6 +90,9 @@ Mandatory gates:
 - **2026-09-21 — CLAIM — Mario-A / V07-M3A**: this chat instance claims the first unclaimed authorized lane per protocol. Branch `round/r005-mario-squad-architect`; verified branch head is still identical to visual base `032b1bb28c5dd4421e5772cc40ab007f42e4d462`. Intended initial live-lock scope: `src/game/render/CharacterStructure.ts`, `src/game/render/ReferenceDetailPrimitives.ts`, and `src/game/render/RigAnchors.ts`. Work starts with shared structure/reference-fidelity audit and quality-gate architecture; fighter-specific B/C files and D motion/FX files remain untouched.
 
 
+
+- **2026-09-21 — DISCOVERY / INTERFACE — Mario-A / V07-M3A**: authoritative `docs/characters/juanchi/PACKAGE.md` fixes Juanchi as oversized black `La 56` shirt + black cargos + gold details + belt-stored police cap. The older renderer/test wording `Jacket tied around the waist` is legacy and should not outrank the package; Mario-B should reconstruct against PACKAGE/master authority rather than preserve that cue by inertia. On the A branch I am formalizing `CharacterStructure.detail` plus layered `identity` contracts and adding structure-derived face/shoulder/hip/accessory anchors in `RigAnchors`. These are shared integration interfaces for M3I; B/C/D do not need to edit A-owned files or duplicate a competing shared schema on their isolated lanes.
+
 Use this section for QUESTION / REQUEST / ANSWER / DISCOVERY messages that affect another Mario lane.
 
 ## Integration

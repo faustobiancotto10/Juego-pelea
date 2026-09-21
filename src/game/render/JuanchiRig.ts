@@ -197,33 +197,12 @@ function computeActionPose(fighter: FighterSnapshot, locomotion: LocomotionPose)
     backHand = { x: -22, y: 154 + ultimate.rage * 15 };
   }
 
-  frontHand.x += locomotion.freeArmSwing;
-  frontHand.y += Math.abs(locomotion.freeArmSwing) * 0.12;
-
-  const frontFootBase = withAirLegPose(locomotion.frontFoot, 1, locomotion, air);
-  const backFootBase = withAirLegPose(locomotion.backFoot, -1, locomotion, air * 0.45);
-  const frontFoot = {
-    x: frontFootBase.x + locomotion.hipCounterRotation * 24,
-    y: frontFootBase.y,
-  };
-  const backFoot = {
-    x: backFootBase.x - locomotion.hipCounterRotation * 24,
-    y: backFootBase.y,
-  };
-  const sequenceFrame = fighter.ultimatePhase === 'sequence' ? fighter.ultimatePhaseFrame : -1;
-  const rageAura = sequenceFrame >= 4 && sequenceFrame <= 40
-    ? sequenceFrame <= 11
-      ? clamp01((sequenceFrame - 4) / 5)
-      : sequenceFrame <= 32
-        ? Math.max(0.48, 1 - (sequenceFrame - 11) / 52)
-        : clamp01(1 - (sequenceFrame - 32) / 8)
-    : 0;
+  const frontFoot = withAirLegPose(locomotion.frontFoot, 1, locomotion, air);
+  const backFoot = withAirLegPose(locomotion.backFoot, -1, locomotion, air * 0.45);
 
   return {
     lean:
       locomotion.torsoLean
-      + locomotion.chestCounterRotation
-      + locomotion.weightTransfer * 0.11
       + jab * 0.075
       + shoulder * 0.21
       + low * 0.08
@@ -236,7 +215,6 @@ function computeActionPose(fighter: FighterSnapshot, locomotion: LocomotionPose)
       - ko * 1.02,
     drop:
       locomotion.pelvisDrop
-      + Math.abs(locomotion.weightTransfer) * 4
       + (fighter.crouching ? 28 : 0)
       + low * 25
       + friction.rub * 7
@@ -375,59 +353,6 @@ export function drawJuanchiRageAura(
   ctx.restore();
 }
 
-function drawJuanchiRageAura(
-  ctx: CanvasRenderingContext2D,
-  intensity: number,
-  rush: number,
-  finisher: number,
-  combatTimeSeconds: number,
-): void {
-  const t = clamp01(intensity * (1 - finisher * 0.9));
-  if (t <= 0.01) return;
-
-  const stretch = 1 + clamp01(rush) * 0.45;
-  const pulseBeat = 0.5 + 0.5 * Math.sin(combatTimeSeconds * 18);
-  ctx.save();
-
-  // Faint floor/ground glow anchors the aura without becoming a fullscreen wash.
-  ctx.globalAlpha = (0.08 + t * 0.14) * (0.8 + pulseBeat * 0.2);
-  ellipse(ctx, 0, -2, 56 + t * 18 + rush * 20, 11 + t * 4, '#8c111f');
-
-  // Layered crimson flame wisps stay outside/behind the body silhouette.
-  ctx.lineCap = 'round';
-  const flameWisps = 7;
-  for (let i = 0; i < flameWisps; i += 1) {
-    const side = i % 2 === 0 ? -1 : 1;
-    const band = Math.floor(i / 2);
-    const phase = combatTimeSeconds * (7.5 + band * 0.6) + i * 1.17;
-    const baseX = side * (39 + band * 7 + t * 5);
-    const baseY = -58 - band * 25;
-    const reach = (28 + band * 8 + pulseBeat * 7) * stretch;
-    ctx.globalAlpha = (0.18 + t * 0.34) * (1 - band * 0.08);
-    ctx.strokeStyle = i % 3 === 0 ? '#ff3b46' : i % 3 === 1 ? '#c5192d' : '#7f0d20';
-    ctx.lineWidth = 5 - band * 0.55;
-    ctx.beginPath();
-    ctx.moveTo(baseX, baseY + 24);
-    ctx.bezierCurveTo(
-      baseX + side * (8 + Math.sin(phase) * 5),
-      baseY + 6,
-      baseX - side * (10 + Math.cos(phase * 0.8) * 7),
-      baseY - reach * 0.58,
-      baseX + side * (4 + Math.sin(phase * 1.3) * 5),
-      baseY - reach,
-    );
-    ctx.stroke();
-  }
-
-  ctx.globalAlpha = 0.12 + t * 0.16;
-  ctx.strokeStyle = '#ff5360';
-  ctx.lineWidth = 3;
-  ctx.beginPath();
-  ctx.ellipse(0, -104, 52 + rush * 18, 92, 0, 0, Math.PI * 2);
-  ctx.stroke();
-  ctx.restore();
-}
-
 export function drawJuanchi(
   ctx: CanvasRenderingContext2D,
   fighter: FighterSnapshot,
@@ -449,6 +374,14 @@ export function drawJuanchi(
   ctx.globalAlpha = 0.23 * (1 - Math.min(0.68, fighter.y / 260));
   ellipse(ctx, 0, fighter.y, 49, 10, '#030407');
   ctx.restore();
+
+  drawJuanchiRageAura(
+    ctx,
+    action.rage,
+    action.rush,
+    action.finisher,
+    fighter.ultimatePhaseFrame,
+  );
 
   const hipTwist = locomotion.hipCounterRotation * 42;
   const frontHip: Point2 = { x: 13 + hipTwist, y: 72 - action.drop };

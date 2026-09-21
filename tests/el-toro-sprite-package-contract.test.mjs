@@ -94,3 +94,44 @@ test('El Toro package freezes anchor and facing requirements without inventing r
   assert.equal(pkg.runtimePolicy.horizontalMirrorAllowedForBodyShipping, false);
   assert.equal(pkg.shippingState, 'pilot-right-only');
 });
+
+
+test('El Toro package maps resolver states and kit roles without hardcoding unknown move IDs', () => {
+  const pkg = loadPackage();
+  assert.deepEqual(pkg.resolverMap.stateToSemantic, {
+    idle: 'idle',
+    crouch: 'crouch',
+    'walk-forward': 'walk-forward',
+    'walk-back': 'walk-back',
+    'dash-forward': 'walk-forward',
+    'dash-back': 'walk-back',
+    'jump-startup': 'jump',
+    'jump-ascent': 'jump',
+    'jump-apex': 'jump',
+    'jump-descent': 'jump',
+    land: 'jump',
+    block: 'block',
+    'block-crouch': 'block',
+    hurt: 'hurt-knockdown',
+    'guard-break': 'hurt-knockdown',
+    knockdown: 'hurt-knockdown',
+    captured: 'hurt-knockdown',
+  });
+  assert.deepEqual(pkg.resolverMap.moveRoleToSemantic, {
+    standing: 'basic-attack',
+    low: 'low-attack',
+    closeSpecial: 'topete',
+    rangedSpecial: 'shawarmazo',
+    ultimate: 'super-eructo',
+  });
+  assert.equal(pkg.resolverMap.moveKeyPolicy, 'derive-from-fighter-kit-at-integration');
+  assert.equal(pkg.resolverMap.ultimatePhasePolicy, 'derive-from-fighter-kit-ultimate-at-integration');
+
+  const semanticKeys = new Set(pkg.body.map((entry) => entry.semanticKey));
+  for (const semantic of Object.values(pkg.resolverMap.stateToSemantic)) {
+    assert.equal(semanticKeys.has(semantic), true, `resolver state maps to unknown semantic ${semantic}`);
+  }
+  for (const semantic of Object.values(pkg.resolverMap.moveRoleToSemantic)) {
+    assert.equal(semanticKeys.has(semantic), true, `move role maps to unknown semantic ${semantic}`);
+  }
+});

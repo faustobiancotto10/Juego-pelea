@@ -32,3 +32,8 @@ Green task handoffs automatically satisfy dependencies. Neureon is not a stage-b
 ## User escalation
 
 If evidence requires changing a frozen product meaning or expanding scope, BLOCK affected dependencies, record exact evidence in findings and tell the user.
+
+
+## Ricardo R0 consumer contract
+
+V07-R0 exposes `CpuDifficulty`, `portraitKey`, bounded forward move movement, and the `forwardBlast` schema. The R0 simulation compatibility patch only recognizes `forwardBlast` as a reserved schema kind so TypeScript remains exhaustive; Super Eructo collision/damage/Clash runtime is intentionally deferred to V07-R2. No V0.6 runtime behavior changes in R0.

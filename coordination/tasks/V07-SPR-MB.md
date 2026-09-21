@@ -52,3 +52,14 @@ Build the production-intended El Toro sprite package from Mario-A's admitted/nor
 - waiting dependency for atlas packing: Mario-A generated normalization manifest / exact-SHA handoff
 - waiting integration interface freeze: Ricardo generic sprite runtime exact-SHA handoff
 - production-complete remains blocked on authored LEFT-facing IMG-00 + IMG-01..12
+
+
+## Mario-B verified checkpoint — 2026-09-21
+
+- exact branch SHA: `a89c6587e1eff646939a46748410661c82a39081`
+- PR: #52
+- latest verification: run `35667105152` — full suite + build PASS
+- derived package contract: 84 body frames + 22 FX; resolver-state/kit-role mapping frozen without invented move IDs
+- Mario-A extraction finding: internal grid boundaries contain solid sprite pixels; current MA component-based extraction is therefore the required source of bboxes/transforms
+- runtime conflict: Ricardo currently mirrors body art with `scaleX: fighter.facing`; El Toro is not mirror-safe, so authored-facing selection is required before integration
+- remaining gates: MA exact-SHA normalization handoff, Ricardo facing-aware runtime handoff, authored LEFT-facing set, verified per-frame anchor coordinates

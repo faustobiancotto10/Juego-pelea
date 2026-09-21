@@ -143,11 +143,11 @@ export function sampleElToroAnchors(
   const base = sampleBaseRigAnchors('el-toro', locomotion);
   return {
     ...base,
-    head: { x: 5 + pose.shoulder * 7 + pose.topete * 10, y: 174 - pose.drop * 0.32 },
-    chest: { x: pose.shoulder * 7 + pose.topete * 12, y: 114 - pose.drop * 0.54 },
+    head: { x: 5 + pose.shoulder * 7 + pose.topete * 10, y: 202 - pose.drop * 0.32 },
+    chest: { x: pose.shoulder * 7 + pose.topete * 12, y: 142 - pose.drop * 0.54 },
     frontHand: pose.frontHand,
     backHand: pose.backHand,
-    belt: { x: 0, y: 66 - pose.drop * 0.8 },
+    belt: { x: 0, y: 78 - pose.drop * 0.8 },
     frontFoot: pose.frontFoot,
     backFoot: pose.backFoot,
   };
@@ -205,8 +205,8 @@ export function drawElToro(
   const hipTwist = locomotion.hipCounterRotation * 36;
   const chestTwist = locomotion.chestCounterRotation * 34;
   const hipSpan = 16 * body.hipWidth * stance.width;
-  const frontHip: Point2 = { x: hipSpan + hipTwist, y: 67 - pose.drop };
-  const backHip: Point2 = { x: -hipSpan - hipTwist, y: 67 - pose.drop };
+  const frontHip: Point2 = { x: hipSpan + hipTwist, y: 79 - pose.drop };
+  const backHip: Point2 = { x: -hipSpan - hipTwist, y: 79 - pose.drop };
   const frontKnee = solveTwoBoneLeg(frontHip, pose.frontFoot, 39 * body.legLength, 42 * body.legLength, 1);
   const backKnee = solveTwoBoneLeg(backHip, pose.backFoot, 39 * body.legLength, 42 * body.legLength, -1);
 
@@ -227,7 +227,7 @@ export function drawElToro(
   ellipse(ctx, pose.backFoot.x + 6, -pose.backFoot.y + 1, 21, 8, '#eceeef', 0.03, '#090b0d', 2);
   roundedLine(ctx, pose.backFoot.x - 8, -pose.backFoot.y - 2, pose.backFoot.x + 13, -pose.backFoot.y - 1, 2.3, '#2f69ad');
 
-  const torsoY = -115 + pose.drop * 0.56 + idle;
+  const torsoY = -139 + pose.drop * 0.56 + idle;
   const torsoX = chestTwist + pose.topete * 4;
 
   // Oversized white shirt; text is drawn facing-readable below.
@@ -287,7 +287,7 @@ export function drawElToro(
   ctx.restore();
   drawShawarmaProp(ctx, anchors.belt.x - 20, -anchors.belt.y + 5, -0.25);
 
-  const shoulderY = torsoY - 23;
+  const shoulderY = torsoY - 27;
   const frontElbow = {
     x: lerp(torsoX + 30 * body.shoulderWidth, pose.frontHand.x, 0.52),
     y: lerp(126 - pose.drop * 0.45, pose.frontHand.y, 0.52),

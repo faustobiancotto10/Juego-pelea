@@ -13,3 +13,16 @@ V07-B1 exact candidate `9688764c7fb4c61a6b7462c6b34265f328e28a4d` is GREEN at re
 
 V07-Z1 publication lock released after user rejected the preview. No production-root promotion is authorized.
 V07-M3 works on `repair/v07-character-pipeline-v2`; Mario must claim concrete renderer/profile file locks before edits.
+
+
+## Mario squad planned ownership
+
+No squad lane has a live file lock until its chat instance registers and begins work. Planned boundaries:
+
+- Mario-A / V07-M3A: shared character-structure / anatomy / silhouette primitives and visual-quality harnesses.
+- Mario-B / V07-M3B: `ElToroRig.ts`, `JuanchiRig.ts`, and B-only fighter-detail helpers.
+- Mario-C / V07-M3C: `ChameleonRig.ts`, `SupernarizRig.ts`, and C-only fighter-detail helpers.
+- Mario-D / V07-M3D: shared locomotion / presentation pose / attack presentation / combat effects files.
+- Mario-A / V07-M3I: integration branch only after all four lane handoffs are green.
+
+Each instance must convert its planned boundary into concrete live locks before material edits. Cross-lane file edits require a forum request and explicit lock transfer/resolution.

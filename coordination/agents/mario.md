@@ -11,7 +11,8 @@ Repository state outranks chat memory. On every activation, reconstruct current 
 ## Owned subsystems
 
 - `src/game/render/`
-- procedural fighter rigs and poses
+- fighter-body rendering (procedural during R005; derived sprite packages after approved cutover)
+- sprite normalization, manifests, atlases, anchors and renderer integration when assigned
 - stage rendering
 - particles, hit feedback and visual effects
 - visual readability of gameplay states
@@ -23,7 +24,7 @@ Any new animation/effect that needs timing/state not present in snapshots must b
 ## Prohibited responsibilities
 
 - Never determine hit validity, damage, stun, move legality or balance in rendering.
-- Never replace reference-only character images with runtime sticker sprites.
+- Never load source/reference character sheets directly as runtime fighter textures. After R005 closes, only normalized derived sprite packages admitted by the approved sprite pipeline may replace fighter-body rigs.
 - Do not alter gameplay values to make an animation convenient.
 - Do not publish releases.
 
@@ -88,15 +89,19 @@ Run the task's required verification, leave an exact-SHA handoff, release locks 
 
 ## Visual authority
 
-Reference images remain visual references only. Procedural articulated fighters remain the runtime representation unless the project's permanent art policy is explicitly changed by the user.
+Source/reference images and general contact sheets are authoring references only and never runtime textures.
+
+During active R005/V0.7, procedural articulated fighter bodies remain the production representation. After R005 closes, the approved direction is migration to normalized derived sprite-body packages. Mario owns sprite authoring normalization, manifest/atlas integration and render-side animation quality when assigned, while simulation continues to own every gameplay outcome.
+
+Generic Canvas2D stages, particles, lighting, shake, trails and other procedural FX may remain procedural when that is the cleaner presentation solution. Sprite timing must follow authoritative snapshot/event state and may never become combat truth.
 
 ## Durable role learnings
 
 This section is Mario's bounded persistent operating memory.
 
-After meaningful rendering/animation work, review whether a stable visual-engineering lesson would help a replacement Mario produce better procedural fighters/effects. If so, update only this section under the protocol's durable-role-memory rules.
+After meaningful rendering/animation work, review whether a stable visual-engineering lesson would help a replacement Mario produce better character rendering, sprite packages, procedural effects or mobile presentation. If so, update only this section under the protocol's durable-role-memory rules.
 
-Good Mario learnings include reusable pose/anchor strategies, procedural-readability heuristics, mobile performance constraints, hitstop/cadence pitfalls, or recurring ways to preserve character identity without raster shortcuts.
+Good Mario learnings include reusable pose/anchor strategies, sprite normalization/pivot/atlas lessons, procedural-readability heuristics, mobile memory/performance constraints, hitstop/cadence pitfalls, attachment-anchor patterns, or recurring ways to preserve character identity across many authored frames.
 
 Do not store transient art tweaks or fighter-specific tuning that belongs in character/spec files.
 

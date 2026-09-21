@@ -7,6 +7,7 @@
 | `src/game/render/PortraitRenderer.ts` | Mario | V07-M2 | four procedural portrait renderers |
 | `src/game/render/FighterRenderer.ts` | Mario | V07-M2 | register El Toro rig / portrait-facing render contract |
 | `src/game/render/RigAnchors.ts` | Mario | V07-M2 | El Toro procedural anchors |
+| `src/game/render/AttackPresentation.ts` | Mario | V07-M2 | El Toro ordinary/Special/Ultimate visual profiles |
 | `src/game/render/CombatEffects.ts` | Mario | V07-M2 | Topete/Shawarmazo/Super Eructo presentation |
 | `src/game/render/FightRenderer.ts` | Mario | V07-M2 | authoritative El Toro effect dispatch |
 | `tests/v07-m2-render.test.mjs` | Mario | V07-M2 | RED→GREEN render/portrait diagnostics |

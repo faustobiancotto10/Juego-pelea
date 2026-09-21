@@ -61,6 +61,14 @@ export const ATTACK_PRESENTATION_PROFILES: Readonly<Record<string, AttackPresent
   'juanchi:rugbyBoomerangThrow': profile('throw-load', 'juanchi-gold', 'juanchi-gold', 'none', 'none', 0.72),
   'juanchi:friccion': profile('friccion-load', 'friccion-sparks', 'friccion-sparks', 'none', 'none', 0.86),
   'juanchi:policeCapRage': profile('rage-load', 'juanchi-gold', 'major-impact', 'rage-red', 'major-impact', 1),
+
+  'el-toro:toroJab': profile('toro-heavy-ready', 'toro-blue', 'toro-blue', 'none', 'none', 0.58),
+  'el-toro:toroShoulder': profile('toro-heavy-load', 'toro-blue', 'toro-blue', 'none', 'turf-heavy', 0.78),
+  'el-toro:toroLow': profile('toro-low-load', 'toro-blue', 'toro-blue', 'none', 'none', 0.64),
+  'el-toro:toroAir': profile('toro-air-load', 'toro-blue', 'toro-blue', 'none', 'turf-heavy', 0.72),
+  'el-toro:shawarmazoThrow': profile('shawarma-load', 'shawarma-warm', 'shawarma-debris', 'none', 'none', 0.82),
+  'el-toro:topete': profile('topete-load', 'topete-drive', 'toro-blue', 'none', 'turf-heavy', 0.96),
+  'el-toro:superEructo': profile('eructo-load', 'super-eructo-gas', 'major-impact', 'super-eructo-gas', 'turf-heavy', 1),
 });
 
 export function resolveAttackPresentationProfile(

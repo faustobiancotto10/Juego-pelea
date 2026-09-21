@@ -137,3 +137,108 @@ export function drawScarfFringe(
   }
   ctx.restore();
 }
+
+
+export function drawShadedEllipse(
+  ctx: CanvasRenderingContext2D,
+  x: number,
+  y: number,
+  rx: number,
+  ry: number,
+  base: string,
+  highlight: string,
+  shadow: string,
+  rotation = 0,
+  stroke?: string,
+  lineWidth = 1.5,
+): void {
+  ctx.save();
+  ctx.beginPath();
+  ctx.ellipse(x, y, rx, ry, rotation, 0, Math.PI * 2);
+  ctx.clip();
+
+  const g = ctx.createRadialGradient(
+    x - rx * 0.34,
+    y - ry * 0.38,
+    Math.max(1, Math.min(rx, ry) * 0.08),
+    x,
+    y,
+    Math.max(rx, ry) * 1.18,
+  );
+  g.addColorStop(0, highlight);
+  g.addColorStop(0.48, base);
+  g.addColorStop(1, shadow);
+  ctx.fillStyle = g;
+  ctx.fillRect(x - rx * 1.4, y - ry * 1.4, rx * 2.8, ry * 2.8);
+
+  ctx.globalAlpha = 0.16;
+  ctx.fillStyle = '#ffffff';
+  ctx.beginPath();
+  ctx.ellipse(x - rx * 0.24, y - ry * 0.30, rx * 0.28, ry * 0.18, rotation - 0.2, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.restore();
+
+  if (stroke) {
+    ctx.save();
+    ctx.strokeStyle = stroke;
+    ctx.lineWidth = lineWidth;
+    ctx.beginPath();
+    ctx.ellipse(x, y, rx, ry, rotation, 0, Math.PI * 2);
+    ctx.stroke();
+    ctx.restore();
+  }
+}
+
+export function drawClothFold(
+  ctx: CanvasRenderingContext2D,
+  x1: number,
+  y1: number,
+  cx: number,
+  cy: number,
+  x2: number,
+  y2: number,
+  light: string,
+  dark: string,
+  alpha = 0.25,
+): void {
+  ctx.save();
+  ctx.lineCap = 'round';
+  ctx.globalAlpha = alpha;
+  ctx.strokeStyle = dark;
+  ctx.lineWidth = 2.2;
+  ctx.beginPath();
+  ctx.moveTo(x1, y1);
+  ctx.quadraticCurveTo(cx, cy, x2, y2);
+  ctx.stroke();
+
+  ctx.globalAlpha = alpha * 0.72;
+  ctx.strokeStyle = light;
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  ctx.moveTo(x1 + 2, y1 - 1);
+  ctx.quadraticCurveTo(cx + 2, cy - 2, x2 + 2, y2 - 1);
+  ctx.stroke();
+  ctx.restore();
+}
+
+export function drawFacePlanes(
+  ctx: CanvasRenderingContext2D,
+  x: number,
+  y: number,
+  scale: number,
+  skinLight: string,
+  skinShadow: string,
+): void {
+  ctx.save();
+  ctx.globalAlpha = 0.20;
+  ctx.fillStyle = skinLight;
+  ctx.beginPath();
+  ctx.ellipse(x - 6 * scale, y - 6 * scale, 8 * scale, 12 * scale, -0.24, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.globalAlpha = 0.18;
+  ctx.fillStyle = skinShadow;
+  ctx.beginPath();
+  ctx.ellipse(x + 12 * scale, y + 7 * scale, 10 * scale, 13 * scale, 0.18, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.restore();
+}

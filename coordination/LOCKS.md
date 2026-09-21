@@ -2,6 +2,12 @@
 
 | Path / subsystem | Owner | Task | Reason |
 | --- | --- | --- | --- |
+| `src/game/render/CharacterStructure.ts` | Mario | V07-M3R | User-directed reference fidelity repair |
+| `src/game/render/ElToroRig.ts` | Mario | V07-M3R | Re-author against supplied El Toro master/sheet |
+| `src/game/render/JuanchiRig.ts` | Mario | V07-M3R | Re-author against supplied Juanchi master/sheet |
+| `src/game/render/SupernarizRig.ts` | Mario | V07-M3R | Re-author against supplied Supernariz master/sheet |
+| `src/game/render/ChameleonRig.ts` | Mario | V07-M3R | Re-author against supplied Camaleoni master/sheet |
+| `src/game/render/PortraitRenderer.ts` | Mario | V07-M3R | Keep portrait identity aligned with runtime rigs |
 
 V07-M3 exact candidate `e053e0b187acff3b4555ce8d537e9fd9ca616303` is GREEN at Repository verification #1171 and Character Pipeline V2 run #15 (335/335 + build + visual artifact + raster guard). Mario released all M3 locks; Germinator V07-G2 is eligible.
 

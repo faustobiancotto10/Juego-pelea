@@ -114,3 +114,5 @@ Do not store current fighter numbers, temporary tuning, task SHAs or round-speci
 - CPU difficulty should stay an effective policy overlay on fighter-authored tactics: preserve Normal as the baseline, and derive stronger adaptation only from delayed public history rather than current inputs or stat advantages.
 
 - When adding a new discriminated gameplay kind, audit every exhaustive runtime consumer before declaring schema-only work green; explicitly reserve not-yet-active kinds so compilation stays exhaustive without accidentally enabling unfinished semantics.
+
+- For sprite-backed fighters, never infer that horizontal mirroring is visually safe: require an explicit mirror-safety contract, use authored opposite-facing frames when it is false, and normalize authored-facing anchors back into canonical fighter-local coordinates before renderer/UI consumers use them.

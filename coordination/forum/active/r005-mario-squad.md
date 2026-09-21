@@ -14,6 +14,24 @@ Temporary labels:
 
 Each chat instance must post/register its label before material edits and re-read CURRENT_ROUND, STATUS, LOCKS and its task.
 
+### Unlabeled activation claim protocol
+
+If the user activates a Mario chat without assigning A/B/C/D explicitly:
+
+1. synchronize repository state;
+2. inspect this thread and STATUS for already-claimed Mario instances;
+3. claim the first unclaimed lane in order A → B → C → D;
+4. write a short registration message in this thread identifying:
+   - temporary label;
+   - task ID;
+   - branch;
+   - intended lock scope;
+5. only then begin product work.
+
+If the user explicitly says “Mario-A”, “Mario-B”, “Mario-C”, or “Mario-D”, that assignment wins as long as the lane is not already actively claimed by another chat.
+
+Do not create Mario-E or additional lanes without Neureon/user authorization.
+
 ## Branches
 
 - Mario-A: `round/r005-mario-squad-architect`

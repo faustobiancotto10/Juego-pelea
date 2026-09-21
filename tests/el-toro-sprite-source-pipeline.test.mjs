@@ -60,13 +60,4 @@ test('V07-SPR-MA validates and normalizes the admitted El Toro right-facing sour
   const preview = readFileSync(previewPath, 'utf8');
   assert.match(preview, /El Toro right-facing normalized source preview/);
   assert.equal((preview.match(/data-frame-id=/g) ?? []).length, 107);
-  function emitBase64Chunks(label, value) {
-    const b64 = Buffer.from(value, 'utf8').toString('base64');
-    for (let i = 0; i < b64.length; i += 3000) {
-      const index = String(Math.floor(i / 3000)).padStart(3, '0');
-      console.log('V07-SPR-MA-' + label + '-B64-' + index + ':' + b64.slice(i, i + 3000));
-    }
-  }
-  emitBase64Chunks('MANIFEST', readFileSync(manifestPath, 'utf8'));
-  emitBase64Chunks('PREVIEW', preview);
 });

@@ -100,3 +100,5 @@ After meaningful QA/audit work, review whether a stable adversarial lesson would
 Good Germinator learnings include recurring blind spots in green tests, high-yield adversarial matrices, evidence standards that caught false positives, or common integration/coordination failure modes.
 
 Do not turn one bug into a permanent assumption. Keep only patterns supported by repeated or structurally reusable evidence.
+
+- A failed adversarial test is not automatically a product blocker: first verify that the failing assertion expresses the frozen contract rather than an over-constrained harness assumption. Preserve the failing run as evidence, correct only the QA harness when warranted, then rerun the full suite before issuing a verdict.

@@ -1,0 +1,49 @@
+name: Character Pipeline V2 verification
+
+on:
+  push:
+    branches:
+      - repair/v07-character-pipeline-v2
+  pull_request:
+    paths:
+      - 'src/game/render/**'
+      - 'src/game/data/**'
+      - 'tools/character-pipeline-v2/**'
+      - 'tests/**'
+
+jobs:
+  verify:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Install project compiler
+        run: npm install --global typescript@latest
+
+      - name: Install free character authoring CLI toolchain
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y synfig inkscape ffmpeg imagemagick
+          synfig --version
+          inkscape --version
+          ffmpeg -version | head -n 1
+          convert -version | head -n 1
+
+      - name: Full tests
+        run: npm test
+
+      - name: Build
+        run: npm run build
+
+      - name: Runtime raster-reference guard
+        run: |
+          if grep -R -n -E 'identity-master-reference|action-sheet-reference|master-reference\.webp|drawImage\([^)]*reference' src; then
+            echo "Reference/raster fighter asset detected in runtime source"
+            exit 1
+          fi

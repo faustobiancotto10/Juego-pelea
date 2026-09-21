@@ -104,6 +104,7 @@ export class FightRenderer {
   private clashFlashes: ClashFlash[] = [];
   private attackBursts: AttackBurst[] = [];
   private rugbyCatchFlashes: RugbyCatchFlash[] = [];
+  private readonly projectileVisualKeys = new Map<number, string>();
   private stageReactionTicks = 0;
   private shakeFrames = 0;
   private shakeStrength = 0;
@@ -140,8 +141,21 @@ export class FightRenderer {
       this.clashFlashes = [];
       this.attackBursts = [];
       this.rugbyCatchFlashes = [];
+      this.projectileVisualKeys.clear();
       this.stageReactionTicks = 0;
       this.lastRenderedCombatTick = null;
+      return;
+    }
+
+    if (event.type === 'projectile') {
+      const projectile = snapshot.projectiles.find((candidate) => candidate.id === event.projectileId);
+      if (projectile) {
+        this.projectileVisualKeys.set(event.projectileId, projectile.visualKey);
+        if (this.projectileVisualKeys.size > 32) {
+          const oldestId = this.projectileVisualKeys.keys().next().value;
+          if (oldestId !== undefined) this.projectileVisualKeys.delete(oldestId);
+        }
+      }
       return;
     }
 
@@ -267,7 +281,9 @@ export class FightRenderer {
     const presentation = resolveAttackPresentationProfile(attacker.id, event.moveId ?? attacker.moveId);
     const projectileVisualKey = event.projectileId === undefined
       ? null
-      : snapshot.projectiles.find((projectile) => projectile.id === event.projectileId)?.visualKey ?? null;
+      : snapshot.projectiles.find((projectile) => projectile.id === event.projectileId)?.visualKey
+        ?? this.projectileVisualKeys.get(event.projectileId)
+        ?? null;
     const contactBurstKey = peakImpact
       ? 'major-impact'
       : projectileVisualKey === 'shawarma'

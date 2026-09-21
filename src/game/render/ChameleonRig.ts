@@ -1,6 +1,7 @@
 import type { FighterSnapshot } from '../types.js';
 import type { LocomotionPose } from './LocomotionPose.js';
 import { getCharacterStructure } from './CharacterStructure.js';
+import { drawHairStrands, drawScaleField } from './ReferenceDetailPrimitives.js';
 import { getColetazoPresentation } from './CombatEffects.js';
 import { getAirPresentationPose, getMovePresentationPhase } from './PresentationPose.js';
 import { GROUND_Y, clamp01, ellipse, lerp, pulse, roundedLine } from './drawUtils.js';
@@ -121,6 +122,14 @@ export function drawChameleon(
   ctx.bezierCurveTo(sweep < 0 ? lerp(-78, -112, -sweep / 0.58) : lerp(-78, -56, sweep), sweep < 0 ? lerp(-70, -74, -sweep / 0.58) : lerp(-70, -52, sweep), sweep < 0 ? lerp(-94, -142, -sweep / 0.58) : lerp(-94, 32, sweep), sweep < 0 ? lerp(-24 + tailCounter * 0.15, -74, -sweep / 0.58) : lerp(-24 + tailCounter * 0.15, -98, sweep), tailMidX, tailMidY);
   ctx.bezierCurveTo(sweep < 0 ? lerp(-39, -118, -sweep / 0.58) : lerp(-39, 106, sweep), sweep < 0 ? lerp(10 + tailCounter * 0.12, -104, -sweep / 0.58) : lerp(10 + tailCounter * 0.12, -106, sweep), sweep < 0 ? lerp(-23, -148, -sweep / 0.58) : lerp(-23, 142, sweep), sweep < 0 ? lerp(-30 + tailCounter * 0.32, -92, -sweep / 0.58) : lerp(-30 + tailCounter * 0.32, -80, sweep), tailTipX, tailTipY);
   ctx.stroke();
+  // Subtle dorsal highlight gives the tail the rounded, scaled volume of the master.
+  ctx.globalAlpha = 0.28;
+  ctx.strokeStyle = '#a2cf73';
+  ctx.lineWidth = 3;
+  ctx.beginPath();
+  ctx.moveTo(-22, -79 + bodyDrop * 0.35);
+  ctx.bezierCurveTo(-72, -88, tailMidX - 7, tailMidY - 8, tailTipX - 5, tailTipY - 7);
+  ctx.stroke();
   ctx.restore();
 
   const hipY = -54 + bodyDrop;
@@ -148,10 +157,16 @@ export function drawChameleon(
   roundedLine(ctx, frontKneeX, -26 + kneeBend + frontFootY * 0.34, frontFootX, frontFootY - 3, 16 * body.legThickness, '#76b54d');
   roundedLine(ctx, backFootX - 8, backFootY - 2, backFootX + 10, backFootY - 2, 6, '#adc96b');
   roundedLine(ctx, frontFootX - 8, frontFootY - 2, frontFootX + 10, frontFootY - 2, 6, '#adc96b');
+  // Three small toe/claw strokes keep the reptile feet readable.
+  for (const footX of [backFootX, frontFootX]) {
+    roundedLine(ctx, footX + 4, -4 + (footX === backFootX ? backFootY : frontFootY), footX + 12, -2 + (footX === backFootX ? backFootY : frontFootY), 1.7, '#d5df9a');
+    roundedLine(ctx, footX + 2, -4 + (footX === backFootX ? backFootY : frontFootY), footX + 8, 1 + (footX === backFootX ? backFootY : frontFootY), 1.5, '#d5df9a');
+  }
 
   // Torso with a lighter belly plate.
   ellipse(ctx, 0, -84 + bodyDrop * 0.65, 31 * body.torsoWidth, (49 - crouch * 9) * body.torsoLength, '#4f8f38', -0.05, '#274f2c', 3);
   ellipse(ctx, 8 * body.torsoWidth, -82 + bodyDrop * 0.65, 16 * body.torsoWidth, (35 - crouch * 7) * body.torsoLength, '#79b654', -0.06);
+  drawScaleField(ctx, 0, -84 + bodyDrop * 0.65, 24 * body.torsoWidth, 38 * body.torsoLength, '#244b2b', 0.22, 8);
 
   // Tiny arms are intentionally very short: this is part of the fighter's gameplay identity.
   const frontReach =
@@ -173,6 +188,9 @@ export function drawChameleon(
   const shoulderSpan = 12 * body.shoulderWidth;
   roundedLine(ctx, shoulderSpan, shoulderY, frontReach, frontY, 11 * body.armThickness, '#62a444');
   ellipse(ctx, frontReach + 3, frontY, 7, 6, '#86bd5e');
+  roundedLine(ctx, frontReach + 5, frontY - 1, frontReach + 12, frontY - 5, 1.5, '#c6d98c');
+  roundedLine(ctx, frontReach + 5, frontY + 1, frontReach + 13, frontY + 1, 1.5, '#c6d98c');
+  roundedLine(ctx, frontReach + 4, frontY + 3, frontReach + 11, frontY + 6, 1.5, '#c6d98c');
   roundedLine(ctx, -shoulderSpan, shoulderY + 4, -24 + block * 13, shoulderY + 18 - block * 25, 10 * body.armThickness, '#568f3a');
   ellipse(ctx, -25 + block * 13, shoulderY + 18 - block * 25, 7, 6, '#80b75a');
 
@@ -191,6 +209,9 @@ export function drawChameleon(
     - motion.ascent * 5
     + motion.apex * 3
     + motion.descent * 7;
+  // Long scaled neck bridges the intentionally oversized human head into the lizard body.
+  ellipse(ctx, headX - 5, headY + 48, 16 * body.neckWidth, 39, '#4f8f38', -0.02, '#274f2c', 2);
+  drawScaleField(ctx, headX - 5, headY + 49, 13 * body.neckWidth, 31, '#244b2b', 0.23, 7);
   ellipse(ctx, headX, headY, 42 * body.headWidth, 39 * body.headHeight, '#c98f68', -0.04, '#633f31', 2.5);
   // Ear and cheek contour.
   ellipse(ctx, headX - 37, headY + 2, 7, 11, '#b97c58');
@@ -207,8 +228,14 @@ export function drawChameleon(
     ctx.arc(headX + dx, headY + dy, r, 0, Math.PI * 2);
     ctx.fill();
   }
+  drawHairStrands(ctx, [
+    [headX - 28, headY - 37, headX - 20, headY - 23],
+    [headX - 12, headY - 47, headX - 7, headY - 29],
+    [headX + 5, headY - 48, headX + 10, headY - 29],
+    [headX + 22, headY - 39, headX + 27, headY - 23],
+  ], '#625149', 0.30);
 
-  // Brow, eye and beard shadows.
+  // Brow, eye and reference-like cheek texture.
   roundedLine(ctx, headX + 4, headY - 7, headX + 18, headY - 8, 3, '#35251f');
   ellipse(ctx, headX + 15, headY - 2, 2.7, 2.3, '#101316');
   ctx.save();
@@ -218,6 +245,15 @@ export function drawChameleon(
   ctx.moveTo(headX + 16, headY + 7);
   ctx.quadraticCurveTo(headX + 25, headY + 12, headX + 23, headY + 19);
   ctx.stroke();
+  ctx.restore();
+  ctx.save();
+  ctx.globalAlpha = 0.23;
+  ctx.fillStyle = '#8b5b4c';
+  for (const [dx, dy] of [[10,8],[16,11],[22,9],[8,15],[18,17],[-3,13]] as const) {
+    ctx.beginPath();
+    ctx.arc(headX + dx, headY + dy, 1.4, 0, Math.PI * 2);
+    ctx.fill();
+  }
   ctx.restore();
 
   const mouthX = headX + 29;

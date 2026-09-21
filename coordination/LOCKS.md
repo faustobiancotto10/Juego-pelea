@@ -2,6 +2,9 @@
 
 | Path / subsystem | Owner | Task | Reason |
 | --- | --- | --- | --- |
+| `src/game/ui/AppController.ts` | Brancaforte | V07-B1 | Mount Mario PortraitRenderer on UI-owned portrait hosts. |
+| `src/styles.css` | Brancaforte | V07-B1 | Rendered/fallback portrait state styling. |
+| `tests/ui-v07.test.mjs` | Brancaforte | V07-B1 | Final portrait-consumer acceptance coverage. |
 
 V07-M1 exact candidate `d55cce8ce7f03a60168697a5a5bbe1c8b5833a24` is GREEN at verification run #1079 (305/305 + build).
 

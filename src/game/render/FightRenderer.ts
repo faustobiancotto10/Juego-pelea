@@ -5,6 +5,7 @@ import { resolveAttackPresentationProfile } from './AttackPresentation.js';
 import {
   drawAttackContactBurst,
   drawAttackMotionAccent,
+  drawAttackTelegraph,
   drawCamaleoniSequenceCuts,
   drawCamaleoniVeil,
   drawClashOpposingTrails,
@@ -31,6 +32,7 @@ import {
 import { drawFighter, resetFighterPresentation, sampleFighterAnchors } from './FighterRenderer.js';
 import { drawPoliceCapProp, drawRugbyBallProp } from './JuanchiRig.js';
 import { localAnchorToWorld } from './RigAnchors.js';
+import { getAttackPresentationTiming } from './PresentationPose.js';
 import { drawStage } from './StageRenderer.js';
 import { DEFAULT_STAGE_REGISTRY, type StageDefinition } from './StageRegistry.js';
 import { GROUND_Y, WORLD_HEIGHT, WORLD_WIDTH, ellipse } from './drawUtils.js';
@@ -413,15 +415,24 @@ export class FightRenderer {
     for (const fighter of snapshot.fighters) {
       if (fighter.moveId === null) continue;
       const presentation = resolveAttackPresentationProfile(fighter.id, fighter.moveId);
-      const presentationPhase = Math.min(1, Math.max(0, fighter.moveFrame / 14));
+      const timing = getAttackPresentationTiming(fighter);
+      drawAttackTelegraph(
+        ctx,
+        fighter.x,
+        GROUND_Y - fighter.y,
+        fighter.facing,
+        presentation.telegraphKey,
+        presentation.intensity,
+        timing.anticipation,
+      );
       drawAttackMotionAccent(
         ctx,
         fighter.x,
         GROUND_Y - fighter.y,
         fighter.facing,
         presentation.trailKey,
-        presentation.intensity,
-        presentationPhase,
+        presentation.intensity * timing.trail,
+        timing.actionPhase,
       );
     }
 

@@ -1,7 +1,7 @@
 # V0.7 planning handoff — Neureon substitute audit
 
 Date: 2026-09-20  
-Status: PLANNING COMPLETE / READY FOR R005 FORMATION
+Status: CONSUMED BY R005 / HISTORICAL PLANNING HANDOFF
 
 ## Context
 
@@ -73,4 +73,4 @@ Numeric tuning has narrow evidence-based calibration bounds documented where app
 
 ## Activation
 
-This handoff itself does not authorize production until Neureon creates R005/CURRENT_ROUND/task contracts. The next coordination step is to form R005 from this package.
+R005 has now been formed from this package. Current execution authority is `coordination/CURRENT_ROUND.md` and `coordination/tasks/V07-*.md`.

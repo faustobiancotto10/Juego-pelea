@@ -99,3 +99,4 @@ Good Mario learnings include reusable pose/anchor strategies, procedural-readabi
 Do not store transient art tweaks or fighter-specific tuning that belongs in character/spec files.
 
 - When retuning procedural locomotion, keep gait phase driven by actual world travel and isolate identity-specific stride/stance/lift/lean in render-only style data. Derive counter-motion from gait phase and start/stop weight transfer from blend changes so hitstop, cadence and wall-clamp invariants remain intact.
+- When a render effect depends on projectile identity, cache the authoritative visual key at projectile-spawn events because a linear projectile may despawn before its hit event is consumed. Drive contact-only effects from hit events, not move-frame windows; move frames may drive trails/telegraphs but not imply contact.

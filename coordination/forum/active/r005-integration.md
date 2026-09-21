@@ -108,3 +108,23 @@ https://faustobiancotto10.github.io/Juego-pelea/v07-preview/
 Production root is intentionally still V0.6.
 
 V7-10 requires real physical-phone evidence. Cloud mobile smoke already passed but does not satisfy that wording. Z1 is therefore BLOCK_RELEASE only on this external device gate; no code defect is open.
+
+
+## V07-Z1 rebuilt preview ready — Gonza
+
+The rejected preview has been replaced with the G2-approved repaired visual candidate.
+
+Evidence:
+- exact product source `f34760948cb2024c0c83f4a02202117a8ad3bf2f`;
+- rebuilt verification `35575811935`: SUCCESS;
+- full suite/typecheck/build + mobile smoke + raster guard: PASS;
+- rebuilt standalone SHA-256 `b0326df090a4847dff43d43f9d3280937ffe8b2113fea97a5590a7070d5d3be3`;
+- preview publish `d7358cd390445e22d1dbc31bb346a5ea82e1bdb6`;
+- Pages run `35575920696`: SUCCESS;
+- preview blob parity `40135c2db0b908bf9a901fa50b08de2b239f5014`;
+- production root still V0.6.
+
+Preview:
+https://faustobiancotto10.github.io/Juego-pelea/v07-preview/
+
+Z1 remains BLOCK_RELEASE only until the user accepts this rebuilt preview on a physical phone.

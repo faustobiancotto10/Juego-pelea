@@ -1,4 +1,5 @@
 import { ellipse, roundedLine } from './drawUtils.js';
+import { getCharacterStructure } from './CharacterStructure.js';
 
 type PortraitRenderer = (
   ctx: CanvasRenderingContext2D,
@@ -36,20 +37,21 @@ function portraitFrame(
 }
 
 function drawCamaleoniPortrait(ctx: CanvasRenderingContext2D, width: number, height: number): void {
+  const { body } = getCharacterStructure('chameleon');
   portraitFrame(ctx, width, height, '#326d45', () => {
     // camaleoni / chameleon identity: green skin, claw hand and angular crest.
     ctx.fillStyle = '#2e864d';
     ctx.strokeStyle = '#123d26';
     ctx.lineWidth = 3;
     ctx.beginPath();
-    ctx.moveTo(-47, -8);
-    ctx.quadraticCurveTo(-55, -75, -27, -112);
-    ctx.quadraticCurveTo(4, -134, 41, -108);
-    ctx.quadraticCurveTo(56, -64, 48, -8);
+    ctx.moveTo(-47 * body.torsoWidth, -8);
+    ctx.quadraticCurveTo(-55 * body.torsoWidth, -75 * body.torsoLength, -27 * body.shoulderWidth, -112);
+    ctx.quadraticCurveTo(4, -134, 41 * body.shoulderWidth, -108);
+    ctx.quadraticCurveTo(56 * body.torsoWidth, -64 * body.torsoLength, 48 * body.torsoWidth, -8);
     ctx.closePath();
     ctx.fill();
     ctx.stroke();
-    ellipse(ctx, 2, -119, 34, 36, '#54a768', -0.03, '#173c24', 2.4);
+    ellipse(ctx, 2, -119, 34 * body.headWidth, 36 * body.headHeight, '#54a768', -0.03, '#173c24', 2.4);
     ctx.fillStyle = '#204d31';
     ctx.beginPath();
     ctx.moveTo(-17, -151);
@@ -67,19 +69,20 @@ function drawCamaleoniPortrait(ctx: CanvasRenderingContext2D, width: number, hei
 }
 
 function drawSupernarizPortrait(ctx: CanvasRenderingContext2D, width: number, height: number): void {
+  const { body } = getCharacterStructure('supernariz');
   portraitFrame(ctx, width, height, '#8a4c32', () => {
     ctx.fillStyle = '#e4b28d';
     ctx.strokeStyle = '#714733';
     ctx.lineWidth = 3;
     ctx.beginPath();
-    ctx.moveTo(-48, -5);
-    ctx.quadraticCurveTo(-49, -72, -30, -108);
-    ctx.quadraticCurveTo(4, -128, 39, -106);
-    ctx.quadraticCurveTo(52, -67, 47, -5);
+    ctx.moveTo(-48 * body.torsoWidth, -5);
+    ctx.quadraticCurveTo(-49 * body.torsoWidth, -72 * body.torsoLength, -30 * body.shoulderWidth, -108);
+    ctx.quadraticCurveTo(4, -128, 39 * body.shoulderWidth, -106);
+    ctx.quadraticCurveTo(52 * body.torsoWidth, -67 * body.torsoLength, 47 * body.torsoWidth, -5);
     ctx.closePath();
     ctx.fill();
     ctx.stroke();
-    ellipse(ctx, 2, -123, 33, 38, '#d7a17e', -0.02, '#704936', 2.2);
+    ellipse(ctx, 2, -123, 33 * body.headWidth, 38 * body.headHeight, '#d7a17e', -0.02, '#704936', 2.2);
     // Signature nose silhouette.
     ctx.fillStyle = '#c88968';
     ctx.beginPath();
@@ -95,15 +98,16 @@ function drawSupernarizPortrait(ctx: CanvasRenderingContext2D, width: number, he
 }
 
 function drawJuanchiPortrait(ctx: CanvasRenderingContext2D, width: number, height: number): void {
+  const { body } = getCharacterStructure('juanchi');
   portraitFrame(ctx, width, height, '#5b4b22', () => {
     ctx.fillStyle = '#101318';
     ctx.strokeStyle = '#05070a';
     ctx.lineWidth = 3;
     ctx.beginPath();
-    ctx.moveTo(-49, -4);
-    ctx.quadraticCurveTo(-54, -70, -37, -110);
-    ctx.quadraticCurveTo(2, -128, 44, -108);
-    ctx.quadraticCurveTo(54, -66, 49, -4);
+    ctx.moveTo(-49 * body.torsoWidth, -4);
+    ctx.quadraticCurveTo(-54 * body.torsoWidth, -70 * body.torsoLength, -37 * body.shoulderWidth, -110);
+    ctx.quadraticCurveTo(2, -128, 44 * body.shoulderWidth, -108);
+    ctx.quadraticCurveTo(54 * body.torsoWidth, -66 * body.torsoLength, 49 * body.torsoWidth, -4);
     ctx.closePath();
     ctx.fill();
     ctx.stroke();
@@ -111,7 +115,7 @@ function drawJuanchiPortrait(ctx: CanvasRenderingContext2D, width: number, heigh
     ctx.font = '900 16px system-ui, sans-serif';
     ctx.textAlign = 'center';
     ctx.fillText('La 56', 5, -64);
-    ellipse(ctx, 2, -126, 34, 39, '#c88c68', -0.03, '#5c382a', 2.3);
+    ellipse(ctx, 2, -126, 34 * body.headWidth, 39 * body.headHeight, '#c88c68', -0.03, '#5c382a', 2.3);
     ctx.fillStyle = '#171819';
     for (const [x, y, r] of [[-23,-153,10],[-9,-165,11],[5,-168,12],[20,-161,11],[29,-149,9]] as const) {
       ctx.beginPath();
@@ -124,16 +128,17 @@ function drawJuanchiPortrait(ctx: CanvasRenderingContext2D, width: number, heigh
 }
 
 function drawElToroPortrait(ctx: CanvasRenderingContext2D, width: number, height: number): void {
+  const { body } = getCharacterStructure('el-toro');
   portraitFrame(ctx, width, height, '#315b91', () => {
     // Broad torso with oversized shirt.
     ctx.fillStyle = '#f0efe8';
     ctx.strokeStyle = '#2a2d31';
     ctx.lineWidth = 3;
     ctx.beginPath();
-    ctx.moveTo(-58, -3);
-    ctx.quadraticCurveTo(-64, -72, -44, -110);
-    ctx.quadraticCurveTo(3, -132, 54, -108);
-    ctx.quadraticCurveTo(65, -68, 58, -3);
+    ctx.moveTo(-58 * body.torsoWidth, -3);
+    ctx.quadraticCurveTo(-64 * body.torsoWidth, -72 * body.torsoLength, -44 * body.shoulderWidth, -110);
+    ctx.quadraticCurveTo(3, -132, 54 * body.shoulderWidth, -108);
+    ctx.quadraticCurveTo(65 * body.torsoWidth, -68 * body.torsoLength, 58 * body.torsoWidth, -3);
     ctx.closePath();
     ctx.fill();
     ctx.stroke();
@@ -149,7 +154,7 @@ function drawElToroPortrait(ctx: CanvasRenderingContext2D, width: number, height
     ctx.textAlign = 'center';
     ctx.fillText('TE VOY A CHOCAR', 5, -58);
 
-    ellipse(ctx, 3, -132, 37, 40, '#c88a66', -0.02, '#57382c', 2.4);
+    ellipse(ctx, 3, -132, 37 * body.headWidth, 40 * body.headHeight, '#c88a66', -0.02, '#57382c', 2.4);
     ctx.fillStyle = '#2b211d';
     for (const [x, y, r] of [[-28,-158,10],[-15,-170,11],[0,-176,12],[17,-171,12],[30,-159,11]] as const) {
       ctx.beginPath();

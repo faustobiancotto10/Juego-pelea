@@ -96,3 +96,13 @@ Only Neureon issues `ROUND_COMPLETE`. A blocker that requires product/scope judg
 ## Replacement Neureon
 
 A replacement chat becomes Neureon by reading this file, PROTOCOL, CURRENT_ROUND, STATUS, LOCKS, active tasks/forum threads, handoffs, root AGENTS and DECISIONS. Never assume the prior Neureon chat is needed to recover state.
+
+## Durable role learnings
+
+This section is Neureon's bounded persistent operating memory.
+
+After meaningful coordination/audit/closure work, review whether a stable lesson would help a replacement Neureon coordinate future rounds better. If so, update only this section under the protocol's durable-role-memory rules.
+
+Good Neureon learnings include recurring dependency-graph failure modes, reliable round-formation/closure checks, or coordination patterns that repeatedly prevent stale-state mistakes.
+
+Do not store round-specific state here. Promote genuinely system-wide rules through the normal durable-decision path instead of silently changing Neureon's authority.

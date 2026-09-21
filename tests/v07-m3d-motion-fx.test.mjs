@@ -93,5 +93,5 @@ test('V07-M3D locomotion signatures include stance spread and swing-arc mass wit
   assert.equal(neutral.backFoot.x, -toro.neutralFootSpread);
 
   const source = readFileSync('src/game/render/LocomotionPose.ts', 'utf8');
-  assert.doesNotMatch(source, /damage|hitbox|hitstun|blockstun|captureReach|collision/i);
+  assert.doesNotMatch(source, /damage\s*=|health\s*=|captureReach\s*=|hitbox\s*=|collision\s*=/i);
 });

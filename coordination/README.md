@@ -11,17 +11,19 @@ Repository state outranks chat memory. A new or replacement chat must reconstruc
 Start with:
 
 1. `PROTOCOL.md`
-2. `CURRENT_ROUND.md`
-3. `STATUS.md`
-4. `LOCKS.md`
-5. your file under `agents/`
-6. assigned files under `tasks/`
-7. relevant threads under `forum/active/`
-8. project rules in root `AGENTS.md` and `docs/DECISIONS.md`
+2. `TOOLING.md`
+3. `CURRENT_ROUND.md`
+4. `STATUS.md`
+5. `LOCKS.md`
+6. your file under `agents/`
+7. assigned files under `tasks/`
+8. relevant threads under `forum/active/`
+9. project rules in root `AGENTS.md` and `docs/DECISIONS.md`
 
 ## Surfaces
 
 - `PROTOCOL.md` — team constitution and round lifecycle.
+- `TOOLING.md` — host capability routing, required fallbacks and truthful tool-use rules.
 - `CURRENT_ROUND.md` — only the current round; old instructions never live here.
 - `STATUS.md` — current per-agent state.
 - `LOCKS.md` — temporary file ownership while agents work.

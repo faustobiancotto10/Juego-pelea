@@ -441,35 +441,17 @@ export function drawJuanchi(
   roundedLine(ctx, backKnee.x - 11, -backKnee.y + 13, backKnee.x + 11, -backKnee.y + 13, 2.8, '#272c32');
   roundedLine(ctx, 11, -75 + action.drop, 28, -74 + action.drop, 2.2, '#d8b65c');
 
-  // Jacket tied around the waist: two hanging sleeves and gold cuff stripes from the master.
-  ctx.save();
-  ctx.fillStyle = '#11151b';
-  ctx.strokeStyle = '#05070a';
-  ctx.lineWidth = 2;
-  ctx.beginPath();
-  ctx.moveTo(-31, -78 + action.drop);
-  ctx.quadraticCurveTo(-19, -64 + action.drop, -8, -70 + action.drop);
-  ctx.lineTo(-14, -30 + action.drop);
-  ctx.quadraticCurveTo(-26, -25 + action.drop, -34, -42 + action.drop);
-  ctx.closePath();
-  ctx.fill();
-  ctx.stroke();
-  ctx.beginPath();
-  ctx.moveTo(28, -78 + action.drop);
-  ctx.quadraticCurveTo(17, -64 + action.drop, 8, -70 + action.drop);
-  ctx.lineTo(16, -31 + action.drop);
-  ctx.quadraticCurveTo(28, -27 + action.drop, 35, -43 + action.drop);
-  ctx.closePath();
-  ctx.fill();
-  ctx.stroke();
-  roundedLine(ctx, -17, -36 + action.drop, -30, -39 + action.drop, 2.2, '#d8b65c');
-  roundedLine(ctx, 18, -37 + action.drop, 31, -40 + action.drop, 2.2, '#d8b65c');
-  ellipse(ctx, -1, -72 + action.drop, 9, 6, '#20252d', 0.02, '#05070a', 1.4);
-  roundedLine(ctx, -4, -70 + action.drop, -19, -57 + action.drop, 3, '#343a44');
-  roundedLine(ctx, 3, -70 + action.drop, 20, -57 + action.drop, 3, '#303741');
-  drawStitchLine(ctx, -28, -58 + action.drop, -18, -35 + action.drop, '#4a515c', 0.9, [3, 4], 0.35);
-  drawStitchLine(ctx, 27, -58 + action.drop, 18, -35 + action.drop, '#474e58', 0.9, [3, 4], 0.35);
-  ctx.restore();
+  // Canonical waist treatment: cargo waistband, belt loops and gold hardware.
+  // The legacy tied-jacket cue is intentionally removed; it is not part of the
+  // authoritative Juanchi package/master identity.
+  roundedLine(ctx, -29, -78 + action.drop, 29, -78 + action.drop, 5.5, '#0c0f13');
+  for (const loopX of [-22, -8, 8, 22]) {
+    roundedLine(ctx, loopX, -82 + action.drop, loopX, -74 + action.drop, 2, '#343a42');
+  }
+  ellipse(ctx, 1, -78 + action.drop, 4.5, 3.5, '#c6a553', 0, '#5f4a21', 1);
+  roundedLine(ctx, -23, -73 + action.drop, -23, -59 + action.drop, 1.6, '#d8b65c');
+  ellipse(ctx, -23, -56 + action.drop, 3.2, 3.2, '#d8b65c', 0, '#6b5524', 0.8);
+  drawStitchLine(ctx, -30, -71 + action.drop, 30, -71 + action.drop, '#4d535b', 0.8, [4, 4], 0.36);
 
   // Black/white sneakers with a restrained gold stripe.
   roundedLine(ctx, action.frontFoot.x - 12, -action.frontFoot.y + 4, action.frontFoot.x + 21, -action.frontFoot.y + 4, 5.5, '#080a0d');

@@ -2,6 +2,7 @@
 
 | Path / subsystem | Owner | Task | Reason |
 | --- | --- | --- | --- |
+| `tests/v07-g2-character-pipeline-audit.test.mjs` | Germinator | V07-G2 | Independent QA probes only; no production edits. |
 
 V07-M3 current reference-fidelity candidate `032b1bb28c5dd4421e5772cc40ab007f42e4d462` is GREEN at Character Pipeline V2 run #36 / `35567747782` (336/336 + build + visual artifact + raster guard). Mario released all M3R renderer locks; Germinator V07-G2 is eligible. Initial structural candidate `e053e0b187acff3b4555ce8d537e9fd9ca616303` is historical.
 

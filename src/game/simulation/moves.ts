@@ -30,11 +30,11 @@ export interface HitboxSpec {
   level: AttackLevel;
   strong: boolean;
   guardDamage: number;
+  blockKnockback?: number;
 }
 
 export interface MoveHitWindow extends HitboxSpec {
   hitId: string;
-  blockKnockback?: number;
 }
 
 export interface MoveDefinition {

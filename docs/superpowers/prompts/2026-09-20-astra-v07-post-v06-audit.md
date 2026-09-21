@@ -1,4 +1,20 @@
-# ASTRA MASTER PROMPT — POST-V0.6 AUDIT AND V0.7 IMPLEMENTATION PLAN
+# SUPERSEDED — ASTRA V0.7 AUDIT PROMPT
+
+Status: HISTORICAL BRIEF / DO NOT EXECUTE AS CURRENT INSTRUCTION
+
+The external Astra run did not persist its required outputs before credits ended. At direct user instruction, Neureon used this brief as the starting point, audited the shipped V0.6 source, completed the V0.7 specs/plan, persisted El Toro references, and opened R005.
+
+Current authority:
+- `coordination/CURRENT_ROUND.md`
+- `coordination/tasks/V07-*.md`
+- `docs/superpowers/specs/2026-09-20-v07-*.md`
+- `docs/superpowers/plans/2026-09-20-v07-implementation-plan.md`
+
+The original prompt is retained below only as provenance.
+
+---
+
+# Original Astra master prompt
 
 ## ROLE
 

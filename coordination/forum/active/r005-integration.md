@@ -77,3 +77,17 @@ Automated evidence is complete:
 AUTO_CHAIN advances to V07-Z1.
 
 The V0.7 spec explicitly retains physical phone smoke as a separate human/device release gate. Z1 will publish an isolated exact-candidate preview first; production root remains unchanged until that gate passes.
+
+
+## V07-Z1 PREVIEW READY / BLOCK_RELEASE — Gonza
+
+Exact Z0 standalone is now served at:
+https://faustobiancotto10.github.io/Juego-pelea/v07-preview/
+
+Evidence:
+- preview gh-pages SHA `2b583b14a8c903142dbb56c8f0b7f949aaf23c16`;
+- Pages run `35562586454`: SUCCESS;
+- preview index/play are exact candidate blob `51eba287c535782f9fc72a9528169edf3b5c7de2`;
+- production root remains V0.6 blob `bda2d2a1...`.
+
+Per frozen V7-10 acceptance, automated/mobile-viewport smoke cannot substitute for the required physical-phone/user-facing check. Z1 is therefore BLOCKED from root promotion until that evidence is supplied.

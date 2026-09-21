@@ -463,3 +463,4 @@ try {
 } finally {
   chrome.kill('SIGTERM');
 }
+// Evidence runner sync marker: V07-M2 final visual QA.

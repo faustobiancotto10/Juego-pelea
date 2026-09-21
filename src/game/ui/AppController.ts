@@ -139,7 +139,7 @@ export class AppController {
           <span class="cover-sigil cover-sigil--right">J</span>
         </div>
         <section class="cover-copy">
-          <span class="cover-kicker">V0.6 · TRES LUCHADORES · DOS ESCENARIOS</span>
+          <span class="cover-kicker">V0.7 · CUATRO LUCHADORES · DOS ESCENARIOS</span>
           <h1><span>JUEGO</span><strong>PELEA</strong></h1>
           <p>Elegí luchador, rival y escenario. Después resolvelo en la cancha.</p>
           <div class="cover-actions">
@@ -673,7 +673,7 @@ export class AppController {
           <div class="controls-heading"><span>GUÍA RÁPIDA</span><strong>CONTROLES</strong><button data-controls-close type="button" aria-label="Cerrar controles">×</button></div>
           <div class="controls-grid">
             <section><h3>MOVIMIENTO</h3><p><b>D-pad</b><span>Moverse</span></p><p><b>Atrás</b><span>Retroceder / bloquear</span></p><p><b>Abajo + atrás</b><span>Bloqueo bajo</span></p><p><b>Doble adelante</b><span>Dash</span></p><p><b>Doble atrás</b><span>Backdash / esquiva</span></p></section>
-            <section><h3>ACCIONES</h3><p><b>JUMP</b><span>Saltar / ataque aéreo con ATTACK</span></p><p><b>ATTACK</b><span>Ataque normal / cadena corta</span></p><p><b>Abajo + ATTACK</b><span>Low normal en el suelo</span></p><p><b>SPECIAL sin dirección</b><span>Especial a distancia: Lengua / Chorizo / Rugby Búmeran</span></p><p><b>Abajo + SPECIAL</b><span>Especial cercano: Coletazo / Tramontana / Fricción</span></p><p><b>SPECIAL bloqueando</b><span>Push Guard: pide separación usando GUARD</span></p><p><b>ULTIMATE (Touch)</b><span>Intento de Ultimate; requiere SUPER READY</span></p><p><b>L (teclado)</b><span>Ultimate dedicado en desktop</span></p></section>
+            <section><h3>ACCIONES</h3><p><b>JUMP</b><span>Saltar / ataque aéreo con ATTACK</span></p><p><b>ATTACK</b><span>Ataque normal / cadena corta</span></p><p><b>Abajo + ATTACK</b><span>Low normal en el suelo</span></p><p><b>SPECIAL sin dirección</b><span>Especial a distancia según luchador</span></p><p><b>Abajo + SPECIAL</b><span>Especial cercano según luchador</span></p><p><b>SPECIAL bloqueando</b><span>Push Guard: pide separación usando GUARD</span></p><p><b>ULTIMATE (Touch)</b><span>Intento de Ultimate; requiere SUPER READY</span></p><p><b>L (teclado)</b><span>Ultimate dedicado en desktop</span></p></section>
           </div>
           <div class="controls-tips"><strong>COMBATE</strong><span>Bloquear consume GUARD · El low vence guardia alta · Saltar evita lows · SPECIAL neutro controla distancia · Abajo + SPECIAL es la opción cercana · La disponibilidad del proyectil se muestra en HUD cuando aplica · Touch: ULTIMATE · Teclado: L</span></div>
         </div>

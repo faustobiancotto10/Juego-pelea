@@ -2,11 +2,12 @@
 
 | Path / subsystem | Owner | Task | Reason |
 | --- | --- | --- | --- |
+| `src/game/render/LocomotionPose.ts` | Mario-D | V07-M3D | Shared travel-driven gait and fighter-specific motion signatures. |
+| `src/game/render/PresentationPose.ts` | Mario-D | V07-M3D | Shared action phase/body-language presentation. |
+| `src/game/render/AttackPresentation.ts` | Mario-D | V07-M3D | Render-only attack presentation profiles and timing interpretation. |
+| `src/game/render/CombatEffects.ts` | Mario-D | V07-M3D | Shared combat FX, trails, contact bursts and aura presentation. |
 | `src/game/render/ChameleonRig.ts` | Mario-C | V07-M3C | Fighter-specific Camaleoni reference-fidelity reconstruction. |
 | `src/game/render/SupernarizRig.ts` | Mario-C | V07-M3C | Fighter-specific Supernariz reference-fidelity reconstruction. |
-| `src/game/render/CharacterStructure.ts` | Mario-A | V07-M3A | Shared character-structure/anatomy primitives audit and improvement. |
-| `src/game/render/ReferenceDetailPrimitives.ts` | Mario-A | V07-M3A | Shared material/detail primitives for reference fidelity. |
-| `src/game/render/RigAnchors.ts` | Mario-A | V07-M3A | Shared structural anchor contract; cross-lane anchor requests route through Mario-A. |
 | `src/game/render/CharacterStructure.ts` | Mario-A | V07-M3A | Shared character structure / anatomy architecture audit and improvement. |
 | `src/game/render/ReferenceDetailPrimitives.ts` | Mario-A | V07-M3A | Shared reusable visual-detail/material primitives. |
 | `src/game/render/RigAnchors.ts` | Mario-A | V07-M3A | Shared renderer anchor contract inspection; no gameplay authority. |

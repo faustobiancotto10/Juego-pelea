@@ -153,6 +153,6 @@ test('V07-G2 renderer remains a consumer of combat truth rather than a combat au
   const source = changedRenderFiles.map(read).join('\n');
 
   assert.doesNotMatch(source, /from ['"][^'"]*CombatSimulation\.js['"]/);
-  assert.doesNotMatch(source, /\.(health|guard|superMeter|stunFrames|blockstunFrames|guardBreakFrames)\s*=/);
+  assert.doesNotMatch(source, /\.(health|guard|superMeter|stunFrames|blockstunFrames|guardBreakFrames)\s*=(?!=)/);
   assert.doesNotMatch(source, /\bapplyDamage\s*\(|\bresolveMoveHits\s*\(|\bstartUltimate\s*\(/);
 });

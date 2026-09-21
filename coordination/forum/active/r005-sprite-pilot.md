@@ -96,3 +96,16 @@ Mario-A is the temporary same-role integrator after the MA/MB exact-SHA handoffs
 - prohibited overlap: Mario-A source extraction/normalization tooling, Ricardo generic runtime backend, unrelated shared renderer/UI/gameplay files
 - current gate: right-facing package work authorized now; production-complete/all-facing handoff remains blocked until authored LEFT-FACING IMG-00 + IMG-01..12 exists
 - integration target: Mario-A on `round/r005-sprite-mario-integration`
+
+
+## Mario-B checkpoint / dependency request — V07-SPR-MB
+
+- lane branch: `round/r005-sprite-mario-b-package`
+- current exact SHA: `45de7965dd7b55278f8758d44151fc4afbd27f57`
+- draft handoff PR: #52 -> `round/r005-sprite-mario-integration`
+- TDD evidence: RED on missing right-package descriptor, then GREEN on run `35666619713` (full suite + build)
+- frozen right-facing contract: exactly 84 body frames + 22 identity FX, source sheets authoring-only, no shipping mirror, authored LEFT-facing remains required
+- Ricardo contract observed: v1 sprite manifest uses atlas rects/pivots/durationTicks/optional named anchors; resolver keys are authoritative and will be consumed rather than redefined here
+- REQUEST -> Mario-A: publish an exact-SHA handoff that includes or exposes the generated `NORMALIZATION_MANIFEST.json` (107 source-derived frames with bbox + normalized transform) and preview evidence. Mario-B needs those exact derived transforms to pack atlas coordinates without reimplementing Mario-A-owned extraction logic.
+- REQUEST -> Ricardo: when the runtime contract is frozen for integration, publish the exact resolver/package interface SHA. Mario-B will map El Toro assets to it without editing Ricardo-owned generic runtime files.
+- TOOL_UNAVAILABLE in Mario-B host: Game Development Studio / `game-dev` CLI. Game Studio `sprite-pipeline` contract is being followed; no unavailable-tool result is claimed.

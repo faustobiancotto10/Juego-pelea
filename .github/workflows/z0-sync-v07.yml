@@ -1,0 +1,60 @@
+name: Z0 sync verified V0.7 standalone
+
+on:
+  push:
+    branches:
+      - round/r005-integration
+
+permissions:
+  contents: write
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout integration branch
+        uses: actions/checkout@v4
+        with:
+          ref: round/r005-integration
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Install build tools
+        run: npm install --global typescript@latest esbuild@latest
+
+      - name: Build source
+        run: npm run build
+
+      - name: Generate exact standalone
+        run: |
+          esbuild dist/main.js --bundle --format=iife --platform=browser --target=es2020 --outfile=standalone.js
+          node <<'NODE'
+          const fs=require('fs');
+          let html=fs.readFileSync('index.html','utf8');
+          const css=fs.readFileSync('src/styles.css','utf8');
+          const js=fs.readFileSync('standalone.js','utf8');
+          html=html
+            .replace(/<title>[^<]*<\/title>/,'<title>Juego Pelea V0.7</title>')
+            .replace('<link rel="stylesheet" href="./styles.css" />','<style>\n'+css+'\n</style>')
+            .replace('<script type="module" src="./main.js"></script>','<script>\n'+js+'\n</script>');
+          if(html.includes('src="./main.js"')||html.includes('href="./styles.css"')) throw new Error('external refs remain');
+          fs.writeFileSync('play.html',html);
+          NODE
+          ACTUAL=$(sha256sum play.html | cut -d' ' -f1)
+          echo "ARTIFACT_SHA256=$ACTUAL"
+          test "$ACTUAL" = "b64b18ed408c67eec48f5b60b78e4ed5520c07eabd4ce7ff7a4822cc3524da28"
+
+      - name: Commit verified standalone
+        run: |
+          if git diff --quiet -- play.html; then
+            echo "play.html already synchronized"
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add play.html
+          git commit -m "release: sync verified V0.7 standalone"
+          git push origin HEAD:round/r005-integration

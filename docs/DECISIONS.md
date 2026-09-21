@@ -54,3 +54,12 @@
 - 2026-09-20: El Toro is a heavy bruiser/line-breaker. Shawarmazo reuses the linear projectile lifecycle; Topete uses a bounded data-driven committed-movement Special primitive; Super Eructo introduces one bounded non-capture `forwardBlast` Ultimate primitive and participates in Universal Ultimate Clash.
 - 2026-09-20: Fighter-select portraits/icons are procedural game representations keyed by presentation metadata. Uploaded/source character references remain authoring-only and may never be cropped/loaded into runtime cards.
 - 2026-09-20: V0.7 does not add an El Toro stage, fifth action button, generic ECS/scripting/animation graph, online/story/shop systems or a long-combo redesign.
+
+- 2026-09-21: After R005/V0.7 closes, fighter body presentation is approved to migrate from procedural articulated rigs to derived sprite animation packages. Source/reference sheets remain authoring-only; production sprites are normalized derived assets.
+- 2026-09-21: The sprite renderer remains strictly presentation-only. Existing deterministic 60 Hz simulation owns all hitboxes, damage, move legality, stun, projectiles, CPU and Clash truth.
+- 2026-09-21: Temporary procedural/sprite dual rendering is allowed only as a migration mechanism. Final production cutover requires all currently playable fighters to pass the sprite-body acceptance contract; no permanent mixed-art roster is intended.
+- 2026-09-21: Character/content growth should extend declarative character packages and reusable bounded gameplay primitives rather than central fighter-ID conditionals.
+- 2026-09-21: New game modes should be isolated behind explicit mode contracts rather than widening conditionals inside the normal fight scene; the exact mode API is deferred until the first new mode is specified.
+- 2026-09-21: Durable agent identity is separate from temporary chat instances. Any role may scale to multiple isolated lanes when work is safely separable, with one integrated candidate before downstream QA.
+- 2026-09-21: Identity Learning Review is a mandatory closeout step for every meaningful agent task/session. The review may validly yield NO_CHANGE; skipping the review is invalid.
+- 2026-09-21: Repository tool policy can route Superpowers, Game Studio and Game Development Studio when available, but cannot assert host capability availability. Missing required capability is reported as TOOL_UNAVAILABLE.

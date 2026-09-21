@@ -6,6 +6,7 @@ const read = (path) => readFileSync(path, 'utf8');
 
 const requiredFiles = [
   'coordination/README.md',
+  'coordination/TOOLING.md',
   'coordination/PROTOCOL.md',
   'coordination/CURRENT_ROUND.md',
   'coordination/STATUS.md',
@@ -24,6 +25,7 @@ const requiredFiles = [
   'coordination/templates/task.md',
   'coordination/templates/handoff.md',
   'coordination/templates/round-archive.md',
+  'coordination/templates/squad-lane.md',
   'coordination/archive/README.md',
 ];
 
@@ -126,7 +128,8 @@ test('root agent rules advertise the coordination workflow without losing game c
   assert.match(agents, /coordination\/STATUS\.md/);
   assert.match(agents, /coordination\/agents\//);
   assert.match(agents, /60 Hz/);
-  assert.match(agents, /visual references only/i);
+  assert.match(agents, /authoring references only/i);
+  assert.match(agents, /derived.+sprite/i);
 });
 
 test('forum and handoff templates enforce collaboration rather than isolated logging', () => {
@@ -140,4 +143,58 @@ test('forum and handoff templates enforce collaboration rather than isolated log
   assert.match(thread, /Requested action:/);
   assert.match(handoff, /does not end/i);
   assert.match(handoff, /ROUND_COMPLETE/);
+});
+
+
+test('identity learning is mandatory and leaves an explicit receipt', () => {
+  const protocol = read('coordination/PROTOCOL.md');
+  const handoff = read('coordination/templates/handoff.md');
+  const task = read('coordination/templates/task.md');
+
+  assert.match(protocol, /Identity Learning Review/);
+  assert.match(protocol, /UPDATED/);
+  assert.match(protocol, /PROPOSAL/);
+  assert.match(protocol, /NO_CHANGE/);
+  assert.match(protocol, /skipping.+review.+not/i);
+
+  assert.match(handoff, /Identity Learning Receipt/);
+  assert.match(handoff, /UPDATED \| PROPOSAL \| NO_CHANGE/);
+  assert.match(task, /identity-learning review/i);
+});
+
+test('all durable identities advertise reusable closeout learning and tooling discovery', () => {
+  for (const file of ['neureon', 'ricardo', 'mario', 'brancaforte', 'germinator', 'gonza']) {
+    const content = read(`coordination/agents/${file}.md`);
+    assert.match(content, /Identity Learning Review/);
+    assert.match(content, /Durable role learnings/);
+    assert.match(content, /coordination\/TOOLING\.md/);
+  }
+});
+
+test('same-role squads are generic and safe to scale horizontally', () => {
+  const protocol = read('coordination/PROTOCOL.md');
+  const template = read('coordination/templates/squad-lane.md');
+
+  assert.match(protocol, /identity is not an instance/i);
+  assert.match(protocol, /same-role/i);
+  assert.match(protocol, /exact-SHA/i);
+  assert.match(protocol, /integrator/i);
+  assert.match(protocol, /do not.+race/i);
+
+  assert.match(template, /Durable identity/);
+  assert.match(template, /Instance label/);
+  assert.match(template, /Owned files/);
+  assert.match(template, /Integration target/);
+});
+
+test('tooling contract routes capabilities without pretending availability', () => {
+  const tooling = read('coordination/TOOLING.md');
+
+  assert.match(tooling, /Superpowers/);
+  assert.match(tooling, /Game Studio/);
+  assert.match(tooling, /Game Development Studio/);
+  assert.match(tooling, /sprite-pipeline/);
+  assert.match(tooling, /game-dev --version/);
+  assert.match(tooling, /TOOL_UNAVAILABLE/);
+  assert.match(tooling, /cannot.+install|cannot.+enable/i);
 });

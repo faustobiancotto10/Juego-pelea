@@ -110,3 +110,15 @@ Verification:
 - runtime raster/reference guard: PASS.
 
 The prior M3I visual blocker is resolved. Baseline→refreshed integrated changed-pixel coverage is ~8.35% normal color, ~4.31% neutral silhouette and ~10.13% 844×390 phone landscape; direct inspection confirms materially stronger structural separation across all four fighters. V07-M3I is HANDOFF_READY and Germinator V07-G2 is READY for independent audit. Gonza remains blocked until G2 verdict.
+
+## Approved post-R005 architecture
+
+The user approved the post-R005 sprite/content/agent scaling architecture on 2026-09-21:
+
+- design: `docs/superpowers/specs/2026-09-21-sprite-scale-agent-architecture-design.md`;
+- coordination/tooling implementation plan: `docs/superpowers/plans/2026-09-21-agent-system-tooling-plan.md`;
+- sprite-runtime migration plan: `docs/superpowers/plans/2026-09-21-sprite-runtime-migration-plan.md`.
+
+This approval does **not** change the current R005/V0.7 runtime, candidate SHA, task eligibility, preview, phone-acceptance gate or production release state. Procedural fighter bodies remain the R005 production contract.
+
+The next sprite/scalability implementation round opens only after R005 reaches `ROUND_COMPLETE` and V0.7 production promotion is finished, unless the user explicitly reopens R005 scope. That future round begins with the El Toro sprite vertical slice and may fan out to same-role Mario ×N lanes only after the slice passes user/device acceptance.

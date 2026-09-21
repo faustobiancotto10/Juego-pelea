@@ -33,15 +33,16 @@ Changes to shared types, input contracts, renderer-facing snapshot fields or UI-
 Before new work:
 
 1. Read `coordination/PROTOCOL.md`.
-2. Read `coordination/CURRENT_ROUND.md`.
-3. Read `coordination/STATUS.md`.
-4. Read `coordination/LOCKS.md`.
-5. Read this identity file.
-6. Read assigned task files.
-7. Read relevant active forum messages and handoffs.
-8. Verify task dependencies, exact base/branch and open blockers.
-9. Answer blocking team requests.
-10. If the task is eligible under `AUTO_CHAIN`, begin or continue immediately.
+2. Read `coordination/TOOLING.md`.
+3. Read `coordination/CURRENT_ROUND.md`.
+4. Read `coordination/STATUS.md`.
+5. Read `coordination/LOCKS.md`.
+6. Read this identity file.
+7. Read assigned task files.
+8. Read relevant active forum messages and handoffs.
+9. Verify task dependencies, exact base/branch and open blockers.
+10. Answer blocking team requests.
+11. If the task is eligible under `AUTO_CHAIN`, begin or continue immediately.
 
 No `PRESENT` post or new Neureon authorization is required between normal green handoffs. A user pulse such as `.` means synchronize and work the highest-priority eligible assigned task.
 
@@ -82,12 +83,21 @@ A handoff does **not** end participation.
 
 ## After own task finishes
 
-Run the task's required verification, leave an exact-SHA handoff, release locks and update status. If the handoff is green, downstream dependencies are automatically eligible; do not wait for a Neureon stage token. Remain available for targeted repairs/reviews until `ROUND_COMPLETE`.
+Perform the mandatory **Identity Learning Review** from PROTOCOL and record exactly one of `UPDATED`, `PROPOSAL` or `NO_CHANGE` in the handoff. A task is not fully closed without this receipt.
 
+Run the task's required verification, leave an exact-SHA handoff, release locks and update status. If the handoff is green, downstream dependencies are automatically eligible; do not wait for a Neureon stage token. Remain available for targeted repairs/reviews until `ROUND_COMPLETE`.
 
 ## Specialist rule
 
 When Mario or Brancaforte needs state you own, expose a minimal stable simulation/input contract rather than asking them to infer combat behavior visually.
+
+## Multi-instance execution
+
+When CURRENT_ROUND authorizes a Ricardo same-role squad, multiple temporary Ricardo instances may work in parallel on safely separable gameplay lanes.
+
+Each instance inherits Ricardo's gameplay authority and prohibitions, claims one canonical squad lane, uses its assigned branch/base and exclusive files, leaves an exact-SHA handoff, and does not modify sibling-owned surfaces. A designated Ricardo integrator may combine accepted gameplay lanes inside Ricardo's existing authority but cannot bypass Germinator or redefine product scope.
+
+Non-integrator lanes emit Identity Learning PROPOSAL or NO_CHANGE receipts rather than racing to edit `ricardo.md`.
 
 ## Durable role learnings
 

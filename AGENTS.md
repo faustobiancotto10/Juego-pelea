@@ -1,9 +1,9 @@
 # Agent Rules
 
-1. Supplied fighter images and sprite sheets are visual references only. Never crop, embed, or load them as runtime fighter sprites/textures.
-2. Fighters are reconstructed as procedural articulated 2D vector rigs. If a change turns them into flat moving stickers, reject it.
-3. Simulation owns combat truth. Renderer animations never determine hitboxes, damage, stun, or move legality.
-4. Logical combat runs at fixed 60 Hz. Do not use wall-clock timers for move frames, stun, cooldowns, or hitstop.
+1. Supplied/source fighter images, sprite sheets and general concept sheets are **authoring references only**. Never crop, embed or load them directly as runtime fighter textures.
+2. During active R005/V0.7, procedural articulated fighter-body rigs remain the production runtime. After R005 closes, the user-approved sprite migration may create **derived normalized sprite** assets under the approved sprite architecture; final production cutover requires every currently playable fighter to pass the sprite-body acceptance contract.
+3. Simulation owns combat truth. Renderer animations never determine hitboxes, damage, stun, move legality, projectile legality, CPU decisions or Clash outcomes.
+4. Logical combat runs at fixed 60 Hz. Do not use wall-clock timers for move frames, stun, cooldowns, hitstop or sprite combat timing.
 5. Mobile landscape is primary. Keep the playfield clear and controls usable on a phone.
 6. Update `docs/CURRENT_MILESTONE.md` when meaningful progress or blockers change.
 7. Every animation must physically communicate the action it represents. Position translation alone does not constitute a valid animation. Apply the reusable [animation-quality contract](docs/superpowers/specs/2026-09-20-v06-animation-quality-contract.md); preparation, force production, movement/contact and recovery must remain readable without effects.
@@ -13,12 +13,13 @@
 When participating in the repository's multi-agent workflow, **before modifying the project** read:
 
 1. `coordination/PROTOCOL.md`
-2. `coordination/CURRENT_ROUND.md`
-3. `coordination/STATUS.md`
-4. `coordination/LOCKS.md`
-5. your identity file under `coordination/agents/`
-6. assigned task files under `coordination/tasks/`
-7. relevant threads under `coordination/forum/active/`
+2. `coordination/TOOLING.md`
+3. `coordination/CURRENT_ROUND.md`
+4. `coordination/STATUS.md`
+5. `coordination/LOCKS.md`
+6. your identity file under `coordination/agents/`
+7. assigned task files under `coordination/tasks/`
+8. relevant threads under `coordination/forum/active/`
 
 Repository coordination state outranks chat memory.
 

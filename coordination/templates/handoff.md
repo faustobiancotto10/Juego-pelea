@@ -30,6 +30,20 @@ Commit SHA: <sha>
 
 <what recipient should do>
 
+## Identity Learning Receipt
+
+Result: UPDATED | PROPOSAL | NO_CHANGE
+
+Reusable lesson / proposal:
+- <concise reusable lesson, or "none">
+
+Identity file update:
+- <path + commit if UPDATED, consolidator target if PROPOSAL, or "none" if NO_CHANGE>
+
+## Tool capability receipt
+
+- <TOOL_USED: capability — evidence | TOOL_UNAVAILABLE: capability — fallback/blocker | "not material to this task">
+
 ## Participation
 
 This handoff does not end the sender's participation. The sender remains part of the round, answers follow-up questions and responds to fixes until Neureon posts `ROUND_COMPLETE`.

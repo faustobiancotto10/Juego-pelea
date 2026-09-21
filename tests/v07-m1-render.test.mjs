@@ -154,3 +154,17 @@ test('Juanchi Police Cap Rage uses a genuine procedural aura outside the body si
   assert.match(source, /action\.rage/);
   assert.doesNotMatch(source, /new Image\(|drawImage\(|\.png|\.jpg|\.jpeg|spritesheet/i);
 });
+
+
+test('Juanchi rage aura has one implementation and is invoked behind the articulated body', () => {
+  const source = readFileSync('src/game/render/JuanchiRig.ts', 'utf8');
+  const definitions = source.match(/(?:export\s+)?function\s+drawJuanchiRageAura\s*\(/g) ?? [];
+  assert.equal(definitions.length, 1, 'rage aura must have exactly one implementation');
+  const definitionIndex = source.indexOf('function drawJuanchiRageAura');
+  const drawIndex = source.indexOf('export function drawJuanchi');
+  const callIndex = source.indexOf('drawJuanchiRageAura(ctx', drawIndex);
+  const legIndex = source.indexOf('const frontHip', drawIndex);
+  assert.ok(definitionIndex >= 0);
+  assert.ok(callIndex > drawIndex, 'drawJuanchi must invoke the aura');
+  assert.ok(callIndex < legIndex, 'aura must render behind the body silhouette');
+});

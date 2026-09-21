@@ -105,6 +105,7 @@ export const CAMALEONI_CHARACTER_CONTENT: CombatCharacterContent = {
   },
   presentation: {
     rigKey: 'chameleon',
+    portraitKey: 'chameleon',
     ultimateVisualKey: 'camaleoni',
     accent: '#7abf43',
     effectAccent: '#9fe870',

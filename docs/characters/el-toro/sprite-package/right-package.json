@@ -1,0 +1,194 @@
+{
+  "version": 1,
+  "fighterId": "el-toro",
+  "facing": "right",
+  "mirrorSafe": false,
+  "shippingState": "pilot-right-only",
+  "master": {
+    "id": "IMG-00",
+    "source": "docs/characters/el-toro/sprite-source/right/el-toro__IMG-00__master-seed.png"
+  },
+  "body": [
+    {
+      "id": "IMG-01",
+      "semanticKey": "idle",
+      "frames": 8,
+      "grid": [
+        2,
+        4
+      ],
+      "source": "docs/characters/el-toro/sprite-source/right/el-toro__IMG-01__idle.png"
+    },
+    {
+      "id": "IMG-02",
+      "semanticKey": "walk-forward",
+      "frames": 8,
+      "grid": [
+        2,
+        4
+      ],
+      "source": "docs/characters/el-toro/sprite-source/right/el-toro__IMG-02__forward-shuffle.png"
+    },
+    {
+      "id": "IMG-03",
+      "semanticKey": "walk-back",
+      "frames": 8,
+      "grid": [
+        2,
+        4
+      ],
+      "source": "docs/characters/el-toro/sprite-source/right/el-toro__IMG-03__backward-shuffle.png"
+    },
+    {
+      "id": "IMG-04",
+      "semanticKey": "crouch",
+      "frames": 4,
+      "grid": [
+        1,
+        4
+      ],
+      "source": "docs/characters/el-toro/sprite-source/right/el-toro__IMG-04__crouch.png"
+    },
+    {
+      "id": "IMG-05",
+      "semanticKey": "jump",
+      "frames": 6,
+      "grid": [
+        2,
+        3
+      ],
+      "source": "docs/characters/el-toro/sprite-source/right/el-toro__IMG-05__jump.png"
+    },
+    {
+      "id": "IMG-06",
+      "semanticKey": "basic-attack",
+      "frames": 6,
+      "grid": [
+        2,
+        3
+      ],
+      "source": "docs/characters/el-toro/sprite-source/right/el-toro__IMG-06__basic-attack.png"
+    },
+    {
+      "id": "IMG-07",
+      "semanticKey": "low-attack",
+      "frames": 6,
+      "grid": [
+        2,
+        3
+      ],
+      "source": "docs/characters/el-toro/sprite-source/right/el-toro__IMG-07__low-attack.png"
+    },
+    {
+      "id": "IMG-08",
+      "semanticKey": "block",
+      "frames": 4,
+      "grid": [
+        1,
+        4
+      ],
+      "source": "docs/characters/el-toro/sprite-source/right/el-toro__IMG-08__block.png"
+    },
+    {
+      "id": "IMG-09",
+      "semanticKey": "hurt-knockdown",
+      "frames": 8,
+      "grid": [
+        2,
+        4
+      ],
+      "source": "docs/characters/el-toro/sprite-source/right/el-toro__IMG-09__hurt-knockdown.png"
+    },
+    {
+      "id": "IMG-10",
+      "semanticKey": "topete",
+      "frames": 8,
+      "grid": [
+        2,
+        4
+      ],
+      "source": "docs/characters/el-toro/sprite-source/right/el-toro__IMG-10__topete.png"
+    },
+    {
+      "id": "IMG-11",
+      "semanticKey": "shawarmazo",
+      "frames": 8,
+      "grid": [
+        2,
+        4
+      ],
+      "source": "docs/characters/el-toro/sprite-source/right/el-toro__IMG-11__shawarmazo.png"
+    },
+    {
+      "id": "IMG-12",
+      "semanticKey": "super-eructo",
+      "frames": 10,
+      "grid": [
+        2,
+        5
+      ],
+      "source": "docs/characters/el-toro/sprite-source/right/el-toro__IMG-12__super-eructo.png"
+    }
+  ],
+  "effects": [
+    {
+      "id": "FX-01",
+      "semanticKey": "topete-impact",
+      "frames": 4,
+      "grid": [
+        1,
+        4
+      ],
+      "source": "docs/characters/el-toro/sprite-source/right/el-toro__FX-01__topete-impact.png"
+    },
+    {
+      "id": "FX-02",
+      "semanticKey": "shawarmazo-projectile",
+      "frames": 8,
+      "grid": [
+        2,
+        4
+      ],
+      "source": "docs/characters/el-toro/sprite-source/right/el-toro__FX-02__shawarmazo-projectile.png"
+    },
+    {
+      "id": "FX-03",
+      "semanticKey": "shawarmazo-impact",
+      "frames": 4,
+      "grid": [
+        1,
+        4
+      ],
+      "source": "docs/characters/el-toro/sprite-source/right/el-toro__FX-03__shawarmazo-impact.png"
+    },
+    {
+      "id": "FX-04",
+      "semanticKey": "super-eructo-effect",
+      "frames": 6,
+      "grid": [
+        2,
+        3
+      ],
+      "source": "docs/characters/el-toro/sprite-source/right/el-toro__FX-04__super-eructo-effect.png"
+    }
+  ],
+  "normalization": {
+    "pivotPolicy": "bottom-center-per-frame",
+    "sharedScaleAcrossAnimation": true,
+    "requiredAnchors": [
+      "pivot",
+      "head",
+      "chest",
+      "frontHand",
+      "backHand",
+      "belt",
+      "frontFoot",
+      "backFoot"
+    ]
+  },
+  "runtimePolicy": {
+    "sourceSheetsAllowed": false,
+    "leftFacingRequiredForShipping": true,
+    "horizontalMirrorAllowedForBodyShipping": false
+  }
+}

@@ -278,17 +278,16 @@ export class FightRenderer {
     const ultimateFinisher = ultimateHit && event.finisher;
     const majorImpact = ultimateHit && event.majorImpact === true;
     const peakImpact = majorImpact || ultimateFinisher;
-    const presentation = resolveAttackPresentationProfile(attacker.id, event.moveId ?? attacker.moveId);
-    const visualKey = event.projectileId === undefined
+    const projectileVisualKey = event.projectileId === undefined
       ? null
       : snapshot.projectiles.find((projectile) => projectile.id === event.projectileId)?.visualKey
         ?? this.projectileVisualKeys.get(event.projectileId)
         ?? null;
-    const contactBurstKey = peakImpact
-      ? 'major-impact'
-      : visualKey === 'shawarma'
-        ? 'shawarma-debris'
-        : presentation.contactBurstKey;
+    const presentationMoveId = projectileVisualKey === 'shawarma'
+      ? 'shawarmazoThrow'
+      : event.moveId ?? attacker.moveId;
+    const presentation = resolveAttackPresentationProfile(attacker.id, presentationMoveId);
+    const contactBurstKey = peakImpact ? 'major-impact' : presentation.contactBurstKey;
     this.attackBursts.push({
       x: centerX,
       y: centerY,

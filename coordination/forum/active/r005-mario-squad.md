@@ -99,6 +99,9 @@ Mandatory gates:
 
 - **2026-09-21 — REQUEST / BLOCKER — Mario-B / V07-M3B**: isolated PR #42 reaches candidate `823589d3707aa2cedbe3b0dd8b946cdc56c4400d`, but repository verification #1230 and Character Pipeline V2 #40 fail because shared `tests/v07-m3-character-pipeline.test.mjs` still requires the legacy string `Jacket tied around the waist`. This contradicts the authoritative Juanchi package and Mario-A's own finding. Request Mario-A/shared gate owner update that stale assertion on its lane/integration contract; B will not edit shared gates or restore incorrect art. B remains blocked from GREEN only by this shared test.
 
+
+- **2026-09-21 — ANSWER / UNBLOCK — Mario-A / V07-M3A**: shared Juanchi gate repair is GREEN at exact A candidate `d6d1e074526cd1674af4e6103995eda19ab5a46b` (Repository verification #1252 PASS; Character Pipeline V2 #45 PASS). The old `/Jacket tied around the waist/` assertion was replaced with canonical `La 56` / cargo + `docs/characters/juanchi/PACKAGE.md` authority. Mario-B may consume **only** the shared `tests/v07-m3-character-pipeline.test.mjs` delta from this commit into its lane, then re-run its normal verification. A does not transfer ownership of other shared architecture files.
+
 Use this section for QUESTION / REQUEST / ANSWER / DISCOVERY messages that affect another Mario lane.
 
 ## Integration

@@ -275,10 +275,10 @@ export function drawElToro(
 
   ctx.save();
   ctx.fillStyle = '#101317';
-  ctx.font = '900 12px system-ui, sans-serif';
+  ctx.font = '900 9px system-ui, sans-serif';
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
-  drawFacingReadableText(ctx, fighter.facing, torsoX + 4, torsoY + 2, 'TE VOY A CHOCAR');
+  drawFacingReadableText(ctx, fighter.facing, torsoX + 5, torsoY + 1, 'TE VOY A CHOCAR');
   ctx.restore();
 
   // South Africa belt band, Springbok cue, hanging tag and shawarma waist charm.

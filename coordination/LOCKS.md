@@ -11,6 +11,7 @@
 | `src/game/render/LocomotionPose.ts` | Mario | V07-M3 | identity-specific mass/posture locomotion |
 | `tests/v07-m3-character-pipeline.test.mjs` | Mario | V07-M3 | structural differentiation acceptance |
 | `.github/workflows/character-pipeline-v2.yml` | Mario | V07-M3 | repair false-negative toolchain verification (`synfig --version` exits 3) |
+| `tools/character-pipeline-v2/visual-evidence.html` | Mario | V07-M3 | render-only neutral/silhouette/mobile evidence harness |
 
 V07-M1 exact candidate `d55cce8ce7f03a60168697a5a5bbe1c8b5833a24` is GREEN at verification run #1079 (305/305 + build).
 

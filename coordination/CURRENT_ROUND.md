@@ -103,3 +103,18 @@ Local bugs inside the authorized contract are repaired by the owner without cere
 ## Completion
 
 Only after Z1 publication/parity evidence does Neureon archive R005 and issue ROUND_COMPLETE.
+
+
+## User-rejected preview repair
+
+The physical/user-facing V0.7 preview check failed on character visual identity. Production-root promotion remains blocked.
+
+Repair branch:
+- `repair/v07-character-pipeline-v2`
+- starts from rejected Z0 product candidate `65bbb4122be526b0b878c214137192c7243db3ab`
+- contains the Character Pipeline V2 authoring/tooling bootstrap.
+
+Repair sequence:
+**Mario V07-M3 → Germinator V07-G2 → Gonza rebuild/re-publish preview → user physical-phone acceptance → Z1**
+
+Mario V07-M3 is immediately eligible. Existing V0.7 gameplay contracts remain frozen; this repair is visual/rendering-only unless a blocker is explicitly raised.

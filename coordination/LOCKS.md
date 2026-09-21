@@ -10,6 +10,8 @@
 | `src/game/render/CharacterStructure.ts` | Mario-A | V07-M3A | Shared character structure / anatomy architecture audit and improvement. |
 | `src/game/render/ReferenceDetailPrimitives.ts` | Mario-A | V07-M3A | Shared reusable visual-detail/material primitives. |
 | `src/game/render/RigAnchors.ts` | Mario-A | V07-M3A | Shared renderer anchor contract inspection; no gameplay authority. |
+| `src/game/render/VisualQualityGates.ts` | Mario-A | V07-M3A | Inspectable silhouette/identity/gameplay-scale gate harness. |
+| `tests/v07-m3a-visual-architecture.test.mjs` | Mario-A | V07-M3A | Automated architecture/gate contract coverage. |
 | `src/game/render/ElToroRig.ts` | Mario-B | V07-M3B | Fighter-specific El Toro reference-fidelity reconstruction. |
 | `src/game/render/JuanchiRig.ts` | Mario-B | V07-M3B | Fighter-specific Juanchi reference-fidelity reconstruction. |
 

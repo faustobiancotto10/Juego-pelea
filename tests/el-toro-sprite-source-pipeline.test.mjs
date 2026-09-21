@@ -66,7 +66,7 @@ test('V07-SPR-MA validates and normalizes the admitted El Toro right-facing sour
           values.push(image.rgba[(y * image.width + rect.x) * 4 + 3]);
           values.push(image.rgba[(y * image.width + x2) * 4 + 3]);
         }
-        cellEdgeAlpha.push({ id: spec.id + '__f' + String(row * spec.cols + col + 1).padStart(2, '0'), max: Math.max(...values) });
+        cellEdgeAlpha.push({ id: spec.id + '__f' + String(row * spec.cols + col + 1).padStart(2, '0'), max: Math.max(...values), solid: values.filter((v) => v > 128).length, boundaryPixels: values.length });
       }
     }
   }
@@ -77,6 +77,7 @@ test('V07-SPR-MA validates and normalizes the admitted El Toro right-facing sour
     gt128: cellEdgeAlpha.filter((v) => v.max > 128).length,
     gt32Frames: cellEdgeAlpha.filter((v) => v.max > 32),
     gt128Frames: cellEdgeAlpha.filter((v) => v.max > 128),
+    highestSolid: [...cellEdgeAlpha].sort((a, b) => b.solid - a.solid).slice(0, 30),
   }));
 
   assert.deepEqual(report.hashMismatches, []);

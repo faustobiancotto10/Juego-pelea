@@ -44,3 +44,18 @@ Then:
 Current Neureon session:
 - `TOOL_UNAVAILABLE: Game Development Studio / game-dev CLI` — repository contract is present, but this host does not expose the local CLI. No Game Development Studio result is claimed.
 - Game Studio sprite-pipeline contract was read and used for the source/normalization workflow definition.
+
+
+## Binary source transfer receipt
+
+Neureon staged the accepted right-facing source bytes for the active pilot:
+- branch: `round/r005-sprite-mario-a-source-import`;
+- exact SHA: `e3d29807acab6ce4c87fd7e04069fcb4b98c6a65`;
+- PR: #50;
+- source directory: `docs/characters/el-toro/sprite-source/right/`;
+- 17 accepted PNGs present under canonical contract names;
+- rejected `13F1BB3E-C57C-4649-B9E7-07664E5E8BE8.PNG` absent;
+- one-shot import workflow run `35664899123`: SUCCESS;
+- repository verification run `35664982990` / #1377: SUCCESS.
+
+This removes the previous requirement to re-attach the ZIP in the Mario-A chat. Mario-A remains responsible for independent source hash confirmation plus extraction/normalization/preview evidence before its exact-SHA handoff.

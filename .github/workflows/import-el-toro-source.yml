@@ -1,0 +1,113 @@
+name: Import El Toro sprite sources
+
+on:
+  push:
+    branches:
+      - round/r005-sprite-mario-a-source-import
+
+permissions:
+  contents: write
+
+jobs:
+  import-sources:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout branch
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref_name }}
+          fetch-depth: 0
+
+      - name: Download and verify accepted source archive
+        shell: bash
+        env:
+          SOURCE_URL: https://d2ol7oe51mr4n9.cloudfront.net/user_3D9HmxIE70fP7hTTYlNn2FjxT8U/7a59b722-bc2b-4169-b885-f670b238478e.zip
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/el-toro-import
+          curl -fL "$SOURCE_URL" -o /tmp/el-toro-import/source.zip
+          echo "93e45801718fd89de6748dfff660a6f785c6ec490a239ebc16f5dc7561ecca50  /tmp/el-toro-import/source.zip" | sha256sum -c -
+          unzip -q /tmp/el-toro-import/source.zip -d /tmp/el-toro-import/unpacked
+          cd /tmp/el-toro-import/unpacked/SPRITES
+          cat > /tmp/el-toro-import/accepted.sha256 <<'HASHES'
+b22e581da861bee4c98601d9ceb53d5c1ea79993a0bc0f4b50a72cf5e9ca5752  CF0119D3-3DDC-4974-83D8-42448C8A9B67.PNG
+396e43959c197c5e57a3021751dfe752f27dd70fa89bdd81e0c22422ee8f0585  734DACF7-F0FF-4939-99CB-36EF2CD09520.PNG
+20cbc7c2c55c0b38a3195957fe7e68cc6f07386428c43ea999170cbce99523fc  5B1395D6-A9A4-4F87-8600-26562CE37BEB.PNG
+26d3e001a9902f66c606e720f3bf8410d7c630bbd99880369b3590dfc3b00a43  BB14F9AD-0F86-466D-AA85-F77FB3421A15.PNG
+ba844bb600f903c62d918c6e3aab4365c1372af6f36ba54d31c736ff0ed398c3  EA4090BF-95D8-4CA9-856E-6F98C291A6CC.PNG
+9bf5fd065e3241e978334791c291a06f2a001d58f789a3b4e6d7163392dd54d3  F436A217-2FF3-4634-883F-51FE6DF2CA4E.PNG
+453e2a9a4983c94dc9579892181ae4e2cd6f214fedbb184d7628d7871b5b05ba  9785527C-AB90-428E-A660-4AD4199A120B.PNG
+53fe7886c66a4a2ac7cecc18e9bf095faa0c174a1c5ce738b4b2f7c265dcdfa4  DEC59E34-7355-496E-9783-0508F96F2C5C.PNG
+194ee89d805154b1cdfe41f55c5751fb7f829e1ac14a5ea51d569c473704693c  C4F2064C-FE88-464E-A112-9B09EC09A613.PNG
+9f926012b8bb8e11711b572463787a7601fa2fd1d3b32ea91c5bfaff38add572  2C1D5A5C-8956-4085-B89C-09242A1A66C7.PNG
+bbc0eceb11a903237d12a20a5b7b1c2eef60a02c19c836c474def1dbf7b3d8f1  A74D779C-3035-4273-A362-B2355C83EAAE.PNG
+3bc8567f72aa50cf0df8650fcb172db385e74f8706b1f7d53cf95e4b51eeca2b  A8ACFD58-F6B7-4AD2-88F3-486C7613EFE1.PNG
+f91465638ff69f9a568fb4e168ad755fdc52883ae9d4cade093350ec20bc1ef5  1DFE2E8E-F909-4C8F-9464-1155BF2B2D8D.PNG
+3df8e51df3387112e611e138b577db75f283286b47bab86c43edef5b38b0dab1  E67D93C4-DE43-4E2B-BC9C-5A0F1978EC2D.PNG
+df2bfdc4dfd0a388a70693522c5b6c125c70437dbac41effd2bd0eb02cfd7e4c  74170EBC-E07A-41C6-AE35-AF708F0B12F4.PNG
+a06588de862d431074957915770d387259d77c322425a1d02f3839e52b5bc9b5  19246038-36AC-4EA3-9BE7-CE3C14B9572E.PNG
+d1f69195f325d59036176eb13a48b21e595d536e56ce32930a4100ee0d4e701b  167A031F-05F3-4C0A-AACD-5955A2629C39.PNG
+HASHES
+          sha256sum -c /tmp/el-toro-import/accepted.sha256
+          echo "1509b37f9c5d6e7becb1c983510651724ab744a24f6dbaa508ce847fcffac1bb  13F1BB3E-C57C-4649-B9E7-07664E5E8BE8.PNG" | sha256sum -c -
+
+      - name: Admit exact accepted sheets with canonical names
+        shell: bash
+        run: |
+          set -euo pipefail
+          src=/tmp/el-toro-import/unpacked/SPRITES
+          dst=docs/characters/el-toro/sprite-source/right
+          mkdir -p "$dst"
+
+          cp "$src/CF0119D3-3DDC-4974-83D8-42448C8A9B67.PNG" "$dst/el-toro__IMG-00__master-seed.png"
+          cp "$src/734DACF7-F0FF-4939-99CB-36EF2CD09520.PNG" "$dst/el-toro__IMG-01__idle.png"
+          cp "$src/5B1395D6-A9A4-4F87-8600-26562CE37BEB.PNG" "$dst/el-toro__IMG-02__forward-shuffle.png"
+          cp "$src/BB14F9AD-0F86-466D-AA85-F77FB3421A15.PNG" "$dst/el-toro__IMG-03__backward-shuffle.png"
+          cp "$src/EA4090BF-95D8-4CA9-856E-6F98C291A6CC.PNG" "$dst/el-toro__IMG-04__crouch.png"
+          cp "$src/F436A217-2FF3-4634-883F-51FE6DF2CA4E.PNG" "$dst/el-toro__IMG-05__jump.png"
+          cp "$src/9785527C-AB90-428E-A660-4AD4199A120B.PNG" "$dst/el-toro__IMG-06__basic-attack.png"
+          cp "$src/DEC59E34-7355-496E-9783-0508F96F2C5C.PNG" "$dst/el-toro__IMG-07__low-attack.png"
+          cp "$src/C4F2064C-FE88-464E-A112-9B09EC09A613.PNG" "$dst/el-toro__IMG-08__block.png"
+          cp "$src/2C1D5A5C-8956-4085-B89C-09242A1A66C7.PNG" "$dst/el-toro__IMG-09__hurt-knockdown.png"
+          cp "$src/A74D779C-3035-4273-A362-B2355C83EAAE.PNG" "$dst/el-toro__IMG-10__topete.png"
+          cp "$src/A8ACFD58-F6B7-4AD2-88F3-486C7613EFE1.PNG" "$dst/el-toro__IMG-11__shawarmazo.png"
+          cp "$src/1DFE2E8E-F909-4C8F-9464-1155BF2B2D8D.PNG" "$dst/el-toro__IMG-12__super-eructo.png"
+          cp "$src/E67D93C4-DE43-4E2B-BC9C-5A0F1978EC2D.PNG" "$dst/el-toro__FX-01__topete-impact.png"
+          cp "$src/74170EBC-E07A-41C6-AE35-AF708F0B12F4.PNG" "$dst/el-toro__FX-02__shawarmazo-projectile.png"
+          cp "$src/19246038-36AC-4EA3-9BE7-CE3C14B9572E.PNG" "$dst/el-toro__FX-03__shawarmazo-impact.png"
+          cp "$src/167A031F-05F3-4C0A-AACD-5955A2629C39.PNG" "$dst/el-toro__FX-04__super-eructo-effect.png"
+
+          test "$(find "$dst" -maxdepth 1 -type f -name '*.png' | wc -l)" -eq 17
+          ! find "$dst" -type f -name '*13F1BB3E*' | grep -q .
+
+          cat > "$dst/SOURCE_MANIFEST.md" <<'MANIFEST'
+# El Toro right-facing admitted sprite sources
+
+Source archive SHA-256: `93e45801718fd89de6748dfff660a6f785c6ec490a239ebc16f5dc7561ecca50`
+
+Authority:
+- `docs/SPRITE_PRODUCTION_CONTRACT.md`
+- `docs/characters/el-toro/SPRITE_INTAKE_2026-09-21.md`
+
+This directory contains the exact accepted right-facing source bytes renamed to the official contract IDs. The rejected extra sheet `13F1BB3E-C57C-4649-B9E7-07664E5E8BE8.PNG` is intentionally absent.
+
+These files are authoring sources only. Runtime must consume normalized derived frames/atlases, never these source sheets directly.
+
+Tool receipt:
+- Game Studio `sprite-pipeline`: contract read and used for normalization handoff.
+- `TOOL_UNAVAILABLE: Game Development Studio / game-dev CLI` in the Neureon host used for this transfer.
+
+The original source SHA-256 values are recorded in `SPRITE_INTAKE_2026-09-21.md` and were verified before copying.
+MANIFEST
+
+      - name: Commit admitted source bytes
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add docs/characters/el-toro/sprite-source/right
+          git rm .github/workflows/import-el-toro-source.yml
+          git commit -m "assets: import accepted El Toro sprite sources"
+          git push origin "HEAD:${{ github.ref_name }}"

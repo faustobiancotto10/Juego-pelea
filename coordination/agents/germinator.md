@@ -93,6 +93,14 @@ You may open `BUG`, `BLOCKER`, `REVIEW` or `ALERT` messages, reject insufficient
 
 A product-scope dispute goes to Neureon and, when needed, the user.
 
+## Multi-instance execution
+
+When CURRENT_ROUND authorizes a Germinator same-role squad, temporary auditors may attack independent acceptance dimensions in parallel, for example gameplay invariants, rendering/assets, coordination or device/performance evidence.
+
+Each lane records its evidence independently and does not weaken another lane's blocker. A designated Germinator integrator consolidates the evidence into one QA verdict; conflicting findings remain explicit until resolved.
+
+Non-integrator lanes emit Identity Learning PROPOSAL or NO_CHANGE receipts rather than racing to edit `germinator.md`.
+
 ## Durable role learnings
 
 This section is Germinator's bounded persistent operating memory.

@@ -5,7 +5,7 @@ Round: `R005-V07-GAMEPLAY-PRESENTATION-EXPANSION`
 Sender: Mario-A / Character & Rendering Engineer  
 Recipient: Mario-A / `V07-M3I` temporary squad integrator  
 Branch: `round/r005-mario-squad-architect`  
-Exact candidate SHA: `19b9b901a947a2a7909c2b5aceb2ab542be9d278`  
+Exact candidate SHA: `d6d1e074526cd1674af4e6103995eda19ab5a46b`  
 Base: `032b1bb28c5dd4421e5772cc40ab007f42e4d462`  
 Result: **GREEN / HANDOFF_READY**
 
@@ -15,6 +15,7 @@ Result: **GREEN / HANDOFF_READY**
 - `src/game/render/RigAnchors.ts`
 - `src/game/render/VisualQualityGates.ts` — new
 - `tests/v07-m3a-visual-architecture.test.mjs` — new
+- `tests/v07-m3-character-pipeline.test.mjs` — shared reference gate repaired to follow Juanchi's authoritative package
 
 `ReferenceDetailPrimitives.ts` was audited but intentionally left unchanged. The existing primitives are already useful; inventing additional generic body/detail drawing at this layer would risk forcing fighter-specific reconstructions back toward one common visual template.
 
@@ -60,25 +61,29 @@ These are intended for later secondary motion/effect attachment during M3I witho
 
 These are regression/architecture gates. They **do not** claim reference likeness or human artistic acceptance by themselves.
 
-## Reference-authority discovery
+## Shared Juanchi gate repair
 
-During audit, Mario-A found a stale Juanchi cue in the existing renderer/test language: “Jacket tied around the waist.”
+During audit, Mario-A found a stale shared assertion that required the literal renderer cue `Jacket tied around the waist`. That contradicted the authoritative `docs/characters/juanchi/PACKAGE.md`, which fixes the current identity as oversized black `La 56` shirt, black cargos, gold details and belt-stored police cap.
 
-Authoritative `docs/characters/juanchi/PACKAGE.md` instead fixes the current identity as oversized black `La 56` shirt, black cargos, gold details and belt-stored police cap. This was posted to the squad forum. Mario-B acknowledged it and removed the legacy waist-jacket treatment at its own lane SHA `823589d3707aa2cedbe3b0dd8b946cdc56c4400d`.
+Mario-B correctly removed the legacy waist-jacket treatment at its lane SHA `823589d3707aa2cedbe3b0dd8b946cdc56c4400d`, causing the old shared test to fail. The B failure log confirms test #311 failed exactly on the obsolete jacket regex after the preceding V07-M3 tests passed.
+
+M3A therefore repairs `tests/v07-m3-character-pipeline.test.mjs` to validate the canonical `La 56` / cargo presentation and the authoritative Juanchi package instead of preserving a stale visual cue.
 
 ## Verification
 
 ### Repository verification
 
-Run `35570372141` / #1226 on exact candidate `19b9b901a947a2a7909c2b5aceb2ab542be9d278`:
+Run `35570843279` / #1252 on exact candidate `d6d1e074526cd1674af4e6103995eda19ab5a46b`:
 
 - coordination contract: PASS;
 - full test suite: PASS;
 - build: PASS.
 
+A duplicate recheck (#1253) also completed successfully.
+
 ### Character Pipeline V2
 
-Run `35570372172` / #39 on the same exact candidate:
+Run `35570843094` / #45 on the same exact candidate:
 
 - full tests: PASS;
 - build: PASS;
@@ -88,10 +93,10 @@ Run `35570372172` / #39 on the same exact candidate:
 
 Evidence artifact:
 
-- artifact ID: `10625831268`;
-- SHA-256 digest: `4be81672eff1cde36df6ff3c2ed0f426c62e3a4064c2fa057e5537871f4dd4b4`.
+- artifact ID: `10625618561`;
+- SHA-256 digest: `647aef50a584429280301edb7abdbabb3756d5c7ab0f17bf17d0220e59f82073`.
 
-Baseline artifact from base run #36 / `35567747782` was also downloaded and compared file-by-file against M3A. All five PNGs are byte-identical:
+Baseline artifact from base run #36 / `35567747782` was downloaded and compared file-by-file against this final M3A candidate. All five PNGs are byte-identical:
 
 - `normal-color.png`;
 - `neutral-silhouette.png`;
@@ -105,9 +110,13 @@ That proves M3A introduced no accidental raster regression. It also means M3A by
 
 The authorized local `game-dev` CLI is not installed in this execution environment, so no sealed Game Development Studio run was fabricated or claimed. Repository Character Pipeline V2 CI supplied the deterministic capture/build/raster evidence above. Human artistic acceptance still remains downstream.
 
+## Cross-lane consumption
+
+Mario-B may consume the exact shared gate repair from M3A commit `d6d1e074526cd1674af4e6103995eda19ab5a46b` for `tests/v07-m3-character-pipeline.test.mjs` only. This does not transfer ownership of A's shared architecture and does not authorize B to modify other A-owned files.
+
 ## Integration notes for V07-M3I
 
-- Accept the exact M3A delta above rather than a moving branch head.
+- Accept the exact M3A candidate above rather than a moving branch head.
 - Preserve B/C fighter-specific construction; do not use the new metadata to collapse fighters into a shared body implementation.
 - Use the new derived anchors only where they materially help D's secondary motion/effects.
 - Re-run all four squad visual gates on the integrated candidate.

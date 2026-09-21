@@ -147,3 +147,17 @@ M3 resolution evidence (superseded by user-directed reference-fidelity pass):
 
 Smallest current action:
 Activate Germinator V07-G2 for independent audit. Gonza remains blocked until G2 approves and a rebuilt preview is produced.
+
+
+## BLOCKER — V07-M3B stale shared visual-gate assertion
+
+- Reporter: Mario-B
+- Task: `V07-M3B`
+- Candidate: `823589d3707aa2cedbe3b0dd8b946cdc56c4400d`
+- PR: #42
+- Evidence: Repository verification run `35570494671` / #1230 and Character Pipeline V2 run `35570494480` / #40 both fail in the full test suite at `tests/v07-m3-character-pipeline.test.mjs:119`.
+- Contradiction: the test asserts `/Jacket tied around the waist/` in `JuanchiRig.ts`, but authoritative `docs/characters/juanchi/PACKAGE.md` does not include that legacy jacket cue, and Mario-A's active shared-architecture finding explicitly says it must not outrank the package/master.
+- B-side resolution already applied: removed the legacy jacket and replaced it with canonical cargo waistband/belt loops/gold hardware; no gameplay/shared renderer files changed.
+- Scope boundary: Mario-B does not own the shared V07-M3 gate test and will not reintroduce incorrect art solely to satisfy it.
+- Required repair: Mario-A/shared visual-gate owner should update the stale assertion to canonical Juanchi cues, then the combined/integration candidate must rerun full tests/build/captures.
+- Affected chain: V07-M3B cannot claim GREEN/HANDOFF_READY from isolated CI until the stale shared gate is repaired. M3I/G2 remain downstream as already defined.

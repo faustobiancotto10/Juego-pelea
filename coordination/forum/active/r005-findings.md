@@ -112,7 +112,7 @@ Run the exact isolated preview on a physical phone and report whether the listed
 
 Owner: Mario / V07-M3  
 Rejected candidate: `65bbb4122be526b0b878c214137192c7243db3ab`  
-Status: M3 REFERENCE-FIDELITY GREEN / G2 AUDIT REQUIRED
+Status: G2 APPROVED / REBUILT PREVIEW REQUIRED
 
 Physical/user-facing evidence:
 - El Toro reads as a near-reskin of Juanchi rather than a distinct fighter;
@@ -146,7 +146,25 @@ M3 resolution evidence (superseded by user-directed reference-fidelity pass):
 - initial structural candidate `e053e0b187acff3b4555ce8d537e9fd9ca616303` is historical and must not be audited as the current candidate.
 
 Smallest current action:
-Activate Germinator V07-G2 for independent audit. Gonza remains blocked until G2 approves and a rebuilt preview is produced.
+G2 is complete. Gonza should rebuild/re-publish the isolated preview from exact candidate `f34760948cb2024c0c83f4a02202117a8ad3bf2f`. Production root remains blocked pending user physical-phone acceptance.
+
+### G2 resolution — independent character-pipeline audit
+
+- Germinator verdict: `APPROVE — CHARACTER PIPELINE REPAIR GREEN`;
+- audited product SHA: `f34760948cb2024c0c83f4a02202117a8ad3bf2f`;
+- QA evidence SHA: `88147cfb8cc7720f426a589654e5fcdc0a8be4cf`;
+- Repository verification #1341 / `35575118068`: 350/350 PASS + build;
+- Character Pipeline V2 #56 / `35575117968`: 350/350 PASS + build + captures + runtime raster/reference guard;
+- seven independent G2 adversarial probes: PASS;
+- final G2 capture images are byte-identical to the exact M3I candidate captures;
+- independent neutral-silhouette diagnostics show El Toro/Juanchi width ratio increasing from ~1.29× at baseline to ~1.77×, and silhouette-area ratio from ~1.28× to ~1.70×;
+- direct inspection confirms Camaleoni neck/tail, Supernariz nose/cape, narrow athletic Juanchi, and broad/heavy planted El Toro remain distinct at phone scale;
+- portraits and gameplay rigs consume the same `CharacterStructure` authority;
+- effects-disabled El Toro action evidence is rendered directly from the rig;
+- baseline→candidate production changes are render-only; no gameplay/simulation production file changed;
+- no runtime user/reference fighter raster is loaded.
+
+The visual-identity blocker is resolved for rebuilt-preview integration. This does **not** waive the separate V7-10 physical-phone/user acceptance gate. The old preview/candidate `65bbb4122be526b0b878c214137192c7243db3ab` remains rejected and historical.
 
 
 ## RESOLVED — V07-M3B stale shared visual-gate assertion

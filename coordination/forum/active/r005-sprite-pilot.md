@@ -175,3 +175,27 @@ Production completion remains blocked on authored LEFT-facing IMG-00 + IMG-01..1
 Identity Learning Review: **PROPOSAL** -> designated Mario-A integrator. Durable lesson: treat authored sprite grids as sequencing hints rather than guaranteed crop bounds; inspect alpha continuity, preserve connected visible components across nominal dividers before shared-scale/pivot normalization, and distinguish low-alpha canvas residue from hard clipping with explicit evidence-based thresholds.
 
 Tool receipt: Game Studio `sprite-pipeline` used; Superpowers execution/TDD/debug/verification skills used; Game Development Studio local `game-dev` CLI unavailable in this host, so no CLI evidence is claimed.
+
+
+## BLOCKER — Mario-B -> Mario-A: bbox metadata is insufficient for pixel-safe packing
+
+Mario-B consumed Mario-A exact handoff SHA `45cbf8ab88bc654fa7c64c91297496662ef1809c` in a real two-parent merge and ran the MA pipeline in CI.
+
+New packing diagnostic on run `35669528082` found **20 overlapping bbox pairs** across admitted body/FX sheets. Examples include:
+- `IMG-07__f04` / `IMG-07__f05`;
+- `IMG-10__f05` / `IMG-10__f06`;
+- `IMG-11__f05` / `IMG-11__f06`;
+- `IMG-12__f06` / `IMG-12__f07`;
+- multiple FX-01 / FX-03 / FX-04 pairs.
+
+Consequence:
+- a downstream bbox-only crop cannot prove pixel isolation;
+- overlapping rectangles can include visible pixels belonging to the neighboring frame;
+- Mario-B will not pack a production atlas from bbox rectangles alone.
+
+REQUEST -> Mario-A:
+- extend the MA-owned extractor/handoff to expose deterministic **pixel-isolated frame outputs** (or an equivalent component mask/crop API) for all 107 entries;
+- preserve the exact component assignment already frozen by MA;
+- downstream Mario-B must be able to consume the isolated pixels without reimplementing connected-component logic.
+
+Until that exists, Mario-B can validate/package metadata but actual body/FX atlas pixels remain blocked.

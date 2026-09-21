@@ -9,8 +9,11 @@ import {
 import { getCharacterStructure } from './CharacterStructure.js';
 import {
   drawCargoPocket,
+  drawClothFold,
   drawFabricGrain,
+  drawFacePlanes,
   drawHairStrands,
+  drawShadedEllipse,
   drawStitchLine,
 } from './ReferenceDetailPrimitives.js';
 import { GROUND_Y, clamp01, ellipse, lerp, pulse, roundedLine } from './drawUtils.js';
@@ -465,7 +468,11 @@ export function drawJuanchi(
   const torsoY = -141 + action.drop * 0.58 + idle;
   // Oversized black shirt silhouette.
   ctx.save();
-  ctx.fillStyle = '#101318';
+  const shirtGradient = ctx.createLinearGradient(-48, torsoY - 48, 48, torsoY + 43);
+  shirtGradient.addColorStop(0, '#272a30');
+  shirtGradient.addColorStop(0.45, '#111419');
+  shirtGradient.addColorStop(1, '#05070a');
+  ctx.fillStyle = shirtGradient;
   ctx.strokeStyle = '#05070a';
   ctx.lineWidth = 3;
   ctx.beginPath();
@@ -481,6 +488,8 @@ export function drawJuanchi(
   drawFabricGrain(ctx, 0, torsoY + 2, 86 * body.torsoWidth, 78 * body.torsoLength, '#676d76', 0.10, 10);
   drawStitchLine(ctx, -29, torsoY - 13, -34, torsoY + 27, '#30353c', 0.9, [4, 4], 0.45);
   drawStitchLine(ctx, 29, torsoY - 13, 35, torsoY + 27, '#30353c', 0.9, [4, 4], 0.45);
+  drawClothFold(ctx, -16, torsoY - 18, -20, torsoY + 3, -12, torsoY + 29, '#5c6168', '#020304', 0.28);
+  drawClothFold(ctx, 19, torsoY - 13, 12, torsoY + 6, 19, torsoY + 30, '#555b62', '#020304', 0.26);
 
   // Gold chain/details.
   ctx.save();
@@ -573,8 +582,9 @@ export function drawJuanchi(
 
   const headX = anchors.head.x + action.shoulderDrive * 4;
   const headY = -anchors.head.y + idle;
-  ellipse(ctx, headX, headY, 35 * body.headWidth, 39 * body.headHeight, '#c88c68', -0.035, '#5c382a', 2.3);
-  ellipse(ctx, headX - 31, headY + 2, 6, 10, '#b97b5b');
+  drawShadedEllipse(ctx, headX, headY, 35 * body.headWidth, 39 * body.headHeight, '#c88c68', '#edb18d', '#875744', -0.035, '#5c382a', 2.3);
+  drawFacePlanes(ctx, headX, headY, body.headWidth, '#ffd0ad', '#754437');
+  ellipse(ctx, headX - 29 * body.headWidth, headY + 2, 5.5, 8.5, '#b97b5b', -0.08, '#654035', 1.1);
 
   // Close/faded sides under a dense dark curly top.
   ctx.save();
@@ -602,14 +612,18 @@ export function drawJuanchi(
   ], '#5a4b45', 0.28);
   ctx.restore();
 
-  roundedLine(ctx, headX + 4, headY - 7, headX + 18, headY - 8, 3, '#432b24');
-  ellipse(ctx, headX + 15, headY - 1, 2.6, 2.2, '#0b0e12');
+  roundedLine(ctx, headX + 3, headY - 8, headX + 17, headY - 9, 2.6, '#432b24');
+  ellipse(ctx, headX + 14, headY - 2, 2.4, 2.0, '#0b0e12');
   ctx.save();
   ctx.strokeStyle = '#6f4435';
-  ctx.lineWidth = 2;
+  ctx.lineWidth = 1.6;
   ctx.beginPath();
-  ctx.moveTo(headX + 15, headY + 6);
-  ctx.quadraticCurveTo(headX + 23, headY + 10, headX + 21, headY + 16);
+  ctx.moveTo(headX + 13, headY + 3);
+  ctx.quadraticCurveTo(headX + 21, headY + 7, headX + 19, headY + 13);
+  ctx.stroke();
+  ctx.beginPath();
+  ctx.moveTo(headX + 8, headY + 21);
+  ctx.quadraticCurveTo(headX + 15, headY + 24, headX + 22, headY + 20);
   ctx.stroke();
   ctx.restore();
 

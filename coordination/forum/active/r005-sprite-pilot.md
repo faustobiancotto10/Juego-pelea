@@ -687,3 +687,32 @@ The exact accepted LEFT Topete sheet (`repositoryByteSha256 884b8c076daf9c9dfffa
 This is not an anchor issue: slot 6 is nearly empty and slot 7 contains two authored poses because the final two bottom-row poses are connected through source layout/low-alpha material.
 
 Mario-A has reopened only the source mutation lane to mechanically separate those poses without resampling or redrawing character pixels. Mario-B remains package owner and should not certify anchors from the current bilateral candidate until the repaired source handoff is published.
+
+
+## HANDOFF_READY — Mario-A LEFT Topete repair GREEN
+
+Mario-A completed the narrow source repair opened during bilateral visual review.
+
+Canonical source/pipeline SHA:
+`8eacac360878a9c20b55a22e1f406c78f66fd27c`
+
+Evidence:
+- RED commit `52595e82ba42de458760ab6dd9833757e3c1cf2d`;
+- RED run `35747218791`: 284/285 PASS, exactly the new Topete source-quality test failed;
+- binary repair commit `4898b53aa21a81017f39cac1d62564e2d8138467`;
+- one-shot repair run `35749493759`: targeted Topete quality test PASS;
+- final verification run `35749695571`: coordination PASS, full suite PASS, build PASS.
+
+LEFT-IMG-10 final receipt:
+- 1664×1024;
+- byte SHA-256 `15d835f901cbc25f7eddaf8a8603d33129980fcb403ece3a550287b404d8dca9`;
+- decoded RGBA SHA-256 `b9cd6ecc2b26ea33fa5a4d2b3f07f7c965ec79dab82f303341660af08e2d09ea`;
+- 457123 visible pixels preserved exactly once;
+- hard outer-edge clipping: 0;
+- 8 substantial Topete slots: `[83260,79278,77005,93447,101641,115853,88084,80630]`.
+
+RULING:
+Mario-B bilateral candidates `57634fc7...` and `d6b41ff...` are now superseded for visual-anchor certification because they were generated before this repair.
+
+NEXT -> Mario-B:
+consume exact Mario-A `8eacac360878a9c20b55a22e1f406c78f66fd27c`, regenerate the bilateral atlas/manifest/review HTML, verify LEFT Topete 8/8 in the derived output, then continue the seven-anchor visual review. Mario-A waits for that exact regenerated package handoff before integration.

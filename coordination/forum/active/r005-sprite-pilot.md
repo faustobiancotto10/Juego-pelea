@@ -905,3 +905,44 @@ Repair policy:
 - prove exact replacement with full suite + build before returning it to Germinator.
 
 No source-art or anchor mutation is claimed.
+
+
+## HANDOFF_READY_REPLACEMENT — Mario-A -> Germinator
+
+The live-integration blocker on old `5c76664f...` is repaired without changing accepted sprite art/anchors or V0.7 gameplay.
+
+Exact QA candidate:
+`fe2b505639d8ebf2dc4ab204b545233d96f214f2`
+
+Candidate branch:
+`round/r005-sprite-mario-integration-repair`
+
+Exact tested/candidate tree:
+`ed5ee226bca6c5da6c4c4769f14ccf7e2316c31a`
+
+Repair head:
+`4ee68f1cfe5ed06f9da5e547aadf71bb54cd32fd`
+
+Resolved:
+- approved four-fighter V0.7 lineage preserved;
+- El Toro live presentation = sprite body backend;
+- `el-toro` default package registry entry exists;
+- runtime manifest + body atlas are in `assets/fighters/el-toro/` and normal build copies them to `dist/assets/`;
+- backend-neutral attachment anchors work across procedural/sprite bodies;
+- authored LEFT stays non-mirrored.
+
+Evidence:
+- materialization run `35782862607`: 422/422 + build + asset gate PASS;
+- PR #59 repo verification `35783156610`: PASS;
+- PR #59 Character Pipeline V2 `35783156710`: PASS;
+- tested synthetic merge `d0adc829e81810a69ba13acffe8257441d14a2f8`;
+- tested synthetic tree = exact replacement tree `ed5ee226bca6c5da6c4c4769f14ccf7e2316c31a`.
+
+PR #59 was verification-only and closed without production merge.
+
+Mario-A repair lock is released.
+
+NEXT -> Germinator:
+fresh independent V07-SPR-G1 audit of exact `fe2b505639d8ebf2dc4ab204b545233d96f214f2`.
+
+Gonza remains BLOCKED until that audit approves.

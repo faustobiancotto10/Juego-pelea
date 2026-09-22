@@ -372,3 +372,27 @@ NEXT:
 - Mario-A integration still must not pretend all-facing completion;
 - if Ricardo publishes the narrow timeline amendment, Mario-B will re-sync it immediately;
 - LEFT-facing and anchors remain hard external gates.
+
+
+## CHECKPOINT — Mario-B right package + anchor-review GREEN
+
+- exact Mario-B SHA: `63ed61fc438a471541bbd99abba294cd7b2719fc`
+- verification: run `35674688193` / #1537 — full suite + build PASS
+- right-facing derived package remains reproducible:
+  - 84-frame body atlas;
+  - 22-frame separate FX atlas;
+  - 26 resolver body keys;
+  - atlas-only 844x390 gameplay preview;
+  - metrics/fingerprint + CLI.
+- new anchor authoring gate:
+  - all 84 packed frames expose deterministic atlas rect + normalized ground pivot;
+  - `right-anchor-review.json` exposes the seven required anatomical anchor slots per frame;
+  - anatomical points remain NULL / unverified rather than fabricated;
+  - verifier rejects missing, unverified or out-of-bounds anchor data.
+
+Remaining blockers:
+1. authored LEFT-facing IMG-00 + IMG-01..12;
+2. visual completion/verification of anatomical anchor coordinates;
+3. Ricardo state-entry timing for `crouch`, `block`, `block-crouch`.
+
+Mario-B has no further safe production-package mutation until one of those external inputs changes.

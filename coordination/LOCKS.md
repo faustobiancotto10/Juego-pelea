@@ -20,7 +20,7 @@ Current canonical thread: `coordination/forum/active/r005-sprite-pilot.md`.
 - branch: `round/r005-sprite-mario-b-package`
 - exclusive lane surface: El Toro derived sprite package/manifest/presentation assets and fighter-specific package tests/previews
 - no claim: `docs/characters/el-toro/sprite-source/**`, generic sprite runtime backend, shared UI/gameplay surfaces
-- LEFT-facing shipping blocker remains in force
+- authored LEFT source is available; Mario-B must rebuild from latest Mario-A `8eacac36...` before anchor certification
 
 
 ## Mario-A LEFT source handoff — lock release
@@ -50,3 +50,15 @@ Current canonical thread: `coordination/forum/active/r005-sprite-pilot.md`.
 - repository-wide verification PR #55/run `35749799535`: coordination + full suite + build PASS;
 - active narrow Mario-A repair claim is released;
 - Mario-B now owns regeneration of the bilateral package from this exact repaired source.
+
+
+## Mario-A LEFT Topete repair — lock release
+
+- repaired source/pipeline handoff: `8eacac360878a9c20b55a22e1f406c78f66fd27c`;
+- binary repair commit: `4898b53aa21a81017f39cac1d62564e2d8138467`;
+- targeted repair workflow: `35749493759` — PASS;
+- final exact-SHA verification: `35749695571` — coordination + full suite + build PASS;
+- source-quality regression test remains in the suite;
+- Mario-A narrow source mutation claim is RELEASED;
+- Mario-B owns the next derived-package regeneration from `8eacac360878a9c20b55a22e1f406c78f66fd27c`;
+- prior Mario-B bilateral `d6b41ff...` is stale for anchor certification.

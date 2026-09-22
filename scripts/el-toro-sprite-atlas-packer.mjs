@@ -307,7 +307,7 @@ function renderGameplayPreview(runtimeFragment, atlasWidth, atlasHeight) {
       '<g>',
       '<rect x="'+(anchors[sampleIndex]-66)+'" y="54" width="132" height="274" rx="10" fill="rgba(8,12,19,0.28)" stroke="rgba(255,255,255,0.08)"/>',
       '<svg data-animation="'+key+'" x="'+x.toFixed(3)+'" y="'+y.toFixed(3)+'" width="'+width.toFixed(3)+'" height="'+height.toFixed(3)+'" viewBox="'+frame.x+' '+frame.y+' '+frame.width+' '+frame.height+'" overflow="visible">',
-      '<image href="right-body.png" x="0" y="0" width="'+atlasWidth+'" height="'+atlasHeight+'"/>',
+      '<image href="'+atlasName+'" x="0" y="0" width="'+atlasWidth+'" height="'+atlasHeight+'"/>',
       '</svg>',
       '<text x="'+labelX+'" y="350" text-anchor="middle" font-family="system-ui,sans-serif" font-size="11" font-weight="800" fill="#f5e8cf">'+label+'</text>',
       '</g>',
@@ -331,7 +331,7 @@ function renderGameplayPreview(runtimeFragment, atlasWidth, atlasHeight) {
 }
 
 
-function renderAnchorReviewSheet(frameRects, atlasWidth, atlasHeight) {
+function renderAnchorReviewSheet(frameRects, atlasWidth, atlasHeight, atlasName = 'right-body.png') {
   const width = 1260;
   const height = 2760;
   const columns = 7;
@@ -650,6 +650,58 @@ export function buildElToroRightAtlasPackage({
 }
 
 
+function renderBilateralGameplayPreview(runtimeManifest, atlasWidth, atlasHeight) {
+  const width = 844;
+  const height = 760;
+  const scale = 390 / 720;
+  const samples = [
+    ['idle', 3, 'IDLE'],
+    ['walk-forward', 3, 'WALK'],
+    ['move:toroJab', 3, 'JAB ACTIVE'],
+    ['move:topete', 4, 'TOPETE PEAK'],
+    ['move:shawarmazoThrow', 3, 'SHAWARMA RELEASE'],
+    ['ultimate:superEructo:capture', 1, 'SUPER ERUCTO'],
+  ];
+  const centers = [70,208,346,484,622,760];
+
+  function row(animationMap, facing, top, baseline) {
+    return samples.map(([key, requestedIndex, label], index) => {
+      const animation = animationMap[key];
+      if (!animation) throw new Error('Missing bilateral preview animation '+facing+' '+key);
+      const frameIndex = Math.min(requestedIndex, animation.frames.length - 1);
+      const frame = animation.frames[frameIndex];
+      const drawWidth = frame.width * scale;
+      const drawHeight = frame.height * scale;
+      const x = centers[index] - frame.pivotX * scale;
+      const y = baseline - frame.pivotY * scale;
+      return [
+        '<g data-facing="'+facing+'" data-animation="'+key+'">',
+        '<rect x="'+(centers[index]-66)+'" y="'+top+'" width="132" height="274" rx="10" fill="#0d131c" fill-opacity="0.38" stroke="#ffffff" stroke-opacity="0.08"/>',
+        '<svg x="'+x.toFixed(3)+'" y="'+y.toFixed(3)+'" width="'+drawWidth.toFixed(3)+'" height="'+drawHeight.toFixed(3)+'" viewBox="'+frame.x+' '+frame.y+' '+frame.width+' '+frame.height+'" overflow="visible">',
+        '<image href="el-toro-body.png" x="0" y="0" width="'+atlasWidth+'" height="'+atlasHeight+'"/>',
+        '</svg>',
+        '<text x="'+centers[index]+'" y="'+(top+296)+'" text-anchor="middle" font-family="system-ui,sans-serif" font-size="10" font-weight="800" fill="#f5e8cf">'+label+'</text>',
+        '</g>',
+      ].join('');
+    }).join('');
+  }
+
+  return [
+    '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 844 760" width="844" height="760">',
+    '<rect width="844" height="760" fill="#111821"/>',
+    '<text x="18" y="24" font-family="system-ui,sans-serif" font-size="15" font-weight="900" fill="#f5e8cf">EL TORO — AUTHORED BILATERAL GAMEPLAY-SCALE EVIDENCE</text>',
+    '<text x="18" y="42" font-family="system-ui,sans-serif" font-size="10" fill="#aebdce">Single atlas, no horizontal mirroring. RIGHT above, authored LEFT below.</text>',
+    '<text x="18" y="67" font-family="system-ui,sans-serif" font-size="11" font-weight="800" fill="#d7b66f">RIGHT</text>',
+    row(runtimeManifest.animations,'right',72,326),
+    '<line x1="0" y1="380" x2="844" y2="380" stroke="#455466"/>',
+    '<text x="18" y="407" font-family="system-ui,sans-serif" font-size="11" font-weight="800" fill="#d7b66f">LEFT — AUTHORED</text>',
+    row(runtimeManifest.leftAnimations,'left',412,666),
+    '</svg>',
+    '',
+  ].join('');
+}
+
+
 function buildAnimationMapForFacing(
   packageContract,
   sourcePlan,
@@ -816,6 +868,12 @@ export function buildElToroBilateralAtlasPackage({
   const manifestPath = join(outputRoot, 'el-toro-animations.json');
   writeFileSync(manifestPath, JSON.stringify(runtimeManifest, null, 2)+'\n');
 
+  const previewPath = join(outputRoot, 'bilateral-gameplay-preview.svg');
+  writeFileSync(
+    previewPath,
+    renderBilateralGameplayPreview(runtimeManifest, bodyAtlas.width, bodyAtlas.height),
+  );
+
   const rightAnchorReviewPath = join(outputRoot, 'right-anchor-review.json');
   const leftAnchorReviewPath = join(outputRoot, 'left-anchor-review.json');
   writeFileSync(
@@ -825,6 +883,17 @@ export function buildElToroBilateralAtlasPackage({
   writeFileSync(
     leftAnchorReviewPath,
     JSON.stringify(leftReview ?? buildAnchorReviewTemplate(leftRects, 'left'), null, 2)+'\n',
+  );
+
+  const rightAnchorReviewSvgPath = join(outputRoot, 'right-anchor-review.svg');
+  const leftAnchorReviewSvgPath = join(outputRoot, 'left-anchor-review.svg');
+  writeFileSync(
+    rightAnchorReviewSvgPath,
+    renderAnchorReviewSheet(rightRects, bodyAtlas.width, bodyAtlas.height, 'el-toro-body.png'),
+  );
+  writeFileSync(
+    leftAnchorReviewSvgPath,
+    renderAnchorReviewSheet(leftRects, bodyAtlas.width, bodyAtlas.height, 'el-toro-body.png'),
   );
 
   const effectPlan = compileEffectFrameSourcePlan(packageContract, rightManifestLike);
@@ -887,8 +956,11 @@ export function buildElToroBilateralAtlasPackage({
   return {
     manifestPath,
     metricsPath,
+    previewPath,
     rightAnchorReviewPath,
     leftAnchorReviewPath,
+    rightAnchorReviewSvgPath,
+    leftAnchorReviewSvgPath,
     body: {
       sourceFrameCount: rightBody.length + leftBody.length,
       rightFrameCount: rightBody.length,

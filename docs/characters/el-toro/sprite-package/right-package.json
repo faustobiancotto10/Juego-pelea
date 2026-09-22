@@ -251,6 +251,163 @@
         "lastFrame": 10
       }
     },
-    "unreachableUltimatePhase": "sequence"
+    "unreachableUltimatePhase": "sequence",
+    "moveRoleTimings": {
+      "standing": {
+        "semanticKey": "basic-attack",
+        "totalTicks": 22,
+        "frameDurations": [
+          3,
+          3,
+          2,
+          1,
+          6,
+          7
+        ],
+        "authoredBeat": {
+          "kind": "active",
+          "startTick": 6,
+          "endTick": 8,
+          "visualFrames": [
+            3,
+            4
+          ]
+        }
+      },
+      "chain": {
+        "semanticKey": "topete",
+        "totalTicks": 28,
+        "frameDurations": [
+          3,
+          4,
+          2,
+          2,
+          3,
+          4,
+          5,
+          5
+        ],
+        "authoredBeat": {
+          "kind": "active",
+          "startTick": 7,
+          "endTick": 10,
+          "visualFrames": [
+            3,
+            4
+          ]
+        }
+      },
+      "low": {
+        "semanticKey": "low-attack",
+        "totalTicks": 28,
+        "frameDurations": [
+          4,
+          4,
+          2,
+          1,
+          8,
+          9
+        ],
+        "authoredBeat": {
+          "kind": "active",
+          "startTick": 8,
+          "endTick": 10,
+          "visualFrames": [
+            3,
+            4
+          ]
+        }
+      },
+      "air": {
+        "semanticKey": "jump",
+        "totalTicks": 26,
+        "frameDurations": [
+          3,
+          3,
+          3,
+          2,
+          7,
+          8
+        ],
+        "authoredBeat": {
+          "kind": "active",
+          "startTick": 6,
+          "endTick": 10,
+          "visualFrames": [
+            3,
+            4
+          ]
+        }
+      },
+      "closeSpecial": {
+        "semanticKey": "topete",
+        "totalTicks": 42,
+        "frameDurations": [
+          4,
+          4,
+          2,
+          3,
+          4,
+          4,
+          10,
+          11
+        ],
+        "authoredBeat": {
+          "kind": "active",
+          "startTick": 10,
+          "endTick": 16,
+          "visualFrames": [
+            4,
+            5
+          ]
+        }
+      },
+      "rangedSpecial": {
+        "semanticKey": "shawarmazo",
+        "totalTicks": 41,
+        "frameDurations": [
+          4,
+          4,
+          5,
+          1,
+          5,
+          6,
+          8,
+          8
+        ],
+        "authoredBeat": {
+          "kind": "spawn",
+          "tick": 13,
+          "visualFrame": 4
+        }
+      }
+    },
+    "ultimatePhaseTimings": {
+      "startup": {
+        "totalTicks": 26,
+        "frameDurations": [
+          6,
+          6,
+          7,
+          7
+        ]
+      },
+      "capture": {
+        "totalTicks": 18,
+        "frameDurations": [
+          6,
+          6,
+          6
+        ]
+      },
+      "recovery": {
+        "totalTicks": 30,
+        "frameDurations": [
+          10,
+          10,
+          10
+        ]
+      }
+    }
   }
 }

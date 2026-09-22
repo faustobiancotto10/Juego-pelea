@@ -292,3 +292,49 @@ test('reaction and terminal sprite timelines start at state entry and advance on
   assert.equal(sampledSourceX(fighter({ health: 0 }), 900, 0), 7, 'knockdown entered late in the round must start on frame zero');
   assert.equal(sampledSourceX(fighter({ health: 0 }), 901, 0), 87, 'knockdown then advances from its own entry tick');
 });
+
+
+test('decrementing transition counters never drive guard-break, jump-startup or landing animations backward', () => {
+  const transitionFrames = [
+    frame({ x: 17, durationTicks: 1 }),
+    frame({ x: 97, durationTicks: 1 }),
+    frame({ x: 177, durationTicks: 1 }),
+  ];
+  const loaded = {
+    image: { id: 'transition-atlas' },
+    manifest: {
+      version: 1,
+      atlas: 'body.webp',
+      mirrorSafe: true,
+      animations: {
+        'guard-break': { loop: false, frames: transitionFrames },
+        'jump-startup': { loop: false, frames: transitionFrames },
+        land: { loop: false, frames: transitionFrames },
+      },
+    },
+  };
+  const renderer = new SpriteFighterRenderer({ get: () => loaded });
+
+  function sourceX(snapshot, combatTick) {
+    let drawArgs = null;
+    const ctx = {
+      globalAlpha: 1,
+      save() {},
+      restore() {},
+      translate() {},
+      scale() {},
+      drawImage(...args) { drawArgs = args; },
+    };
+    renderer.draw(ctx, snapshot, 'pkg-transitions', combatTick, 1, 0);
+    return drawArgs[1];
+  }
+
+  assert.equal(sourceX(fighter({ guardBreakFrames: 42 }), 100), 17);
+  assert.equal(sourceX(fighter({ guardBreakFrames: 41 }), 101), 97);
+
+  assert.equal(sourceX(fighter({ jumpStartupFrames: 5 }), 200), 17);
+  assert.equal(sourceX(fighter({ jumpStartupFrames: 4 }), 201), 97);
+
+  assert.equal(sourceX(fighter({ landingRecoveryFrames: 3 }), 300), 17);
+  assert.equal(sourceX(fighter({ landingRecoveryFrames: 2 }), 301), 97);
+});

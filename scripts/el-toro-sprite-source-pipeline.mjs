@@ -4,7 +4,7 @@ import { join, relative, resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { SHEETS, REJECTED_ALTERNATE } from './sprite-source-config.mjs';
 import { parseRgbaPng } from './sprite-png-alpha.mjs';
-import { extractFramesByComponents } from './sprite-component-extractor.mjs';
+import { extractFramesByComponents, extractPixelIsolatedFrames } from './sprite-component-extractor.mjs';
 import { buildNormalization, normalizedTransform } from './sprite-normalize-contract.mjs';
 import { renderNormalizedPreview } from './sprite-preview-svg.mjs';
 
@@ -43,9 +43,9 @@ export function generateSpriteSourceEvidence({sourceDir,outDir}) {
       extractedFrames+=1;
       if (extracted.crossesNominal) cellBoundaryTouches.push(frameId);
       frames.push({
-        frameId,sheetId:spec.id,kind:spec.kind==='fx'?'fx':'body',
+        frameId,sheetId:spec.id,kind:spec.kind,
         sourceRect:extracted.nominal,bbox:extracted.bbox,
-        extraction:{method:'alpha-components',contentAlpha:32,components:extracted.components,crossesNominal:extracted.crossesNominal},
+        extraction:{method:'alpha-components',contentAlpha:32,components:extracted.components,crossesNominal:extracted.crossesNominal,pixelIsolation:'component-owned-rgba-v1'},
       });
     }
 
@@ -91,6 +91,64 @@ export function generateSpriteSourceEvidence({sourceDir,outDir}) {
     bodyFrameCount,fxFrameCount,totalPreviewFrames:frames.length,
     hashMismatches,rejectedAlternatePresent,emptyFrames,canvasEdgeClipping,cellBoundaryTouches,unsupportedPngs,
     sheets,normalization,
+  };
+}
+
+
+export function generatePixelIsolatedFrameSet({sourceDir}) {
+  const sourceRoot=resolve(sourceDir);
+  const names=new Set(readdirSync(sourceRoot));
+  if (names.has(REJECTED_ALTERNATE)) {
+    throw new Error('rejected El Toro alternate is present in admitted source path');
+  }
+
+  const frames=[];
+  const sourceHashes={};
+
+  for (const spec of SHEETS) {
+    const path=join(sourceRoot,spec.file);
+    if (!existsSync(path)) throw new Error('missing accepted source sheet '+spec.file);
+    const bytes=readFileSync(path);
+    const actualHash=sha256(bytes);
+    if (actualHash!==spec.hash) {
+      throw new Error('source hash mismatch for '+spec.file+': expected '+spec.hash+' actual '+actualHash);
+    }
+    sourceHashes[spec.id]=actualHash;
+
+    const image=parseRgbaPng(bytes);
+    const extraction=extractPixelIsolatedFrames(image,spec.rows,spec.cols,{contentAlpha:32,clipAlpha:128});
+    if (extraction.hardCanvasEdge.length>0) {
+      throw new Error('hard outer-canvas clipping detected for '+spec.id);
+    }
+
+    for (const extracted of extraction.frames) {
+      const frameId=spec.id+'__f'+String(extracted.slot).padStart(2,'0');
+      if (!extracted.bbox || extracted.ownedPixelCount<=0) {
+        throw new Error('empty isolated frame '+frameId);
+      }
+      frames.push({
+        frameId,
+        sheetId:spec.id,
+        kind:spec.kind,
+        bbox:extracted.bbox,
+        sourceRect:extracted.nominal,
+        crossesNominal:extracted.crossesNominal,
+        components:extracted.components,
+        ownedPixelCount:extracted.ownedPixelCount,
+        cropWidth:extracted.cropWidth,
+        cropHeight:extracted.cropHeight,
+        rgba:extracted.rgba,
+      });
+    }
+  }
+
+  return {
+    fighterId:'el-toro',
+    facing:'right',
+    isolationVersion:'component-owned-rgba-v1',
+    contentAlpha:32,
+    sourceHashes,
+    frames,
   };
 }
 

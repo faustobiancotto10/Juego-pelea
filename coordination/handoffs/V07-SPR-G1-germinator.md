@@ -165,3 +165,45 @@ A later QA-only head supersedes the intermediate evidence receipt without changi
 The QA-only delta remains confined to validation workflow/tests/evidence tooling. No product file changed after `fe2b5056...`.
 
 Verdict remains: **APPROVE — SPRITE PILOT LIVE INTEGRATION GREEN**.
+
+
+## Replacement approval — final closure
+
+Audited product:
+`fe2b505639d8ebf2dc4ab204b545233d96f214f2`
+
+Product tree:
+`ed5ee226bca6c5da6c4c4769f14ccf7e2316c31a`
+
+Final verdict:
+**APPROVE — SPRITE PILOT LIVE INTEGRATION GREEN**
+
+Final QA-only head:
+`ac860f2ef320f83a977939483e742472b40389f9`
+
+Final verification:
+- Repository #1722 / `35788816202`: **433/433 PASS + build PASS**;
+- Character Pipeline V2 #74 / `35788816195`: tests/build/evidence/raster guard PASS;
+- artifact `10721013048`;
+- artifact digest `sha256:9fafac53621a87e574f8ab1e20a0e872ae110e00993f7a73acbdc1b84a362b26`.
+
+Independent runtime probes:
+- four-fighter V0.7 lineage preserved;
+- El Toro live body backend = sprite;
+- registry/manifest/atlas resolve from exact runtime path;
+- build copies exact assets into dist;
+- selected-fight lifecycle and rematch cache PASS;
+- RIGHT/LEFT authored facings use distinct atlas rectangles with no horizontal mirror;
+- anchors finite on both facings;
+- atlas decoded-memory bound PASS;
+- static served-atlas evidence inspected at full and phone scale: RIGHT idle, LEFT idle, RIGHT Topete, LEFT Ultimate all visible and garment text remains correctly oriented.
+
+QA-only branch changes are limited to workflow/test/evidence tooling. No product/runtime/gameplay source changed during Germinator validation.
+
+Recipient:
+**Gonza / V07-SPR-Z0**
+
+Next action:
+publish an **isolated sprite-pilot preview only** from exact product SHA `fe2b5056...`, prove served parity, and return a physical-phone test target. Do not consume or ship Germinator QA head `ac860f2...`.
+
+Production-root promotion remains unauthorized.

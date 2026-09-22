@@ -527,5 +527,42 @@
       "rangedSpecial": "shawarmazoThrow",
       "ultimate": "superEructo"
     }
+  },
+  "effectPackagePlan": {
+    "runtimeIntegration": "package-ready-effect-router-deferred",
+    "effects": {
+      "topete-impact": {
+        "sourceId": "FX-01",
+        "loop": false,
+        "clockPolicy": "event-age",
+        "routingRequirement": "topete-contact-event"
+      },
+      "shawarmazo-projectile": {
+        "sourceId": "FX-02",
+        "loop": true,
+        "clockPolicy": "projectile-age",
+        "routingRequirement": "toroShawarma-projectile-visual"
+      },
+      "shawarmazo-impact": {
+        "sourceId": "FX-03",
+        "loop": false,
+        "clockPolicy": "event-age",
+        "routingRequirement": "toroShawarma-impact-event"
+      },
+      "super-eructo-effect": {
+        "sourceId": "FX-04",
+        "loop": false,
+        "clockPolicy": "ultimatePhaseFrame",
+        "routingRequirement": "superEructo-forwardBlast-capture-phase",
+        "frameDurations": [
+          3,
+          3,
+          3,
+          3,
+          3,
+          3
+        ]
+      }
+    }
   }
 }

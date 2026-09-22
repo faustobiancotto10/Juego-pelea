@@ -37,3 +37,17 @@ Do not treat this receipt as source admission. A corrected LEFT-IMG-01 plus actu
 ## Other remaining pilot gate
 
 Anatomical anchors remain a separate downstream visual-authoring gate; Mario-A must not fabricate them from alpha/bounding geometry.
+
+
+## Local non-destructive repair candidate
+
+Mario-A prepared a canonical local LEFT package without regenerating artwork:
+
+- LEFT-IMG-00 and LEFT-IMG-02..12 preserve the exact user-provided PNG bytes.
+- LEFT-IMG-01 preserves every original RGBA source pixel at the same coordinates and adds **16 fully transparent rows below the source canvas**. No pixel is moved, resampled or recolored.
+- repaired LEFT-IMG-01 dimensions: **1536×1040** (the contract's 1536×1024 canvas is recommended, not mandatory);
+- repaired LEFT-IMG-01 SHA-256: `1dbe4afc9f1f5564eddd18e802af2f4f41454f7c5c54266466a90949106ebac7`;
+- after this padding repair, all 13 LEFT sheets have **0 alpha>128 pixels on the outer canvas edge**;
+- canonical local ZIP SHA-256: `f5f22112114dd815bdc1a04a0ce4f6b59130b5b67a6ba98e700da34942d3cc2b`.
+
+This removes the mechanical edge-contact failure without weakening the detector or altering the authored sprite pixels. It is still **NOT ADMITTED** until the canonical binary bytes are actually present in GitHub and the repository-native component extraction/hash/normalization verification runs green.

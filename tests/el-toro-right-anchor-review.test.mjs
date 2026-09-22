@@ -139,7 +139,7 @@ test('verified El Toro anchor review is baked into every runtime frame without c
   const fragment=JSON.parse(readFileSync(join(outDir,'right-runtime-fragment.json'),'utf8'));
   assert.equal(fragment.blockingGates.includes('verified-attachment-anchors'),false);
   assert.equal(fragment.blockingGates.includes('authored-left-facing-animations'),true);
-  assert.equal(fragment.blockingGates.includes('transition-clock-crouch-block-block-crouch'),true);
+  assert.equal(fragment.blockingGates.includes('transition-clock-crouch-block-block-crouch'),false);
   assert.equal(fragment.runtimeLoadable,false);
 
   let count=0;

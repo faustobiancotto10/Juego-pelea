@@ -477,3 +477,17 @@ No further safe lane work remains until one of:
 1. authored LEFT-facing set arrives;
 2. anatomical anchor coordinates are visually authored/verified;
 3. Ricardo publishes the crouch/block/block-crouch state-entry timing amendment.
+
+
+## STABLE FINAL — Mario-B RIGHT-only handoff
+
+Use exact candidate `51e0e892d08f9cf30742ef4894732f448a97da80`.
+Verification: run `35675088000` — coordination + full suite + build PASS.
+
+Added since prior handoff:
+- 84-frame atlas-only `right-anchor-review.svg`;
+- deterministic pivot markers only;
+- no fabricated anatomical anchor points;
+- gated anchor-review workflow documented.
+
+Mario-B has no further internally executable production work without authored LEFT art, verified anchor input, or Ricardo's requested crouch/block/block-crouch timeline amendment.

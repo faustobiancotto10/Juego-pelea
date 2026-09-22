@@ -51,12 +51,15 @@ Implement the generic, presentation-only sprite runtime foundation from `docs/su
 
 ## Completion receipt
 
-- final exact candidate: `79f8d81c2db75eebc595a93668e7332a9f429373`
-- supersedes: `d07cba1231fbb571dfe5d344487251f88dec797c`
-- TDD RED: run `35673297473` / job `106574354315` — coordination PASS; full suite 306 PASS / 2 expected regression FAIL
-- final GREEN: run `35673440101` / job `106574802177` — coordination 10/10 PASS; 308/308 full-suite PASS; build PASS
+- final exact candidate: `5b20c351e75a45460b3f76416d41424f10e43a1f`
+- supersedes: `79f8d81c2db75eebc595a93668e7332a9f429373` (and earlier `d07cba...`)
+- prior reaction-clock TDD RED: run `35673297473` / job `106574354315` — coordination PASS; full suite 306 PASS / 2 expected regression FAIL
+- prior reaction-clock GREEN: run `35673440101` / job `106574802177` — coordination 10/10 PASS; 308/308 full-suite PASS; build PASS
+- stance-clock TDD RED: run `35675340097` / job `106580577710` — coordination PASS; 308 PASS / 1 expected FAIL (`crouch` entered at terminal frame)
+- final GREEN: run `35675383264` / job `106580714122` — coordination PASS; 309/309 full-suite PASS; build PASS
 - handoff: `coordination/handoffs/V07-SPR-R1-ricardo.md`
 - authored-facing contract: explicit `mirrorSafe`; non-mirror-safe packages require matching `leftAnimations`
-- transition-clock repair: presentation-only per-slot state-entry age from authoritative `combatTick`; renewed reactions restart; hitstop freezes
-- full lane audit vs frozen start: 25 commits ahead / 0 behind; no `src/game/simulation/**` changes
-- Identity Learning Review: UPDATED
+- transition-clock repair: presentation-only per-slot state-entry age from authoritative `combatTick`; renewed reactions restart; hitstop freezes; `crouch`, `block`, `block-crouch` now also enter at age 0
+- latest amendment vs `79f8d81...`: 2 commits ahead / 0 behind; only timeline + targeted test
+- full lane audit vs frozen start: 27 commits ahead / 0 behind; no `src/game/simulation/**` changes
+- Identity Learning Review: UPDATED previously; latest amendment NO_CHANGE

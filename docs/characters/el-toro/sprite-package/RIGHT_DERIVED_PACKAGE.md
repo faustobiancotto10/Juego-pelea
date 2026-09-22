@@ -102,3 +102,24 @@ The generated anchor review is deliberately gated:
 - `right-anchor-review.svg` renders all 84 frames directly from `right-body.png`, marks only the already-authoritative pivot, and does **not** synthesize anatomical anchor coordinates.
 
 This converts anchor work into a bounded visual-review task without fabricating head/hand/foot positions from alpha geometry.
+
+## Applying a verified anchor review
+
+After visual review marks all 84 frames `verified:true` and supplies the seven required in-bounds coordinates, regenerate with:
+
+```bash
+node scripts/el-toro-sprite-atlas-packer.mjs \
+  --source-dir docs/characters/el-toro/sprite-source/right \
+  --package-contract docs/characters/el-toro/sprite-package/right-package.json \
+  --verified-anchor-review <verified-right-anchor-review.json> \
+  --out-dir <output-directory>
+```
+
+Before baking anchors, the packer validates:
+- review identity/facing/version and `verified` status;
+- all 84 required frame IDs;
+- all seven finite in-bounds anatomical anchors per frame;
+- exact atlas rectangle equality against the newly generated atlas;
+- exact normalization-pivot compatibility.
+
+A stale review from a different pack/layout is rejected. When the review is valid, every resolver alias that reuses a packed frame receives the same reviewed anchor map and the `verified-attachment-anchors` blocking gate is removed. LEFT-facing and runtime-contract gates remain independent.

@@ -4,7 +4,7 @@ function esc(value) {
   return String(value).replaceAll('&','&amp;').replaceAll('"','&quot;').replaceAll('<','&lt;').replaceAll('>','&gt;');
 }
 
-export function renderNormalizedPreview(frames,sheets,normalization) {
+export function renderNormalizedPreview(frames,sheets,normalization,facing='right') {
   const sheetMap=new Map(sheets.map((sheet)=>[sheet.id,sheet]));
   const columns=6,cellWidth=340,cellHeight=360,titleHeight=56;
   const rowCount=Math.ceil(frames.length/columns);
@@ -26,12 +26,13 @@ export function renderNormalizedPreview(frames,sheets,normalization) {
       '</g>',
     ].join('');
   }).join('\n');
+  const title='El Toro '+facing+'-facing normalized source preview';
   return [
     '<?xml version="1.0" encoding="UTF-8"?>',
     '<svg xmlns="http://www.w3.org/2000/svg" width="'+width+'" height="'+height+'" viewBox="0 0 '+width+' '+height+'">',
-    '<title>El Toro right-facing normalized source preview</title>',
-    '<text x="12" y="26" font-size="20">El Toro right-facing normalized source preview</text>',
-    '<text x="12" y="46" font-size="12">Shared body scale + stable bottom-center ground pivot; FX use a separate shared center scale.</text>',
+    '<title>'+title+'</title>',
+    '<text x="12" y="26" font-size="20">'+title+'</text>',
+    '<text x="12" y="46" font-size="12">Shared body scale + stable bottom-center ground pivot; FX use a separate shared center scale when present.</text>',
     cells,
     '</svg>',
     '',

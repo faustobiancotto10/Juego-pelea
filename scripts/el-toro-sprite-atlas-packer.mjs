@@ -231,7 +231,10 @@ function runtimeDurationsFor(packageContract, key, sourcePlanAnimation) {
 }
 
 
-function buildRuntimeFragment(packageContract, sourcePlan, frameRects) {
+function buildRuntimeFragment(packageContract, sourcePlan, frameRects, verifiedAnchorReview = null) {
+  const reviewedAnchors = verifiedAnchorReview
+    ? new Map(verifiedAnchorReview.frames.map((frame) => [frame.frameId, frame.anchors]))
+    : null;
   const animations = {};
   for (const [key, animation] of Object.entries(sourcePlan.animations)) {
     const durations = runtimeDurationsFor(packageContract, key, animation);
@@ -240,6 +243,7 @@ function buildRuntimeFragment(packageContract, sourcePlan, frameRects) {
       frames: animation.sourceFrameIds.map((frameId, index) => {
         const rect = frameRects.get(frameId);
         if (!rect) throw new Error('Missing packed El Toro body frame '+frameId);
+        const reviewed = reviewedAnchors?.get(frameId) ?? null;
         return {
           x: rect.x,
           y: rect.y,
@@ -248,6 +252,11 @@ function buildRuntimeFragment(packageContract, sourcePlan, frameRects) {
           pivotX: rect.pivotX,
           pivotY: rect.pivotY,
           durationTicks: durations[index],
+          ...(reviewed ? {
+            anchors: Object.fromEntries(
+              REQUIRED_ANCHORS.map((name) => [name, { ...reviewed[name] }]),
+            ),
+          } : {}),
         };
       }),
     };
@@ -263,8 +272,7 @@ function buildRuntimeFragment(packageContract, sourcePlan, frameRects) {
     leftAnimationsRequired: true,
     blockingGates: [
       'authored-left-facing-animations',
-      'verified-attachment-anchors',
-      'transition-clock-crouch-block-block-crouch',
+      ...(verifiedAnchorReview ? [] : ['verified-attachment-anchors']),
     ],
     animations,
   };
@@ -323,7 +331,7 @@ function renderGameplayPreview(runtimeFragment, atlasWidth, atlasHeight) {
 }
 
 
-function renderAnchorReviewSheet(frameRects, atlasWidth, atlasHeight) {
+function renderAnchorReviewSheet(frameRects, atlasWidth, atlasHeight, atlasName = 'right-body.png') {
   const width = 1260;
   const height = 2760;
   const columns = 7;
@@ -346,7 +354,7 @@ function renderAnchorReviewSheet(frameRects, atlasWidth, atlasHeight) {
       '<g data-frame-id="'+frameId+'">',
       '<rect x="'+(originX+5)+'" y="'+(originY+5)+'" width="170" height="220" rx="8" fill="#121922" stroke="#2d3a49"/>',
       '<svg x="'+spriteX.toFixed(3)+'" y="'+spriteY.toFixed(3)+'" width="'+spriteWidth.toFixed(3)+'" height="'+spriteHeight.toFixed(3)+'" viewBox="'+rect.x+' '+rect.y+' '+rect.width+' '+rect.height+'" overflow="visible">',
-      '<image href="right-body.png" x="0" y="0" width="'+atlasWidth+'" height="'+atlasHeight+'"/>',
+      '<image href="'+atlasName+'" x="0" y="0" width="'+atlasWidth+'" height="'+atlasHeight+'"/>',
       '</svg>',
       '<g data-pivot="normalization-ground-pivot" stroke="#ffd36a" stroke-width="1.5">',
       '<line x1="'+(pivotX-7)+'" y1="'+pivotY+'" x2="'+(pivotX+7)+'" y2="'+pivotY+'"/>',
@@ -371,11 +379,11 @@ function renderAnchorReviewSheet(frameRects, atlasWidth, atlasHeight) {
   ].join('');
 }
 
-function buildAnchorReviewTemplate(frameRects) {
+function buildAnchorReviewTemplate(frameRects, facing = 'right') {
   return {
     version: 1,
     fighterId: 'el-toro',
-    facing: 'right',
+    facing,
     status: 'pending-visual-verification',
     coordinateSpace: 'packed-frame-local',
     requiredAnchors: [...REQUIRED_ANCHORS],
@@ -400,12 +408,12 @@ function buildAnchorReviewTemplate(frameRects) {
 
 export function assertVerifiedElToroAnchorReview(
   review,
-  { expectedFrameCount = 84 } = {},
+  { expectedFrameCount = 84, expectedFacing = 'right' } = {},
 ) {
   if (!review || review.status !== 'verified') {
     throw new Error('El Toro anchor review is not verified');
   }
-  if (review.fighterId !== 'el-toro' || review.facing !== 'right') {
+  if (review.fighterId !== 'el-toro' || review.facing !== expectedFacing) {
     throw new Error('El Toro anchor review fighter/facing mismatch');
   }
   if (review.coordinateSpace !== 'packed-frame-local') {
@@ -455,10 +463,39 @@ export function assertVerifiedElToroAnchorReview(
 
 
 
+function assertAnchorReviewMatchesPackedFrames(review, frameRects) {
+  if (review.frames.length !== frameRects.size) {
+    throw new Error('El Toro verified anchor review does not match packed frame count');
+  }
+  const byId = new Map(review.frames.map((frame) => [frame.frameId, frame]));
+  for (const [frameId, rect] of frameRects.entries()) {
+    const frame = byId.get(frameId);
+    if (!frame) throw new Error('El Toro verified anchor review missing packed frame '+frameId);
+    const atlasRect = frame.atlasRect;
+    if (
+      atlasRect?.x !== rect.x
+      || atlasRect?.y !== rect.y
+      || atlasRect?.width !== rect.width
+      || atlasRect?.height !== rect.height
+    ) {
+      throw new Error('El Toro verified anchor review atlas rect mismatch for '+frameId);
+    }
+    if (
+      frame.pivot?.source !== 'normalization-ground-pivot'
+      || Math.abs(frame.pivot.x - rect.pivotX) > 1e-4
+      || Math.abs(frame.pivot.y - rect.pivotY) > 1e-4
+    ) {
+      throw new Error('El Toro verified anchor review pivot mismatch for '+frameId);
+    }
+  }
+  return review;
+}
+
 export function buildElToroRightAtlasPackage({
   sourceDir,
   packageContractPath,
   outDir,
+  verifiedAnchorReviewPath = null,
 }) {
   const sourceRoot = resolve(sourceDir);
   const outputRoot = resolve(outDir);
@@ -490,8 +527,20 @@ export function buildElToroRightAtlasPackage({
   writeFileSync(bodyAtlasPath, encodeRgbaPng(bodyAtlas.width, bodyAtlas.height, bodyAtlas.rgba));
   writeFileSync(effectsAtlasPath, encodeRgbaPng(effectAtlas.width, effectAtlas.height, effectAtlas.rgba));
 
+  let verifiedAnchorReview = null;
+  if (verifiedAnchorReviewPath !== null) {
+    verifiedAnchorReview = JSON.parse(readFileSync(resolve(verifiedAnchorReviewPath), 'utf8'));
+    assertVerifiedElToroAnchorReview(verifiedAnchorReview);
+    assertAnchorReviewMatchesPackedFrames(verifiedAnchorReview, bodyAtlas.frameRects);
+  }
+
   const sourcePlan = compileRuntimeFrameSourcePlan(packageContract, manifestLike);
-  const runtimeFragment = buildRuntimeFragment(packageContract, sourcePlan, bodyAtlas.frameRects);
+  const runtimeFragment = buildRuntimeFragment(
+    packageContract,
+    sourcePlan,
+    bodyAtlas.frameRects,
+    verifiedAnchorReview,
+  );
   writeFileSync(
     join(outputRoot, 'right-runtime-fragment.json'),
     JSON.stringify(runtimeFragment, null, 2)+'\n',
@@ -505,7 +554,11 @@ export function buildElToroRightAtlasPackage({
   const anchorReviewPath = join(outputRoot, 'right-anchor-review.json');
   writeFileSync(
     anchorReviewPath,
-    JSON.stringify(buildAnchorReviewTemplate(bodyAtlas.frameRects), null, 2)+'\n',
+    JSON.stringify(
+      verifiedAnchorReview ?? buildAnchorReviewTemplate(bodyAtlas.frameRects),
+      null,
+      2,
+    )+'\n',
   );
   const anchorReviewSvgPath = join(outputRoot, 'right-anchor-review.svg');
   writeFileSync(
@@ -597,38 +650,603 @@ export function buildElToroRightAtlasPackage({
 }
 
 
+function renderBilateralGameplayPreview(runtimeManifest, atlasWidth, atlasHeight) {
+  const width = 844;
+  const height = 760;
+  const scale = 390 / 720;
+  const samples = [
+    ['idle', 3, 'IDLE'],
+    ['walk-forward', 3, 'WALK'],
+    ['move:toroJab', 3, 'JAB ACTIVE'],
+    ['move:topete', 4, 'TOPETE PEAK'],
+    ['move:shawarmazoThrow', 3, 'SHAWARMA RELEASE'],
+    ['ultimate:superEructo:capture', 1, 'SUPER ERUCTO'],
+  ];
+  const centers = [70,208,346,484,622,760];
+
+  function row(animationMap, facing, top, baseline) {
+    return samples.map(([key, requestedIndex, label], index) => {
+      const animation = animationMap[key];
+      if (!animation) throw new Error('Missing bilateral preview animation '+facing+' '+key);
+      const frameIndex = Math.min(requestedIndex, animation.frames.length - 1);
+      const frame = animation.frames[frameIndex];
+      const drawWidth = frame.width * scale;
+      const drawHeight = frame.height * scale;
+      const x = centers[index] - frame.pivotX * scale;
+      const y = baseline - frame.pivotY * scale;
+      return [
+        '<g data-facing="'+facing+'" data-animation="'+key+'">',
+        '<rect x="'+(centers[index]-66)+'" y="'+top+'" width="132" height="274" rx="10" fill="#0d131c" fill-opacity="0.38" stroke="#ffffff" stroke-opacity="0.08"/>',
+        '<svg x="'+x.toFixed(3)+'" y="'+y.toFixed(3)+'" width="'+drawWidth.toFixed(3)+'" height="'+drawHeight.toFixed(3)+'" viewBox="'+frame.x+' '+frame.y+' '+frame.width+' '+frame.height+'" overflow="visible">',
+        '<image href="el-toro-body.png" x="0" y="0" width="'+atlasWidth+'" height="'+atlasHeight+'"/>',
+        '</svg>',
+        '<text x="'+centers[index]+'" y="'+(top+296)+'" text-anchor="middle" font-family="system-ui,sans-serif" font-size="10" font-weight="800" fill="#f5e8cf">'+label+'</text>',
+        '</g>',
+      ].join('');
+    }).join('');
+  }
+
+  return [
+    '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 844 760" width="844" height="760">',
+    '<rect width="844" height="760" fill="#111821"/>',
+    '<text x="18" y="24" font-family="system-ui,sans-serif" font-size="15" font-weight="900" fill="#f5e8cf">EL TORO — AUTHORED BILATERAL GAMEPLAY-SCALE EVIDENCE</text>',
+    '<text x="18" y="42" font-family="system-ui,sans-serif" font-size="10" fill="#aebdce">Single atlas, no horizontal mirroring. RIGHT above, authored LEFT below.</text>',
+    '<text x="18" y="67" font-family="system-ui,sans-serif" font-size="11" font-weight="800" fill="#d7b66f">RIGHT</text>',
+    row(runtimeManifest.animations,'right',72,326),
+    '<line x1="0" y1="380" x2="844" y2="380" stroke="#455466"/>',
+    '<text x="18" y="407" font-family="system-ui,sans-serif" font-size="11" font-weight="800" fill="#d7b66f">LEFT — AUTHORED</text>',
+    row(runtimeManifest.leftAnimations,'left',412,666),
+    '</svg>',
+    '',
+  ].join('');
+}
+
+
+function buildAnimationMapForFacing(
+  packageContract,
+  sourcePlan,
+  frameRects,
+  verifiedAnchorReview = null,
+) {
+  const reviewedAnchors = verifiedAnchorReview
+    ? new Map(verifiedAnchorReview.frames.map((frame) => [frame.frameId, frame.anchors]))
+    : null;
+  const animations = {};
+
+  for (const [key, animation] of Object.entries(sourcePlan.animations)) {
+    const durations = runtimeDurationsFor(packageContract, key, animation);
+    animations[key] = {
+      loop: animation.loop,
+      frames: animation.sourceFrameIds.map((frameId, index) => {
+        const rect = frameRects.get(frameId);
+        if (!rect) throw new Error('Missing packed El Toro bilateral body frame '+frameId);
+        const reviewed = reviewedAnchors?.get(frameId) ?? null;
+        return {
+          x: rect.x,
+          y: rect.y,
+          width: rect.width,
+          height: rect.height,
+          pivotX: rect.pivotX,
+          pivotY: rect.pivotY,
+          durationTicks: durations[index],
+          ...(reviewed ? {
+            anchors: Object.fromEntries(
+              REQUIRED_ANCHORS.map((name) => [name, { ...reviewed[name] }]),
+            ),
+          } : {}),
+        };
+      }),
+    };
+  }
+
+  return animations;
+}
+
+function namespacedFrame(frame, facing) {
+  return { ...frame, frameId: facing+':'+frame.frameId };
+}
+
+function facingRectMap(frameRects, facing, frames) {
+  const result = new Map();
+  for (const frame of frames) {
+    const rect = frameRects.get(facing+':'+frame.frameId);
+    if (!rect) throw new Error('Missing '+facing+' packed rect for '+frame.frameId);
+    result.set(frame.frameId, rect);
+  }
+  return result;
+}
+
+function manifestLikeForFacing(frames, normalization) {
+  return {
+    frames: frames.map((frame) => ({
+      ...frame,
+      normalized: normalizedTransform(frame, normalization),
+    })),
+    normalization,
+  };
+}
+
+function renderBilateralAnchorReviewTool(
+  rightReview,
+  leftReview,
+  atlasWidth,
+  atlasHeight,
+) {
+  const seed = JSON.stringify({ right: rightReview, left: leftReview });
+  return `<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>EL TORO — ANCHOR REVIEW</title>
+<style>
+body{margin:0;background:#0b1018;color:#e9eef5;font-family:system-ui,sans-serif}
+header{padding:12px 16px;border-bottom:1px solid #283444;display:flex;gap:18px;align-items:center;flex-wrap:wrap}
+main{display:grid;grid-template-columns:320px 1fr;min-height:calc(100vh - 58px)}
+aside{padding:12px;border-right:1px solid #283444;overflow:auto}
+section{padding:12px;display:flex;flex-direction:column;align-items:center;gap:10px}
+button,select{background:#182333;color:#e9eef5;border:1px solid #41516a;border-radius:6px;padding:7px 9px}
+button:disabled{opacity:.45}
+#stage{position:relative;width:min(72vw,760px);height:min(72vw,760px);background:#111a26;border:1px solid #33445a;overflow:hidden;touch-action:none}
+#sprite{position:absolute;image-rendering:auto}
+.marker{position:absolute;width:11px;height:11px;border-radius:50%;border:2px solid #fff;transform:translate(-50%,-50%);pointer-events:none}
+.pivot{position:absolute;width:16px;height:16px;transform:translate(-50%,-50%);pointer-events:none}
+.pivot:before,.pivot:after{content:"";position:absolute;background:#ffd36a}
+.pivot:before{left:7px;top:0;width:2px;height:16px}.pivot:after{left:0;top:7px;width:16px;height:2px}
+.frame-row{display:flex;gap:6px;align-items:center;margin:4px 0}
+.frame-row[data-verified="true"]{color:#8de59c}
+small{color:#aebcce}.anchors label{display:block;margin:5px 0}.anchors input{margin-right:7px}
+</style>
+</head>
+<body>
+<header>
+<strong>EL TORO — ANCHOR REVIEW</strong>
+<span>Authored RIGHT + LEFT; no mirroring</span>
+<button id="copyPrevious">Copy previous frame</button>
+<button id="verifyCurrent">Verify frame</button>
+<button id="exportRight">Export RIGHT JSON</button>
+<button id="exportLeft">Export LEFT JSON</button>
+</header>
+<main>
+<aside>
+<div>
+<label>Facing <select id="facing"><option value="right">RIGHT</option><option value="left">LEFT</option></select></label>
+</div>
+<div class="anchors" id="anchors"></div>
+<hr>
+<div id="frameList"></div>
+</aside>
+<section>
+<div id="meta"></div>
+<div id="stage">
+<img id="sprite" src="el-toro-body.png" alt="">
+<div id="pivot" class="pivot"></div>
+</div>
+<small>Choose an anchor, then click the sprite frame. Editing or copying always clears verification.</small>
+</section>
+</main>
+<script>
+const atlas={width:${atlasWidth},height:${atlasHeight}};
+const REQUIRED=['head','chest','frontHand','backHand','belt','frontFoot','backFoot'];
+function blankReviewFrame(){return {verified:false,anchors:{head:null,chest:null,frontHand:null,backHand:null,belt:null,frontFoot:null,backFoot:null}}}
+const reviews=${seed};
+let facing='right';
+let index=0;
+let selected='head';
+const stage=document.getElementById('stage');
+const sprite=document.getElementById('sprite');
+const pivot=document.getElementById('pivot');
+const meta=document.getElementById('meta');
+const frameList=document.getElementById('frameList');
+const anchorBox=document.getElementById('anchors');
+
+function currentReview(){return reviews[facing]}
+function currentFrame(){return currentReview().frames[index]}
+function pointColor(name){return ({head:'#ff6b6b',chest:'#4dabf7',frontHand:'#63e6be',backHand:'#74c0fc',belt:'#ffd43b',frontFoot:'#da77f2',backFoot:'#b197fc'})[name]||'#fff'}
+
+function rebuildAnchorPicker(){
+  anchorBox.innerHTML='';
+  for(const name of REQUIRED){
+    const label=document.createElement('label');
+    const input=document.createElement('input');
+    input.type='radio';input.name='anchor';input.value=name;input.checked=name===selected;
+    input.onchange=()=>{selected=name};
+    label.append(input,document.createTextNode(name));
+    anchorBox.append(label);
+  }
+}
+
+function rebuildFrameList(){
+  frameList.innerHTML='';
+  currentReview().frames.forEach((frame,i)=>{
+    const row=document.createElement('div');
+    row.className='frame-row';row.dataset.verified=String(frame.verified);
+    const b=document.createElement('button');b.textContent=frame.frameId;
+    b.onclick=()=>{index=i;render()};
+    row.append(b,document.createTextNode(frame.verified?' verified':' pending'));
+    frameList.append(row);
+  });
+}
+
+function render(){
+  const current=currentFrame();
+  const rect=current.atlasRect;
+  const stageSize=stage.clientWidth;
+  const scale=Math.min(stageSize/rect.width,stage.clientHeight/rect.height)*0.9;
+  const drawW=rect.width*scale,drawH=rect.height*scale;
+  const x=(stage.clientWidth-drawW)/2,y=(stage.clientHeight-drawH)/2;
+  sprite.style.left=x+'px';sprite.style.top=y+'px';
+  sprite.style.width=atlas.width*scale+'px';sprite.style.height=atlas.height*scale+'px';
+  sprite.style.objectFit='none';
+  sprite.style.objectPosition=(-rect.x*scale)+'px '+(-rect.y*scale)+'px';
+  sprite.style.clipPath='inset(0 '+Math.max(0,atlas.width*scale-drawW)+'px '+Math.max(0,atlas.height*scale-drawH)+'px 0)';
+  pivot.style.left=(x+current.pivot.x*scale)+'px';
+  pivot.style.top=(y+current.pivot.y*scale)+'px';
+
+  stage.querySelectorAll('.marker').forEach((node)=>node.remove());
+  for(const name of REQUIRED){
+    const p=current.anchors[name];
+    if(!p) continue;
+    const node=document.createElement('div');
+    node.className='marker';node.style.background=pointColor(name);
+    node.style.left=(x+p.x*scale)+'px';node.style.top=(y+p.y*scale)+'px';
+    node.title=name;stage.append(node);
+  }
+  meta.textContent=facing.toUpperCase()+' '+current.frameId+' — '+(current.verified?'VERIFIED':'PENDING');
+  rebuildFrameList();
+}
+
+function setAnchor(event){
+  const current=currentFrame();
+  const rect=current.atlasRect;
+  const stageSize=stage.clientWidth;
+  const scale=Math.min(stageSize/rect.width,stage.clientHeight/rect.height)*0.9;
+  const drawW=rect.width*scale,drawH=rect.height*scale;
+  const x=(stage.clientWidth-drawW)/2,y=(stage.clientHeight-drawH)/2;
+  const bounds=stage.getBoundingClientRect();
+  const px=Math.max(0,Math.min(rect.width,(event.clientX-bounds.left-x)/scale));
+  const py=Math.max(0,Math.min(rect.height,(event.clientY-bounds.top-y)/scale));
+  current.anchors[selected]={x:Number(px.toFixed(3)),y:Number(py.toFixed(3))};
+  current.verified=false;
+  currentReview().status='pending-visual-verification';
+  render();
+}
+
+function copyPrevious(){
+  if(index===0) return;
+  const current=currentFrame();
+  const previous=currentReview().frames[index-1];
+  current.anchors=JSON.parse(JSON.stringify(previous.anchors));
+  current.verified=false;
+  currentReview().status='pending-visual-verification';
+  render();
+}
+
+function verifyCurrent(){
+  const current=currentFrame();
+  const complete=REQUIRED.every((name)=>current.anchors[name] && Number.isFinite(current.anchors[name].x) && Number.isFinite(current.anchors[name].y));
+  if(!complete){alert('Set all seven anchors before verification.');return}
+  current.verified=true;
+  currentReview().status=currentReview().frames.every((frame)=>frame.verified)?'verified':'pending-visual-verification';
+  render();
+}
+
+function exportReview(which){
+  const review=reviews[which];
+  review.status=review.frames.every((frame)=>frame.verified)?'verified':'pending-visual-verification';
+  const blob=new Blob([JSON.stringify(review,null,2)+'\\n'],{type:'application/json'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);
+  a.download=which+'-anchor-review.json';a.click();URL.revokeObjectURL(a.href);
+}
+
+document.getElementById('facing').onchange=(event)=>{facing=event.target.value;index=0;render()};
+document.getElementById('copyPrevious').onclick=copyPrevious;
+document.getElementById('verifyCurrent').onclick=verifyCurrent;
+document.getElementById('exportRight').onclick=()=>exportReview('right');
+document.getElementById('exportLeft').onclick=()=>exportReview('left');
+stage.onclick=setAnchor;
+
+rebuildAnchorPicker();
+render();
+</script>
+</body>
+</html>`;
+}
+
+
+export function buildElToroBilateralAtlasPackage({
+  rightSourceDir,
+  leftSourceDir,
+  packageContractPath,
+  outDir,
+  rightVerifiedAnchorReviewPath = null,
+  leftVerifiedAnchorReviewPath = null,
+}) {
+  const rightRoot = resolve(rightSourceDir);
+  const leftRoot = resolve(leftSourceDir);
+  const outputRoot = resolve(outDir);
+  const packageContract = JSON.parse(readFileSync(resolve(packageContractPath), 'utf8'));
+  mkdirSync(outputRoot, { recursive: true });
+
+  const rightIsolated = generatePixelIsolatedFrameSet({
+    sourceDir: rightRoot,
+    facing: 'right',
+  });
+  const leftIsolated = generatePixelIsolatedFrameSet({
+    sourceDir: leftRoot,
+    facing: 'left',
+  });
+
+  const rightBody = rightIsolated.frames.filter((frame) => frame.kind === 'body');
+  const leftBody = leftIsolated.frames.filter((frame) => frame.kind === 'body');
+  const effectFrames = rightIsolated.frames.filter((frame) => frame.kind === 'fx');
+  if (rightBody.length !== 84) throw new Error('Expected 84 RIGHT El Toro body frames');
+  if (leftBody.length !== 84) throw new Error('Expected 84 LEFT El Toro body frames');
+  if (effectFrames.length !== 22) throw new Error('Expected 22 El Toro FX frames');
+
+  const normalizationInput = [
+    ...rightIsolated.frames.map((frame) => namespacedFrame(frame, 'right')),
+    ...leftIsolated.frames.map((frame) => namespacedFrame(frame, 'left')),
+  ];
+  const normalization = buildNormalization(normalizationInput);
+
+  const bilateralBodyFrames = [
+    ...rightBody.map((frame) => namespacedFrame(frame, 'right')),
+    ...leftBody.map((frame) => namespacedFrame(frame, 'left')),
+  ];
+  const bodyNormalized = prepareNormalizedFrames(bilateralBodyFrames, normalization);
+  const effectNormalized = prepareNormalizedFrames(effectFrames, normalization);
+  const bodyAtlas = packFrames(bodyNormalized);
+  const effectAtlas = packFrames(effectNormalized);
+
+  const bodyAtlasPath = join(outputRoot, 'el-toro-body.png');
+  const effectsAtlasPath = join(outputRoot, 'el-toro-effects.png');
+  writeFileSync(bodyAtlasPath, encodeRgbaPng(bodyAtlas.width, bodyAtlas.height, bodyAtlas.rgba));
+  writeFileSync(effectsAtlasPath, encodeRgbaPng(effectAtlas.width, effectAtlas.height, effectAtlas.rgba));
+
+  const rightRects = facingRectMap(bodyAtlas.frameRects, 'right', rightBody);
+  const leftRects = facingRectMap(bodyAtlas.frameRects, 'left', leftBody);
+
+  let rightReview = null;
+  if (rightVerifiedAnchorReviewPath !== null) {
+    rightReview = JSON.parse(readFileSync(resolve(rightVerifiedAnchorReviewPath), 'utf8'));
+    assertVerifiedElToroAnchorReview(rightReview, { expectedFacing: 'right' });
+    assertAnchorReviewMatchesPackedFrames(rightReview, rightRects);
+  }
+
+  let leftReview = null;
+  if (leftVerifiedAnchorReviewPath !== null) {
+    leftReview = JSON.parse(readFileSync(resolve(leftVerifiedAnchorReviewPath), 'utf8'));
+    assertVerifiedElToroAnchorReview(leftReview, { expectedFacing: 'left' });
+    assertAnchorReviewMatchesPackedFrames(leftReview, leftRects);
+  }
+
+  const rightManifestLike = manifestLikeForFacing(rightIsolated.frames, normalization);
+  const leftManifestLike = manifestLikeForFacing(leftIsolated.frames, normalization);
+  const rightPlan = compileRuntimeFrameSourcePlan(packageContract, rightManifestLike);
+  const leftPlan = compileRuntimeFrameSourcePlan(packageContract, leftManifestLike);
+  const animations = buildAnimationMapForFacing(
+    packageContract,
+    rightPlan,
+    rightRects,
+    rightReview,
+  );
+  const leftAnimations = buildAnimationMapForFacing(
+    packageContract,
+    leftPlan,
+    leftRects,
+    leftReview,
+  );
+
+  const blockingGates = [
+    ...(rightReview ? [] : ['verified-right-attachment-anchors']),
+    ...(leftReview ? [] : ['verified-left-attachment-anchors']),
+  ];
+  const runtimeManifest = {
+    version: 1,
+    fighterId: 'el-toro',
+    facing: 'authored-bilateral',
+    atlas: 'el-toro-body.png',
+    mirrorSafe: false,
+    runtimeLoadable: blockingGates.length === 0,
+    blockingGates,
+    animations,
+    leftAnimations,
+  };
+  const manifestPath = join(outputRoot, 'el-toro-animations.json');
+  writeFileSync(manifestPath, JSON.stringify(runtimeManifest, null, 2)+'\n');
+
+  const previewPath = join(outputRoot, 'bilateral-gameplay-preview.svg');
+  writeFileSync(
+    previewPath,
+    renderBilateralGameplayPreview(runtimeManifest, bodyAtlas.width, bodyAtlas.height),
+  );
+
+  const rightAnchorReviewPath = join(outputRoot, 'right-anchor-review.json');
+  const leftAnchorReviewPath = join(outputRoot, 'left-anchor-review.json');
+  writeFileSync(
+    rightAnchorReviewPath,
+    JSON.stringify(rightReview ?? buildAnchorReviewTemplate(rightRects, 'right'), null, 2)+'\n',
+  );
+  writeFileSync(
+    leftAnchorReviewPath,
+    JSON.stringify(leftReview ?? buildAnchorReviewTemplate(leftRects, 'left'), null, 2)+'\n',
+  );
+
+  const rightAnchorReviewSvgPath = join(outputRoot, 'right-anchor-review.svg');
+  const leftAnchorReviewSvgPath = join(outputRoot, 'left-anchor-review.svg');
+  writeFileSync(
+    rightAnchorReviewSvgPath,
+    renderAnchorReviewSheet(rightRects, bodyAtlas.width, bodyAtlas.height, 'el-toro-body.png'),
+  );
+  writeFileSync(
+    leftAnchorReviewSvgPath,
+    renderAnchorReviewSheet(leftRects, bodyAtlas.width, bodyAtlas.height, 'el-toro-body.png'),
+  );
+
+  const anchorReviewToolPath = join(outputRoot, 'bilateral-anchor-review.html');
+  writeFileSync(
+    anchorReviewToolPath,
+    renderBilateralAnchorReviewTool(
+      rightReview ?? buildAnchorReviewTemplate(rightRects, 'right'),
+      leftReview ?? buildAnchorReviewTemplate(leftRects, 'left'),
+      bodyAtlas.width,
+      bodyAtlas.height,
+    ),
+  );
+
+  const effectPlan = compileEffectFrameSourcePlan(packageContract, rightManifestLike);
+  const effectsFragmentPath = join(outputRoot, 'el-toro-effects.json');
+  writeFileSync(
+    effectsFragmentPath,
+    JSON.stringify({
+      version: 1,
+      fighterId: 'el-toro',
+      atlas: 'el-toro-effects.png',
+      runtimeIntegration: effectPlan.runtimeIntegration,
+      effects: Object.fromEntries(
+        Object.entries(effectPlan.effects).map(([key, effect]) => [
+          key,
+          {
+            loop: effect.loop,
+            clockPolicy: effect.clockPolicy,
+            routingRequirement: effect.routingRequirement,
+            frames: effect.sourceFrameIds.map((frameId, index) => {
+              const rect = effectAtlas.frameRects.get(frameId);
+              if (!rect) throw new Error('Missing packed El Toro FX frame '+frameId);
+              return {
+                x: rect.x,
+                y: rect.y,
+                width: rect.width,
+                height: rect.height,
+                pivotX: rect.pivotX,
+                pivotY: rect.pivotY,
+                durationTicks: effect.durationTicks?.[index] ?? 1,
+              };
+            }),
+          },
+        ]),
+      ),
+    }, null, 2)+'\n',
+  );
+
+  const metricsPath = join(outputRoot, 'bilateral-package-metrics.json');
+  const metrics = {
+    version: 1,
+    fighterId: 'el-toro',
+    rightBodyFrames: rightBody.length,
+    leftBodyFrames: leftBody.length,
+    body: {
+      width: bodyAtlas.width,
+      height: bodyAtlas.height,
+      decodedRgbaBytes: bodyAtlas.width * bodyAtlas.height * 4,
+    },
+    effects: {
+      frameCount: effectFrames.length,
+      width: effectAtlas.width,
+      height: effectAtlas.height,
+      decodedRgbaBytes: effectAtlas.width * effectAtlas.height * 4,
+    },
+    runtimeLoadable: runtimeManifest.runtimeLoadable,
+    mirrorSafe: false,
+  };
+  writeFileSync(metricsPath, JSON.stringify(metrics, null, 2)+'\n');
+
+  return {
+    manifestPath,
+    metricsPath,
+    previewPath,
+    rightAnchorReviewPath,
+    leftAnchorReviewPath,
+    rightAnchorReviewSvgPath,
+    leftAnchorReviewSvgPath,
+    anchorReviewToolPath,
+    body: {
+      sourceFrameCount: rightBody.length + leftBody.length,
+      rightFrameCount: rightBody.length,
+      leftFrameCount: leftBody.length,
+      atlasPath: bodyAtlasPath,
+      atlasWidth: bodyAtlas.width,
+      atlasHeight: bodyAtlas.height,
+      frameRects: bodyAtlas.frameRects,
+    },
+    effects: {
+      sourceFrameCount: effectFrames.length,
+      atlasPath: effectsAtlasPath,
+      atlasWidth: effectAtlas.width,
+      atlasHeight: effectAtlas.height,
+      frameRects: effectAtlas.frameRects,
+    },
+  };
+}
+
+
 function parseCliArgs(argv) {
   const args = {};
   for (let index = 0; index < argv.length; index += 1) {
     const token = argv[index];
     if (token === '--source-dir') args.sourceDir = argv[++index];
+    else if (token === '--left-source-dir') args.leftSourceDir = argv[++index];
     else if (token === '--package-contract') args.packageContractPath = argv[++index];
     else if (token === '--out-dir') args.outDir = argv[++index];
+    else if (token === '--verified-anchor-review') args.verifiedAnchorReviewPath = argv[++index];
+    else if (token === '--right-verified-anchor-review') args.rightVerifiedAnchorReviewPath = argv[++index];
+    else if (token === '--left-verified-anchor-review') args.leftVerifiedAnchorReviewPath = argv[++index];
     else throw new Error('unknown argument '+token);
   }
   if (!args.sourceDir || !args.packageContractPath || !args.outDir) {
     throw new Error(
-      'usage: node scripts/el-toro-sprite-atlas-packer.mjs --source-dir <dir> --package-contract <json> --out-dir <dir>',
+      'usage: node scripts/el-toro-sprite-atlas-packer.mjs --source-dir <right-dir> [--left-source-dir <left-dir>] --package-contract <json> --out-dir <dir> [--verified-anchor-review <json>] [--right-verified-anchor-review <json>] [--left-verified-anchor-review <json>]',
     );
   }
   return args;
 }
 
 if (process.argv[1] && import.meta.url === pathToFileURL(resolve(process.argv[1])).href) {
-  const result = buildElToroRightAtlasPackage(parseCliArgs(process.argv.slice(2)));
-  process.stdout.write(JSON.stringify({
-    fighterId: 'el-toro',
-    facing: 'right',
-    bodyFrames: result.body.sourceFrameCount,
-    effectFrames: result.effects.sourceFrameCount,
-    bodyAtlas: 'right-body.png',
-    effectsAtlas: 'right-effects.png',
-    runtimeFragment: 'right-runtime-fragment.json',
-    effectsFragment: 'right-effects-fragment.json',
-    preview: 'right-gameplay-preview.svg',
-    metrics: 'right-package-metrics.json',
-    anchorReview: 'right-anchor-review.json',
-    anchorReviewVisual: 'right-anchor-review.svg',
-    runtimeLoadable: false,
-  })+'\n');
+  const args = parseCliArgs(process.argv.slice(2));
+  if (args.leftSourceDir) {
+    const result = buildElToroBilateralAtlasPackage({
+      rightSourceDir: args.sourceDir,
+      leftSourceDir: args.leftSourceDir,
+      packageContractPath: args.packageContractPath,
+      outDir: args.outDir,
+      rightVerifiedAnchorReviewPath: args.rightVerifiedAnchorReviewPath ?? null,
+      leftVerifiedAnchorReviewPath: args.leftVerifiedAnchorReviewPath ?? null,
+    });
+    const manifest = JSON.parse(readFileSync(result.manifestPath,'utf8'));
+    process.stdout.write(JSON.stringify({
+      fighterId: 'el-toro',
+      facing: 'authored-bilateral',
+      rightBodyFrames: result.body.rightFrameCount,
+      leftBodyFrames: result.body.leftFrameCount,
+      effectFrames: result.effects.sourceFrameCount,
+      bodyAtlas: 'el-toro-body.png',
+      effectsAtlas: 'el-toro-effects.png',
+      manifest: 'el-toro-animations.json',
+      preview: 'bilateral-gameplay-preview.svg',
+      rightAnchorReview: 'right-anchor-review.json',
+      leftAnchorReview: 'left-anchor-review.json',
+      anchorReviewTool: 'bilateral-anchor-review.html',
+      mirrorSafe: false,
+      runtimeLoadable: manifest.runtimeLoadable,
+    })+'\n');
+  } else {
+    const result = buildElToroRightAtlasPackage(args);
+    process.stdout.write(JSON.stringify({
+      fighterId: 'el-toro',
+      facing: 'right',
+      bodyFrames: result.body.sourceFrameCount,
+      effectFrames: result.effects.sourceFrameCount,
+      bodyAtlas: 'right-body.png',
+      effectsAtlas: 'right-effects.png',
+      runtimeFragment: 'right-runtime-fragment.json',
+      effectsFragment: 'right-effects-fragment.json',
+      preview: 'right-gameplay-preview.svg',
+      metrics: 'right-package-metrics.json',
+      anchorReview: 'right-anchor-review.json',
+      anchorReviewVisual: 'right-anchor-review.svg',
+      verifiedAnchorReviewApplied: Boolean(result.verifiedAnchorReviewApplied),
+      runtimeLoadable: false,
+    })+'\n');
+  }
 }

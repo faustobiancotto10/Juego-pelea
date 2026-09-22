@@ -597,3 +597,37 @@ NEXT:
 4. only then publish a GREEN LEFT exact-SHA handoff to Mario-B/integration.
 
 Anatomical anchors remain a separate downstream visual-authoring gate and must not be inferred from alpha bounds.
+
+
+## HANDOFF_READY — Mario-A authored LEFT source
+
+Mario-A completed the authored LEFT source/normalization lane.
+
+Exact handoff SHA:
+`c1b3e8e757b707f2975f6587217cc2f851e2ca6b`
+
+Evidence:
+- binary import commit `1f74072d8280f88b0f52d24d77495471d68033d0`;
+- binary verification run `35683282959`: 13/13 decoded RGBA identity checks + frame/grid + alpha + hard-edge gates PASS;
+- LEFT TDD RED run `35683410357`: 0/2 expected failures on RIGHT-hardcoded source lookup;
+- LEFT TDD GREEN run `35683651600`: 2/2 PASS;
+- final clean repository run `35683738506`: coordination PASS, full suite PASS, build PASS.
+
+Admitted LEFT coverage:
+- IMG-00 master: 1;
+- IMG-01..12 body: exactly 84;
+- hard outer-edge clipping: 0;
+- component-owned pixel isolation available for all 85 entries;
+- RIGHT behavior remains backward-compatible/default.
+
+Source-layout repairs were pixel-preserving only:
+- IMG-01 transparent bottom margin;
+- IMG-11 transparent separation for touching frames;
+- IMG-12 transparent gutters for touching frames.
+
+LEFT source is no longer an external blocker.
+
+NEXT -> Mario-B:
+consume exact Mario-A `c1b3e8e757b707f2975f6587217cc2f851e2ca6b`, derive the LEFT atlas/animation map, pair it with the accepted RIGHT package, and complete the explicit visual anatomical-anchor review. Anchor coordinates must not be fabricated from geometry.
+
+Mario-A now waits for that exact bilateral package handoff before resuming integration.

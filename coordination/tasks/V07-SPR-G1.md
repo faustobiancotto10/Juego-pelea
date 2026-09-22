@@ -2,7 +2,7 @@
 
 Round: R005-V07-GAMEPLAY-PRESENTATION-EXPANSION  
 Owner: Germinator  
-Status: REVIEWING
+Status: VERIFIED
 
 ## Goal
 
@@ -72,3 +72,28 @@ Germinator then reruns V07-SPR-G1. Gonza remains blocked.
 - [ ] Exact candidate is live-previewable with El Toro sprite package.
 - [ ] LEFT-facing correctness verified end-to-end in actual runtime.
 - [x] Identity Learning Receipt recorded — UPDATED.
+
+
+## Replacement audit closure
+
+Replacement exact candidate:
+`fe2b505639d8ebf2dc4ab204b545233d96f214f2`
+
+Verdict:
+**APPROVE — SPRITE PILOT LIVE INTEGRATION GREEN**
+
+Fresh Germinator evidence:
+- QA head `be597f2549505b7609bdfd489a60570ad11216e1`;
+- validation PR #60;
+- Repository verification #1720 / `35788754170`: 433/433 PASS + build PASS;
+- Character Pipeline V2 #72 / `35788754059`: 433/433 PASS + build + visual evidence + raster/reference guard PASS;
+- visual artifact `10721170926`;
+- exact RIGHT/LEFT authored sprite evidence checked at normal and 844×390 scale;
+- readable directional shirt text is correctly oriented on both facings;
+- no gameplay/simulation production delta from approved V0.7.
+
+V07-SPR-Z0 is unlocked for isolated preview only.
+
+Production-root cutover remains blocked on user/device acceptance and canonical package-format reconciliation (`body.webp` + `animations.json` or an explicit authoritative contract amendment).
+
+Identity Learning Receipt: UPDATED.

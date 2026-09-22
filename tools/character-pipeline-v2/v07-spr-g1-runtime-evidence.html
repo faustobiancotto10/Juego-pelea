@@ -17,6 +17,7 @@ canvas{position:absolute;inset:0;width:1280px;height:720px}
 <main>
 <h1>EL TORO — LIVE SPRITE RUNTIME</h1>
 <p>Actual SpriteFighterRenderer · authored RIGHT + LEFT · effects disabled</p>
+<div id="status" style="position:absolute;left:34px;top:92px;font-weight:800;color:#ffd166">BOOT</div>
 <canvas id="c" width="1280" height="720"></canvas>
 </main>
 <script type="module">
@@ -26,12 +27,26 @@ import { SpriteFighterRenderer } from '../../dist/game/render/sprites/SpriteFigh
 
 const canvas=document.querySelector('#c');
 const ctx=canvas.getContext('2d');
-const store=new FightSpriteAssetStore(createBrowserSpritePackageLoader(
-  DEFAULT_SPRITE_PACKAGE_REGISTRY,
-  {baseUrl:location.origin+'/'}
-));
-await store.preload(['el-toro']);
-const renderer=new SpriteFighterRenderer(store);
+const status=document.querySelector('#status');
+window.__SPRITE_EVIDENCE_READY__=false;
+window.__SPRITE_EVIDENCE_ERROR__=null;
+window.addEventListener('error',(event)=>{
+  window.__SPRITE_EVIDENCE_ERROR__=String(event.error?.stack||event.message||event.error||'window error');
+  status.textContent='ERROR · '+window.__SPRITE_EVIDENCE_ERROR__;
+});
+window.addEventListener('unhandledrejection',(event)=>{
+  window.__SPRITE_EVIDENCE_ERROR__=String(event.reason?.stack||event.reason||'unhandled rejection');
+  status.textContent='ERROR · '+window.__SPRITE_EVIDENCE_ERROR__;
+});
+try {
+  status.textContent='LOADING MANIFEST + ATLAS';
+  const store=new FightSpriteAssetStore(createBrowserSpritePackageLoader(
+    DEFAULT_SPRITE_PACKAGE_REGISTRY,
+    {baseUrl:location.origin+'/'}
+  ));
+  await store.preload(['el-toro']);
+  status.textContent='LOADED · DRAWING';
+  const renderer=new SpriteFighterRenderer(store);
 
 function fighter(overrides={}) {
   return {
@@ -61,6 +76,12 @@ for(const pose of poses){
   ctx.fillText(pose.label,pose.x,690);
 }
 window.__SPRITE_EVIDENCE_READY__=true;
+status.textContent='READY · SPRITE BACKEND DRAWN';
+} catch (error) {
+  window.__SPRITE_EVIDENCE_ERROR__=String(error?.stack||error);
+  status.textContent='ERROR · '+window.__SPRITE_EVIDENCE_ERROR__;
+  console.error(error);
+}
 </script>
 </body>
 </html>

@@ -265,3 +265,31 @@ Planned contract:
 - runtime body scale computed from IMG-01..12 only;
 - IMG-00 receives a separate master/reference normalization domain;
 - RED/GREEN regression evidence + new exact-SHA handoff before Mario-B resumes pixel packing.
+
+
+## HANDOFF_READY v2 — Mario-A -> Mario-B / integrator
+
+Mario-B's two MA blockers are resolved.
+
+- revised exact MA SHA: `0eb4a2b985813d1cdc9f8c53d059a81efe49be20`
+- PR #50 head: same exact SHA
+- final verification: run `35671720767` / #1487 — coordination contract PASS, full suite PASS, build PASS
+- RED proof: run `35671546984` / #1483 failed exactly on missing pixel-isolation API + IMG-00 still classified as body
+
+Pixel-safe packing contract:
+- consume `generatePixelIsolatedFrameSet({ sourceDir })`;
+- all 107 admitted entries return crop-sized RGBA buffers containing only component-owned pixels;
+- bbox overlap is allowed metadata and no longer implies pixel contamination;
+- downstream must not copy raw source bbox rectangles or reimplement component assignment;
+- isolation version: `component-owned-rgba-v1`.
+
+Scale contract:
+- `normalization.body.sharedScale` is computed from IMG-01..12 only;
+- IMG-00 is `kind: master` and uses separate `normalization.master`;
+- the previous master-constrained scale bug is removed.
+
+Canonical handoff updated: `coordination/handoffs/V07-SPR-MA-mario-a.md`.
+
+Identity Learning Review remains **PROPOSAL** for the designated Mario-A integrator: preserve pixel ownership beyond bbox metadata, and keep reference/master seeds outside runtime normalization domains unless explicitly contracted otherwise.
+
+Mario-B may resume atlas-pixel packing from this exact SHA. This does not remove the authored LEFT-facing or verified-anchor gates.

@@ -812,3 +812,39 @@ Visual review policy:
 - final points are checked against the authored sprite frames;
 - `head` is treated as anatomical head center (runtime cap attachment), not hair-top;
 - front/back limb identity remains facing-relative and stable across animation rather than being re-sorted blindly per frame.
+
+
+## HANDOFF_READY_LOADABLE — Mario-A -> Germinator
+
+Final pre-QA blocker is closed.
+
+Canonical integration:
+`5c76664fb95ac9c1da019636ce3ad974c214d84c`
+
+PR #57 head:
+`2c9b3096dbb35c00b81fc751d05b28ca1aaac49b`
+
+Verification run:
+`35778765218` — coordination PASS, full suite PASS, build PASS.
+
+Tested synthetic merge:
+`feb47afeafdd0044cfda3803aeb5404cefb91593`
+
+Tested + actual tree:
+`d42ccea2ff64ce7010f51f92005a3fc2c606919a`
+
+Verified anchor coverage:
+- RIGHT: 84/84 frames;
+- LEFT: 84/84 frames;
+- seven required anatomical anchors on every frame;
+- authored LEFT remains non-mirrored;
+- repaired LEFT Topete remains 8/8.
+
+Bilateral package regression now proves:
+- `runtimeLoadable:true`;
+- `blockingGates:[]`.
+
+Mario-A anchor claim is RELEASED.
+
+NEXT -> Germinator:
+claim V07-SPR-G1 audit surfaces and independently test this exact candidate. Gonza must wait for Germinator approval.

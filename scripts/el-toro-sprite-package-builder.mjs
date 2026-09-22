@@ -1,3 +1,5 @@
+import { BODY_CANVAS } from './sprite-source-config.mjs';
+
 export function findOverlappingFrameBboxes(manifest) {
   const frames = Array.isArray(manifest?.frames) ? manifest.frames : [];
   const bySheet = new Map();
@@ -58,4 +60,46 @@ export function assertPixelSafePackingInputs(
   }
 
   return { overlaps, isolationRequired: true };
+}
+
+
+function sharedRuntimeBodyScale(frames) {
+  const maxWidth = Math.max(...frames.map((frame) => frame.bbox.width));
+  const maxHeight = Math.max(...frames.map((frame) => frame.bbox.height));
+  const usableWidth = BODY_CANVAS.width - BODY_CANVAS.margin * 2;
+  const usableHeight = BODY_CANVAS.pivotY - BODY_CANVAS.margin;
+  return Math.min(usableWidth / maxWidth, usableHeight / maxHeight);
+}
+
+export function analyzeMasterSeedScaleInfluence(manifest) {
+  const bodyFrames = (manifest?.frames ?? []).filter(
+    (frame) => frame?.kind === 'body' && /^IMG-(0[1-9]|1[0-2])$/.test(frame.sheetId),
+  );
+  const masterFrames = (manifest?.frames ?? []).filter((frame) => frame?.sheetId === 'IMG-00');
+  if (bodyFrames.length === 0 || masterFrames.length === 0) {
+    throw new Error('El Toro scale diagnostic requires IMG-00 plus IMG-01..12 body frames');
+  }
+
+  const runtimeBodyScale = sharedRuntimeBodyScale(bodyFrames);
+  const currentScale = manifest?.normalization?.body?.sharedScale;
+  if (typeof currentScale !== 'number' || !Number.isFinite(currentScale) || currentScale <= 0) {
+    throw new Error('El Toro scale diagnostic requires a finite positive normalization.body.sharedScale');
+  }
+
+  return {
+    currentScale,
+    runtimeBodyScale,
+    runtimeToCurrentRatio: runtimeBodyScale / currentScale,
+    masterConstrainsRuntimeScale: runtimeBodyScale > currentScale + 1e-8,
+  };
+}
+
+export function assertMasterSeedDoesNotConstrainRuntimeBodyScale(manifest) {
+  const diagnostic = analyzeMasterSeedScaleInfluence(manifest);
+  if (diagnostic.masterConstrainsRuntimeScale) {
+    throw new Error(
+      `El Toro runtime body scale is constrained by IMG-00 Master Seed: current=${diagnostic.currentScale}, body-only=${diagnostic.runtimeBodyScale}, ratio=${diagnostic.runtimeToCurrentRatio.toFixed(4)}`,
+    );
+  }
+  return diagnostic;
 }

@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtempSync, readFileSync } from 'node:fs';
+import { mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 import {
@@ -102,4 +102,57 @@ test('El Toro package emits an atlas-only visual sheet for manual anchor verific
     assert.equal(svg.includes('ANCHOR '+name),true,name);
   }
   assert.equal(svg.includes('data-anatomical-anchor='),false,'visual sheet must not fabricate anatomical anchor points');
+});
+
+
+test('verified El Toro anchor review is baked into every runtime frame without clearing unrelated gates', () => {
+  const seedOut=mkdtempSync(join(tmpdir(),'el-toro-anchor-seed-'));
+  const seed=buildElToroRightAtlasPackage({sourceDir,packageContractPath,outDir:seedOut});
+  const review=JSON.parse(readFileSync(seed.anchorReviewPath,'utf8'));
+  review.status='verified';
+  for (const frame of review.frames) {
+    frame.verified=true;
+    const {width,height}=frame.atlasRect;
+    frame.anchors={
+      head:{x:width*0.5,y:height*0.15},
+      chest:{x:width*0.5,y:height*0.38},
+      frontHand:{x:width*0.75,y:height*0.43},
+      backHand:{x:width*0.25,y:height*0.43},
+      belt:{x:width*0.5,y:height*0.63},
+      frontFoot:{x:width*0.66,y:height*0.96},
+      backFoot:{x:width*0.34,y:height*0.96},
+    };
+  }
+  assert.doesNotThrow(()=>assertVerifiedElToroAnchorReview(review));
+
+  const reviewPath=join(seedOut,'verified-review-input.json');
+  writeFileSync(reviewPath,JSON.stringify(review));
+
+  const outDir=mkdtempSync(join(tmpdir(),'el-toro-anchor-applied-'));
+  buildElToroRightAtlasPackage({
+    sourceDir,
+    packageContractPath,
+    outDir,
+    verifiedAnchorReviewPath:reviewPath,
+  });
+
+  const fragment=JSON.parse(readFileSync(join(outDir,'right-runtime-fragment.json'),'utf8'));
+  assert.equal(fragment.blockingGates.includes('verified-attachment-anchors'),false);
+  assert.equal(fragment.blockingGates.includes('authored-left-facing-animations'),true);
+  assert.equal(fragment.blockingGates.includes('transition-clock-crouch-block-block-crouch'),true);
+  assert.equal(fragment.runtimeLoadable,false);
+
+  let count=0;
+  for (const animation of Object.values(fragment.animations)) {
+    for (const frame of animation.frames) {
+      assert.deepEqual(Object.keys(frame.anchors),REQUIRED);
+      for (const point of Object.values(frame.anchors)) {
+        assert.ok(Number.isFinite(point.x) && Number.isFinite(point.y));
+        assert.ok(point.x>=0 && point.x<=frame.width);
+        assert.ok(point.y>=0 && point.y<=frame.height);
+      }
+      count+=1;
+    }
+  }
+  assert.ok(count>84,'runtime aliases legitimately reuse some of the 84 packed frames');
 });

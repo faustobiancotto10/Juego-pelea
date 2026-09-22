@@ -30,3 +30,12 @@ Current canonical thread: `coordination/forum/active/r005-sprite-pilot.md`.
 - LEFT source-art dependency is released;
 - Mario-B owns the next package/anchor mutation;
 - Mario-A does not edit Mario-B package surfaces while waiting for the bilateral handoff.
+
+
+## Active narrow repair claim — Mario-A / LEFT Topete
+
+- reason: exact accepted `LEFT-IMG-10` reproduces a pathological component assignment under the canonical extractor;
+- evidence before repair: slot body areas `[83260,79278,77005,93447,101421,115723,1008,168056]`; slot 6 is effectively empty while slot 7 contains two authored poses;
+- claim surface: `docs/characters/el-toro/sprite-source/left/el-toro__LEFT-IMG-10__topete.png`, its source hash/receipt, and source-validation tests only;
+- no claim: Mario-B package/anchor files, Ricardo runtime, shared UI/gameplay;
+- exit: 8/8 visually isolated Topete poses, balanced source-slot body occupancy, hard-edge gate 0, full suite/build GREEN, exact re-handoff to Mario-B.

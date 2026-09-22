@@ -10,6 +10,7 @@ import {
 } from './el-toro-sprite-package-builder.mjs';
 
 const PNG_SIGNATURE = Buffer.from([137,80,78,71,13,10,26,10]);
+const REQUIRED_ANCHORS = Object.freeze(['head','chest','frontHand','backHand','belt','frontFoot','backFoot']);
 
 function crc32(buffer) {
   let crc = 0xffffffff;
@@ -321,6 +322,89 @@ function renderGameplayPreview(runtimeFragment, atlasWidth, atlasHeight) {
   ].join('');
 }
 
+
+function buildAnchorReviewTemplate(frameRects) {
+  return {
+    version: 1,
+    fighterId: 'el-toro',
+    facing: 'right',
+    status: 'pending-visual-verification',
+    coordinateSpace: 'packed-frame-local',
+    requiredAnchors: [...REQUIRED_ANCHORS],
+    frames: [...frameRects.entries()].map(([frameId, rect]) => ({
+      frameId,
+      atlasRect: {
+        x: rect.x,
+        y: rect.y,
+        width: rect.width,
+        height: rect.height,
+      },
+      pivot: {
+        x: rect.pivotX,
+        y: rect.pivotY,
+        source: 'normalization-ground-pivot',
+      },
+      anchors: Object.fromEntries(REQUIRED_ANCHORS.map((name) => [name, null])),
+      verified: false,
+    })),
+  };
+}
+
+export function assertVerifiedElToroAnchorReview(
+  review,
+  { expectedFrameCount = 84 } = {},
+) {
+  if (!review || review.status !== 'verified') {
+    throw new Error('El Toro anchor review is not verified');
+  }
+  if (review.fighterId !== 'el-toro' || review.facing !== 'right') {
+    throw new Error('El Toro anchor review fighter/facing mismatch');
+  }
+  if (review.coordinateSpace !== 'packed-frame-local') {
+    throw new Error('El Toro anchor review coordinate space mismatch');
+  }
+  if (!Array.isArray(review.frames) || review.frames.length !== expectedFrameCount) {
+    throw new Error(
+      `El Toro anchor review expected ${expectedFrameCount} frames, got ${review?.frames?.length ?? 0}`,
+    );
+  }
+  if (
+    !Array.isArray(review.requiredAnchors)
+    || review.requiredAnchors.length !== REQUIRED_ANCHORS.length
+    || REQUIRED_ANCHORS.some((name, index) => review.requiredAnchors[index] !== name)
+  ) {
+    throw new Error('El Toro anchor review required-anchor contract mismatch');
+  }
+
+  const ids = new Set();
+  for (const frame of review.frames) {
+    if (!frame || typeof frame.frameId !== 'string' || ids.has(frame.frameId)) {
+      throw new Error('El Toro anchor review has missing/duplicate frameId');
+    }
+    ids.add(frame.frameId);
+    const width = frame.atlasRect?.width;
+    const height = frame.atlasRect?.height;
+    if (!Number.isFinite(width) || width < 1 || !Number.isFinite(height) || height < 1) {
+      throw new Error(`El Toro anchor review invalid atlas rect for ${frame.frameId}`);
+    }
+    if (frame.verified !== true) {
+      throw new Error(`El Toro anchor review frame ${frame.frameId} is not verified`);
+    }
+
+    for (const name of REQUIRED_ANCHORS) {
+      const point = frame.anchors?.[name];
+      if (!point || !Number.isFinite(point.x) || !Number.isFinite(point.y)) {
+        throw new Error(`El Toro anchor review missing ${name} for ${frame.frameId}`);
+      }
+      if (point.x < 0 || point.x > width || point.y < 0 || point.y > height) {
+        throw new Error(`El Toro anchor review ${name} out of bounds for ${frame.frameId}`);
+      }
+    }
+  }
+
+  return true;
+}
+
 export function buildElToroRightAtlasPackage({
   sourceDir,
   packageContractPath,
@@ -366,6 +450,12 @@ export function buildElToroRightAtlasPackage({
   writeFileSync(
     previewPath,
     renderGameplayPreview(runtimeFragment, bodyAtlas.width, bodyAtlas.height),
+  );
+
+  const anchorReviewPath = join(outputRoot, 'right-anchor-review.json');
+  writeFileSync(
+    anchorReviewPath,
+    JSON.stringify(buildAnchorReviewTemplate(bodyAtlas.frameRects), null, 2)+'\n',
   );
 
   const effectPlan = compileEffectFrameSourcePlan(packageContract, manifestLike);
@@ -432,6 +522,7 @@ export function buildElToroRightAtlasPackage({
   return {
     previewPath,
     metricsPath,
+    anchorReviewPath,
     body: {
       sourceFrameCount: bodyFrames.length,
       atlasPath: bodyAtlasPath,

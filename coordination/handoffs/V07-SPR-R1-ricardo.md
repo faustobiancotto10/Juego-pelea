@@ -5,8 +5,8 @@ Task: V07-SPR-R1 — Generic Sprite Runtime Backend
 From: Ricardo  
 To: Mario-A sprite integrator + Germinator V07-SPR-G1  
 Branch: `round/r005-sprite-ricardo-runtime`  
-Exact candidate SHA: `79f8d81c2db75eebc595a93668e7332a9f429373`  
-Supersedes: `d07cba1231fbb571dfe5d344487251f88dec797c`  
+Exact candidate SHA: `5b20c351e75a45460b3f76416d41424f10e43a1f`  
+Supersedes: `79f8d81c2db75eebc595a93668e7332a9f429373` (which already superseded `d07cba1231fbb571dfe5d344487251f88dec797c`)  
 Starting SHA: `e3d29807acab6ce4c87fd7e04069fcb4b98c6a65`  
 Validation PR: #51 (draft only; do not merge directly)  
 Status: GREEN / HANDOFF_READY
@@ -35,7 +35,10 @@ Reaction/transition states now pass through `SpriteAnimationTimeline`, a present
 - `jump-startup`;
 - `land`;
 - `captured`;
-- `knockdown`.
+- `knockdown`;
+- `crouch`;
+- `block`;
+- `block-crouch`.
 
 The timeline:
 - starts transition age at 0 on state entry;
@@ -64,7 +67,9 @@ Exact diff `d07cba... -> 79f8d81...` is 6 commits ahead / 0 behind and touches o
 
 No `src/game/simulation/**`, combat balance, hitbox, damage, stun, projectile-rule or CPU-policy files changed.
 
-Full lane audit from the frozen starting SHA is 25 commits ahead / 0 behind.
+Latest narrow amendment `79f8d81... -> 5b20c351...` is 2 commits ahead / 0 behind and changes only `SpriteAnimationTimeline.ts` plus the targeted sprite renderer regression test. No simulation/balance files changed.
+
+Full lane audit from the frozen starting SHA is 27 commits ahead / 0 behind.
 
 ## Verification
 
@@ -77,17 +82,31 @@ TDD RED proof:
   - reaction/terminal timeline entered at terminal atlas frame instead of frame 0;
   - decrementing transition counters drove guard-break/jump-startup/landing forward sampler incorrectly.
 
-Final GREEN:
+Prior reaction-clock GREEN:
 - workflow run: `35673440101`;
 - job: `106574802177`;
 - coordination contract: 10/10 PASS;
 - full suite: 308/308 PASS;
 - build: PASS.
 
+Stance-clock amendment RED:
+- workflow run: `35675340097`;
+- job: `106580577710`;
+- coordination contract: PASS;
+- full suite: 308 PASS / 1 FAIL;
+- failure was exactly the new crouch/block state-entry regression (`crouch` sampled terminal frame 187 instead of entry frame 27).
+
+Final GREEN:
+- workflow run: `35675383264`;
+- job: `106580714122`;
+- coordination contract: PASS;
+- full suite: 309/309 PASS;
+- build: PASS.
+
 ## Integration instructions
 
 Mario-A integrator:
-1. consume exact SHA `79f8d81c2db75eebc595a93668e7332a9f429373`, not the moving branch and not superseded `d07cba...`;
+1. consume exact SHA `5b20c351e75a45460b3f76416d41424f10e43a1f`, not the moving branch and not superseded `79f8d81...` / `d07cba...`;
 2. adapt El Toro's generated runtime manifest to this v1 contract;
 3. set El Toro `mirrorSafe: false`;
 4. provide RIGHT frames in `animations`;
@@ -106,14 +125,14 @@ Germinator should audit the single integrated candidate, not this isolated backe
 
 ## Identity Learning Review
 
-**UPDATED**
+**UPDATED previously; latest stance-clock amendment: NO_CHANGE**
 
-Durable Ricardo learning added:
+Existing durable Ricardo learning already covers the generalized rule:
 
 > For sprite presentation, never use a decrementing simulation duration or absolute match clock as transition animation age: derive a per-fighter-slot state-entry age only from authoritative combatTick, freeze it when that tick freezes, and restart it when the authoritative reaction duration is renewed.
 
 ## Requested next action
 
-Mario-A may consume exact candidate SHA `79f8d81c2db75eebc595a93668e7332a9f429373` for sprite integration. The old `d07cba...` handoff is superseded.
+Mario-A / Mario-B may consume exact candidate SHA `5b20c351e75a45460b3f76416d41424f10e43a1f` for sprite integration. The `79f8d81...` and `d07cba...` handoffs are superseded.
 
 Do not mark the integrated El Toro pilot complete until authored LEFT assets exist and the resulting package passes this runtime contract. Germinator remains downstream of the single integrated candidate.

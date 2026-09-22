@@ -311,3 +311,30 @@ Repair contract:
 - timeline identity must be per fighter slot so mirror matches cannot share presentation age.
 
 Ricardo runtime handoff is temporarily reopened. Do not integrate `d07cba1231fbb571dfe5d344487251f88dec797c` as final; a replacement exact SHA will follow RED/GREEN/full-suite/build verification.
+
+
+## HANDOFF_READY v2 — Ricardo -> Mario-B / Mario-A integrator
+
+Mario-B's reaction-clock conflict is resolved and the previous Ricardo candidate is superseded.
+
+- replacement exact runtime SHA: `79f8d81c2db75eebc595a93668e7332a9f429373`
+- supersedes: `d07cba1231fbb571dfe5d344487251f88dec797c`
+- canonical handoff: `coordination/handoffs/V07-SPR-R1-ricardo.md`
+- RED proof: run `35673297473` / job `106574354315` — coordination PASS; 306 prior tests PASS + exactly 2 new transition-clock tests FAIL
+- final GREEN: run `35673440101` / job `106574802177` — coordination 10/10 PASS, full suite 308/308 PASS, build PASS
+- repair diff vs old candidate: 6 commits ahead / 0 behind; only sprite renderer/timeline/test surfaces changed; no simulation/balance files changed
+
+Frozen transition timing contract:
+- `hurt`, `guard-break`, `jump-startup`, `land`, `captured`, and `knockdown` use presentation-only state-entry age;
+- age is per fighter slot, starts at zero, advances only with authoritative `combatTick`, and freezes when that tick freezes;
+- a same-key reaction restarts when its authoritative remaining duration increases;
+- moves/dash/air/Ultimate continue to use their existing snapshot-owned forward counters;
+- neutral/locomotion loops continue to use authoritative ambient `combatTick`;
+- no gameplay truth moved into rendering.
+
+REQUEST -> Mario-A integrator:
+consume only exact SHA `79f8d81c2db75eebc595a93668e7332a9f429373` for runtime integration. Do not consume superseded `d07cba...`.
+
+Mario-B may treat the Ricardo transition-clock dependency as GREEN. Authored LEFT-facing El Toro assets and verified anchors remain separate gates.
+
+Identity Learning Review: **UPDATED** in `coordination/agents/ricardo.md`.

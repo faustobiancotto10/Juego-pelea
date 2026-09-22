@@ -77,6 +77,10 @@ jobs:
           "$chrome" --headless --no-sandbox --disable-gpu --hide-scrollbars --virtual-time-budget=3000 --window-size=844,390 \
             --screenshot=artifacts/v07-m3/sprite-runtime-phone.png \
             "http://127.0.0.1:4173/tools/character-pipeline-v2/v07-spr-g1-runtime-evidence.html"
+          "$chrome" --headless --no-sandbox --disable-gpu --virtual-time-budget=3000 --dump-dom \
+            "http://127.0.0.1:4173/tools/character-pipeline-v2/v07-spr-g1-runtime-evidence.html" \
+            > artifacts/v07-m3/sprite-runtime-dom.html
+          grep -F "READY · SPRITE BACKEND DRAWN" artifacts/v07-m3/sprite-runtime-dom.html
           test -s artifacts/v07-m3/normal-color.png
           test -s artifacts/v07-m3/neutral-silhouette.png
           test -s artifacts/v07-m3/juanchi-vs-el-toro.png

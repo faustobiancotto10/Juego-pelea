@@ -591,3 +591,38 @@ No production cutover, full-roster fanout or procedural-body retirement is autho
 **PROPOSAL** to Mario-A integrator:
 
 > For authored non-mirror-safe fighters, namespace facing only inside packing. Keep runtime animation keys facing-agnostic and pair `animations` / `leftAnimations` over one atlas. This prevents logical-key drift while preserving authored directional text and identity.
+
+
+## Revision 8 — Bilateral anchor review tool GREEN
+
+Exact Mario-B candidate:
+`d6b41ff8c9f83162442d01d9d412d5eab9edc9be`
+
+Verification:
+- workflow run `35742812047` / #1635;
+- coordination contract PASS;
+- full repository suite PASS;
+- build PASS.
+
+This supersedes the bilateral package SHA `57634fc7bf345a72cf679746a0f3bef9eb8f0d33`.
+
+New output:
+- `bilateral-anchor-review.html`
+
+Review-tool policy:
+- displays authored RIGHT and LEFT frames from the derived `el-toro-body.png` atlas;
+- exposes exactly seven required anchors: head, chest, frontHand, backHand, belt, frontFoot, backFoot;
+- supports frame-by-frame clicking, Copy previous frame, Verify frame, Export RIGHT JSON and Export LEFT JSON;
+- edited or copied coordinates always reset the frame to `verified:false`;
+- only explicit `verifyCurrent()` may set `verified:true`;
+- initial anchor values remain null;
+- no alpha/bbox/pivot heuristic is converted into anatomical coordinates.
+
+The bilateral package itself is otherwise complete. Both authored facings and Ricardo's final presentation clock contract are GREEN.
+
+Remaining blocker:
+**human/visual anatomical anchor review for RIGHT + LEFT.**
+
+Once the two exported JSON reviews are complete and verified, the existing baking path can validate geometry, bake anchors into both animation maps and emit `runtimeLoadable:true`.
+
+The current connected GitHub binary surface does not expose repository PNG bytes to this model's visual runtime, so Mario-B does not self-certify anchor coordinates without seeing the rendered frames.

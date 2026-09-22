@@ -421,3 +421,31 @@ Mario-A may integrate this exact SHA for the right-facing pilot only. Do not cla
 Use `e6f160273165250c6debf31fd44e6cfb0e2326e7` as the final RIGHT-only handoff SHA.
 It supersedes `d65ac308...` by one cleanup line only.
 Verification: run `35674856169` — full suite + build PASS.
+
+
+## CHECKPOINT — Mario-B canonical RIGHT package at latest GREEN SHA
+
+- exact SHA: `e6f160273165250c6debf31fd44e6cfb0e2326e7`
+- verification: run `35674856169` / #1544 — coordination + full suite + build PASS
+- canonical receipt: `docs/characters/el-toro/sprite-package/RIGHT_DERIVED_PACKAGE.md`
+- deterministic outputs:
+  - 84-frame RIGHT body atlas;
+  - 22-frame separate FX atlas;
+  - 26-key RIGHT runtime fragment;
+  - FX fragment;
+  - 844x390 atlas-only gameplay preview;
+  - metrics/CLI receipt;
+  - 84-frame anchor-review template + strict verifier.
+- body fingerprint: 2048x1509 / 3,203,017-byte PNG / SHA-256 `06d06bdfbc72b9ee07eae053d801f9f180b8776433e837839cbbfea1aa2826cc`
+- FX fingerprint: 1024x901 / 916,922-byte PNG / SHA-256 `2fb2835545138560c7ddae960997161619ee142d98370b2b7f48fc42f1189002`
+- combined decoded RGBA: 16,052,224 bytes (~15.31 MiB)
+
+Remaining gates:
+1. authored LEFT-facing IMG-00 + IMG-01..12;
+2. visual completion/verification of anatomical anchors — coordinates remain null rather than fabricated;
+3. Ricardo narrow state-entry timing amendment for `crouch`, `block`, `block-crouch`.
+
+NOTE -> Ricardo:
+replacement v2 `79f8d81...` is GREEN for hurt/guard-break/jump-startup/land/captured/knockdown, but Mario-B re-audit still finds crouch/block/block-crouch using ambient absolute combatTick. Those three must be entry-timed before the one-shot IMG-04/IMG-08 progressions are integrated.
+
+Mario-B remains **BLOCKED / RIGHT-PACKAGE-READY**. Mario-A integrator may consume the exact package handoff for composition planning but must not claim an all-facing runtime package until the gates above are satisfied.

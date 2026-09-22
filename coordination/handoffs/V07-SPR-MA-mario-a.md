@@ -6,7 +6,7 @@ Sender: Mario-A / Character & Rendering Engineer
 Recipients: Mario-B / `V07-SPR-MB`, Ricardo / `V07-SPR-R1`, then Mario-A / sprite integrator  
 Branch: `round/r005-sprite-mario-a-source-import`  
 Base: `e3d29807acab6ce4c87fd7e04069fcb4b98c6a65`  
-Exact handoff SHA: `c1b3e8e757b707f2975f6587217cc2f851e2ca6b`  
+Exact handoff SHA: `8eacac360878a9c20b55a22e1f406c78f66fd27c`  
 PR: #50  
 Result: **GREEN / HANDOFF_READY**
 
@@ -159,7 +159,7 @@ This is a proposal, not an immediate `mario.md` edit, because this is a same-rol
 
 - Authored LEFT-facing body art is admitted; visually verified bilateral anatomical anchors still block a production-loadable El Toro package.
 - Human visual acceptance at gameplay/phone scale remains downstream; numeric extraction gates do not prove artistic likeness.
-- Mario-B must consume this exact SHA (or an integrated exact descendant), not a moving branch head.
+- Mario-B must consume the latest exact SHA `8eacac360878a9c20b55a22e1f406c78f66fd27c` (or an integrated exact descendant), not an older bilateral candidate or moving branch head.
 - Ricardo's facing-aware non-mirror-safe runtime amendment must be green before final pilot integration.
 
 ## Downstream eligibility
@@ -278,3 +278,60 @@ NEXT -> Mario-B:
 consume exact Mario-A SHA `c1b3e8e757b707f2975f6587217cc2f851e2ca6b`, generate the bilateral LEFT-derived body package alongside the existing RIGHT package, complete the explicit visual anatomical-anchor review, and publish one exact-SHA bilateral package handoff. Do not mark `runtimeLoadable:true` until that anchor gate is green.
 
 Mario-A then resumes only as the designated integrator.
+
+
+## Revision 4 — LEFT Topete visual-review defect repaired
+
+This revision supersedes Revision 3 as the canonical Mario-A source handoff.
+
+Exact Mario-A handoff SHA:
+`8eacac360878a9c20b55a22e1f406c78f66fd27c`
+
+Final verification:
+- run `35749695571`;
+- coordination contract PASS;
+- full repository suite PASS;
+- build PASS.
+
+### Defect found during visual review
+
+The previously accepted LEFT-IMG-10 passed frame-count and hard-edge gates but was not semantically safe for packaging. Under the canonical component extractor its eight slot areas were:
+
+`[83260, 79278, 77005, 93447, 101421, 115723, 1008, 168056]`
+
+Slot 6 was effectively empty while slot 7 contained two authored Topete poses.
+
+TDD RED:
+- commit `52595e82ba42de458760ab6dd9833757e3c1cf2d`;
+- run `35747218791`;
+- 284/285 tests PASS;
+- the only failure was the new LEFT Topete source-quality gate.
+
+### Pixel-preserving repair
+
+Binary repair commit:
+`4898b53aa21a81017f39cac1d62564e2d8138467`
+
+One-shot repair workflow:
+`35749493759` — SUCCESS.
+
+Final LEFT-IMG-10:
+- 1664×1024;
+- repository-byte SHA-256 `15d835f901cbc25f7eddaf8a8603d33129980fcb403ece3a550287b404d8dca9`;
+- decoded-RGBA SHA-256 `b9cd6ecc2b26ea33fa5a4d2b3f07f7c965ec79dab82f303341660af08e2d09ea`;
+- visible pixels preserved exactly once: 457123;
+- hard outer-edge pixels: 0;
+- final slot areas `[83260, 79278, 77005, 93447, 101641, 115853, 88084, 80630]`.
+
+The repair only changes transparent layout/pose separation. No visible character pixel is resampled, recolored or redrawn.
+
+### Downstream ruling
+
+Mario-B's prior bilateral candidates `57634fc7...` and `d6b41ff...` were built from the superseded LEFT-IMG-10 and therefore must not be used for anchor certification or final integration.
+
+NEXT -> Mario-B:
+consume exact Mario-A `8eacac360878a9c20b55a22e1f406c78f66fd27c`, regenerate the bilateral atlas/manifest/review tool, visually confirm all eight LEFT Topete poses, then continue explicit bilateral anatomical-anchor review.
+
+Mario-A returns to **HANDOFF_READY / WAITING_DEPENDENCY** until that regenerated exact-SHA Mario-B handoff exists.
+
+Identity Learning Review: **UPDATED** — source-sheet validation now includes a reusable per-slot content-mass sanity gate so nominal frame counts cannot hide an effectively empty slot beside a collapsed multi-pose slot.

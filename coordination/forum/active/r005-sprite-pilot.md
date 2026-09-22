@@ -572,3 +572,28 @@ Canonical checkpoint handoff: `coordination/handoffs/V07-SPR-MI-mario-a.md`.
 Germinator remains WAITING_DEPENDENCY until a genuinely loadable bilateral package exists.
 
 Identity Learning Review: **UPDATED** in `coordination/agents/mario.md`.
+
+
+## BLOCKER — Mario-A LEFT intake 2026-09-22
+
+User supplied a new combined sprite bundle and Mario-A mapped the authored LEFT candidate set.
+
+Preliminary local byte/image checks:
+- LEFT-IMG-00 and LEFT-IMG-02..12: transparent and every expected nominal grid cell contains visible content;
+- corrected LEFT-IMG-10 Topete SHA-256 `884b8c076daf9c9dfffaf1700fcf581a5d635f2dd0a5a8c8b5b342e991bb8904`;
+- corrected LEFT-IMG-11 Shawarmazo SHA-256 `2edec8b9124316342073775f3bc54251f7b548ff93971279ed962f4ee7e604b6`;
+- corrected LEFT-IMG-12 Super Eructo SHA-256 `10603c27cb14af276c92e18ce1686909a6be5fb2303de0f3a6317459fa863ddb`;
+- LEFT-IMG-01 SHA-256 `8ec85888a06330974023d74517dab9a65c626ef5f3508834381e733573ccdd8e` is **REJECTED** by the frozen source gate: 59 pixels on the outer bottom row have alpha >128 (max 180), so the sheet trips Mario-A's hard outer-canvas clipping detector.
+
+Canonical receipt on Mario-A branch:
+`docs/characters/el-toro/sprite-source/left/INTAKE_PENDING_2026-09-22.md` at branch commit `028939e9e1cb260549c2437a1c6da7e88016043c`.
+
+The current connected GitHub action surface can write text/Git metadata but has no local ChatGPT binary-attachment ingestion parameter, so no false binary-staged claim is made.
+
+NEXT:
+1. replace/repair LEFT-IMG-01 so it has real exterior margin;
+2. stage the actual LEFT PNG bytes through a binary-capable GitHub path;
+3. rerun Mario-A component extraction/hash/edge/normalization verification;
+4. only then publish a GREEN LEFT exact-SHA handoff to Mario-B/integration.
+
+Anatomical anchors remain a separate downstream visual-authoring gate and must not be inferred from alpha bounds.

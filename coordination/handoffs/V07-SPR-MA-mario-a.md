@@ -6,7 +6,7 @@ Sender: Mario-A / Character & Rendering Engineer
 Recipients: Mario-B / `V07-SPR-MB`, Ricardo / `V07-SPR-R1`, then Mario-A / sprite integrator  
 Branch: `round/r005-sprite-mario-a-source-import`  
 Base: `e3d29807acab6ce4c87fd7e04069fcb4b98c6a65`  
-Exact handoff SHA: `45cbf8ab88bc654fa7c64c91297496662ef1809c`  
+Exact handoff SHA: `0eb4a2b985813d1cdc9f8c53d059a81efe49be20`  
 PR: #50  
 Result: **GREEN / HANDOFF_READY**
 
@@ -20,6 +20,7 @@ Result: **GREEN / HANDOFF_READY**
 - `scripts/sprite-preview-svg.mjs`
 - `scripts/el-toro-sprite-source-pipeline.mjs`
 - `tests/el-toro-sprite-source-pipeline.test.mjs`
+- `tests/el-toro-sprite-pixel-isolation.test.mjs`
 
 The 17 admitted source PNGs are unchanged from the frozen source-bearing base and are independently revalidated by the pipeline before normalization.
 
@@ -74,9 +75,9 @@ Per-frame output includes the nominal source slot, extracted bbox, component-ext
 
 ## Exact manifest / preview access for Mario-B
 
-The generated manifest and contact sheet are deterministic build outputs of this exact handoff SHA. Downstream lanes must not reimplement Mario-A extraction logic.
+The generated manifest/contact sheet and the in-memory pixel-isolation API are deterministic outputs of this exact handoff SHA. Downstream lanes must not reimplement Mario-A extraction logic.
 
-After checking out/cherry-picking exact SHA `45cbf8ab88bc654fa7c64c91297496662ef1809c`, run:
+After checking out/cherry-picking exact SHA `0eb4a2b985813d1cdc9f8c53d059a81efe49be20`, run:
 
 ```bash
 node scripts/el-toro-sprite-source-pipeline.mjs \
@@ -89,7 +90,10 @@ This writes:
 - `NORMALIZATION_MANIFEST.json` — 107 source-derived entries with bboxes + normalized transforms;
 - `NORMALIZED_PREVIEW.svg` — 107-entry normalized contact sheet.
 
-The repository test invokes the same public `generateSpriteSourceEvidence()` entry point and parses/asserts the generated manifest. This is the exact Mario-A-owned interface Mario-B should consume; do not duplicate the extractor in the package lane.
+The repository tests invoke `generateSpriteSourceEvidence()` for manifest/preview
+evidence and `generatePixelIsolatedFrameSet()` for actual isolated RGBA crops.
+This is the exact Mario-A-owned interface Mario-B should consume; do not duplicate
+the extractor in the package lane.
 
 ## Runtime boundary
 
@@ -107,12 +111,17 @@ The authored LEFT-facing IMG-00 + IMG-01..12 set remains a hard production gate.
 
 ## Verification evidence
 
-Final repository verification on exact SHA `45cbf8ab88bc654fa7c64c91297496662ef1809c`:
+Final repository verification on exact SHA `0eb4a2b985813d1cdc9f8c53d059a81efe49be20`:
 
-- GitHub Actions run: `35667742014` / #1440;
+- GitHub Actions run: `35671720767` / #1487;
 - coordination contract: PASS;
 - full test suite: PASS;
 - build: PASS.
+
+Repair TDD receipt:
+- RED run `35671546984` / #1483 failed on both intended defects: missing pixel-isolation API and IMG-00 still classified as body;
+- first GREEN implementation run `35671658790` / #1486 passed full suite + build;
+- final documented SHA run `35671720767` / #1487 passed full suite + build.
 
 TDD history:
 
@@ -133,7 +142,7 @@ Receipt: **PROPOSAL**
 
 Reusable Mario lesson proposed for consolidation by the designated Mario-A integrator after the same-role squad converges:
 
-> Treat authored sprite-sheet grids as sequencing hints, not guaranteed safe crop boundaries. Inspect alpha continuity and preserve connected visible components across nominal dividers before shared-scale/pivot normalization. Distinguish low-alpha canvas residue from hard clipping with explicit thresholds and evidence.
+> Treat authored sprite-sheet grids as sequencing hints, not guaranteed safe crop boundaries. Preserve explicit pixel ownership when component bboxes overlap so atlas packing never relies on raw bbox crops. Keep master/reference seeds outside runtime animation normalization domains unless the contract explicitly says they share scale; otherwise a reference image can silently shrink the complete runtime set.
 
 This is a proposal, not an immediate `mario.md` edit, because this is a same-role squad lane.
 
@@ -149,3 +158,23 @@ This is a proposal, not an immediate `mario.md` edit, because this is a same-rol
 `V07-SPR-MA` is HANDOFF_READY.
 
 Mario-B may now consume the exact normalization interface above without reimplementing extraction. Mario-A's later integration phase may compose this exact SHA with Mario-B's accepted SHA once that sibling lane is HANDOFF_READY. Germinator remains ineligible until the single integrated Mario candidate and Ricardo runtime candidate exist.
+
+
+## Revision 2 — Mario-B blocker resolution
+
+This handoff supersedes the earlier MA product SHA
+`45cbf8ab88bc654fa7c64c91297496662ef1809c`.
+
+Mario-B diagnostics were correct:
+- 20 overlapping bboxes made bbox-only source copying unsafe;
+- IMG-00 constrained the old body scale (`0.22988506`) while IMG-01..12
+  independently required approximately `0.40114613`.
+
+Both issues are resolved at exact SHA
+`0eb4a2b985813d1cdc9f8c53d059a81efe49be20`.
+
+Downstream consumption rule:
+- use `generatePixelIsolatedFrameSet()` for atlas pixels;
+- use manifest bboxes/transforms as metadata, not as ownership masks;
+- use `normalization.body` for IMG-01..12 runtime frames;
+- use `normalization.master` only for IMG-00 review/reference presentation.

@@ -674,3 +674,16 @@ Only remaining gate:
 - complete and explicitly verify the seven anatomical anchors on both authored facings.
 
 The existing packer already accepts the two verified JSON exports and switches the bilateral manifest to `runtimeLoadable:true` only when both reviews validate.
+
+
+## REOPENED — Mario-A LEFT-IMG-10 Topete extraction defect
+
+Visual review of Mario-B's bilateral package exposed a source defect before anchor certification.
+
+The exact accepted LEFT Topete sheet (`repositoryByteSha256 884b8c076daf9c9dfffaf1700fcf581a5d635f2dd0a5a8c8b5b342e991bb8904`) under the canonical alpha-component extractor yields per-slot body areas:
+
+`[83260, 79278, 77005, 93447, 101421, 115723, 1008, 168056]`
+
+This is not an anchor issue: slot 6 is nearly empty and slot 7 contains two authored poses because the final two bottom-row poses are connected through source layout/low-alpha material.
+
+Mario-A has reopened only the source mutation lane to mechanically separate those poses without resampling or redrawing character pixels. Mario-B remains package owner and should not certify anchors from the current bilateral candidate until the repaired source handoff is published.

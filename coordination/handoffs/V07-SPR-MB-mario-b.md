@@ -387,3 +387,65 @@ Final verification:
 - build PASS.
 
 Downstream consumers should use `e6f160273165250c6debf31fd44e6cfb0e2326e7`.
+
+
+## Revision 5 — canonical RIGHT package + anchor-review checkpoint
+
+Exact Mario-B candidate:
+`e6f160273165250c6debf31fd44e6cfb0e2326e7`
+
+Final verification for this checkpoint:
+- workflow run `35674856169` / #1544;
+- coordination contract PASS;
+- full repository suite PASS;
+- build PASS.
+
+### Completed since prior handoff
+
+- Revised Mario-A handoff `0eb4a2b985813d1cdc9f8c53d059a81efe49be20` is consumed.
+- Pixel-isolated component-owned RGBA drives atlas pixels; bbox overlap is no longer a packing hazard.
+- IMG-00 is separated from the IMG-01..12 runtime scale domain.
+- Deterministic derived outputs are implemented and test-reproduced:
+  - `right-body.png` — 84 body frames;
+  - `right-effects.png` — 22 FX frames;
+  - `right-runtime-fragment.json` — 26 RIGHT resolver keys;
+  - `right-effects-fragment.json`;
+  - `right-gameplay-preview.svg` — atlas-only 844x390 gameplay-scale evidence;
+  - `right-package-metrics.json`;
+  - `right-anchor-review.json` — 84-frame review template with packed rects + stable ground pivots.
+- `assertVerifiedElToroAnchorReview()` hard-rejects unverified, incomplete or out-of-bounds anatomical anchors.
+- No anatomical coordinates were fabricated.
+
+Canonical package receipt:
+`docs/characters/el-toro/sprite-package/RIGHT_DERIVED_PACKAGE.md`
+
+### Reproducibility fingerprint
+
+Body atlas:
+- 2048x1509;
+- PNG bytes: 3,203,017;
+- decoded RGBA: 12,361,728 bytes;
+- SHA-256: `06d06bdfbc72b9ee07eae053d801f9f180b8776433e837839cbbfea1aa2826cc`.
+
+FX atlas:
+- 1024x901;
+- PNG bytes: 916,922;
+- decoded RGBA: 3,690,496 bytes;
+- SHA-256: `2fb2835545138560c7ddae960997161619ee142d98370b2b7f48fc42f1189002`.
+
+Combined decoded RGBA: 16,052,224 bytes (~15.31 MiB).
+
+### Remaining hard gates
+
+1. Authored LEFT-facing IMG-00 + IMG-01..12. El Toro remains non-mirror-safe.
+2. Visual verification of the 84-frame anatomical anchor review. At minimum `head` is functionally required for cross-fighter attachment behavior such as Juanchi capture-cap placement.
+3. Ricardo must extend state-entry timing to `crouch`, `block`, and `block-crouch`; replacement SHA `79f8d81c...` fixes the other one-shot transition clocks but those three still resolve from absolute ambient combatTick.
+
+Therefore this handoff remains:
+**BLOCKED / RIGHT-PACKAGE-READY**, not production-complete.
+
+### Identity Learning Review
+
+**PROPOSAL** -> Mario-A integrator:
+
+> When anatomical anchors cannot be proven from authored sprite art, emit a deterministic review template containing frame rects and trusted pivots, leave anatomical points explicitly null, and gate integration with a strict verifier. Never convert uncertainty into fabricated anchor coordinates.

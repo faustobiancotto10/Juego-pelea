@@ -83,11 +83,11 @@ Verdict:
 **APPROVE — SPRITE PILOT LIVE INTEGRATION GREEN**
 
 Fresh Germinator evidence:
-- QA head `be597f2549505b7609bdfd489a60570ad11216e1`;
+- QA head `ac860f2ef320f83a977939483e742472b40389f9`;
 - validation PR #60;
-- Repository verification #1720 / `35788754170`: 433/433 PASS + build PASS;
-- Character Pipeline V2 #72 / `35788754059`: 433/433 PASS + build + visual evidence + raster/reference guard PASS;
-- visual artifact `10721170926`;
+- Repository verification #1722 / `35788816202`: 433/433 PASS + build PASS;
+- Character Pipeline V2 #74 / `35788816195`: 433/433 PASS + build + visual evidence + raster/reference guard PASS;
+- visual artifact `10721013048`;
 - exact RIGHT/LEFT authored sprite evidence checked at normal and 844×390 scale;
 - readable directional shirt text is correctly oriented on both facings;
 - no gameplay/simulation production delta from approved V0.7.

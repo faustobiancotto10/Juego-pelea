@@ -34,7 +34,7 @@ jobs:
           curl -fsSL --retry 3 'https://d2ol7oe51mr4n9.cloudfront.net/user_3D9HmxIE70fP7hTTYlNn2FjxT8U/f854fdb6-9853-4fd3-bb5a-41bacd9dbf4b.png' -o "$d/el-toro__LEFT-IMG-08__block.png"
           curl -fsSL --retry 3 'https://d2ol7oe51mr4n9.cloudfront.net/user_3D9HmxIE70fP7hTTYlNn2FjxT8U/f0ba3447-f91b-450d-87c4-d3aeec64cb16.png' -o "$d/el-toro__LEFT-IMG-09__hurt-knockdown.png"
           curl -fsSL --retry 3 'https://d2ol7oe51mr4n9.cloudfront.net/user_3D9HmxIE70fP7hTTYlNn2FjxT8U/b93977b0-2ec6-42cc-b03b-3ff10ad3a28f.png' -o "$d/el-toro__LEFT-IMG-10__topete.png"
-          curl -fsSL --retry 3 'https://d2ol7oe51mr4n9.cloudfront.net/user_3D9HmxIE70fP7hTTYlNn2FjxT8U/c68cd0a8-64f9-4663-ac78-184a2727a918.png' -o "$d/el-toro__LEFT-IMG-11__shawarmazo.png"
+          curl -fsSL --retry 3 'https://d2ol7oe51mr4n9.cloudfront.net/user_3D9HmxIE70fP7hTTYlNn2FjxT8U/45ba1c67-e8bd-48ab-aa53-7ca7bdec142c.png' -o "$d/el-toro__LEFT-IMG-11__shawarmazo.png"
           curl -fsSL --retry 3 'https://d2ol7oe51mr4n9.cloudfront.net/user_3D9HmxIE70fP7hTTYlNn2FjxT8U/b3bfd9e2-80e4-45e8-afb9-4593bda090de.png' -o "$d/el-toro__LEFT-IMG-12__super-eructo.png"
       - name: Verify decoded RGBA, grid extraction and hard-edge gate
         shell: bash
@@ -60,7 +60,7 @@ jobs:
             ['LEFT-IMG-08','el-toro__LEFT-IMG-08__block.png',1,4,4,1536,1024,'ce61c7949944d1da773bf0f741d152794b861edaba011eb65cb0f4e5b9a7b938'],
             ['LEFT-IMG-09','el-toro__LEFT-IMG-09__hurt-knockdown.png',2,4,8,1536,1024,'bb67c89655566bf0a05b782a5cb0338fd92c4343eb7d30451b4aff7bfb7c2614'],
             ['LEFT-IMG-10','el-toro__LEFT-IMG-10__topete.png',2,4,8,1536,1024,'a3f1ca4e9949bd81543e24da8fe62885255387a9ac7a9296e21d1465c568f295'],
-            ['LEFT-IMG-11','el-toro__LEFT-IMG-11__shawarmazo.png',2,4,8,1536,1024,'60d92a32696f50911451493044d503642d7614f170505cff5f73151bdea8cc9d'],
+            ['LEFT-IMG-11','el-toro__LEFT-IMG-11__shawarmazo.png',2,4,8,1560,1024,'507f215ef9bb12cfbd0f2219439f8764be62c65c38f817b1d4d5ade45ba490c0'],
             ['LEFT-IMG-12','el-toro__LEFT-IMG-12__super-eructo.png',2,5,10,1536,1024,'f080da87e18df8533c9521179cac3e8f4e6bd00079c7c97efe7412557274fb60'],
           ];
           const receipt={contractVersion:1,fighterId:'el-toro',facing:'left',transport:'lossless-rgba-verified',sheets:[]};

@@ -766,6 +766,193 @@ function manifestLikeForFacing(frames, normalization) {
   };
 }
 
+function renderBilateralAnchorReviewTool(
+  rightReview,
+  leftReview,
+  atlasWidth,
+  atlasHeight,
+) {
+  const seed = JSON.stringify({ right: rightReview, left: leftReview });
+  return `<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>EL TORO — ANCHOR REVIEW</title>
+<style>
+body{margin:0;background:#0b1018;color:#e9eef5;font-family:system-ui,sans-serif}
+header{padding:12px 16px;border-bottom:1px solid #283444;display:flex;gap:18px;align-items:center;flex-wrap:wrap}
+main{display:grid;grid-template-columns:320px 1fr;min-height:calc(100vh - 58px)}
+aside{padding:12px;border-right:1px solid #283444;overflow:auto}
+section{padding:12px;display:flex;flex-direction:column;align-items:center;gap:10px}
+button,select{background:#182333;color:#e9eef5;border:1px solid #41516a;border-radius:6px;padding:7px 9px}
+button:disabled{opacity:.45}
+#stage{position:relative;width:min(72vw,760px);height:min(72vw,760px);background:#111a26;border:1px solid #33445a;overflow:hidden;touch-action:none}
+#sprite{position:absolute;image-rendering:auto}
+.marker{position:absolute;width:11px;height:11px;border-radius:50%;border:2px solid #fff;transform:translate(-50%,-50%);pointer-events:none}
+.pivot{position:absolute;width:16px;height:16px;transform:translate(-50%,-50%);pointer-events:none}
+.pivot:before,.pivot:after{content:"";position:absolute;background:#ffd36a}
+.pivot:before{left:7px;top:0;width:2px;height:16px}.pivot:after{left:0;top:7px;width:16px;height:2px}
+.frame-row{display:flex;gap:6px;align-items:center;margin:4px 0}
+.frame-row[data-verified="true"]{color:#8de59c}
+small{color:#aebcce}.anchors label{display:block;margin:5px 0}.anchors input{margin-right:7px}
+</style>
+</head>
+<body>
+<header>
+<strong>EL TORO — ANCHOR REVIEW</strong>
+<span>Authored RIGHT + LEFT; no mirroring</span>
+<button id="copyPrevious">Copy previous frame</button>
+<button id="verifyCurrent">Verify frame</button>
+<button id="exportRight">Export RIGHT JSON</button>
+<button id="exportLeft">Export LEFT JSON</button>
+</header>
+<main>
+<aside>
+<div>
+<label>Facing <select id="facing"><option value="right">RIGHT</option><option value="left">LEFT</option></select></label>
+</div>
+<div class="anchors" id="anchors"></div>
+<hr>
+<div id="frameList"></div>
+</aside>
+<section>
+<div id="meta"></div>
+<div id="stage">
+<img id="sprite" src="el-toro-body.png" alt="">
+<div id="pivot" class="pivot"></div>
+</div>
+<small>Choose an anchor, then click the sprite frame. Editing or copying always clears verification.</small>
+</section>
+</main>
+<script>
+const atlas={width:${atlasWidth},height:${atlasHeight}};
+const REQUIRED=['head','chest','frontHand','backHand','belt','frontFoot','backFoot'];
+const reviews=${seed};
+let facing='right';
+let index=0;
+let selected='head';
+const stage=document.getElementById('stage');
+const sprite=document.getElementById('sprite');
+const pivot=document.getElementById('pivot');
+const meta=document.getElementById('meta');
+const frameList=document.getElementById('frameList');
+const anchorBox=document.getElementById('anchors');
+
+function currentReview(){return reviews[facing]}
+function currentFrame(){return currentReview().frames[index]}
+function pointColor(name){return ({head:'#ff6b6b',chest:'#4dabf7',frontHand:'#63e6be',backHand:'#74c0fc',belt:'#ffd43b',frontFoot:'#da77f2',backFoot:'#b197fc'})[name]||'#fff'}
+
+function rebuildAnchorPicker(){
+  anchorBox.innerHTML='';
+  for(const name of REQUIRED){
+    const label=document.createElement('label');
+    const input=document.createElement('input');
+    input.type='radio';input.name='anchor';input.value=name;input.checked=name===selected;
+    input.onchange=()=>{selected=name};
+    label.append(input,document.createTextNode(name));
+    anchorBox.append(label);
+  }
+}
+
+function rebuildFrameList(){
+  frameList.innerHTML='';
+  currentReview().frames.forEach((frame,i)=>{
+    const row=document.createElement('div');
+    row.className='frame-row';row.dataset.verified=String(frame.verified);
+    const b=document.createElement('button');b.textContent=frame.frameId;
+    b.onclick=()=>{index=i;render()};
+    row.append(b,document.createTextNode(frame.verified?' verified':' pending'));
+    frameList.append(row);
+  });
+}
+
+function render(){
+  const current=currentFrame();
+  const rect=current.atlasRect;
+  const stageSize=stage.clientWidth;
+  const scale=Math.min(stageSize/rect.width,stage.clientHeight/rect.height)*0.9;
+  const drawW=rect.width*scale,drawH=rect.height*scale;
+  const x=(stage.clientWidth-drawW)/2,y=(stage.clientHeight-drawH)/2;
+  sprite.style.left=x+'px';sprite.style.top=y+'px';
+  sprite.style.width=atlas.width*scale+'px';sprite.style.height=atlas.height*scale+'px';
+  sprite.style.objectFit='none';
+  sprite.style.objectPosition=(-rect.x*scale)+'px '+(-rect.y*scale)+'px';
+  sprite.style.clipPath='inset(0 '+Math.max(0,atlas.width*scale-drawW)+'px '+Math.max(0,atlas.height*scale-drawH)+'px 0)';
+  pivot.style.left=(x+current.pivot.x*scale)+'px';
+  pivot.style.top=(y+current.pivot.y*scale)+'px';
+
+  stage.querySelectorAll('.marker').forEach((node)=>node.remove());
+  for(const name of REQUIRED){
+    const p=current.anchors[name];
+    if(!p) continue;
+    const node=document.createElement('div');
+    node.className='marker';node.style.background=pointColor(name);
+    node.style.left=(x+p.x*scale)+'px';node.style.top=(y+p.y*scale)+'px';
+    node.title=name;stage.append(node);
+  }
+  meta.textContent=facing.toUpperCase()+' '+current.frameId+' — '+(current.verified?'VERIFIED':'PENDING');
+  rebuildFrameList();
+}
+
+function setAnchor(event){
+  const current=currentFrame();
+  const rect=current.atlasRect;
+  const stageSize=stage.clientWidth;
+  const scale=Math.min(stageSize/rect.width,stage.clientHeight/rect.height)*0.9;
+  const drawW=rect.width*scale,drawH=rect.height*scale;
+  const x=(stage.clientWidth-drawW)/2,y=(stage.clientHeight-drawH)/2;
+  const bounds=stage.getBoundingClientRect();
+  const px=Math.max(0,Math.min(rect.width,(event.clientX-bounds.left-x)/scale));
+  const py=Math.max(0,Math.min(rect.height,(event.clientY-bounds.top-y)/scale));
+  current.anchors[selected]={x:Number(px.toFixed(3)),y:Number(py.toFixed(3))};
+  current.verified=false;
+  currentReview().status='pending-visual-verification';
+  render();
+}
+
+function copyPrevious(){
+  if(index===0) return;
+  const current=currentFrame();
+  const previous=currentReview().frames[index-1];
+  current.anchors=JSON.parse(JSON.stringify(previous.anchors));
+  current.verified=false;
+  currentReview().status='pending-visual-verification';
+  render();
+}
+
+function verifyCurrent(){
+  const current=currentFrame();
+  const complete=REQUIRED.every((name)=>current.anchors[name] && Number.isFinite(current.anchors[name].x) && Number.isFinite(current.anchors[name].y));
+  if(!complete){alert('Set all seven anchors before verification.');return}
+  current.verified=true;
+  currentReview().status=currentReview().frames.every((frame)=>frame.verified)?'verified':'pending-visual-verification';
+  render();
+}
+
+function exportReview(which){
+  const review=reviews[which];
+  review.status=review.frames.every((frame)=>frame.verified)?'verified':'pending-visual-verification';
+  const blob=new Blob([JSON.stringify(review,null,2)+'\\n'],{type:'application/json'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);
+  a.download=which+'-anchor-review.json';a.click();URL.revokeObjectURL(a.href);
+}
+
+document.getElementById('facing').onchange=(event)=>{facing=event.target.value;index=0;render()};
+document.getElementById('copyPrevious').onclick=copyPrevious;
+document.getElementById('verifyCurrent').onclick=verifyCurrent;
+document.getElementById('exportRight').onclick=()=>exportReview('right');
+document.getElementById('exportLeft').onclick=()=>exportReview('left');
+stage.onclick=setAnchor;
+
+rebuildAnchorPicker();
+render();
+</script>
+</body>
+</html>`;
+}
+
+
 export function buildElToroBilateralAtlasPackage({
   rightSourceDir,
   leftSourceDir,
@@ -896,6 +1083,17 @@ export function buildElToroBilateralAtlasPackage({
     renderAnchorReviewSheet(leftRects, bodyAtlas.width, bodyAtlas.height, 'el-toro-body.png'),
   );
 
+  const anchorReviewToolPath = join(outputRoot, 'bilateral-anchor-review.html');
+  writeFileSync(
+    anchorReviewToolPath,
+    renderBilateralAnchorReviewTool(
+      rightReview ?? buildAnchorReviewTemplate(rightRects, 'right'),
+      leftReview ?? buildAnchorReviewTemplate(leftRects, 'left'),
+      bodyAtlas.width,
+      bodyAtlas.height,
+    ),
+  );
+
   const effectPlan = compileEffectFrameSourcePlan(packageContract, rightManifestLike);
   const effectsFragmentPath = join(outputRoot, 'el-toro-effects.json');
   writeFileSync(
@@ -961,6 +1159,7 @@ export function buildElToroBilateralAtlasPackage({
     leftAnchorReviewPath,
     rightAnchorReviewSvgPath,
     leftAnchorReviewSvgPath,
+    anchorReviewToolPath,
     body: {
       sourceFrameCount: rightBody.length + leftBody.length,
       rightFrameCount: rightBody.length,
@@ -1026,6 +1225,7 @@ if (process.argv[1] && import.meta.url === pathToFileURL(resolve(process.argv[1]
       preview: 'bilateral-gameplay-preview.svg',
       rightAnchorReview: 'right-anchor-review.json',
       leftAnchorReview: 'left-anchor-review.json',
+      anchorReviewTool: 'bilateral-anchor-review.html',
       mirrorSafe: false,
       runtimeLoadable: manifest.runtimeLoadable,
     })+'\n');

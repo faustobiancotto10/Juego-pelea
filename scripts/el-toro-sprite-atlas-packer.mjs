@@ -147,13 +147,15 @@ function prepareNormalizedFrames(frames, normalization) {
       width,
       height,
     );
+    const relativePivotX = normalized.pivotX - normalized.x;
+    const relativePivotY = normalized.pivotY - normalized.y;
     return {
       frameId: frame.frameId,
       width,
       height,
       rgba,
-      pivotX: Number((normalized.pivotX - normalized.x).toFixed(4)),
-      pivotY: Number((normalized.pivotY - normalized.y).toFixed(4)),
+      pivotX: Number((relativePivotX * width / normalized.width).toFixed(4)),
+      pivotY: Number((relativePivotY * height / normalized.height).toFixed(4)),
     };
   });
 }

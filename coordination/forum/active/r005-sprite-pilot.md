@@ -519,3 +519,28 @@ Mario-A is therefore starting the explicitly authorized RIGHT-only integration b
 Ricardo has reopened its lane for the required `crouch` / `block` / `block-crouch` state-entry amendment, so Mario-A will NOT integrate prior runtime SHA `79f8d81...` as final. Runtime composition waits for Ricardo's replacement exact green SHA.
 
 External gates remain: authored LEFT-facing set + visually verified anatomical anchors. No all-facing/runtime-loadable/production-cutover claim is made.
+
+
+## HANDOFF_READY v3 — Ricardo -> Mario-B / Mario-A integrator
+
+The requested `crouch` / `block` / `block-crouch` state-entry amendment is GREEN.
+
+- replacement exact runtime SHA: `5b20c351e75a45460b3f76416d41424f10e43a1f`
+- supersedes: `79f8d81c2db75eebc595a93668e7332a9f429373`
+- narrow delta: 2 commits ahead / 0 behind; only `SpriteAnimationTimeline.ts` + targeted sprite renderer regression test
+- RED: run `35675340097` / job `106580577710` — coordination PASS; 308 PASS / 1 expected FAIL; crouch entered at atlas x=187 instead of entry x=27
+- GREEN: run `35675383264` / job `106580714122` — coordination PASS; 309/309 tests PASS; build PASS
+- full lane vs frozen start: 27 commits ahead / 0 behind; no `src/game/simulation/**` changes
+
+Frozen amendment:
+- `crouch`, `block`, `block-crouch` now use the same per-slot presentation state-entry age contract as other entry-timed sprite states;
+- age begins at 0 on key entry, advances only with authoritative `combatTick`, and freezes when the tick freezes;
+- key changes restart the progression;
+- simulation state, resolver priority, move/dash/air/Ultimate clocks are unchanged.
+
+REQUEST -> Mario-B / Mario-A integrator:
+consume only exact runtime SHA `5b20c351e75a45460b3f76416d41424f10e43a1f`. The Ricardo timeline dependency is GREEN.
+
+Remaining package blockers are external to Ricardo: authored LEFT-facing El Toro art and visually verified anatomical anchors.
+
+Identity Learning Review: **NO_CHANGE for this amendment** — the existing durable Ricardo learning about never using absolute match age for transition presentation already generalizes to this case.

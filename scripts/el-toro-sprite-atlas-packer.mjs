@@ -524,7 +524,6 @@ export function buildElToroRightAtlasPackage({
     previewPath,
     metricsPath,
     anchorReviewPath,
-    anchorReviewPath,
     body: {
       sourceFrameCount: bodyFrames.length,
       atlasPath: bodyAtlasPath,

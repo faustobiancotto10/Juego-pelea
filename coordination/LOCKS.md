@@ -75,3 +75,20 @@ Current canonical thread: `coordination/forum/active/r005-sprite-pilot.md`.
 - forbidden in this repair: gameplay balance/timing changes, source-art regeneration, anchor re-authoring, replacement of approved V0.7 visual modules;
 - Germinator remains blocked until Mario-A publishes a replacement exact SHA;
 - Gonza remains blocked until the fresh Germinator audit approves it.
+
+
+## Mario-A live-integration repair — RELEASED
+
+- repair branch: `round/r005-sprite-mario-a-live-repair`;
+- final repair head: `4ee68f1cfe5ed06f9da5e547aadf71bb54cd32fd`;
+- replacement integration branch: `round/r005-sprite-mario-integration-repair`;
+- exact replacement candidate: `fe2b505639d8ebf2dc4ab204b545233d96f214f2`;
+- exact tested/candidate tree: `ed5ee226bca6c5da6c4c4769f14ccf7e2316c31a`;
+- GitHub synthetic merge used for PR verification: `d0adc829e81810a69ba13acffe8257441d14a2f8`;
+- materialization run `35782862607`: PASS;
+- PR #59 Repository verification `35783156610`: PASS;
+- PR #59 Character Pipeline V2 `35783156710`: PASS;
+- source art and bilateral anchor coordinates were not re-authored;
+- Mario-A repair claim is RELEASED;
+- Germinator V07-SPR-G1 may now claim audit-only surfaces against exact `fe2b505639d8ebf2dc4ab204b545233d96f214f2`;
+- Gonza remains blocked until Germinator approval.

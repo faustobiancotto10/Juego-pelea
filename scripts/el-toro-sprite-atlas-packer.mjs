@@ -986,35 +986,66 @@ function parseCliArgs(argv) {
   for (let index = 0; index < argv.length; index += 1) {
     const token = argv[index];
     if (token === '--source-dir') args.sourceDir = argv[++index];
+    else if (token === '--left-source-dir') args.leftSourceDir = argv[++index];
     else if (token === '--package-contract') args.packageContractPath = argv[++index];
     else if (token === '--out-dir') args.outDir = argv[++index];
     else if (token === '--verified-anchor-review') args.verifiedAnchorReviewPath = argv[++index];
+    else if (token === '--right-verified-anchor-review') args.rightVerifiedAnchorReviewPath = argv[++index];
+    else if (token === '--left-verified-anchor-review') args.leftVerifiedAnchorReviewPath = argv[++index];
     else throw new Error('unknown argument '+token);
   }
   if (!args.sourceDir || !args.packageContractPath || !args.outDir) {
     throw new Error(
-      'usage: node scripts/el-toro-sprite-atlas-packer.mjs --source-dir <dir> --package-contract <json> --out-dir <dir> [--verified-anchor-review <json>]',
+      'usage: node scripts/el-toro-sprite-atlas-packer.mjs --source-dir <right-dir> [--left-source-dir <left-dir>] --package-contract <json> --out-dir <dir> [--verified-anchor-review <json>] [--right-verified-anchor-review <json>] [--left-verified-anchor-review <json>]',
     );
   }
   return args;
 }
 
 if (process.argv[1] && import.meta.url === pathToFileURL(resolve(process.argv[1])).href) {
-  const result = buildElToroRightAtlasPackage(parseCliArgs(process.argv.slice(2)));
-  process.stdout.write(JSON.stringify({
-    fighterId: 'el-toro',
-    facing: 'right',
-    bodyFrames: result.body.sourceFrameCount,
-    effectFrames: result.effects.sourceFrameCount,
-    bodyAtlas: 'right-body.png',
-    effectsAtlas: 'right-effects.png',
-    runtimeFragment: 'right-runtime-fragment.json',
-    effectsFragment: 'right-effects-fragment.json',
-    preview: 'right-gameplay-preview.svg',
-    metrics: 'right-package-metrics.json',
-    anchorReview: 'right-anchor-review.json',
-    anchorReviewVisual: 'right-anchor-review.svg',
-    verifiedAnchorReviewApplied: Boolean(result.verifiedAnchorReviewApplied),
-    runtimeLoadable: false,
-  })+'\n');
+  const args = parseCliArgs(process.argv.slice(2));
+  if (args.leftSourceDir) {
+    const result = buildElToroBilateralAtlasPackage({
+      rightSourceDir: args.sourceDir,
+      leftSourceDir: args.leftSourceDir,
+      packageContractPath: args.packageContractPath,
+      outDir: args.outDir,
+      rightVerifiedAnchorReviewPath: args.rightVerifiedAnchorReviewPath ?? null,
+      leftVerifiedAnchorReviewPath: args.leftVerifiedAnchorReviewPath ?? null,
+    });
+    const manifest = JSON.parse(readFileSync(result.manifestPath,'utf8'));
+    process.stdout.write(JSON.stringify({
+      fighterId: 'el-toro',
+      facing: 'authored-bilateral',
+      rightBodyFrames: result.body.rightFrameCount,
+      leftBodyFrames: result.body.leftFrameCount,
+      effectFrames: result.effects.sourceFrameCount,
+      bodyAtlas: 'el-toro-body.png',
+      effectsAtlas: 'el-toro-effects.png',
+      manifest: 'el-toro-animations.json',
+      preview: 'bilateral-gameplay-preview.svg',
+      rightAnchorReview: 'right-anchor-review.json',
+      leftAnchorReview: 'left-anchor-review.json',
+      mirrorSafe: false,
+      runtimeLoadable: manifest.runtimeLoadable,
+    })+'\n');
+  } else {
+    const result = buildElToroRightAtlasPackage(args);
+    process.stdout.write(JSON.stringify({
+      fighterId: 'el-toro',
+      facing: 'right',
+      bodyFrames: result.body.sourceFrameCount,
+      effectFrames: result.effects.sourceFrameCount,
+      bodyAtlas: 'right-body.png',
+      effectsAtlas: 'right-effects.png',
+      runtimeFragment: 'right-runtime-fragment.json',
+      effectsFragment: 'right-effects-fragment.json',
+      preview: 'right-gameplay-preview.svg',
+      metrics: 'right-package-metrics.json',
+      anchorReview: 'right-anchor-review.json',
+      anchorReviewVisual: 'right-anchor-review.svg',
+      verifiedAnchorReviewApplied: Boolean(result.verifiedAnchorReviewApplied),
+      runtimeLoadable: false,
+    })+'\n');
+  }
 }

@@ -946,3 +946,33 @@ NEXT -> Germinator:
 fresh independent V07-SPR-G1 audit of exact `fe2b505639d8ebf2dc4ab204b545233d96f214f2`.
 
 Gonza remains BLOCKED until that audit approves.
+
+
+## APPROVE — Germinator V07-SPR-G1 replacement audit
+
+Exact approved product candidate:
+`fe2b505639d8ebf2dc4ab204b545233d96f214f2`
+
+Product tree:
+`ed5ee226bca6c5da6c4c4769f14ccf7e2316c31a`
+
+Verdict:
+**APPROVE — SPRITE PILOT LIVE INTEGRATION GREEN**
+
+Independent evidence:
+- Repository #1720 / `35788754170`: 433/433 + build PASS;
+- Character Pipeline V2 #72 / `35788754059`: 433/433 + build + deterministic sprite evidence + raster/reference guard PASS;
+- artifact `10721170926`;
+- RIGHT/LEFT authored facings visibly distinct and not horizontally mirrored;
+- shirt text remains correctly readable both directions;
+- effects-off Topete/Ultimate body poses remain readable;
+- 844×390 evidence green;
+- prior roster/registry/runtime-assets blocker fully closed.
+
+NEXT -> Gonza:
+claim V07-SPR-Z0 and publish **isolated sprite-pilot preview only** from exact `fe2b5056...`. Do not ship Germinator QA head and do not promote production root.
+
+Remaining downstream gates:
+1. served-preview parity/smoke;
+2. user physical-phone acceptance;
+3. canonical production package-format reconciliation before any production/full-roster sprite cutover.

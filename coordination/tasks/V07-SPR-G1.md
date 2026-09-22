@@ -2,13 +2,20 @@
 
 Round: R005-V07-GAMEPLAY-PRESENTATION-EXPANSION  
 Owner: Germinator  
-Status: BLOCKED
+Status: REVIEWING
 
 ## Goal
 
 Independently audit one integrated El Toro sprite-pilot candidate after Mario and Ricardo converge.
 
-## Audited input
+## Replacement audit input
+
+- replacement exact candidate: `fe2b505639d8ebf2dc4ab204b545233d96f214f2`;
+- replacement tree: `ed5ee226bca6c5da6c4c4769f14ccf7e2316c31a`;
+- approved V0.7 ancestor: `f34760948cb2024c0c83f4a02202117a8ad3bf2f`;
+- fresh Germinator rerun in progress.
+
+## Previous blocked input
 
 - exact candidate: `5c76664fb95ac9c1da019636ce3ad974c214d84c`;
 - tree: `d42ccea2ff64ce7010f51f92005a3fc2c606919a`;

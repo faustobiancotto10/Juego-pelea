@@ -133,7 +133,7 @@ export function sampleFighterAnchor(
     if (!presentation.spritePackageKey) {
       throw new Error(`Sprite fighter "${fighter.id}" has no spritePackageKey`);
     }
-    return spriteRenderer.sampleAnchor(fighter, presentation.spritePackageKey, combatTick, name);
+    return spriteRenderer.sampleAnchor(fighter, presentation.spritePackageKey, combatTick, name, slot);
   }
 
   return sampleFighterAnchors(slot, fighter, frame, combatTick)?.[name] ?? null;
@@ -167,6 +167,7 @@ export function drawFighter(
       presentation.spritePackageKey,
       combatTick,
       camaleoniUltimateAlpha(fighter),
+      slot,
     );
     return;
   }

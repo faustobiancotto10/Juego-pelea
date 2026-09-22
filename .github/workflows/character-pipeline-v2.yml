@@ -81,6 +81,10 @@ jobs:
             "http://127.0.0.1:4173/tools/character-pipeline-v2/v07-spr-g1-runtime-evidence.html" \
             > artifacts/v07-m3/sprite-runtime-dom.html
           grep -F "READY · SPRITE BACKEND DRAWN" artifacts/v07-m3/sprite-runtime-dom.html
+          node -e "const fs=require('fs');const s=fs.readFileSync('artifacts/v07-m3/sprite-runtime-dom.html','utf8');const m=s.match(/data:image\\/png;base64,([A-Za-z0-9+/=]+)/);if(!m)throw new Error('ready canvas data URL missing');fs.writeFileSync('artifacts/v07-m3/sprite-runtime-ready.png',Buffer.from(m[1],'base64'));"
+          convert artifacts/v07-m3/sprite-runtime-ready.png -resize 844x475 -gravity north -crop 844x390+0+0 +repage artifacts/v07-m3/sprite-runtime-ready-phone.png
+          test -s artifacts/v07-m3/sprite-runtime-ready.png
+          test -s artifacts/v07-m3/sprite-runtime-ready-phone.png
           test -s artifacts/v07-m3/normal-color.png
           test -s artifacts/v07-m3/neutral-silhouette.png
           test -s artifacts/v07-m3/juanchi-vs-el-toro.png

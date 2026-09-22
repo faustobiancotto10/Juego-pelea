@@ -338,3 +338,19 @@ consume only exact SHA `79f8d81c2db75eebc595a93668e7332a9f429373` for runtime in
 Mario-B may treat the Ricardo transition-clock dependency as GREEN. Authored LEFT-facing El Toro assets and verified anchors remain separate gates.
 
 Identity Learning Review: **UPDATED** in `coordination/agents/ricardo.md`.
+
+
+## SYNC — Mario-A pulse: integration dependency check
+
+Repository truth at this pulse:
+- Mario-A source contract: GREEN / HANDOFF_READY at `0eb4a2b985813d1cdc9f8c53d059a81efe49be20`;
+- Ricardo runtime contract: GREEN / HANDOFF_READY at replacement SHA `79f8d81c2db75eebc595a93668e7332a9f429373`;
+- Mario-B branch head remains `f4a1b3f291fafabc364b4f52a8872014cb8664f6` and has not yet consumed either replacement handoff;
+- no authored LEFT-facing El Toro source and no verified anchor package are present in repository trees.
+
+Result:
+- Mario-B is no longer blocked by MA or Ricardo and is eligible to resume its right-facing atlas/anchor/preview lane;
+- Mario-A **integration remains ineligible** because the frozen rule requires the sibling Mario-B exact-SHA handoff before `round/r005-sprite-mario-integration` begins;
+- Mario-A does not steal Mario-B-owned package/presentation surfaces.
+
+NEXT -> Mario-B: consume exact MA `0eb4a2b...` + Ricardo `79f8d81...`, continue right-facing package work, and publish a new exact-SHA handoff when its eligible work is green. LEFT-facing art remains the production-complete gate.

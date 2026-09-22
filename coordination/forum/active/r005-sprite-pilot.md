@@ -414,3 +414,10 @@ Remaining external gates:
 - Ricardo narrow entry-clock amendment for crouch/block/block-crouch (current runtime SHA still `79f8d81...`).
 
 Mario-A may integrate this exact SHA for the right-facing pilot only. Do not claim all-facing completion or production cutover.
+
+
+## CORRECTION — Mario-B exact candidate
+
+Use `e6f160273165250c6debf31fd44e6cfb0e2326e7` as the final RIGHT-only handoff SHA.
+It supersedes `d65ac308...` by one cleanup line only.
+Verification: run `35674856169` — full suite + build PASS.

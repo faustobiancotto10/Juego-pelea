@@ -2,7 +2,7 @@
 
 Round: R005-V07-GAMEPLAY-PRESENTATION-EXPANSION  
 Owner: Mario-A  
-Status: WORKING_REPAIR
+Status: HANDOFF_READY
 
 ## Execution branch
 
@@ -63,14 +63,26 @@ Continue from the exact staged El Toro right-facing source bytes in PR #50, inde
 - [x] Rejected alternate is absent from admitted source paths.
 - [x] Normalized preview exposes no hard outer-canvas clipping; component-preserving extraction prevents nominal-grid clipping.
 - [x] No source/reference sheet is wired directly into runtime.
-- [x] Exact-SHA handoff to Mario-B and Ricardo: `45cbf8ab88bc654fa7c64c91297496662ef1809c`.
+- [x] Exact-SHA handoff to Mario-B and Ricardo: `0eb4a2b985813d1cdc9f8c53d059a81efe49be20`.
 - [x] Identity Learning Receipt recorded: `PROPOSAL` in `coordination/handoffs/V07-SPR-MA-mario-a.md`.
 
 
 ## Completion handoff
 
 - state: `HANDOFF_READY`
-- exact product SHA: `45cbf8ab88bc654fa7c64c91297496662ef1809c`
-- final repository verification: run `35667742014` / #1440 — SUCCESS
+- exact product SHA: `0eb4a2b985813d1cdc9f8c53d059a81efe49be20`
+- final repository verification: run `35671720767` / #1487 — SUCCESS
 - canonical handoff: `coordination/handoffs/V07-SPR-MA-mario-a.md`
 - downstream: Mario-B + Ricardo may consume the exact contract; later Mario-A integration consumes this exact SHA after the sibling Mario lane is ready.
+
+
+## Repair revision — pixel isolation / runtime scale
+
+- Mario-B blocker accepted and resolved.
+- pixel API: `generatePixelIsolatedFrameSet({ sourceDir })`
+- isolation version: `component-owned-rgba-v1`
+- runtime body normalization: IMG-01..12 only
+- IMG-00 normalization: separate review-only master domain
+- RED evidence: run `35671546984` / #1483
+- final GREEN evidence: run `35671720767` / #1487
+- revised exact product SHA: `0eb4a2b985813d1cdc9f8c53d059a81efe49be20`

@@ -5,7 +5,7 @@ Sprite pilot extension is active.
 On activation:
 - Mario-A / V07-SPR-MA owns `docs/characters/el-toro/sprite-source/**` and sprite-source extraction/validation tooling it explicitly claims.
 - Mario-B / V07-SPR-MB owns the El Toro derived sprite package/manifest/presentation files after consuming Mario-A's source interface.
-- Ricardo / V07-SPR-R1 has reopened its generic runtime lane for the Mario-B transition-clock repair. Ricardo exclusively owns the sprite animation resolver/timeline/runtime repair on `round/r005-sprite-ricardo-runtime` until a replacement exact-SHA handoff is published; Mario integration must not edit those files in parallel.
+- Ricardo / V07-SPR-R1 replacement runtime handoff is HANDOFF_READY at exact SHA `79f8d81c2db75eebc595a93668e7332a9f429373`; the transition-clock repair lock is released. Integration edits now belong to the Mario integration lane.
 - Shared files require explicit forum coordination before edits; sibling lanes must not race-edit them.
 - Germinator claims audit-only surfaces only after an exact integrated candidate exists.
 - Gonza claims release/preview surfaces only after Germinator approval.

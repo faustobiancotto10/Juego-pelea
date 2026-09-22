@@ -6,7 +6,7 @@ Sender: Mario-A / Character & Rendering Engineer
 Recipients: Mario-B / `V07-SPR-MB`, Ricardo / `V07-SPR-R1`, then Mario-A / sprite integrator  
 Branch: `round/r005-sprite-mario-a-source-import`  
 Base: `e3d29807acab6ce4c87fd7e04069fcb4b98c6a65`  
-Exact handoff SHA: `0eb4a2b985813d1cdc9f8c53d059a81efe49be20`  
+Exact handoff SHA: `c1b3e8e757b707f2975f6587217cc2f851e2ca6b`  
 PR: #50  
 Result: **GREEN / HANDOFF_READY**
 
@@ -103,11 +103,20 @@ Runtime consumes a derived sprite package/atlas plus manifest metadata. No sourc
 
 Ricardo's generic runtime contract remains a separate lane. Mario-A does not own combat, balance or runtime authority.
 
-## LEFT-facing blocker
+## LEFT-facing source state
 
-El Toro remains **not mirror-safe**. Readable/directional art such as `TE VOY A CHOCAR` cannot ship via horizontal mirroring.
+El Toro remains **not mirror-safe**, but the authored LEFT source-art blocker is now removed.
 
-The authored LEFT-facing IMG-00 + IMG-01..12 set remains a hard production gate. This handoff authorizes right-facing pilot integration only.
+At exact handoff SHA `c1b3e8e757b707f2975f6587217cc2f851e2ca6b`:
+- authored LEFT IMG-00 + IMG-01..12 are present in GitHub;
+- LEFT coverage is 1 master + exactly 84 body frames;
+- all 13 sheets pass transparency, expected-slot extraction and hard outer-edge validation;
+- the facing-aware source pipeline emits 85 LEFT normalized entries and 85 component-owned RGBA crops;
+- RIGHT remains the backward-compatible default.
+
+Horizontal mirroring is still prohibited for El Toro shipping art.
+
+The remaining visual package gate is explicit anatomical-anchor authoring/verification for RIGHT and LEFT. Those coordinates are intentionally not inferred from alpha geometry, bboxes, centroids or pivots.
 
 ## Verification evidence
 
@@ -148,7 +157,7 @@ This is a proposal, not an immediate `mario.md` edit, because this is a same-rol
 
 ## Known risks / unresolved questions
 
-- Authored LEFT-facing body art is still missing and blocks production-complete El Toro.
+- Authored LEFT-facing body art is admitted; visually verified bilateral anatomical anchors still block a production-loadable El Toro package.
 - Human visual acceptance at gameplay/phone scale remains downstream; numeric extraction gates do not prove artistic likeness.
 - Mario-B must consume this exact SHA (or an integrated exact descendant), not a moving branch head.
 - Ricardo's facing-aware non-mirror-safe runtime amendment must be green before final pilot integration.
@@ -157,7 +166,7 @@ This is a proposal, not an immediate `mario.md` edit, because this is a same-rol
 
 `V07-SPR-MA` is HANDOFF_READY.
 
-Mario-B may now consume the exact normalization interface above without reimplementing extraction. Mario-A's later integration phase may compose this exact SHA with Mario-B's accepted SHA once that sibling lane is HANDOFF_READY. Germinator remains ineligible until the single integrated Mario candidate and Ricardo runtime candidate exist.
+Mario-B may now consume the exact RIGHT + LEFT normalization/pixel-isolation interface without reimplementing extraction. Mario-A's integration role waits for Mario-B's bilateral package/anchor handoff, then composes it with the already-accepted Ricardo runtime. Germinator remains ineligible until that genuinely loadable bilateral integrated candidate exists.
 
 
 ## Revision 2 — Mario-B blocker resolution
@@ -178,3 +187,94 @@ Downstream consumption rule:
 - use manifest bboxes/transforms as metadata, not as ownership masks;
 - use `normalization.body` for IMG-01..12 runtime frames;
 - use `normalization.master` only for IMG-00 review/reference presentation.
+
+
+## Revision 3 — Authored LEFT source admitted
+
+This revision supersedes the LEFT-source blocker recorded in Revision 2.
+
+Exact Mario-A handoff SHA:
+`c1b3e8e757b707f2975f6587217cc2f851e2ca6b`
+
+### Binary admission
+
+- binary staging commit: `1f74072d8280f88b0f52d24d77495471d68033d0`;
+- source path: `docs/characters/el-toro/sprite-source/left/`;
+- immutable receipt: `LEFT_SOURCE_HASHES.json`;
+- 13 LEFT sheets;
+- 1 master + 84 body sprites;
+- decoded-RGBA transport verification + repository byte hashes recorded;
+- transparency: PASS;
+- expected slot coverage: PASS;
+- hard outer-canvas clipping: 0.
+
+Binary import verification:
+- run `35683282959` — SUCCESS.
+
+### Mechanical source-layout repairs
+
+The admitted LEFT source preserves authored pixels while fixing extractability:
+- IMG-01: +16 transparent bottom rows; original pixels unchanged;
+- IMG-11: transparent horizontal separation between touching frames; final 1560×1024;
+- IMG-12: transparent gutters between touching frames; final 1584×1024.
+
+No character pixel was redrawn, resampled or recolored by these repairs.
+
+### Facing-aware pipeline
+
+New supported call:
+
+```bash
+node scripts/el-toro-sprite-source-pipeline.mjs \
+  --facing left \
+  --source-dir docs/characters/el-toro/sprite-source/left \
+  --out-dir <output-directory>
+```
+
+Pixel API:
+
+```js
+generatePixelIsolatedFrameSet({
+  sourceDir: 'docs/characters/el-toro/sprite-source/left',
+  facing: 'left',
+})
+```
+
+LEFT output contract:
+- 13 accepted sheets;
+- 85 normalized entries;
+- 85 component-owned RGBA crops;
+- 1 master + 84 body + 0 duplicate FX;
+- manifest `facing: "left"`;
+- `shippingStatus: "pilot-only-anchor-blocked"`.
+
+### TDD / final verification
+
+RED:
+- run `35683410357`;
+- 0/2 LEFT tests, both failing because the pre-change pipeline searched RIGHT filenames.
+
+GREEN:
+- run `35683651600`;
+- 2/2 targeted LEFT tests PASS.
+
+Full implementation verification:
+- run `35683651339`;
+- coordination PASS;
+- full suite PASS;
+- build PASS.
+
+Final clean-branch verification after documentation and removal of the temporary TDD workflow:
+- run `35683738506`;
+- coordination PASS;
+- full suite PASS;
+- build PASS.
+
+### Next owner
+
+Mario-A source/normalization work is **HANDOFF_READY**.
+
+NEXT -> Mario-B:
+consume exact Mario-A SHA `c1b3e8e757b707f2975f6587217cc2f851e2ca6b`, generate the bilateral LEFT-derived body package alongside the existing RIGHT package, complete the explicit visual anatomical-anchor review, and publish one exact-SHA bilateral package handoff. Do not mark `runtimeLoadable:true` until that anchor gate is green.
+
+Mario-A then resumes only as the designated integrator.

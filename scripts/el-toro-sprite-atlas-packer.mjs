@@ -229,66 +229,6 @@ function runtimeDurationsFor(packageContract, key, sourcePlanAnimation) {
 }
 
 
-function xmlEscape(value) {
-  return String(value)
-    .replaceAll('&','&amp;')
-    .replaceAll('<','&lt;')
-    .replaceAll('>','&gt;')
-    .replaceAll('"','&quot;');
-}
-
-function renderGameplayPreview(runtimeFragment, atlasWidth, atlasHeight) {
-  const width=844, height=390;
-  const groundY=315;
-  const panelWidth=132;
-  const panelGap=7;
-  const startX=9;
-  const previewScale=0.52;
-  const states=[
-    {label:'IDLE',key:'idle',frameIndex:0},
-    {label:'WALK',key:'walk-forward',frameIndex:4},
-    {label:'JAB ACTIVE',key:'move:toroJab',frameIndex:2},
-    {label:'TOPETE PEAK',key:'move:topete',frameIndex:3},
-    {label:'SHAWARMA RELEASE',key:'move:shawarmazoThrow',frameIndex:3},
-    {label:'SUPER ERUCTO',key:'ultimate:superEructo:capture',frameIndex:1},
-  ];
-
-  const defs=[];
-  const groups=[];
-  for (let index=0;index<states.length;index+=1) {
-    const state=states[index];
-    const animation=runtimeFragment.animations[state.key];
-    if (!animation) throw new Error('Missing preview animation '+state.key);
-    const frame=animation.frames[Math.min(state.frameIndex,animation.frames.length-1)];
-    const panelX=startX+index*(panelWidth+panelGap);
-    const clipId='panel-'+index;
-    const centerX=panelX+panelWidth/2;
-    const imageX=centerX-frame.pivotX*previewScale-frame.x*previewScale;
-    const imageY=groundY-frame.pivotY*previewScale-frame.y*previewScale;
-    defs.push('<clipPath id="'+clipId+'"><rect x="'+panelX+'" y="32" width="'+panelWidth+'" height="304" rx="8"/></clipPath>');
-    groups.push(
-      '<g data-animation="'+xmlEscape(state.key)+'">'
-      +'<rect x="'+panelX+'" y="32" width="'+panelWidth+'" height="304" rx="8" fill="#11151b" stroke="#2c333d"/>'
-      +'<line x1="'+(panelX+8)+'" y1="'+groundY+'" x2="'+(panelX+panelWidth-8)+'" y2="'+groundY+'" stroke="#59616c" stroke-width="1"/>'
-      +'<g clip-path="url(#'+clipId+')">'
-      +'<image href="right-body.png" x="'+imageX.toFixed(4)+'" y="'+imageY.toFixed(4)+'" width="'+(atlasWidth*previewScale).toFixed(4)+'" height="'+(atlasHeight*previewScale).toFixed(4)+'" image-rendering="auto"/>'
-      +'</g>'
-      +'<circle cx="'+centerX+'" cy="'+groundY+'" r="2.5" fill="#f6d77a"/>'
-      +'<text x="'+centerX+'" y="356" text-anchor="middle" font-family="system-ui,sans-serif" font-size="11" font-weight="800" fill="#eef2f6">'+xmlEscape(state.label)+'</text>'
-      +'<text x="'+centerX+'" y="373" text-anchor="middle" font-family="ui-monospace,monospace" font-size="7.5" fill="#8f99a6">'+xmlEscape(state.key)+'</text>'
-      +'</g>'
-    );
-  }
-
-  return '<?xml version="1.0" encoding="UTF-8"?>\n'
-    +'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 844 390" width="844" height="390">\n'
-    +'<rect width="844" height="390" fill="#090c10"/>'
-    +'<text x="14" y="20" font-family="system-ui,sans-serif" font-size="12" font-weight="800" fill="#f4f6f8">EL TORO — RIGHT ATLAS / GAMEPLAY-SCALE READ</text>'
-    +'<defs>'+defs.join('')+'</defs>'
-    +groups.join('')
-    +'</svg>\n';
-}
-
 function buildRuntimeFragment(packageContract, sourcePlan, frameRects) {
   const animations = {};
   for (const [key, animation] of Object.entries(sourcePlan.animations)) {
@@ -421,11 +361,6 @@ export function buildElToroRightAtlasPackage({
     join(outputRoot, 'right-runtime-fragment.json'),
     JSON.stringify(runtimeFragment, null, 2)+'\n',
   );
-  const previewPath=join(outputRoot,'right-gameplay-preview.svg');
-  writeFileSync(
-    previewPath,
-    renderGameplayPreview(runtimeFragment,bodyAtlas.width,bodyAtlas.height),
-  );
   const previewPath = join(outputRoot, 'right-gameplay-preview.svg');
   writeFileSync(
     previewPath,
@@ -483,6 +418,5 @@ export function buildElToroRightAtlasPackage({
       atlasHeight: effectAtlas.height,
       frameRects: effectAtlas.frameRects,
     },
-    previewPath,
   };
 }

@@ -2,7 +2,7 @@
 
 Round: R005-V07-GAMEPLAY-PRESENTATION-EXPANSION  
 Owner: Gonza  
-Status: BLOCKED
+Status: READY
 
 ## Goal
 
@@ -10,8 +10,8 @@ Publish an isolated preview of the exact Germinator-approved El Toro sprite-pilo
 
 ## Dependencies
 
-- BLOCKED — Germinator V07-SPR-G1 returned BLOCK on exact candidate `5c76664fb95ac9c1da019636ce3ad974c214d84c`.
-- Required replacement: Mario-A must provide a live-previewable integrated candidate and Germinator must approve that exact SHA.
+- SATISFIED — Germinator V07-SPR-G1 approved exact replacement candidate `fe2b505639d8ebf2dc4ab204b545233d96f214f2`.
+- Approval scope: isolated sprite-pilot preview only; no production-root promotion.
 
 ## Acceptance criteria
 
@@ -33,3 +33,21 @@ Germinator PR #58 / run `35779776446` proved:
 - the exact candidate ships no runtime `assets/` root for the build to serve.
 
 Resume only after V07-SPR-G1 approval on a replacement exact candidate.
+
+
+## Approved input
+
+Consume **exact product candidate**:
+`fe2b505639d8ebf2dc4ab204b545233d96f214f2`
+
+Do not consume the Germinator QA branch/head.
+
+Required Z0 work:
+- build from the exact approved product candidate;
+- publish only the isolated sprite-pilot preview;
+- prove source → build → served-preview parity;
+- smoke-test El Toro RIGHT and authored LEFT in the served game;
+- preserve the current production root unchanged;
+- hand the preview to the user for physical-phone acceptance.
+
+The canonical production package-format gate remains downstream and does not block this isolated preview.

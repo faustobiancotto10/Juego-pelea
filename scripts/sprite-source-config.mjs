@@ -33,7 +33,7 @@ const leftRows = [
   ['IMG-07','el-toro__LEFT-IMG-07__low-attack.png','3e178185d240aebc7d4620db5919735a900506c824d4955e6be31601b3c35887','body',2,3,6],
   ['IMG-08','el-toro__LEFT-IMG-08__block.png','f6f35fa68b92cd2ae65c1a6b5841ae387459caa120efdeed918406ffaa15531f','body',1,4,4],
   ['IMG-09','el-toro__LEFT-IMG-09__hurt-knockdown.png','3d1d8f625fca16e60de5ce70dc5c1e3c2f3c3a7e6a64e58a4cfd8e2f2e59997e','body',2,4,8],
-  ['IMG-10','el-toro__LEFT-IMG-10__topete.png','884b8c076daf9c9dfffaf1700fcf581a5d635f2dd0a5a8c8b5b342e991bb8904','body',2,4,8],
+  ['IMG-10','el-toro__LEFT-IMG-10__topete.png','15d835f901cbc25f7eddaf8a8603d33129980fcb403ece3a550287b404d8dca9','body',2,4,8],
   ['IMG-11','el-toro__LEFT-IMG-11__shawarmazo.png','5213959e0e3a86ff1481fee818f13c0ade02bff9042b68a22d305e179401f428','body',2,4,8],
   ['IMG-12','el-toro__LEFT-IMG-12__super-eructo.png','d64d269d8191b11a8a6cc7afaaba01905596516ccb6c57c5b78c9fd3002b385d','body',2,5,10],
 ];

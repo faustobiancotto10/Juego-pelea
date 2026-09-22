@@ -2,7 +2,7 @@
 
 Round: R005-V07-GAMEPLAY-PRESENTATION-EXPANSION  
 Owner: Ricardo  
-Status: HANDOFF_READY
+Status: REPAIR_ACTIVE
 
 ## Execution branch
 
@@ -51,7 +51,7 @@ Implement the generic, presentation-only sprite runtime foundation from `docs/su
 
 ## Completion receipt
 
-- exact candidate: `d07cba1231fbb571dfe5d344487251f88dec797c`
+- superseded candidate pending reaction-clock repair: `d07cba1231fbb571dfe5d344487251f88dec797c`
 - final verification: run `35669435920` / job `106562356524` — 306/306 full-suite PASS + build PASS
 - handoff: `coordination/handoffs/V07-SPR-R1-ricardo.md`
 - authored-facing amendment: explicit `mirrorSafe`; non-mirror-safe packages require matching `leftAnimations`

@@ -6,94 +6,99 @@ Status: VERIFIED
 
 ## Goal
 
-Independently audit one integrated El Toro sprite-pilot candidate after Mario and Ricardo converge.
+Independently audit the integrated El Toro sprite pilot before any isolated preview is published.
 
-## Replacement audit input
+## Approved product candidate
 
-- replacement exact candidate: `fe2b505639d8ebf2dc4ab204b545233d96f214f2`;
-- replacement tree: `ed5ee226bca6c5da6c4c4769f14ccf7e2316c31a`;
-- approved V0.7 ancestor: `f34760948cb2024c0c83f4a02202117a8ad3bf2f`;
-- fresh Germinator rerun in progress.
+- exact product SHA: `fe2b505639d8ebf2dc4ab204b545233d96f214f2`;
+- exact product tree: `ed5ee226bca6c5da6c4c4769f14ccf7e2316c31a`;
+- approved V0.7 ancestor: `f34760948cb2024c0c83f4a02202117a8ad3bf2f`.
 
-## Previous blocked input
+The earlier candidate `5c76664fb95ac9c1da019636ce3ad974c214d84c` remains rejected and must not be previewed.
 
-- exact candidate: `5c76664fb95ac9c1da019636ce3ad974c214d84c`;
-- tree: `d42ccea2ff64ce7010f51f92005a3fc2c606919a`;
-- QA evidence SHA: `3b9d754b0d1f118c774404c2371f188033ab7346`;
-- validation PR: #58;
-- run: `35779776446`;
-- handoff: `coordination/handoffs/V07-SPR-G1-germinator.md`.
+## Final verdict
 
-## Required audit
-
-- manifest/schema validity;
-- renderer remains presentation-only;
-- resolver precedence and hitstop stability;
-- pivot/facing/anchor stability;
-- no reversed readable garment text;
-- malformed/missing package behavior;
-- only selected fighter packages load;
-- effects-off action readability;
-- mobile landscape load/memory evidence;
-- full tests/typecheck/build.
-
-## Result
-
-**BLOCK**
-
-Fresh independent CI:
-- coordination/tooling contract: PASS;
-- full suite: **354/357 PASS, 3 FAIL**;
-- build: skipped after the failing full suite.
-
-Passed:
-- verified bilateral packer emits `runtimeLoadable:true`, `blockingGates:[]`;
-- `mirrorSafe:false`;
-- RIGHT/LEFT animation keys match;
-- baked anchor coverage is complete.
-
-Blocking exact-candidate integration failures:
-1. El Toro is absent from the live/default playable + presentation composition.
-2. `DEFAULT_SPRITE_PACKAGE_REGISTRY` is empty; no El Toro browser package is registered.
-3. exact candidate has no runtime `assets/` root, while build only copies runtime assets from `assets/`.
-
-The exact sprite candidate also diverges from the approved V0.7 product lineage at frozen base `378a991d55bed03e6237a03fdf6dfe96653fae72`; it cannot be published as the requested V0.7 El Toro sprite pilot without a new integration composition.
-
-## Recovery condition
-
-Mario-A integration must return a new exact candidate that composes the verified bilateral sprite/runtime work onto the approved four-fighter V0.7 product line, registers/materializes the El Toro package in the live browser path, and proves the served build can load it.
-
-Germinator then reruns V07-SPR-G1. Gonza remains blocked.
-
-## Acceptance criteria
-
-- [x] Exact candidate SHA audited.
-- [x] No blocker hidden behind visual polish.
-- [ ] Exact candidate is live-previewable with El Toro sprite package.
-- [ ] LEFT-facing correctness verified end-to-end in actual runtime.
-- [x] Identity Learning Receipt recorded — UPDATED.
-
-
-## Replacement audit closure
-
-Replacement exact candidate:
-`fe2b505639d8ebf2dc4ab204b545233d96f214f2`
-
-Verdict:
 **APPROVE — SPRITE PILOT LIVE INTEGRATION GREEN**
 
-Fresh Germinator evidence:
-- QA head `ac860f2ef320f83a977939483e742472b40389f9`;
-- validation PR #60;
-- Repository verification #1722 / `35788816202`: 433/433 PASS + build PASS;
-- Character Pipeline V2 #74 / `35788816195`: 433/433 PASS + build + visual evidence + raster/reference guard PASS;
-- visual artifact `10721013048`;
-- exact RIGHT/LEFT authored sprite evidence checked at normal and 844×390 scale;
-- readable directional shirt text is correctly oriented on both facings;
-- no gameplay/simulation production delta from approved V0.7.
+## Final independent evidence
 
-V07-SPR-Z0 is unlocked for isolated preview only.
+QA-only head:
+`ac860f2ef320f83a977939483e742472b40389f9`
 
-Production-root cutover remains blocked on user/device acceptance and canonical package-format reconciliation (`body.webp` + `animations.json` or an explicit authoritative contract amendment).
+Validation PR:
+#60 — closed without merge.
 
-Identity Learning Receipt: UPDATED.
+Repository verification:
+- run number: **#1722**;
+- run id: `35788816202`;
+- coordination/tooling contract: PASS;
+- full suite: **433/433 PASS**;
+- build: PASS.
+
+Character Pipeline V2:
+- run number: **#74**;
+- run id: `35788816195`;
+- full suite: PASS;
+- build: PASS;
+- deterministic sprite visual evidence: PASS;
+- runtime raster/reference guard: PASS.
+
+Final visual artifact:
+- artifact id: `10721013048`;
+- digest: `sha256:9fafac53621a87e574f8ab1e20a0e872ae110e00993f7a73acbdc1b84a362b26`.
+
+## What was independently verified
+
+- four-fighter V0.7 composition is preserved;
+- El Toro remains the existing V0.7 fighter and only his body presentation switches to `sprite`;
+- default sprite registry resolves `el-toro`;
+- browser loader resolves the exact runtime manifest and atlas;
+- exact runtime files are copied into `dist/assets/` by the normal build;
+- selected-fight loading loads only required sprite packages and rematch reuses the cached package;
+- authored RIGHT and LEFT resolve to different atlas frames with no horizontal canvas mirroring;
+- all required runtime anchors remain finite in both facings;
+- decoded atlas memory remains inside the bounded mobile QA threshold;
+- exact served atlas evidence visibly shows RIGHT idle, LEFT idle, RIGHT Topete and LEFT Ultimate;
+- garment text remains correctly oriented in both authored facings;
+- Topete and Ultimate body poses remain readable without gameplay FX at normal and phone evidence scale.
+
+## QA-only delta
+
+The QA branch is **not** a shipping candidate.
+
+Compared with product SHA `fe2b5056...`, QA head `ac860f2...` changes only:
+- `.github/workflows/character-pipeline-v2.yml`;
+- `tests/v07-spr-g1-replacement-audit.test.mjs`;
+- `tools/character-pipeline-v2/compose-sprite-atlas-evidence.mjs`;
+- `tools/character-pipeline-v2/v07-spr-g1-runtime-evidence.html`.
+
+No product/runtime/gameplay source changed during Germinator verification.
+
+## Historical blocker closure
+
+The original G1 blocker was real:
+- El Toro omitted from live/default composition;
+- sprite package registry empty;
+- no build-served runtime asset root;
+- wrong product lineage.
+
+Mario-A's replacement exact candidate `fe2b5056...` closes all four.
+
+Several intermediate visual-evidence workflow attempts failed only because Germinator-authored capture harness assumptions were wrong. Product tests/build stayed green. The final static served-atlas evidence removed those harness assumptions and passed.
+
+## Downstream
+
+V07-SPR-Z0 is unlocked.
+
+Gonza may now publish an **isolated sprite-pilot preview only** from exact product SHA `fe2b505639d8ebf2dc4ab204b545233d96f214f2`.
+
+Do not ship the Germinator QA head.
+
+Production-root cutover remains blocked on:
+1. served-preview parity/smoke;
+2. user physical-phone acceptance;
+3. canonical production package-format reconciliation or explicit contract amendment.
+
+## Identity Learning Receipt
+
+UPDATED.

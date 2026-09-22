@@ -173,3 +173,66 @@ test('Super Eructo maps the contractual 10-frame sheet to the reachable forwardB
   });
   assert.equal(pkg.resolverMap.unreachableUltimatePhase, 'sequence');
 });
+
+
+test('El Toro presentation retiming preserves authoritative move lengths and contact/release beats', () => {
+  const pkg = loadPackage();
+  const timings = pkg.resolverMap.moveRoleTimings;
+
+  assert.deepEqual(timings.standing, {
+    semanticKey: 'basic-attack',
+    totalTicks: 22,
+    frameDurations: [3, 3, 2, 1, 6, 7],
+    authoredBeat: { kind: 'active', startTick: 6, endTick: 8, visualFrames: [3, 4] },
+  });
+  assert.deepEqual(timings.chain, {
+    semanticKey: 'topete',
+    totalTicks: 28,
+    frameDurations: [3, 4, 2, 2, 3, 4, 5, 5],
+    authoredBeat: { kind: 'active', startTick: 7, endTick: 10, visualFrames: [3, 4] },
+  });
+  assert.deepEqual(timings.low, {
+    semanticKey: 'low-attack',
+    totalTicks: 28,
+    frameDurations: [4, 4, 2, 1, 8, 9],
+    authoredBeat: { kind: 'active', startTick: 8, endTick: 10, visualFrames: [3, 4] },
+  });
+  assert.deepEqual(timings.air, {
+    semanticKey: 'jump',
+    totalTicks: 26,
+    frameDurations: [3, 3, 3, 2, 7, 8],
+    authoredBeat: { kind: 'active', startTick: 6, endTick: 10, visualFrames: [3, 4] },
+  });
+  assert.deepEqual(timings.closeSpecial, {
+    semanticKey: 'topete',
+    totalTicks: 42,
+    frameDurations: [4, 4, 2, 3, 4, 4, 10, 11],
+    authoredBeat: { kind: 'active', startTick: 10, endTick: 16, visualFrames: [4, 5] },
+  });
+  assert.deepEqual(timings.rangedSpecial, {
+    semanticKey: 'shawarmazo',
+    totalTicks: 41,
+    frameDurations: [4, 4, 5, 1, 5, 6, 8, 8],
+    authoredBeat: { kind: 'spawn', tick: 13, visualFrame: 4 },
+  });
+
+  for (const timing of Object.values(timings)) {
+    assert.equal(
+      timing.frameDurations.reduce((sum, ticks) => sum + ticks, 0),
+      timing.totalTicks,
+      `${timing.semanticKey} presentation durations must sum to authoritative move length`,
+    );
+  }
+});
+
+test('Super Eructo phase retiming exactly matches forwardBlast authoritative phase lengths', () => {
+  const pkg = loadPackage();
+  assert.deepEqual(pkg.resolverMap.ultimatePhaseTimings, {
+    startup: { totalTicks: 26, frameDurations: [6, 6, 7, 7] },
+    capture: { totalTicks: 18, frameDurations: [6, 6, 6] },
+    recovery: { totalTicks: 30, frameDurations: [10, 10, 10] },
+  });
+  for (const timing of Object.values(pkg.resolverMap.ultimatePhaseTimings)) {
+    assert.equal(timing.frameDurations.reduce((sum, ticks) => sum + ticks, 0), timing.totalTicks);
+  }
+});

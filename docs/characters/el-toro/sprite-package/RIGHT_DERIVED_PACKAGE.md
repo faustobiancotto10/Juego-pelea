@@ -21,7 +21,9 @@ The command emits:
 - `right-runtime-fragment.json`;
 - `right-effects-fragment.json`;
 - `right-gameplay-preview.svg`;
-- `right-package-metrics.json`.
+- `right-package-metrics.json`;
+- `right-anchor-review.json` — 84-frame verification template with real packed pivots and null anatomical anchors;
+- `right-anchor-review.svg` — atlas-only 84-frame visual review sheet with normalization pivots marked.
 
 Source/reference sheets are not runtime assets.
 
@@ -81,9 +83,22 @@ The right-facing fragment deliberately reports `runtimeLoadable: false`.
 
 Remaining gates:
 1. authored LEFT-facing IMG-00 + IMG-01..12 with identical animation-key coverage;
-2. verified attachment anchors, at minimum a valid `head` anchor for cross-fighter attachment behavior such as Juanchi capture-cap placement;
+2. verified attachment anchors. The packer now emits `right-anchor-review.json` plus `right-anchor-review.svg`; all seven anatomical anchors remain intentionally null until visual verification, while packed pivots are already authoritative;
 3. Ricardo transition clock coverage for `crouch`, `block`, and `block-crouch` (current replacement SHA `79f8d81c...` still leaves those on ambient absolute combatTick);
 4. integrated sprite/runtime validation and downstream Germinator audit;
 5. physical-device/user acceptance.
 
 Horizontal mirroring remains prohibited as the production substitute for LEFT-facing El Toro body art.
+
+## Anchor verification workflow
+
+The generated anchor review is deliberately gated:
+
+- `right-anchor-review.json` contains all 84 packed body frames;
+- each frame carries its real atlas rectangle and normalization ground pivot;
+- required anatomical keys are present but set to `null`;
+- `verified:false` is the default;
+- `assertVerifiedElToroAnchorReview()` rejects pending, missing, non-finite or out-of-bounds anchor data;
+- `right-anchor-review.svg` renders all 84 frames directly from `right-body.png`, marks only the already-authoritative pivot, and does **not** synthesize anatomical anchor coordinates.
+
+This converts anchor work into a bounded visual-review task without fabricating head/hand/foot positions from alpha geometry.

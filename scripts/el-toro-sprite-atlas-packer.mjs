@@ -231,7 +231,10 @@ function runtimeDurationsFor(packageContract, key, sourcePlanAnimation) {
 }
 
 
-function buildRuntimeFragment(packageContract, sourcePlan, frameRects) {
+function buildRuntimeFragment(packageContract, sourcePlan, frameRects, verifiedAnchorReview = null) {
+  const reviewedAnchors = verifiedAnchorReview
+    ? new Map(verifiedAnchorReview.frames.map((frame) => [frame.frameId, frame.anchors]))
+    : null;
   const animations = {};
   for (const [key, animation] of Object.entries(sourcePlan.animations)) {
     const durations = runtimeDurationsFor(packageContract, key, animation);
@@ -240,6 +243,7 @@ function buildRuntimeFragment(packageContract, sourcePlan, frameRects) {
       frames: animation.sourceFrameIds.map((frameId, index) => {
         const rect = frameRects.get(frameId);
         if (!rect) throw new Error('Missing packed El Toro body frame '+frameId);
+        const reviewed = reviewedAnchors?.get(frameId) ?? null;
         return {
           x: rect.x,
           y: rect.y,
@@ -248,6 +252,11 @@ function buildRuntimeFragment(packageContract, sourcePlan, frameRects) {
           pivotX: rect.pivotX,
           pivotY: rect.pivotY,
           durationTicks: durations[index],
+          ...(reviewed ? {
+            anchors: Object.fromEntries(
+              REQUIRED_ANCHORS.map((name) => [name, { ...reviewed[name] }]),
+            ),
+          } : {}),
         };
       }),
     };
@@ -263,7 +272,7 @@ function buildRuntimeFragment(packageContract, sourcePlan, frameRects) {
     leftAnimationsRequired: true,
     blockingGates: [
       'authored-left-facing-animations',
-      'verified-attachment-anchors',
+      ...(verifiedAnchorReview ? [] : ['verified-attachment-anchors']),
       'transition-clock-crouch-block-block-crouch',
     ],
     animations,
@@ -455,10 +464,39 @@ export function assertVerifiedElToroAnchorReview(
 
 
 
+function assertAnchorReviewMatchesPackedFrames(review, frameRects) {
+  if (review.frames.length !== frameRects.size) {
+    throw new Error('El Toro verified anchor review does not match packed frame count');
+  }
+  const byId = new Map(review.frames.map((frame) => [frame.frameId, frame]));
+  for (const [frameId, rect] of frameRects.entries()) {
+    const frame = byId.get(frameId);
+    if (!frame) throw new Error('El Toro verified anchor review missing packed frame '+frameId);
+    const atlasRect = frame.atlasRect;
+    if (
+      atlasRect?.x !== rect.x
+      || atlasRect?.y !== rect.y
+      || atlasRect?.width !== rect.width
+      || atlasRect?.height !== rect.height
+    ) {
+      throw new Error('El Toro verified anchor review atlas rect mismatch for '+frameId);
+    }
+    if (
+      frame.pivot?.source !== 'normalization-ground-pivot'
+      || Math.abs(frame.pivot.x - rect.pivotX) > 1e-4
+      || Math.abs(frame.pivot.y - rect.pivotY) > 1e-4
+    ) {
+      throw new Error('El Toro verified anchor review pivot mismatch for '+frameId);
+    }
+  }
+  return review;
+}
+
 export function buildElToroRightAtlasPackage({
   sourceDir,
   packageContractPath,
   outDir,
+  verifiedAnchorReviewPath = null,
 }) {
   const sourceRoot = resolve(sourceDir);
   const outputRoot = resolve(outDir);
@@ -490,8 +528,20 @@ export function buildElToroRightAtlasPackage({
   writeFileSync(bodyAtlasPath, encodeRgbaPng(bodyAtlas.width, bodyAtlas.height, bodyAtlas.rgba));
   writeFileSync(effectsAtlasPath, encodeRgbaPng(effectAtlas.width, effectAtlas.height, effectAtlas.rgba));
 
+  let verifiedAnchorReview = null;
+  if (verifiedAnchorReviewPath !== null) {
+    verifiedAnchorReview = JSON.parse(readFileSync(resolve(verifiedAnchorReviewPath), 'utf8'));
+    assertVerifiedElToroAnchorReview(verifiedAnchorReview);
+    assertAnchorReviewMatchesPackedFrames(verifiedAnchorReview, bodyAtlas.frameRects);
+  }
+
   const sourcePlan = compileRuntimeFrameSourcePlan(packageContract, manifestLike);
-  const runtimeFragment = buildRuntimeFragment(packageContract, sourcePlan, bodyAtlas.frameRects);
+  const runtimeFragment = buildRuntimeFragment(
+    packageContract,
+    sourcePlan,
+    bodyAtlas.frameRects,
+    verifiedAnchorReview,
+  );
   writeFileSync(
     join(outputRoot, 'right-runtime-fragment.json'),
     JSON.stringify(runtimeFragment, null, 2)+'\n',
@@ -505,7 +555,11 @@ export function buildElToroRightAtlasPackage({
   const anchorReviewPath = join(outputRoot, 'right-anchor-review.json');
   writeFileSync(
     anchorReviewPath,
-    JSON.stringify(buildAnchorReviewTemplate(bodyAtlas.frameRects), null, 2)+'\n',
+    JSON.stringify(
+      verifiedAnchorReview ?? buildAnchorReviewTemplate(bodyAtlas.frameRects),
+      null,
+      2,
+    )+'\n',
   );
   const anchorReviewSvgPath = join(outputRoot, 'right-anchor-review.svg');
   writeFileSync(
@@ -604,11 +658,12 @@ function parseCliArgs(argv) {
     if (token === '--source-dir') args.sourceDir = argv[++index];
     else if (token === '--package-contract') args.packageContractPath = argv[++index];
     else if (token === '--out-dir') args.outDir = argv[++index];
+    else if (token === '--verified-anchor-review') args.verifiedAnchorReviewPath = argv[++index];
     else throw new Error('unknown argument '+token);
   }
   if (!args.sourceDir || !args.packageContractPath || !args.outDir) {
     throw new Error(
-      'usage: node scripts/el-toro-sprite-atlas-packer.mjs --source-dir <dir> --package-contract <json> --out-dir <dir>',
+      'usage: node scripts/el-toro-sprite-atlas-packer.mjs --source-dir <dir> --package-contract <json> --out-dir <dir> [--verified-anchor-review <json>]',
     );
   }
   return args;
@@ -629,6 +684,7 @@ if (process.argv[1] && import.meta.url === pathToFileURL(resolve(process.argv[1]
     metrics: 'right-package-metrics.json',
     anchorReview: 'right-anchor-review.json',
     anchorReviewVisual: 'right-anchor-review.svg',
+    verifiedAnchorReviewApplied: Boolean(result.verifiedAnchorReviewApplied),
     runtimeLoadable: false,
   })+'\n');
 }

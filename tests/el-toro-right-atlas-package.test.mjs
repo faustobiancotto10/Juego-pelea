@@ -1,4 +1,5 @@
 import test from 'node:test';
+import { createHash } from 'node:crypto';
 import assert from 'node:assert/strict';
 import { mkdtempSync, readFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
@@ -39,6 +40,21 @@ test('V07-SPR-MB builds deterministic right-facing body and FX PNG atlases from 
 
   assert.equal(result.body.frameRects.size,84);
   assert.equal(result.effects.frameRects.size,22);
+
+  console.log('V07-SPR-MB atlas-evidence', JSON.stringify({
+    body: {
+      width: body.width,
+      height: body.height,
+      bytes: readFileSync(result.body.atlasPath).length,
+      sha256: createHash('sha256').update(readFileSync(result.body.atlasPath)).digest('hex'),
+    },
+    effects: {
+      width: effects.width,
+      height: effects.height,
+      bytes: readFileSync(result.effects.atlasPath).length,
+      sha256: createHash('sha256').update(readFileSync(result.effects.atlasPath)).digest('hex'),
+    },
+  }));
 });
 
 test('right-facing runtime fragment covers all resolver keys and stays visibly non-loadable until authored LEFT exists', () => {

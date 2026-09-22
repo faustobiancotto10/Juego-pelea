@@ -10,10 +10,10 @@ Canonical continuation pulse: `.`
 | Neureon | Lead / Coordinator | V07-SPR-N0 | VERIFIED | Intake, contract and dependency graph established; remain coordinator. |
 | Ricardo | Gameplay / runtime engineer | V07-SPR-R1 | HANDOFF_READY | Replacement exact SHA `5b20c351...`; crouch/block/block-crouch amendment green, 309/309 tests + build PASS; `79f8d81...` superseded. |
 | Mario | Character / Rendering Engineer | V07-SPR-MA + V07-SPR-MB | READY | Run two isolated sprite-pilot lanes and converge through one Mario integration point. |
-| ↳ Mario-A | Sprite source lead / designated integrator | V07-SPR-MA | READY_TO_CONSUME_REBUILT_PACKAGE | Consume exact Mario-B `1a1d14df...` (run `35750820290`) rebuilt from repaired LEFT Topete source `7782734...`; then resume bilateral anchor-review/integration. Do not use superseded `d6b41ff...` / `57634fc7...`. |
+| ↳ Mario-A | Sprite source lead / designated integrator | V07-SPR-MI | INTEGRATED_BILATERAL / ANCHOR_BLOCKED | Exact integration `1f556f1a...` composes Mario-B `1a1d14df...` with the existing Ricardo-backed integration tip. Tested tree `ad4ae01b...` passed coordination + full suite + build in PR #56/run `35753931240`. Wait only on explicit bilateral anatomical-anchor verification. |
 | ↳ Mario-B | El Toro sprite package | V07-SPR-MB | HANDOFF_READY_BILATERAL_ANCHOR_REVIEW | Rebuilt from repaired Mario-A `7782734...`; exact candidate `1a1d14df...` GREEN on run `35750820290`. LEFT Topete is 8/8 substantial in source and 8/8 distinct in the derived bilateral manifest. Only explicit bilateral anatomical-anchor verification remains before runtimeLoadable:true. |
 | Brancaforte | UI / Input / UX | standby | OFF_ROUND | Activate only if a real loading/menu/HUD/input contract changes. |
-| Germinator | Independent QA | V07-SPR-G1 | WAITING_DEPENDENCY | Wait for one integrated El Toro sprite-pilot candidate. |
+| Germinator | Independent QA | V07-SPR-G1 | WAITING_DEPENDENCY | Integrated bilateral candidate exists at `1f556f1a...`, but QA remains blocked until both authored-facing anatomical anchor reviews validate and `runtimeLoadable:true` is emitted. |
 | Gonza | Integration / release | V07-SPR-Z0 | WAITING_DEPENDENCY | Wait for Germinator approval; then publish isolated sprite preview only. |
 
 ## Current asset gate

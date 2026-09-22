@@ -1,0 +1,54 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Juego Pelea Character Rig Profile V2",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["id", "body", "stance", "silhouette"],
+  "properties": {
+    "id": { "type": "string", "minLength": 1 },
+    "body": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["headWidth", "headHeight", "shoulderWidth", "torsoWidth", "torsoLength", "armThickness", "legThickness"],
+      "properties": {
+        "headWidth": { "type": "number", "minimum": 0.5, "maximum": 2.0 },
+        "headHeight": { "type": "number", "minimum": 0.5, "maximum": 2.0 },
+        "neckWidth": { "type": "number", "minimum": 0.5, "maximum": 2.0 },
+        "shoulderWidth": { "type": "number", "minimum": 0.5, "maximum": 2.0 },
+        "torsoWidth": { "type": "number", "minimum": 0.5, "maximum": 2.0 },
+        "torsoLength": { "type": "number", "minimum": 0.5, "maximum": 2.0 },
+        "armThickness": { "type": "number", "minimum": 0.5, "maximum": 2.0 },
+        "forearmThickness": { "type": "number", "minimum": 0.5, "maximum": 2.0 },
+        "hipWidth": { "type": "number", "minimum": 0.5, "maximum": 2.0 },
+        "legThickness": { "type": "number", "minimum": 0.5, "maximum": 2.0 },
+        "legLength": { "type": "number", "minimum": 0.5, "maximum": 2.0 }
+      }
+    },
+    "stance": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["width", "crouch", "forwardLean", "centerOfMass"],
+      "properties": {
+        "width": { "type": "number", "minimum": 0.5, "maximum": 2.0 },
+        "crouch": { "type": "number", "minimum": 0.0, "maximum": 1.0 },
+        "forwardLean": { "type": "number", "minimum": -1.0, "maximum": 1.0 },
+        "centerOfMass": { "enum": ["rear", "center", "forward", "low-forward", "low-center"] }
+      }
+    },
+    "silhouette": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["primaryMass", "headProfile", "legProfile"],
+      "properties": {
+        "primaryMass": { "enum": ["top-heavy", "balanced", "bottom-heavy", "compact", "long"] },
+        "headProfile": { "type": "string", "minLength": 1 },
+        "legProfile": { "type": "string", "minLength": 1 },
+        "accents": {
+          "type": "array",
+          "items": { "type": "string" },
+          "maxItems": 8
+        }
+      }
+    }
+  }
+}

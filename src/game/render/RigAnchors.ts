@@ -1,16 +1,23 @@
 import type { FighterSnapshot } from '../types.js';
+import { getCharacterStructure } from './CharacterStructure.js';
 import type { LocomotionPose, Point2 } from './LocomotionPose.js';
 
 export type { Point2 } from './LocomotionPose.js';
 
 export interface RigAnchors {
   head: Point2;
+  face: Point2;
   chest: Point2;
+  frontShoulder: Point2;
+  backShoulder: Point2;
   frontHand: Point2;
   backHand: Point2;
   belt: Point2;
+  frontHip: Point2;
+  backHip: Point2;
   frontFoot: Point2;
   backFoot: Point2;
+  accessoryRoot: Point2;
 }
 
 interface RigAnchorProfile {
@@ -43,22 +50,72 @@ const PROFILES: Readonly<Record<string, RigAnchorProfile>> = Object.freeze({
     backHand: { x: -30, y: 109 },
     belt: { x: -17, y: 72 },
   },
+  'el-toro': {
+    head: { x: 5, y: 174 },
+    chest: { x: 0, y: 114 },
+    frontHand: { x: 34, y: 106 },
+    backHand: { x: -30, y: 104 },
+    belt: { x: 0, y: 66 },
+  },
 });
 
+/**
+ * Shared render-only articulation anchors.
+ *
+ * Existing hand/head/belt coordinates remain fighter-authored. Extra shoulder,
+ * hip, face and accessory anchors are derived from CharacterStructure so
+ * motion/effects lanes can attach secondary motion without guessing anatomy
+ * or editing fighter-specific rigs concurrently.
+ */
 export function sampleBaseRigAnchors(
   rigKey: string,
   pose: LocomotionPose,
 ): RigAnchors {
   const profile = PROFILES[rigKey] ?? PROFILES.juanchi!;
+  const structure = getCharacterStructure(rigKey);
   const drop = pose.pelvisDrop;
+  const head = { x: profile.head.x, y: profile.head.y - drop * 0.34 };
+  const chest = { x: profile.chest.x, y: profile.chest.y - drop * 0.55 };
+  const belt = { x: profile.belt.x, y: profile.belt.y - drop * 0.8 };
+
+  const shoulderHalf = 24 * structure.body.shoulderWidth;
+  const hipHalf = 12 * structure.body.hipWidth;
+  const shoulderY = chest.y + 15 * structure.body.torsoLength;
+  const hipY = belt.y + 8;
+  const faceProjection = 6 * structure.detail.faceProjection;
+
   return {
-    head: { x: profile.head.x, y: profile.head.y - drop * 0.34 },
-    chest: { x: profile.chest.x, y: profile.chest.y - drop * 0.55 },
+    head,
+    face: {
+      x: head.x + faceProjection,
+      y: head.y - 2,
+    },
+    chest,
+    frontShoulder: {
+      x: chest.x + shoulderHalf,
+      y: shoulderY,
+    },
+    backShoulder: {
+      x: chest.x - shoulderHalf,
+      y: shoulderY,
+    },
     frontHand: { x: profile.frontHand.x, y: profile.frontHand.y - drop * 0.48 },
     backHand: { x: profile.backHand.x, y: profile.backHand.y - drop * 0.48 },
-    belt: { x: profile.belt.x, y: profile.belt.y - drop * 0.8 },
+    belt,
+    frontHip: {
+      x: belt.x + hipHalf,
+      y: hipY,
+    },
+    backHip: {
+      x: belt.x - hipHalf,
+      y: hipY,
+    },
     frontFoot: pose.frontFoot,
     backFoot: pose.backFoot,
+    accessoryRoot: {
+      x: chest.x,
+      y: chest.y + 10,
+    },
   };
 }
 

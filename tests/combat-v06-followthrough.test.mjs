@@ -69,17 +69,19 @@ test('R3 jump preparation cannot attack/block and a clean normal interrupts it',
   assert.ok(snap.fighters[0].stunFrames > 0);
 });
 
-test('R3 Lengua uses the bounded 46-frame / 4.8-knockback candidate while preserving authored contact identity', () => {
+test('V0.7 Lengua preserves startup/active identity while using the frozen anti-spam candidate', () => {
   const tongue = DEFAULT_COMBAT_REGISTRY.getMove('chameleon', 'tongueStraight');
-  assert.equal(tongue.totalFrames, 46);
+  assert.equal(tongue.totalFrames, 54);
   assert.equal(tongue.hitbox.start, 12);
   assert.equal(tongue.hitbox.end, 14);
   assert.equal(tongue.hitbox.offsetX, 34);
-  assert.equal(tongue.hitbox.width, 340);
-  assert.equal(tongue.hitbox.damage, 80);
-  assert.equal(tongue.hitbox.chipDamage, 4);
-  assert.equal(tongue.hitbox.guardDamage, 14);
-  assert.equal(tongue.hitbox.knockback, 4.8);
+  assert.equal(tongue.hitbox.width, 300);
+  assert.equal(tongue.hitbox.damage, 72);
+  assert.equal(tongue.hitbox.chipDamage, 3);
+  assert.equal(tongue.hitbox.hitstun, 16);
+  assert.equal(tongue.hitbox.blockstun, 8);
+  assert.equal(tongue.hitbox.guardDamage, 10);
+  assert.equal(tongue.hitbox.knockback, 3.2);
 });
 
 test('R3 preserves successful Coletazo values unchanged', () => {

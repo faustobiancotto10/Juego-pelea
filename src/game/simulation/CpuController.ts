@@ -1,6 +1,6 @@
 import { DEFAULT_COMBAT_REGISTRY, type CombatRegistry } from '../data/combatRegistry.js';
 import type { CpuProfile } from '../data/fighterKits.js';
-import { EMPTY_INPUT, type FighterIndex, type InputFrame, type MatchSnapshot } from '../types.js';
+import { EMPTY_INPUT, type CpuDifficulty, type FighterIndex, type InputFrame, type MatchSnapshot } from '../types.js';
 
 type CpuIntent = 'neutral' | 'approach' | 'retreat' | 'guard' | 'guard-low';
 type ThreatKind = 'ultimate' | 'strike' | 'projectile' | 'air';
@@ -12,6 +12,7 @@ interface ThreatCue {
   level: ThreatLevel;
   foeX: number;
   threatRange: number;
+  moveId?: string;
 }
 
 interface PublicObservation {
@@ -28,6 +29,18 @@ interface PendingThreat {
   cue: ThreatCue;
   observedTick: number;
   expiresTick: number;
+  repeatCount: number;
+}
+
+interface CpuEffectivePolicy {
+  reactionTicks: number;
+  decisionTicks: number;
+  missChance: number;
+  confirmChance: number;
+  ultimateAttemptChance: number;
+  pushGuardAttemptChance: number;
+  suboptimalNeutralChance: number;
+  repetitionCounterChance: number;
 }
 
 function toward(selfX: number, otherX: number): Pick<InputFrame, 'left' | 'right'> {
@@ -53,11 +66,13 @@ function cloneInput(input: InputFrame): InputFrame {
 export interface CpuControllerOptions {
   registry?: CombatRegistry;
   seed?: number;
+  difficulty?: CpuDifficulty;
 }
 
 export class CpuController {
   private readonly registry: CombatRegistry;
   private readonly initialSeed: number;
+  private readonly difficulty: CpuDifficulty;
   private rngState: number;
 
   private intent: CpuIntent = 'neutral';
@@ -66,6 +81,7 @@ export class CpuController {
   private pendingThreat: PendingThreat | null = null;
 
   private observationHistory: PublicObservation[] = [];
+  private delayedMoveHistory: string[] = [];
   private processedObservationTick = -1;
   private handledCueKeys = new Set<string>();
   private seenProjectileCueKeys = new Set<string>();
@@ -87,6 +103,7 @@ export class CpuController {
 
   constructor(private readonly cpuIndex: FighterIndex, options: CpuControllerOptions = {}) {
     this.registry = options.registry ?? DEFAULT_COMBAT_REGISTRY;
+    this.difficulty = options.difficulty ?? 'normal';
     this.initialSeed = (options.seed ?? (0x51f15e5d ^ ((cpuIndex + 1) * 0x9e3779b9))) >>> 0;
     this.rngState = this.initialSeed;
   }
@@ -98,6 +115,7 @@ export class CpuController {
     this.nextDecisionTick = -1;
     this.pendingThreat = null;
     this.observationHistory = [];
+    this.delayedMoveHistory = [];
     this.processedObservationTick = -1;
     this.handledCueKeys.clear();
     this.seenProjectileCueKeys.clear();
@@ -136,13 +154,14 @@ export class CpuController {
     const self = snapshot.fighters[this.cpuIndex];
     const otherIndex: FighterIndex = this.cpuIndex === 0 ? 1 : 0;
     const profile = this.registry.getKit(self.id).cpu;
+    const policy = this.effectivePolicy(profile);
 
     const observation = this.projectObservation(snapshot, otherIndex);
     this.observationHistory.push(observation);
     if (this.observationHistory.length > 96) this.observationHistory.shift();
 
-    this.processDelayedObservations(snapshot.combatTick, profile);
-    const delayed = this.latestDelayedObservation(snapshot.combatTick, profile.reactionTicks);
+    this.processDelayedObservations(snapshot.combatTick, policy);
+    const delayed = this.latestDelayedObservation(snapshot.combatTick, policy.reactionTicks);
 
     const out: InputFrame = { ...EMPTY_INPUT };
 
@@ -154,7 +173,11 @@ export class CpuController {
     if (self.blockstunFrames > 0) {
       if (delayed) Object.assign(out, away(self.x, delayed.foeX));
       else Object.assign(out, awayFromFacing(self.facing));
-      if (self.guard >= 34 && this.isDecisionTick(snapshot.combatTick, profile) && this.nextRandom() < 0.22) {
+      if (
+        self.guard >= 34
+        && this.isDecisionTick(snapshot.combatTick, policy.decisionTicks)
+        && this.nextRandom() < policy.pushGuardAttemptChance
+      ) {
         out.pushGuard = true;
       }
       return this.rememberOutput(out);
@@ -171,7 +194,7 @@ export class CpuController {
       ) {
         if (this.confirmSerial !== this.selfMoveSerial) {
           this.confirmSerial = this.selfMoveSerial;
-          this.confirmChosen = this.nextRandom() < profile.confirmChance;
+          this.confirmChosen = this.nextRandom() < policy.confirmChance;
           this.confirmEmitted = false;
         }
         if (
@@ -200,7 +223,7 @@ export class CpuController {
     }
 
     if (!self.grounded) {
-      if (this.isDecisionTick(snapshot.combatTick, profile) && delayed) {
+      if (this.isDecisionTick(snapshot.combatTick, policy.decisionTicks) && delayed) {
         const distance = Math.abs(delayed.foeX - self.x);
         if (distance < 125 && this.nextRandom() < 0.45) out.attack = true;
       }
@@ -213,12 +236,12 @@ export class CpuController {
     }
     this.intent = 'neutral';
 
-    if (!this.isDecisionTick(snapshot.combatTick, profile)) return this.rememberOutput(out);
+    if (!this.isDecisionTick(snapshot.combatTick, policy.decisionTicks)) return this.rememberOutput(out);
 
     if (this.pendingThreat && this.pendingThreat.expiresTick >= snapshot.combatTick) {
       const threat = this.pendingThreat;
       this.pendingThreat = null;
-      this.respondToThreat(out, self.x, threat.cue, snapshot.combatTick, profile);
+      this.respondToThreat(out, self.x, threat.cue, threat.repeatCount, snapshot.combatTick, profile, policy);
       return this.rememberOutput(out);
     }
     if (this.pendingThreat && this.pendingThreat.expiresTick < snapshot.combatTick) this.pendingThreat = null;
@@ -228,7 +251,7 @@ export class CpuController {
     const ownReturningProjectile = snapshot.projectiles.some(
       (projectile) => projectile.owner === this.cpuIndex && projectile.phase === 'return',
     );
-    this.chooseNeutralPlan(out, self, delayed, snapshot.combatTick, profile, ownReturningProjectile);
+    this.chooseNeutralPlan(out, self, delayed, snapshot.combatTick, profile, policy, ownReturningProjectile);
     return this.rememberOutput(out);
   }
 
@@ -238,6 +261,7 @@ export class CpuController {
     this.nextDecisionTick = -1;
     this.pendingThreat = null;
     this.observationHistory = [];
+    this.delayedMoveHistory = [];
     this.processedObservationTick = -1;
     this.handledCueKeys.clear();
     this.seenProjectileCueKeys.clear();
@@ -256,6 +280,45 @@ export class CpuController {
     this.lastRound = round;
     // Deterministic but round-distinct sequence; explicit reset() restores match seed.
     this.rngState = (this.initialSeed ^ Math.imul(round, 0x85ebca6b)) >>> 0;
+  }
+
+  private effectivePolicy(profile: CpuProfile): CpuEffectivePolicy {
+    if (this.difficulty === 'easy') {
+      return {
+        reactionTicks: Math.max(profile.reactionTicks, 18),
+        decisionTicks: Math.max(profile.decisionTicks, 12),
+        missChance: Math.min(1, profile.missChance + 0.20),
+        confirmChance: Math.max(0, Math.min(1, profile.confirmChance * 0.65)),
+        ultimateAttemptChance: 0.18,
+        pushGuardAttemptChance: 0.12,
+        suboptimalNeutralChance: 0.18,
+        repetitionCounterChance: 0,
+      };
+    }
+
+    if (this.difficulty === 'hard') {
+      return {
+        reactionTicks: Math.max(8, profile.reactionTicks - 4),
+        decisionTicks: Math.max(5, profile.decisionTicks - 3),
+        missChance: Math.max(0.08, profile.missChance - 0.15),
+        confirmChance: Math.min(0.95, profile.confirmChance + 0.10),
+        ultimateAttemptChance: 0.36,
+        pushGuardAttemptChance: 0.30,
+        suboptimalNeutralChance: 0,
+        repetitionCounterChance: 0.68,
+      };
+    }
+
+    return {
+      reactionTicks: profile.reactionTicks,
+      decisionTicks: profile.decisionTicks,
+      missChance: profile.missChance,
+      confirmChance: profile.confirmChance,
+      ultimateAttemptChance: 0.28,
+      pushGuardAttemptChance: 0.22,
+      suboptimalNeutralChance: 0,
+      repetitionCounterChance: 0,
+    };
   }
 
   private rememberOutput(out: InputFrame): InputFrame {
@@ -293,6 +356,7 @@ export class CpuController {
           level: move.hitbox?.level ?? (airborne ? 'overhead' : 'mid'),
           foeX: foe.x,
           threatRange: move.cpuThreatRange ?? (airborne ? 260 : 220),
+          moveId: move.id,
         });
       }
     }
@@ -339,8 +403,8 @@ export class CpuController {
     };
   }
 
-  private processDelayedObservations(currentTick: number, profile: CpuProfile): void {
-    const targetTick = currentTick - profile.reactionTicks;
+  private processDelayedObservations(currentTick: number, policy: CpuEffectivePolicy): void {
+    const targetTick = currentTick - policy.reactionTicks;
     if (targetTick < 0) return;
 
     for (const observation of this.observationHistory) {
@@ -349,12 +413,25 @@ export class CpuController {
       for (const cue of observation.cues) {
         if (this.handledCueKeys.has(cue.key)) continue;
         this.handledCueKeys.add(cue.key);
-        const recognized = this.nextRandom() >= profile.missChance;
+
+        let repeatCount = 1;
+        if (cue.moveId) {
+          this.delayedMoveHistory.push(cue.moveId);
+          if (this.delayedMoveHistory.length > 6) this.delayedMoveHistory.shift();
+          repeatCount = 0;
+          for (let i = this.delayedMoveHistory.length - 1; i >= 0; i -= 1) {
+            if (this.delayedMoveHistory[i] !== cue.moveId) break;
+            repeatCount += 1;
+          }
+        }
+
+        const recognized = this.nextRandom() >= policy.missChance;
         if (!recognized) continue;
         this.pendingThreat = {
           cue,
           observedTick: currentTick,
           expiresTick: currentTick + 24,
+          repeatCount,
         };
       }
     }
@@ -369,10 +446,10 @@ export class CpuController {
     return null;
   }
 
-  private isDecisionTick(tick: number, profile: CpuProfile): boolean {
+  private isDecisionTick(tick: number, decisionTicks: number): boolean {
     if (this.nextDecisionTick < 0) this.nextDecisionTick = tick;
     if (tick < this.nextDecisionTick) return false;
-    this.nextDecisionTick = tick + profile.decisionTicks;
+    this.nextDecisionTick = tick + decisionTicks;
     return true;
   }
 
@@ -397,8 +474,10 @@ export class CpuController {
     out: InputFrame,
     selfX: number,
     cue: ThreatCue,
+    repeatCount: number,
     tick: number,
     profile: CpuProfile,
+    policy: CpuEffectivePolicy,
   ): void {
     const distance = Math.abs(cue.foeX - selfX);
     if (distance > cue.threatRange) return;
@@ -409,6 +488,17 @@ export class CpuController {
       } else {
         Object.assign(out, dashAway(selfX, cue.foeX));
       }
+      return;
+    }
+
+    if (
+      cue.kind === 'strike'
+      && cue.threatRange >= 280
+      && repeatCount >= 2
+      && policy.repetitionCounterChance > 0
+      && this.nextRandom() < policy.repetitionCounterChance
+    ) {
+      out.jump = true;
       return;
     }
 
@@ -436,18 +526,27 @@ export class CpuController {
     observed: PublicObservation,
     tick: number,
     profile: CpuProfile,
+    policy: CpuEffectivePolicy,
     ownReturningProjectile: boolean,
   ): void {
     const distance = Math.abs(observed.foeX - self.x);
     const kit = this.registry.getKit(self.id);
     const tactics = profile.tactics;
 
+    if (policy.suboptimalNeutralChance > 0 && this.nextRandom() < policy.suboptimalNeutralChance) {
+      if (distance < profile.pressureRange) {
+        this.commitIntent('retreat', tick, profile);
+        this.applyIntent(out, self.x, observed.foeX);
+      }
+      return;
+    }
+
     if (tactics) {
       if (
         self.superReady
         && distance >= tactics.ultimateRange[0]
         && distance <= tactics.ultimateRange[1]
-        && this.nextRandom() < 0.28
+        && this.nextRandom() < policy.ultimateAttemptChance
       ) {
         out.ultimate = true;
         return;
@@ -506,7 +605,7 @@ export class CpuController {
 
     // Preserve the released V0.5 seeded policy byte-for-byte when no V0.6
     // tactics block is authored.
-    if (self.superReady && distance >= 105 && distance <= 300 && this.nextRandom() < 0.28) {
+    if (self.superReady && distance >= 105 && distance <= 300 && this.nextRandom() < policy.ultimateAttemptChance) {
       out.ultimate = true;
       return;
     }

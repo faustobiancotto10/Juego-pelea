@@ -91,12 +91,13 @@ test('registry-backed released fighters preserve identity through intentional R3
 });
 
 
-test('default combat registry exposes the exact released V0.6 roster and rejects unknown content', () => {
-  assert.deepEqual([...DEFAULT_COMBAT_REGISTRY.playableIds], ['chameleon', 'supernariz', 'juanchi']);
+test('default combat registry exposes the released roster and rejects unknown content', () => {
+  assert.deepEqual([...DEFAULT_COMBAT_REGISTRY.playableIds], ['chameleon', 'supernariz', 'juanchi', 'el-toro']);
   assert.equal(DEFAULT_COMBAT_REGISTRY.getFighter('chameleon').displayName, 'Camaleoni');
   assert.equal(DEFAULT_COMBAT_REGISTRY.getKit('supernariz').standing, 'nose1');
   assert.equal(DEFAULT_COMBAT_REGISTRY.getProjectile('chorizo').cooldown, 120);
   assert.equal(DEFAULT_COMBAT_REGISTRY.getUltimate('camaleoniUltimate').kind, 'dashCapture');
+  assert.equal(DEFAULT_COMBAT_REGISTRY.getUltimate('toroSuperEructo').kind, 'forwardBlast');
 
   assert.throws(() => DEFAULT_COMBAT_REGISTRY.getFighter('missing-fighter'), /Unknown fighter missing-fighter/);
   assert.throws(() => DEFAULT_COMBAT_REGISTRY.getMove('chameleon', 'missing-move'), /Unknown move chameleon:/);

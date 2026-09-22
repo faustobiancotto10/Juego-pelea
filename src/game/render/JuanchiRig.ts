@@ -6,6 +6,16 @@ import {
   solveTwoBoneLeg,
   type RigAnchors,
 } from './RigAnchors.js';
+import { getCharacterStructure } from './CharacterStructure.js';
+import {
+  drawCargoPocket,
+  drawClothFold,
+  drawFabricGrain,
+  drawFacePlanes,
+  drawHairStrands,
+  drawShadedEllipse,
+  drawStitchLine,
+} from './ReferenceDetailPrimitives.js';
 import { GROUND_Y, clamp01, ellipse, lerp, pulse, roundedLine } from './drawUtils.js';
 
 interface JuanchiActionPose {
@@ -17,6 +27,8 @@ interface JuanchiActionPose {
   backFoot: Point2;
   shoulderDrive: number;
   rage: number;
+  rageAura: number;
+  rush: number;
   finisher: number;
   rub: number;
   palmRelease: number;
@@ -48,6 +60,17 @@ function frictionFactors(frame: number): { rub: number; load: number; release: n
   return { rub: 0, load: 0, release: 0 };
 }
 
+export function getJuanchiRageAuraIntensity(
+  phase: FighterSnapshot['ultimatePhase'],
+  frame: number,
+): number {
+  if (phase !== 'sequence' || frame <= 4 || frame >= 40) return 0;
+  if (frame <= 11) return clamp01((frame - 4) / 7);
+  if (frame <= 23) return 1;
+  if (frame <= 33) return lerp(1, 0.82, (frame - 23) / 10);
+  return 0.82 * clamp01(1 - (frame - 33) / 7);
+}
+
 function ultimateFactors(fighter: FighterSnapshot): {
   retrieve: number;
   rage: number;
@@ -55,16 +78,17 @@ function ultimateFactors(fighter: FighterSnapshot): {
   barrageA: number;
   barrageB: number;
   finisher: number;
+  aura: number;
 } {
   if (fighter.ultimatePhase === 'startup') {
     const retrieve = clamp01(fighter.ultimatePhaseFrame / 12);
-    return { retrieve, rage: 0, rush: 0, barrageA: 0, barrageB: 0, finisher: 0 };
+    return { retrieve, rage: 0, rush: 0, barrageA: 0, barrageB: 0, finisher: 0, aura: 0 };
   }
   if (fighter.ultimatePhase === 'capture') {
-    return { retrieve: 1, rage: 0, rush: 0, barrageA: 0, barrageB: 0, finisher: 0 };
+    return { retrieve: 1, rage: 0, rush: 0, barrageA: 0, barrageB: 0, finisher: 0, aura: 0 };
   }
   if (fighter.ultimatePhase !== 'sequence') {
-    return { retrieve: 0, rage: 0, rush: 0, barrageA: 0, barrageB: 0, finisher: 0 };
+    return { retrieve: 0, rage: 0, rush: 0, barrageA: 0, barrageB: 0, finisher: 0, aura: 0 };
   }
 
   const frame = fighter.ultimatePhaseFrame;
@@ -75,7 +99,8 @@ function ultimateFactors(fighter: FighterSnapshot): {
   const barrageA = Math.max(pulse(frame, 22, 24, 26), pulse(frame, 28, 30, 32));
   const barrageB = Math.max(pulse(frame, 25, 27, 29), pulse(frame, 31, 33, 35));
   const finisher = frame >= 34 ? pulse(frame, 33, 40, 43) : 0;
-  return { retrieve: 0, rage, rush, barrageA, barrageB, finisher };
+  const aura = getJuanchiRageAuraIntensity(fighter.ultimatePhase, frame);
+  return { retrieve: 0, rage, rush, barrageA, barrageB, finisher, aura };
 }
 
 function withAirLegPose(
@@ -109,8 +134,23 @@ function computeActionPose(fighter: FighterSnapshot, locomotion: LocomotionPose)
   const hurt = fighter.stunFrames > 0 ? 1 : 0;
   const ko = fighter.health <= 0 ? 1 : 0;
 
-  let frontHand: Point2 = { x: 31, y: 111 };
-  let backHand: Point2 = { x: -30, y: 109 };
+  const ordinaryTravel =
+    fighter.moveId === null
+    && fighter.ultimatePhase === 'idle'
+    && !fighter.blocking
+    && fighter.stunFrames === 0
+    && fighter.blockstunFrames === 0;
+  const gaitSwing = ordinaryTravel ? locomotion.freeArmSwing : 0;
+  const ballArmConstrained = fighter.rangedAvailability === 'ready';
+
+  let frontHand: Point2 = {
+    x: 31 + gaitSwing,
+    y: 111 + Math.abs(gaitSwing) * 0.12,
+  };
+  let backHand: Point2 = {
+    x: -30 - gaitSwing * (ballArmConstrained ? 0.16 : 0.72),
+    y: 109 - Math.abs(gaitSwing) * (ballArmConstrained ? 0.03 : 0.1),
+  };
 
   frontHand = {
     x:
@@ -181,8 +221,12 @@ function computeActionPose(fighter: FighterSnapshot, locomotion: LocomotionPose)
     backHand = { x: -22, y: 154 + ultimate.rage * 15 };
   }
 
-  const frontFoot = withAirLegPose(locomotion.frontFoot, 1, locomotion, air);
-  const backFoot = withAirLegPose(locomotion.backFoot, -1, locomotion, air * 0.45);
+  const frontFootBase = withAirLegPose(locomotion.frontFoot, 1, locomotion, air);
+  const backFootBase = withAirLegPose(locomotion.backFoot, -1, locomotion, air * 0.45);
+  // Juanchi keeps a tighter, athletic neutral stance than El Toro. Rendering
+  // offsets are presentation-only and do not alter world movement.
+  const frontFoot = { ...frontFootBase, x: frontFootBase.x - 4 };
+  const backFoot = { ...backFootBase, x: backFootBase.x + 4 };
 
   return {
     lean:
@@ -212,6 +256,8 @@ function computeActionPose(fighter: FighterSnapshot, locomotion: LocomotionPose)
     backFoot,
     shoulderDrive: shoulder,
     rage: ultimate.rage,
+    rageAura: ultimate.aura,
+    rush: ultimate.rush,
     finisher: ultimate.finisher,
     rub: friction.rub,
     palmRelease: friction.release,
@@ -227,11 +273,11 @@ export function sampleJuanchiAnchors(
   const base = sampleBaseRigAnchors('juanchi', locomotion);
   return {
     ...base,
-    head: { x: 3 + action.shoulderDrive * 8 + action.finisher * 10, y: 181 - action.drop * 0.34 },
-    chest: { x: action.shoulderDrive * 8 + action.finisher * 7, y: 126 - action.drop * 0.55 },
+    head: { x: 3 + action.shoulderDrive * 8 + action.finisher * 10, y: 207 - action.drop * 0.34 },
+    chest: { x: action.shoulderDrive * 8 + action.finisher * 7, y: 146 - action.drop * 0.55 },
     frontHand: action.frontHand,
     backHand: action.backHand,
-    belt: { x: -17, y: 72 - action.drop * 0.82 },
+    belt: { x: -17, y: 82 - action.drop * 0.82 },
     frontFoot: action.frontFoot,
     backFoot: action.backFoot,
   };
@@ -246,9 +292,20 @@ export function drawRugbyBallProp(
   ctx.save();
   ctx.translate(x, y);
   ctx.rotate(angle);
-  ellipse(ctx, 0, 0, 18, 10, '#9b5d31', 0, '#3e2417', 2);
+  ellipse(ctx, 0, 0, 18.5, 10.5, '#9b5d31', 0, '#3e2417', 2);
+  ctx.save();
+  ctx.globalAlpha = 0.55;
+  ctx.strokeStyle = '#c88b52';
+  ctx.lineWidth = 1.2;
+  ctx.beginPath();
+  ctx.arc(-9, 0, 8, -0.72, 0.72);
+  ctx.stroke();
+  ctx.beginPath();
+  ctx.arc(9, 0, 8, Math.PI - 0.72, Math.PI + 0.72);
+  ctx.stroke();
+  ctx.restore();
   roundedLine(ctx, -7, 0, 7, 0, 1.8, '#f5e6ca');
-  for (const lx of [-4, 0, 4]) roundedLine(ctx, lx, -3, lx, 3, 1, '#f5e6ca');
+  for (const lx of [-4, 0, 4]) roundedLine(ctx, lx, -3.2, lx, 3.2, 1, '#f5e6ca');
   ctx.restore();
 }
 
@@ -265,17 +322,75 @@ export function drawPoliceCapProp(
   ctx.strokeStyle = '#05070a';
   ctx.lineWidth = 2;
   ctx.beginPath();
-  ctx.ellipse(0, 0, 14, 9, 0, Math.PI, Math.PI * 2);
-  ctx.lineTo(13, 4);
-  ctx.quadraticCurveTo(0, 9, -13, 4);
+  ctx.ellipse(0, -1, 16, 10, 0, Math.PI, Math.PI * 2);
+  ctx.lineTo(15, 4);
+  ctx.quadraticCurveTo(0, 10, -15, 4);
   ctx.closePath();
   ctx.fill();
   ctx.stroke();
+  roundedLine(ctx, -12, 2, 12, 2, 3, '#343b47');
   ctx.fillStyle = '#272d38';
   ctx.beginPath();
-  ctx.ellipse(8, 5, 12, 4, 0.08, -0.2, Math.PI * 0.92);
+  ctx.ellipse(9, 6, 13.5, 4.5, 0.08, -0.2, Math.PI * 0.92);
   ctx.fill();
-  ellipse(ctx, 0, -2, 2.4, 2.4, '#d8b65c');
+  ellipse(ctx, 0, -3, 2.7, 2.7, '#d8b65c', 0, '#6f5926', 0.8);
+  ctx.restore();
+}
+
+export function drawJuanchiRageAura(
+  ctx: CanvasRenderingContext2D,
+  intensity: number,
+  rush: number,
+  finisher: number,
+  frame: number,
+): void {
+  const raw = clamp01(Math.max(intensity, rush * 0.82));
+  const collapse = clamp01(1 - finisher * 0.78);
+  const aura = raw * collapse;
+  if (aura <= 0.02) return;
+
+  ctx.save();
+
+  // Faint floor / ground edge glow stays behind the body and never fills the screen.
+  ctx.save();
+  ctx.globalAlpha = 0.08 + aura * 0.16;
+  ctx.scale(1 + rush * 0.38, 1);
+  ellipse(ctx, -4, 2, 58 + aura * 26, 10 + aura * 5, '#b51f31');
+  ctx.restore();
+
+  // Layered crimson flame wisps around shoulders/torso: a genuine aura outside silhouette.
+  ctx.lineCap = 'round';
+  const pulseBeat = 0.78 + 0.22 * Math.sin(frame * 0.82);
+  for (let i = 0; i < 6; i += 1) {
+    const side = i % 2 === 0 ? -1 : 1;
+    const tier = Math.floor(i / 2);
+    const baseX = side * (33 + tier * 7);
+    const baseY = -74 - tier * 22;
+    const stretch = 1 + rush * 0.8;
+    const wispLean = side * (10 + tier * 4) - rush * 20;
+    ctx.globalAlpha = aura * pulseBeat * (0.28 - tier * 0.035);
+    ctx.strokeStyle = tier === 0 ? '#ef334d' : tier === 1 ? '#d11b31' : '#8e1627';
+    ctx.lineWidth = 5 - tier * 0.8;
+    ctx.beginPath();
+    ctx.moveTo(baseX, baseY);
+    ctx.bezierCurveTo(
+      baseX + wispLean * 0.35 * stretch,
+      baseY - 20,
+      baseX - wispLean * 0.2 * stretch,
+      baseY - 43 - aura * 9,
+      baseX + wispLean * stretch,
+      baseY - 62 - aura * 14,
+    );
+    ctx.stroke();
+  }
+
+  ctx.globalAlpha = aura * 0.18;
+  ctx.strokeStyle = '#ff5266';
+  ctx.lineWidth = 2.5;
+  ctx.beginPath();
+  ctx.ellipse(-2 - rush * 16, -116, 50 + rush * 20, 82, -0.08, 0, Math.PI * 2);
+  ctx.stroke();
+
   ctx.restore();
 }
 
@@ -285,6 +400,8 @@ export function drawJuanchi(
   locomotion: LocomotionPose,
   combatTimeSeconds: number,
 ): void {
+  const structure = getCharacterStructure('juanchi');
+  const { body, stance } = structure;
   const feetY = GROUND_Y - fighter.y;
   const action = computeActionPose(fighter, locomotion);
   const anchors = sampleJuanchiAnchors(fighter, locomotion);
@@ -298,45 +415,109 @@ export function drawJuanchi(
   ctx.save();
   ctx.rotate(-action.lean);
   ctx.globalAlpha = 0.23 * (1 - Math.min(0.68, fighter.y / 260));
-  ellipse(ctx, 0, fighter.y, 49, 10, '#030407');
+  ellipse(ctx, 0, fighter.y, 44, 9, '#030407');
   ctx.restore();
 
-  const frontHip: Point2 = { x: 13, y: 72 - action.drop };
-  const backHip: Point2 = { x: -12, y: 72 - action.drop };
-  const frontKnee = solveTwoBoneLeg(frontHip, action.frontFoot, 39, 41, 1);
-  const backKnee = solveTwoBoneLeg(backHip, action.backFoot, 39, 41, -1);
+  drawJuanchiRageAura(ctx,
+    action.rageAura,
+    action.rush,
+    action.finisher,
+    fighter.ultimatePhaseFrame,
+  );
+
+  const hipTwist = locomotion.hipCounterRotation * 42;
+  const hipSpan = 10.5 * body.hipWidth * stance.width;
+  const frontHip: Point2 = { x: hipSpan + hipTwist, y: 82 - action.drop };
+  const backHip: Point2 = { x: -hipSpan - hipTwist, y: 82 - action.drop };
+  const frontKnee = solveTwoBoneLeg(frontHip, action.frontFoot, 39 * body.legLength, 41 * body.legLength, 1);
+  const backKnee = solveTwoBoneLeg(backHip, action.backFoot, 39 * body.legLength, 41 * body.legLength, -1);
 
   // Black cargo pants: thicker thighs, articulated knees and visible pocket/gold accents.
-  roundedLine(ctx, frontHip.x, -frontHip.y, frontKnee.x, -frontKnee.y, 22, '#171a1e');
-  roundedLine(ctx, frontKnee.x, -frontKnee.y, action.frontFoot.x, -action.frontFoot.y, 18, '#111419');
-  roundedLine(ctx, backHip.x, -backHip.y, backKnee.x, -backKnee.y, 22, '#121519');
-  roundedLine(ctx, backKnee.x, -backKnee.y, action.backFoot.x, -action.backFoot.y, 18, '#0d1014');
-  ellipse(ctx, frontKnee.x + 4, -frontKnee.y + 2, 9, 6, '#22262c');
-  ellipse(ctx, backKnee.x - 4, -backKnee.y + 2, 9, 6, '#20242a');
+  roundedLine(ctx, frontHip.x, -frontHip.y, frontKnee.x, -frontKnee.y, 20 * body.legThickness, '#171a1e');
+  roundedLine(ctx, frontKnee.x, -frontKnee.y, action.frontFoot.x, -action.frontFoot.y, 15.5 * body.legThickness, '#111419');
+  roundedLine(ctx, backHip.x, -backHip.y, backKnee.x, -backKnee.y, 20 * body.legThickness, '#121519');
+  roundedLine(ctx, backKnee.x, -backKnee.y, action.backFoot.x, -action.backFoot.y, 15.5 * body.legThickness, '#0d1014');
+  drawCargoPocket(ctx, frontKnee.x + 4, -frontKnee.y + 2, 20, 16, '#20242a', '#080a0d', '#d8b65c');
+  drawCargoPocket(ctx, backKnee.x - 4, -backKnee.y + 2, 20, 16, '#1c2026', '#080a0d', '#c9a44f');
+  drawStitchLine(ctx, frontHip.x, -frontHip.y + 4, frontKnee.x + 2, -frontKnee.y + 5, '#545a62', 0.9, [3, 4], 0.35);
+  drawStitchLine(ctx, backHip.x, -backHip.y + 4, backKnee.x - 2, -backKnee.y + 5, '#4e545b', 0.9, [3, 4], 0.32);
+  roundedLine(ctx, frontKnee.x - 11, -frontKnee.y + 13, frontKnee.x + 11, -frontKnee.y + 13, 2.8, '#2b3036');
+  roundedLine(ctx, backKnee.x - 11, -backKnee.y + 13, backKnee.x + 11, -backKnee.y + 13, 2.8, '#272c32');
   roundedLine(ctx, 11, -75 + action.drop, 28, -74 + action.drop, 2.2, '#d8b65c');
 
-  // Black/white sneakers with a restrained gold stripe.
-  ellipse(ctx, action.frontFoot.x + 5, -action.frontFoot.y + 1, 19, 7, '#f4f5f2', 0.03, '#090b0e', 2);
-  ellipse(ctx, action.frontFoot.x + 1, -action.frontFoot.y - 2, 14, 5, '#171a1f', 0.02);
-  roundedLine(ctx, action.frontFoot.x - 7, -action.frontFoot.y - 3, action.frontFoot.x + 9, -action.frontFoot.y - 1, 2, '#d8b65c');
-  ellipse(ctx, action.backFoot.x + 5, -action.backFoot.y + 1, 19, 7, '#f4f5f2', 0.03, '#090b0e', 2);
-  ellipse(ctx, action.backFoot.x + 1, -action.backFoot.y - 2, 14, 5, '#15181d', 0.02);
-  roundedLine(ctx, action.backFoot.x - 7, -action.backFoot.y - 3, action.backFoot.x + 9, -action.backFoot.y - 1, 2, '#c6a553');
+  // Canonical waist treatment: cargo waistband, belt loops and gold hardware.
+  // The legacy tied-jacket cue is intentionally removed; it is not part of the
+  // authoritative Juanchi package/master identity.
+  roundedLine(ctx, -29, -78 + action.drop, 29, -78 + action.drop, 5.5, '#0c0f13');
+  for (const loopX of [-22, -8, 8, 22]) {
+    roundedLine(ctx, loopX, -82 + action.drop, loopX, -74 + action.drop, 2, '#343a42');
+  }
+  ellipse(ctx, 1, -78 + action.drop, 4.5, 3.5, '#c6a553', 0, '#5f4a21', 1);
+  roundedLine(ctx, -23, -73 + action.drop, -23, -59 + action.drop, 1.6, '#d8b65c');
+  ellipse(ctx, -23, -56 + action.drop, 3.2, 3.2, '#d8b65c', 0, '#6b5524', 0.8);
+  drawStitchLine(ctx, -30, -71 + action.drop, 30, -71 + action.drop, '#4d535b', 0.8, [4, 4], 0.36);
 
-  const torsoY = -119 + action.drop * 0.58 + idle;
+  // Black/white sneakers with a restrained gold stripe.
+  roundedLine(ctx, action.frontFoot.x - 11, -action.frontFoot.y + 4, action.frontFoot.x + 21, -action.frontFoot.y + 4, 5.2, '#080a0d');
+  ellipse(ctx, action.frontFoot.x + 5, -action.frontFoot.y + 0.5, 18, 6.5, '#f4f5f2', 0.03, '#090b0e', 2);
+  ellipse(ctx, action.frontFoot.x + 1, -action.frontFoot.y - 2, 14, 5, '#171a1f', 0.02);
+  ellipse(ctx, action.frontFoot.x - 7, -action.frontFoot.y - 1, 5.5, 5, '#262b31');
+  roundedLine(ctx, action.frontFoot.x - 7, -action.frontFoot.y - 3, action.frontFoot.x + 9, -action.frontFoot.y - 1, 2.4, '#d8b65c');
+  roundedLine(ctx, action.backFoot.x - 11, -action.backFoot.y + 4, action.backFoot.x + 21, -action.backFoot.y + 4, 5.2, '#080a0d');
+  ellipse(ctx, action.backFoot.x + 5, -action.backFoot.y + 0.5, 18, 6.5, '#f4f5f2', 0.03, '#090b0e', 2);
+  ellipse(ctx, action.backFoot.x + 1, -action.backFoot.y - 2, 14, 5, '#15181d', 0.02);
+  ellipse(ctx, action.backFoot.x - 7, -action.backFoot.y - 1, 5.5, 5, '#24292f');
+  roundedLine(ctx, action.backFoot.x - 7, -action.backFoot.y - 3, action.backFoot.x + 9, -action.backFoot.y - 1, 2.4, '#c6a553');
+
+  ctx.save();
+  ctx.translate(locomotion.weightTransfer * 1.55, -94);
+  ctx.rotate(locomotion.chestCounterRotation);
+  ctx.translate(0, 94);
+
+  const torsoY = -141 + action.drop * 0.58 + idle;
   // Oversized black shirt silhouette.
   ctx.save();
-  ctx.fillStyle = '#101318';
+  const shirtGradient = ctx.createLinearGradient(-48, torsoY - 48, 48, torsoY + 43);
+  shirtGradient.addColorStop(0, '#272a30');
+  shirtGradient.addColorStop(0.45, '#111419');
+  shirtGradient.addColorStop(1, '#05070a');
+  ctx.fillStyle = shirtGradient;
   ctx.strokeStyle = '#05070a';
   ctx.lineWidth = 3;
   ctx.beginPath();
-  ctx.moveTo(-37, torsoY - 34);
-  ctx.quadraticCurveTo(-51, torsoY - 21, -43, torsoY + 35);
-  ctx.quadraticCurveTo(0, torsoY + 48, 45, torsoY + 34);
-  ctx.quadraticCurveTo(51, torsoY - 17, 36, torsoY - 35);
-  ctx.quadraticCurveTo(0, torsoY - 49, -37, torsoY - 34);
+  ctx.moveTo(-41 * body.shoulderWidth, torsoY - 35 * body.torsoLength);
+  ctx.quadraticCurveTo(-47 * body.torsoWidth, torsoY - 27 * body.torsoLength, -46 * body.torsoWidth, torsoY - 4 * body.torsoLength);
+  ctx.quadraticCurveTo(-44 * body.torsoWidth, torsoY + 27 * body.torsoLength, -35 * body.torsoWidth, torsoY + 44 * body.torsoLength);
+  ctx.quadraticCurveTo(0, torsoY + 54 * body.torsoLength, 36 * body.torsoWidth, torsoY + 43 * body.torsoLength);
+  ctx.quadraticCurveTo(44 * body.torsoWidth, torsoY + 25 * body.torsoLength, 46 * body.torsoWidth, torsoY - 7 * body.torsoLength);
+  ctx.quadraticCurveTo(47 * body.torsoWidth, torsoY - 26 * body.torsoLength, 40 * body.shoulderWidth, torsoY - 36 * body.torsoLength);
+  ctx.quadraticCurveTo(0, torsoY - 49 * body.torsoLength, -41 * body.shoulderWidth, torsoY - 35 * body.torsoLength);
   ctx.closePath();
   ctx.fill();
+  ctx.stroke();
+  ctx.restore();
+  drawFabricGrain(ctx, 0, torsoY + 5, 78 * body.torsoWidth, 88 * body.torsoLength, '#676d76', 0.10, 10);
+  drawStitchLine(ctx, -29, torsoY - 13, -34, torsoY + 27, '#30353c', 0.9, [4, 4], 0.45);
+  drawStitchLine(ctx, 29, torsoY - 13, 35, torsoY + 27, '#30353c', 0.9, [4, 4], 0.45);
+  drawClothFold(ctx, -16, torsoY - 18, -20, torsoY + 3, -12, torsoY + 29, '#5c6168', '#020304', 0.28);
+  drawClothFold(ctx, 19, torsoY - 13, 12, torsoY + 6, 19, torsoY + 30, '#555b62', '#020304', 0.26);
+  ctx.save();
+  ctx.globalAlpha = 0.48;
+  ctx.strokeStyle = '#3a4048';
+  ctx.lineWidth = 1.5;
+  ctx.beginPath();
+  ctx.moveTo(-31 * body.torsoWidth, torsoY + 41 * body.torsoLength);
+  ctx.quadraticCurveTo(0, torsoY + 50 * body.torsoLength, 32 * body.torsoWidth, torsoY + 40 * body.torsoLength);
+  ctx.stroke();
+  ctx.restore();
+
+  // Exposed neck and ribbed collar connect the compact head to an athletic torso.
+  drawShadedEllipse(ctx, 1, torsoY - 44, 11.5 * body.neckWidth, 17, '#b97a5a', '#e1a07c', '#7b4c3b', 0, '#4d2f26', 1.2);
+  ctx.save();
+  ctx.strokeStyle = '#2d3239';
+  ctx.lineWidth = 5;
+  ctx.beginPath();
+  ctx.ellipse(1, torsoY - 35, 20, 8, 0, 0.1, Math.PI - 0.1);
   ctx.stroke();
   ctx.restore();
 
@@ -348,18 +529,35 @@ export function drawJuanchi(
   ctx.arc(2, torsoY - 31, 19, 0.28, Math.PI - 0.28);
   ctx.stroke();
   ellipse(ctx, 2, torsoY - 10, 4, 6, '#d8b65c', 0.08, '#6b5524', 1);
+  roundedLine(ctx, 2, torsoY - 17, 2, torsoY - 4, 1.6, '#f1d77f');
+  roundedLine(ctx, -3, torsoY - 10, 7, torsoY - 10, 1.6, '#f1d77f');
   ctx.restore();
 
   // "La 56" is drawn in an unmirrored local subpass so both facings stay readable.
   ctx.save();
+  ctx.strokeStyle = '#05070a';
+  ctx.lineWidth = 2.4;
   ctx.fillStyle = '#f1f1e9';
-  ctx.font = '800 17px system-ui, sans-serif';
+  ctx.font = '900 15px system-ui, sans-serif';
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
-  drawFacingReadableText(ctx, fighter.facing, 7, torsoY + 3, 'La 56');
+  drawFacingReadableText(ctx, fighter.facing, 3, torsoY + 3, 'La 56');
+  ctx.restore();
+  // Gold brush slash/crown cue under the shirt mark.
+  roundedLine(ctx, -20, torsoY + 17, 27, torsoY + 10, 3, '#c49a39');
+  ctx.save();
+  ctx.strokeStyle = '#d8b65c';
+  ctx.lineWidth = 1.8;
+  ctx.beginPath();
+  ctx.moveTo(12, torsoY - 27);
+  ctx.lineTo(18, torsoY - 34);
+  ctx.lineTo(24, torsoY - 27);
+  ctx.lineTo(29, torsoY - 34);
+  ctx.lineTo(33, torsoY - 24);
+  ctx.stroke();
   ctx.restore();
 
-  const shoulderY = torsoY - 23;
+  const shoulderY = torsoY - 26;
   const frontElbow = {
     x: lerp(21, action.frontHand.x, 0.52),
     y: lerp(128 - action.drop * 0.45, action.frontHand.y, 0.5),
@@ -369,20 +567,40 @@ export function drawJuanchi(
     y: lerp(126 - action.drop * 0.45, action.backHand.y, 0.5),
   };
 
-  roundedLine(ctx, 26, shoulderY, frontElbow.x, -frontElbow.y, 16, '#111419');
-  roundedLine(ctx, frontElbow.x, -frontElbow.y, action.frontHand.x, -action.frontHand.y, 13, '#bd805f');
-  roundedLine(ctx, -26, shoulderY + 2, backElbow.x, -backElbow.y, 16, '#0d1014');
-  roundedLine(ctx, backElbow.x, -backElbow.y, action.backHand.x, -action.backHand.y, 13, '#b87859');
+  roundedLine(ctx, 27 * body.shoulderWidth, shoulderY, frontElbow.x, -frontElbow.y, 15.5 * body.armThickness, '#111419');
+  roundedLine(ctx, 28 * body.shoulderWidth, shoulderY - 2, frontElbow.x - 2, -frontElbow.y - 2, 1.8, '#383d45');
+  roundedLine(ctx, frontElbow.x, -frontElbow.y, action.frontHand.x, -action.frontHand.y, 11.5 * body.forearmThickness, '#bd805f');
+  roundedLine(ctx, -27 * body.shoulderWidth, shoulderY + 2, backElbow.x, -backElbow.y, 15.5 * body.armThickness, '#0d1014');
+  roundedLine(ctx, -28 * body.shoulderWidth, shoulderY, backElbow.x + 2, -backElbow.y - 2, 1.8, '#30363e');
+  roundedLine(ctx, backElbow.x, -backElbow.y, action.backHand.x, -action.backHand.y, 11.5 * body.forearmThickness, '#b87859');
   ellipse(ctx, action.frontHand.x, -action.frontHand.y, 7.5, 7, '#c98a67');
   ellipse(ctx, action.backHand.x, -action.backHand.y, 7.5, 7, '#c38563');
+  // Watch and bracelet remain visible at normal gameplay scale.
+  ellipse(ctx, action.frontHand.x - 8, -action.frontHand.y + 1, 4.5, 5.5, '#20252c', 0, '#d4b451', 1);
+  roundedLine(ctx, action.backHand.x - 8, -action.backHand.y, action.backHand.x - 3, -action.backHand.y, 2, '#d8b65c');
 
   // Heat only lives between the hands during Fricción; body pose remains readable without it.
   if (action.rub > 0.05) {
     const hx = (action.frontHand.x + action.backHand.x) * 0.5;
     const hy = -(action.frontHand.y + action.backHand.y) * 0.5;
     ctx.save();
-    ctx.globalAlpha = 0.25 + action.rub * 0.35;
-    ellipse(ctx, hx, hy, 10 + action.rub * 6, 7 + action.rub * 4, '#ffb24d');
+    ctx.globalAlpha = 0.18 + action.rub * 0.26;
+    ellipse(ctx, hx, hy, 9 + action.rub * 5, 6 + action.rub * 3, '#ffb24d');
+
+    // Fricción sparks originate between the hands and rise with the rub beat.
+    ctx.strokeStyle = '#ffd27a';
+    ctx.lineWidth = 2;
+    ctx.lineCap = 'round';
+    for (let i = 0; i < 6; i += 1) {
+      const sparkPhase = combatTimeSeconds * 17 + fighter.moveFrame * 0.63 + i * 1.17;
+      const sx = hx + Math.sin(sparkPhase) * (4 + i * 0.7);
+      const sy = hy - 3 - i * 3.4;
+      ctx.globalAlpha = action.rub * (0.32 + (i % 3) * 0.1);
+      ctx.beginPath();
+      ctx.moveTo(sx, sy);
+      ctx.lineTo(sx + Math.cos(sparkPhase) * 5, sy - 7 - (i % 2) * 3);
+      ctx.stroke();
+    }
     ctx.restore();
   }
   if (action.palmRelease > 0.05) {
@@ -398,45 +616,66 @@ export function drawJuanchi(
 
   const headX = anchors.head.x + action.shoulderDrive * 4;
   const headY = -anchors.head.y + idle;
-  ellipse(ctx, headX, headY, 35, 39, '#c88c68', -0.035, '#5c382a', 2.3);
-  ellipse(ctx, headX - 31, headY + 2, 6, 10, '#b97b5b');
+  drawShadedEllipse(ctx, headX + 1, headY, 31 * body.headWidth, 40 * body.headHeight, '#c88c68', '#edb18d', '#875744', -0.035, '#5c382a', 2.3);
+  drawFacePlanes(ctx, headX, headY, body.headWidth, '#ffd0ad', '#754437');
+  ellipse(ctx, headX - 29 * body.headWidth, headY + 2, 5.5, 8.5, '#b97b5b', -0.08, '#654035', 1.1);
 
   // Close/faded sides under a dense dark curly top.
   ctx.save();
   ctx.fillStyle = '#171819';
   ctx.beginPath();
-  ctx.moveTo(headX - 34, headY - 19);
-  ctx.quadraticCurveTo(headX - 26, headY - 41, headX - 17, headY - 43);
-  ctx.lineTo(headX - 13, headY - 9);
-  ctx.quadraticCurveTo(headX - 27, headY - 8, headX - 34, headY - 19);
+  ctx.moveTo(headX - 29, headY - 18);
+  ctx.quadraticCurveTo(headX - 22, headY - 44, headX - 14, headY - 47);
+  ctx.lineTo(headX - 11, headY - 8);
+  ctx.quadraticCurveTo(headX - 23, headY - 7, headX - 29, headY - 18);
   ctx.fill();
   const curls: readonly [number, number, number][] = [
-    [-22, -38, 10], [-10, -45, 11], [3, -48, 12], [17, -44, 11], [28, -35, 10],
-    [-28, -29, 9], [-15, -31, 11], [0, -34, 12], [15, -32, 11], [30, -24, 8],
+    [-18, -42, 9], [-8, -51, 10], [3, -55, 11], [14, -51, 10], [23, -41, 9],
+    [-24, -31, 8], [-12, -35, 9], [1, -38, 10], [14, -35, 9], [25, -28, 7],
   ];
   for (const [dx, dy, radius] of curls) {
     ctx.beginPath();
     ctx.arc(headX + dx, headY + dy, radius, 0, Math.PI * 2);
     ctx.fill();
   }
+  drawHairStrands(ctx, [
+    [headX - 16, headY - 42, headX - 12, headY - 28],
+    [headX - 5, headY - 51, headX - 1, headY - 34],
+    [headX + 7, headY - 51, headX + 11, headY - 33],
+    [headX + 18, headY - 42, headX + 21, headY - 27],
+  ], '#5a4b45', 0.31);
+  // Fade boundary remains skin-readable under the dense curls.
+  ctx.globalAlpha = 0.36;
+  ctx.strokeStyle = '#57443a';
+  ctx.lineWidth = 2.1;
+  ctx.beginPath();
+  ctx.moveTo(headX - 25, headY - 20);
+  ctx.quadraticCurveTo(headX - 21, headY - 8, headX - 20, headY + 2);
+  ctx.stroke();
   ctx.restore();
 
-  roundedLine(ctx, headX + 4, headY - 7, headX + 18, headY - 8, 3, '#432b24');
-  ellipse(ctx, headX + 15, headY - 1, 2.6, 2.2, '#0b0e12');
+  roundedLine(ctx, headX - 19, headY + 13, headX - 11, headY + 28, 1.7, '#774a3a');
+  roundedLine(ctx, headX - 11, headY + 28, headX + 7, headY + 30, 1.4, '#684133');
+  roundedLine(ctx, headX + 3, headY - 8, headX + 17, headY - 9, 2.6, '#432b24');
+  ellipse(ctx, headX + 14, headY - 2, 2.4, 2.0, '#0b0e12');
   ctx.save();
   ctx.strokeStyle = '#6f4435';
-  ctx.lineWidth = 2;
+  ctx.lineWidth = 1.6;
   ctx.beginPath();
-  ctx.moveTo(headX + 15, headY + 6);
-  ctx.quadraticCurveTo(headX + 23, headY + 10, headX + 21, headY + 16);
+  ctx.moveTo(headX + 13, headY + 3);
+  ctx.quadraticCurveTo(headX + 21, headY + 7, headX + 19, headY + 13);
+  ctx.stroke();
+  ctx.beginPath();
+  ctx.moveTo(headX + 8, headY + 21);
+  ctx.quadraticCurveTo(headX + 15, headY + 24, headX + 22, headY + 20);
   ctx.stroke();
   ctx.restore();
 
   if (action.rage > 0.12) {
-    // Upward rage face/open mouth without a full-screen wash.
+    // Modest warm body treatment supports the external aura; it is not the aura itself.
     ctx.save();
-    ctx.globalAlpha = 0.22 + action.rage * 0.35;
-    ellipse(ctx, headX + 5, headY - 2, 42, 47, '#a22f24');
+    ctx.globalAlpha = 0.08 + action.rage * 0.16;
+    ellipse(ctx, headX + 5, headY - 2, 40, 45, '#a22f24');
     ctx.restore();
     ellipse(ctx, headX + 20, headY + 19, 7, 9, '#451615', 0.05, '#1c0909', 1.5);
   } else {
@@ -455,6 +694,8 @@ export function drawJuanchi(
       -0.34 + action.throwPose * 0.72,
     );
   }
+
+  ctx.restore();
 
   const beltCapVisible =
     fighter.ultimatePhase === 'idle'

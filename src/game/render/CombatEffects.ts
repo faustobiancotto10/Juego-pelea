@@ -1,4 +1,4 @@
-import { clamp01, ellipse, lerp } from './drawUtils.js';
+import { clamp01, ellipse, lerp, roundedLine } from './drawUtils.js';
 
 export function drawPushGuardBurst(
   ctx: CanvasRenderingContext2D,
@@ -525,5 +525,557 @@ export function drawClashOpposingTrails(
     ctx.stroke();
   }
 
+  ctx.restore();
+}
+
+
+export function drawAttackTelegraph(
+  ctx: CanvasRenderingContext2D,
+  x: number,
+  y: number,
+  facing: -1 | 1,
+  telegraphKey: string,
+  intensity: number,
+  build: number,
+): void {
+  const b = clamp01(build);
+  const t = clamp01(intensity) * b;
+  if (t <= 0.01 || telegraphKey === 'none') return;
+
+  ctx.save();
+  ctx.translate(x, y);
+  ctx.scale(facing, 1);
+  ctx.lineCap = 'round';
+
+  if (telegraphKey === 'diagnostic-missing') {
+    ctx.globalAlpha = 0.55 * t;
+    ctx.strokeStyle = '#ff3bd4';
+    ctx.lineWidth = 2.5;
+    ctx.setLineDash([5, 4]);
+    ctx.strokeRect(-34, -168, 68, 132);
+    ctx.setLineDash([]);
+    ctx.restore();
+    return;
+  }
+
+  const chameleon = telegraphKey.startsWith('claw')
+    || telegraphKey.startsWith('tongue')
+    || telegraphKey.startsWith('tail')
+    || telegraphKey === 'camaleoni-veil';
+  const supernariz = telegraphKey.startsWith('nose')
+    || telegraphKey.startsWith('wind')
+    || telegraphKey.startsWith('suction');
+  const juanchi = telegraphKey.startsWith('juanchi')
+    || telegraphKey.startsWith('shoulder')
+    || telegraphKey.startsWith('rage')
+    || telegraphKey === 'friccion-load';
+  const toro = telegraphKey.startsWith('toro')
+    || telegraphKey.startsWith('topete')
+    || telegraphKey.startsWith('shawarma')
+    || telegraphKey.startsWith('eructo');
+
+  const accent = chameleon
+    ? '#9df38d'
+    : supernariz
+      ? '#d9efff'
+      : juanchi
+        ? '#f3d06d'
+        : toro
+          ? '#79b6ff'
+          : '#f4f0dc';
+  const secondary = telegraphKey.startsWith('rage')
+    ? '#db334f'
+    : telegraphKey.startsWith('shawarma')
+      ? '#ff9d4c'
+      : telegraphKey.startsWith('eructo')
+        ? '#9bd86e'
+        : chameleon && telegraphKey.startsWith('tongue')
+          ? '#ff9eb3'
+          : accent;
+
+  const heavy = telegraphKey === 'tail-load'
+    || telegraphKey === 'shoulder-load'
+    || telegraphKey === 'toro-heavy-ready'
+    || telegraphKey === 'toro-heavy-load'
+    || telegraphKey === 'topete-load';
+  const projectile = telegraphKey === 'throw-load' || telegraphKey === 'shawarma-load';
+  const field = telegraphKey === 'wind-load'
+    || telegraphKey === 'suction-load'
+    || telegraphKey === 'rage-load'
+    || telegraphKey === 'eructo-load'
+    || telegraphKey === 'camaleoni-veil';
+
+  if (field) {
+    const radius = lerp(58, 38, b);
+    for (let i = 0; i < 3; i += 1) {
+      ctx.globalAlpha = t * (0.20 + i * 0.07);
+      ctx.strokeStyle = i === 1 ? secondary : accent;
+      ctx.lineWidth = 2.5 + (2 - i) * 0.6;
+      ctx.beginPath();
+      ctx.arc(2, -108, radius + i * 16, -1.1, 1.1);
+      ctx.stroke();
+    }
+  } else if (heavy) {
+    ctx.globalAlpha = 0.22 + t * 0.42;
+    ctx.strokeStyle = accent;
+    for (let i = 0; i < 3; i += 1) {
+      const back = 42 + i * 17;
+      ctx.lineWidth = 5 - i * 0.8;
+      ctx.beginPath();
+      ctx.moveTo(-back, -146 + i * 28);
+      ctx.lineTo(-18 - i * 3, -132 + i * 22);
+      ctx.stroke();
+    }
+    ctx.globalAlpha = 0.18 + t * 0.28;
+    ctx.strokeStyle = secondary;
+    ctx.lineWidth = 4;
+    ctx.beginPath();
+    ctx.arc(0, -2, lerp(52, 34, b), Math.PI * 1.08, Math.PI * 1.92);
+    ctx.stroke();
+  } else if (projectile) {
+    const handX = 38;
+    const handY = -112;
+    ctx.globalAlpha = 0.24 + t * 0.46;
+    ctx.strokeStyle = secondary;
+    ctx.lineWidth = 3;
+    for (let i = 0; i < 2; i += 1) {
+      ctx.beginPath();
+      ctx.arc(handX, handY, lerp(26 + i * 9, 13 + i * 5, b), -1.15, 1.15);
+      ctx.stroke();
+    }
+    ctx.globalAlpha = 0.16 + t * 0.24;
+    ctx.strokeStyle = accent;
+    ctx.beginPath();
+    ctx.moveTo(-4, -128);
+    ctx.quadraticCurveTo(18, -142, 34, -122);
+    ctx.stroke();
+  } else {
+    const low = telegraphKey.includes('low');
+    const air = telegraphKey.includes('air');
+    const cy = low ? -72 : air ? -136 : -112;
+    ctx.globalAlpha = 0.18 + t * 0.42;
+    ctx.strokeStyle = accent;
+    ctx.lineWidth = 4;
+    ctx.beginPath();
+    ctx.arc(26, cy, lerp(42, 28, b), -1.32, 0.28);
+    ctx.stroke();
+    ctx.globalAlpha *= 0.72;
+    ctx.strokeStyle = secondary;
+    ctx.lineWidth = 2.2;
+    ctx.beginPath();
+    ctx.arc(25, cy, lerp(52, 34, b), -1.22, 0.18);
+    ctx.stroke();
+  }
+
+  if (telegraphKey === 'tongue-load') {
+    ctx.globalAlpha = 0.2 + t * 0.35;
+    ctx.strokeStyle = '#ff9eb3';
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    ctx.moveTo(24, -119);
+    ctx.quadraticCurveTo(39, -127, lerp(52, 38, b), -118);
+    ctx.stroke();
+  }
+
+  ctx.restore();
+}
+
+export function drawAttackMotionAccent(
+  ctx: CanvasRenderingContext2D,
+  x: number,
+  y: number,
+  facing: -1 | 1,
+  trailKey: string,
+  intensity: number,
+  phase: number,
+): void {
+  const t = clamp01(intensity);
+  if (t <= 0.01 || trailKey === 'none') return;
+  const beat = 0.35 + 0.65 * Math.sin(clamp01(phase) * Math.PI);
+
+  ctx.save();
+  ctx.translate(x, y);
+  ctx.scale(facing, 1);
+  ctx.lineCap = 'round';
+
+  if (trailKey === 'diagnostic-missing') {
+    ctx.globalAlpha = 0.7 * t;
+    ctx.strokeStyle = '#ff3bd4';
+    ctx.lineWidth = 3;
+    ctx.setLineDash([7, 5]);
+    ctx.beginPath();
+    ctx.arc(0, -105, 58, -1.1, 1.1);
+    ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.restore();
+    return;
+  }
+
+  if (trailKey === 'claw-green') {
+    for (let i = 0; i < 3; i += 1) {
+      ctx.globalAlpha = t * beat * (0.42 - i * 0.07);
+      ctx.strokeStyle = i === 0 ? '#e6ffd5' : '#72dc70';
+      ctx.lineWidth = 5 - i;
+      ctx.beginPath();
+      ctx.arc(32 + i * 4, -112 + i * 9, 34 + i * 7, -1.05, 0.42);
+      ctx.stroke();
+    }
+  } else if (trailKey === 'tongue-snap') {
+    // Deliberately short: presentation must never imply more reach than simulation.
+    for (let i = 0; i < 3; i += 1) {
+      ctx.globalAlpha = t * beat * (0.35 - i * 0.07);
+      ctx.strokeStyle = i === 0 ? '#ff9eb3' : '#8ce68e';
+      ctx.lineWidth = 5 - i;
+      ctx.beginPath();
+      ctx.moveTo(34, -118 + i * 5);
+      ctx.quadraticCurveTo(60, -122 + i * 4, 78 - i * 5, -113 + i * 7);
+      ctx.stroke();
+    }
+  } else if (trailKey === 'tail-mass') {
+    ctx.globalAlpha = 0.22 + t * beat * 0.34;
+    ctx.strokeStyle = '#d9f58f';
+    ctx.lineWidth = 10;
+    ctx.beginPath();
+    ctx.arc(-12, -82, 104, -2.7, -0.58);
+    ctx.stroke();
+  } else if (trailKey === 'nose-curve') {
+    for (let i = 0; i < 2; i += 1) {
+      ctx.globalAlpha = t * beat * (0.46 - i * 0.13);
+      ctx.strokeStyle = i === 0 ? '#fff0d9' : '#ffb27c';
+      ctx.lineWidth = 6 - i * 2;
+      ctx.beginPath();
+      ctx.arc(24, -132, 42 + i * 10, -1.22, 0.38);
+      ctx.stroke();
+    }
+  } else if (trailKey === 'chorizo-spice') {
+    ctx.globalAlpha = t * beat * 0.56;
+    ctx.strokeStyle = '#ff9b48';
+    ctx.lineWidth = 4;
+    for (let i = 0; i < 3; i += 1) {
+      ctx.beginPath();
+      ctx.moveTo(26 - i * 8, -118 + i * 10);
+      ctx.lineTo(70 - i * 7, -123 + i * 7);
+      ctx.stroke();
+    }
+  } else if (trailKey === 'wind-lanes') {
+    ctx.globalAlpha = 0.18 + t * beat * 0.3;
+    ctx.strokeStyle = '#dff5ff';
+    for (let i = 0; i < 4; i += 1) {
+      ctx.lineWidth = 4 - i * 0.55;
+      ctx.beginPath();
+      ctx.moveTo(28, -142 + i * 24);
+      ctx.bezierCurveTo(70, -158 + i * 17, 116, -116 + i * 18, 166 - i * 8, -128 + i * 18);
+      ctx.stroke();
+    }
+  } else if (trailKey === 'juanchi-gold') {
+    ctx.globalAlpha = t * beat * 0.55;
+    ctx.strokeStyle = '#f4d77c';
+    for (let i = 0; i < 3; i += 1) {
+      ctx.lineWidth = 5 - i;
+      ctx.beginPath();
+      ctx.moveTo(12 - i * 5, -126 + i * 14);
+      ctx.quadraticCurveTo(54, -142 + i * 9, 90 - i * 4, -116 + i * 8);
+      ctx.stroke();
+    }
+  } else if (trailKey === 'friccion-sparks') {
+    ctx.globalAlpha = 0.34 + t * beat * 0.42;
+    ctx.strokeStyle = '#ffd17c';
+    ctx.lineWidth = 2.5;
+    for (let i = 0; i < 5; i += 1) {
+      const sx = 10 + i * 7;
+      ctx.beginPath();
+      ctx.moveTo(sx, -116);
+      ctx.lineTo(sx + 5 + (i % 2) * 4, -142 - i * 4);
+      ctx.stroke();
+    }
+  } else if (trailKey === 'camaleoni-veil') {
+    ctx.globalAlpha = t * beat * 0.22;
+    ctx.strokeStyle = '#bfffb8';
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    ctx.ellipse(-12, -104, 48, 82, -0.1, 0, Math.PI * 2);
+    ctx.stroke();
+  } else if (trailKey === 'toro-blue') {
+    ctx.globalAlpha = t * beat * 0.5;
+    ctx.strokeStyle = '#79b6ff';
+    ctx.lineWidth = 6;
+    ctx.beginPath();
+    ctx.arc(20, -105, 48, -1.05, 0.38);
+    ctx.stroke();
+  } else if (trailKey === 'topete-drive') {
+    ctx.globalAlpha = 0.18 + t * beat * 0.34;
+    ctx.strokeStyle = '#5ca7ff';
+    for (let i = 0; i < 4; i += 1) {
+      ctx.lineWidth = 7 - i;
+      ctx.beginPath();
+      ctx.moveTo(-22 - i * 9, -128 + i * 25);
+      ctx.lineTo(-110 - i * 16, -116 + i * 24);
+      ctx.stroke();
+    }
+  } else if (trailKey === 'shawarma-spice') {
+    ctx.globalAlpha = t * beat * 0.5;
+    ctx.strokeStyle = '#ff9d4c';
+    ctx.lineWidth = 4;
+    for (let i = 0; i < 3; i += 1) {
+      ctx.beginPath();
+      ctx.moveTo(18 - i * 7, -116 + i * 9);
+      ctx.lineTo(72 - i * 6, -124 + i * 7);
+      ctx.stroke();
+    }
+  } else if (trailKey === 'super-eructo-gas') {
+    ctx.globalAlpha = 0.12 + t * beat * 0.2;
+    ctx.strokeStyle = '#9bd86e';
+    for (let i = 0; i < 3; i += 1) {
+      ctx.lineWidth = 6 - i;
+      ctx.beginPath();
+      ctx.ellipse(54 + i * 28, -105 + i * 9, 36 + i * 12, 25 + i * 8, 0, -0.9, 0.9);
+      ctx.stroke();
+    }
+  }
+
+  ctx.restore();
+}
+
+export function drawAttackContactBurst(
+  ctx: CanvasRenderingContext2D,
+  x: number,
+  y: number,
+  facing: -1 | 1,
+  contactBurstKey: string,
+  intensity: number,
+  progress: number,
+): void {
+  const t = clamp01(intensity);
+  const p = clamp01(progress);
+  if (t <= 0.01 || contactBurstKey === 'none') return;
+
+  ctx.save();
+  ctx.translate(x, y);
+  ctx.scale(facing, 1);
+  ctx.lineCap = 'round';
+
+  if (contactBurstKey === 'diagnostic-missing') {
+    ctx.globalAlpha = (1 - p) * 0.85;
+    ctx.strokeStyle = '#ff3bd4';
+    ctx.lineWidth = 4;
+    ctx.beginPath();
+    ctx.moveTo(-18, -18);
+    ctx.lineTo(18, 18);
+    ctx.moveTo(18, -18);
+    ctx.lineTo(-18, 18);
+    ctx.stroke();
+    ctx.restore();
+    return;
+  }
+
+  const radius = lerp(12, contactBurstKey === 'major-impact' ? 82 : 46, p);
+  const alpha = (1 - p) * (0.45 + t * 0.45);
+  ctx.globalAlpha = alpha;
+
+  if (contactBurstKey === 'claw-green' || contactBurstKey === 'tail-mass') {
+    ctx.strokeStyle = '#cfff9b';
+  } else if (contactBurstKey === 'nose-curve') {
+    ctx.strokeStyle = '#ffd4b2';
+  } else if (contactBurstKey === 'chorizo-spice') {
+    ctx.strokeStyle = '#ff9b48';
+  } else if (contactBurstKey === 'wind-lanes') {
+    ctx.strokeStyle = '#dff5ff';
+  } else if (contactBurstKey === 'juanchi-gold' || contactBurstKey === 'friccion-sparks') {
+    ctx.strokeStyle = '#f4d77c';
+  } else if (contactBurstKey === 'tongue-snap') {
+    ctx.strokeStyle = '#ff9eb3';
+  } else if (contactBurstKey === 'toro-blue' || contactBurstKey === 'topete-drive') {
+    ctx.strokeStyle = '#79b6ff';
+  } else if (contactBurstKey === 'shawarma-debris') {
+    ctx.strokeStyle = '#ff9d4c';
+  } else if (contactBurstKey === 'super-eructo-gas') {
+    ctx.strokeStyle = '#a7db76';
+  } else {
+    ctx.strokeStyle = '#fff2ba';
+  }
+
+  ctx.lineWidth = contactBurstKey === 'major-impact' ? 7 : 4;
+  ctx.beginPath();
+  ctx.arc(0, 0, radius, -0.95, 0.95);
+  ctx.stroke();
+
+  const rays = contactBurstKey === 'major-impact' ? 8 : contactBurstKey === 'chorizo-spice' ? 6 : 4;
+  for (let i = 0; i < rays; i += 1) {
+    const angle = -0.9 + (1.8 * i) / Math.max(1, rays - 1);
+    const reach = radius + 18 + (i % 2) * 9;
+    ctx.beginPath();
+    ctx.moveTo(Math.cos(angle) * radius * 0.65, Math.sin(angle) * radius * 0.65);
+    ctx.lineTo(Math.cos(angle) * reach, Math.sin(angle) * reach);
+    ctx.stroke();
+  }
+
+  ctx.restore();
+}
+
+export function drawRugbyCatchAccent(
+  ctx: CanvasRenderingContext2D,
+  x: number,
+  y: number,
+  intensity: number,
+): void {
+  const t = clamp01(intensity);
+  if (t <= 0.01) return;
+  ctx.save();
+  ctx.translate(x, y);
+  ctx.globalAlpha = t * 0.7;
+  ctx.strokeStyle = '#f4d77c';
+  ctx.lineWidth = 3;
+  for (let i = 0; i < 2; i += 1) {
+    ctx.beginPath();
+    ctx.arc(0, 0, 14 + (1 - t) * 22 + i * 9, -0.8, 2.4);
+    ctx.stroke();
+  }
+  ctx.restore();
+}
+
+
+export function drawTopeteDrive(
+  ctx: CanvasRenderingContext2D,
+  x: number,
+  y: number,
+  facing: -1 | 1,
+  intensity: number,
+): void {
+  const t = clamp01(intensity);
+  if (t <= 0.01) return;
+  ctx.save();
+  ctx.translate(x, y);
+  ctx.scale(facing, 1);
+  ctx.lineCap = 'round';
+  for (let i = 0; i < 4; i += 1) {
+    ctx.globalAlpha = (0.16 + t * 0.28) * (1 - i * 0.12);
+    ctx.strokeStyle = i < 2 ? '#77b8ff' : '#326fae';
+    ctx.lineWidth = 8 - i * 1.2;
+    ctx.beginPath();
+    ctx.moveTo(-20 - i * 10, -126 + i * 28);
+    ctx.quadraticCurveTo(-72 - i * 12, -132 + i * 27, -142 - i * 14, -115 + i * 26);
+    ctx.stroke();
+  }
+  ctx.restore();
+}
+
+export function drawToroGroundImpact(
+  ctx: CanvasRenderingContext2D,
+  x: number,
+  y: number,
+  facing: -1 | 1,
+  intensity: number,
+): void {
+  const t = clamp01(intensity);
+  if (t <= 0.01) return;
+  ctx.save();
+  ctx.translate(x, y);
+  ctx.scale(facing, 1);
+  // Bounded turf fragments; presentation only.
+  for (let i = 0; i < 8; i += 1) {
+    const angle = -2.75 + i * 0.23;
+    const reach = 18 + i * 5 * t;
+    ctx.globalAlpha = (0.5 - i * 0.04) * t;
+    ctx.strokeStyle = i % 2 === 0 ? '#71874f' : '#b59c67';
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    ctx.moveTo(34, -3);
+    ctx.lineTo(34 + Math.cos(angle) * reach, -3 + Math.sin(angle) * reach);
+    ctx.stroke();
+  }
+  ctx.restore();
+}
+
+export function drawShawarmaProjectile(
+  ctx: CanvasRenderingContext2D,
+  x: number,
+  y: number,
+  vx: number,
+  age: number,
+): void {
+  ctx.save();
+  ctx.translate(x, y);
+  ctx.rotate((vx >= 0 ? 1 : -1) * age * 0.16);
+  ctx.fillStyle = '#d8a45f';
+  ctx.strokeStyle = '#5f3c24';
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.moveTo(-16, -10);
+  ctx.lineTo(16, -7);
+  ctx.lineTo(11, 11);
+  ctx.lineTo(-13, 9);
+  ctx.closePath();
+  ctx.fill();
+  ctx.stroke();
+  roundedLine(ctx, -9, -3, 8, 2, 3, '#7e3b2c');
+  roundedLine(ctx, -7, 3, 7, 6, 2.2, '#5c9a45');
+  ctx.restore();
+}
+
+export function drawShawarmaImpact(
+  ctx: CanvasRenderingContext2D,
+  x: number,
+  y: number,
+  facing: -1 | 1,
+  intensity: number,
+): void {
+  const t = clamp01(intensity);
+  if (t <= 0.01) return;
+  ctx.save();
+  ctx.translate(x, y);
+  ctx.scale(facing, 1);
+  // Warm food/debris burst.
+  for (let i = 0; i < 10; i += 1) {
+    const angle = -1.35 + i * 0.29;
+    const reach = 18 + (i % 4) * 8;
+    ctx.globalAlpha = (0.22 + t * 0.48) * (1 - i * 0.045);
+    ctx.strokeStyle = i % 3 === 0 ? '#83b85c' : i % 2 === 0 ? '#ffb259' : '#9c5131';
+    ctx.lineWidth = 3.5;
+    ctx.beginPath();
+    ctx.moveTo(0, 0);
+    ctx.lineTo(Math.cos(angle) * reach, Math.sin(angle) * reach);
+    ctx.stroke();
+  }
+  ctx.restore();
+}
+
+export function drawSuperEructoBlast(
+  ctx: CanvasRenderingContext2D,
+  x: number,
+  y: number,
+  facing: -1 | 1,
+  progress: number,
+  range = 390,
+): void {
+  const t = clamp01(progress);
+  if (t <= 0.01) return;
+  ctx.save();
+  ctx.translate(x, y);
+  ctx.scale(facing, 1);
+  // Translucent layered gas stays below opaque coverage so silhouettes remain readable.
+  for (let i = 0; i < 5; i += 1) {
+    const lane = i - 2;
+    const reach = Math.min(range, lerp(70 + i * 8, range - i * 18, t));
+    ctx.globalAlpha = (0.08 + t * 0.11) * (1 - Math.abs(lane) * 0.08);
+    ctx.fillStyle = i % 2 === 0 ? '#7fbd59' : '#abd978';
+    ctx.beginPath();
+    ctx.ellipse(reach * 0.55, -104 + lane * 21, reach * 0.5, 30 + (2 - Math.abs(lane)) * 6, 0, 0, Math.PI * 2);
+    ctx.fill();
+
+    ctx.globalAlpha = 0.16 + t * 0.14;
+    ctx.strokeStyle = i % 2 === 0 ? '#bce897' : '#77b553';
+    ctx.lineWidth = 3.5;
+    ctx.beginPath();
+    ctx.moveTo(30, -104 + lane * 18);
+    ctx.bezierCurveTo(
+      reach * 0.28,
+      -132 + lane * 16,
+      reach * 0.72,
+      -74 + lane * 19,
+      reach,
+      -103 + lane * 17,
+    );
+    ctx.stroke();
+  }
   ctx.restore();
 }

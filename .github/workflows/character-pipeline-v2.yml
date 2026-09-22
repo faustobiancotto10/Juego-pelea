@@ -1,0 +1,92 @@
+name: Character Pipeline V2 verification
+
+on:
+  push:
+    branches:
+      - repair/v07-character-pipeline-v2
+  pull_request:
+    paths:
+      - 'src/game/render/**'
+      - 'src/game/data/**'
+      - 'tools/character-pipeline-v2/**'
+      - 'tests/**'
+
+jobs:
+  verify:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Install project compiler
+        run: npm install --global typescript@latest
+
+      - name: Install free character authoring CLI toolchain
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y synfig inkscape ffmpeg imagemagick
+          # Synfig 1.5.1 on Ubuntu 24.04 prints its version successfully but exits 3.
+          synfig --version || { code=$?; [ "$code" -eq 3 ]; }
+          inkscape --version
+          ffmpeg -version | head -n 1
+          convert -version | head -n 1
+
+      - name: Full tests
+        run: npm test
+
+      - name: Build
+        run: npm run build
+
+      - name: Capture V07-M3 visual evidence
+        run: |
+          mkdir -p artifacts/v07-m3
+          python3 -m http.server 4173 >/tmp/v07-m3-http.log 2>&1 &
+          server_pid=$!
+          trap 'kill "$server_pid" 2>/dev/null || true' EXIT
+          for attempt in $(seq 1 20); do
+            if curl -fsS http://127.0.0.1:4173/tools/character-pipeline-v2/visual-evidence.html >/dev/null; then
+              break
+            fi
+            sleep 1
+          done
+          chrome="$(command -v google-chrome || command -v google-chrome-stable || command -v chromium || true)"
+          test -n "$chrome"
+          "$chrome" --headless --no-sandbox --disable-gpu --hide-scrollbars --virtual-time-budget=2500 --window-size=1280,720 \
+            --screenshot=artifacts/v07-m3/normal-color.png \
+            "http://127.0.0.1:4173/tools/character-pipeline-v2/visual-evidence.html?mode=color"
+          "$chrome" --headless --no-sandbox --disable-gpu --hide-scrollbars --virtual-time-budget=2500 --window-size=1280,720 \
+            --screenshot=artifacts/v07-m3/neutral-silhouette.png \
+            "http://127.0.0.1:4173/tools/character-pipeline-v2/visual-evidence.html?mode=silhouette"
+          "$chrome" --headless --no-sandbox --disable-gpu --hide-scrollbars --virtual-time-budget=2500 --window-size=1280,720 \
+            --screenshot=artifacts/v07-m3/juanchi-vs-el-toro.png \
+            "http://127.0.0.1:4173/tools/character-pipeline-v2/visual-evidence.html?mode=duel"
+          "$chrome" --headless --no-sandbox --disable-gpu --hide-scrollbars --virtual-time-budget=2500 --window-size=1280,720 \
+            --screenshot=artifacts/v07-m3/el-toro-actions.png \
+            "http://127.0.0.1:4173/tools/character-pipeline-v2/visual-evidence.html?mode=actions"
+          "$chrome" --headless --no-sandbox --disable-gpu --hide-scrollbars --virtual-time-budget=2500 --window-size=844,390 \
+            --screenshot=artifacts/v07-m3/phone-landscape.png \
+            "http://127.0.0.1:4173/tools/character-pipeline-v2/visual-evidence.html?mode=phone"
+          test -s artifacts/v07-m3/normal-color.png
+          test -s artifacts/v07-m3/neutral-silhouette.png
+          test -s artifacts/v07-m3/juanchi-vs-el-toro.png
+          test -s artifacts/v07-m3/el-toro-actions.png
+          test -s artifacts/v07-m3/phone-landscape.png
+
+      - name: Upload V07-M3 visual evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: v07-m3-visual-evidence
+          path: artifacts/v07-m3/*.png
+          if-no-files-found: error
+
+      - name: Runtime raster-reference guard
+        run: |
+          if grep -R -n -E 'identity-master-reference|action-sheet-reference|master-reference\.webp|drawImage\([^)]*reference' src; then
+            echo "Reference/raster fighter asset detected in runtime source"
+            exit 1
+          fi

@@ -26,6 +26,12 @@ export interface LocomotionPose {
   clashRecoil: number;
   travelIntent: TravelIntent;
   actualTravel: number;
+  hipCounterRotation: number;
+  chestCounterRotation: number;
+  freeArmSwing: number;
+  weightTransfer: number;
+  startDrive: number;
+  stopSettle: number;
 }
 
 interface TrackerState {
@@ -39,22 +45,107 @@ interface TrackerState {
   cached: LocomotionPose;
 }
 
-const STRIDE_BY_FIGHTER: Readonly<Record<string, number>> = Object.freeze({
-  chameleon: 58,
-  supernariz: 70,
-  juanchi: 66,
+export interface LocomotionStyle {
+  stride: number;
+  backStrideMultiplier: number;
+  stanceFraction: number;
+  swingFootLift: number;
+  pelvisBobAmplitude: number;
+  forwardTorsoLean: number;
+  backwardTorsoLean: number;
+  hipCounterRotationAmplitude: number;
+  chestCounterRotationAmplitude: number;
+  freeArmSwingAmplitude: number;
+  weightTransferScale: number;
+  neutralFootSpread: number;
+  swingArcPower: number;
+}
+
+const DEFAULT_LOCOMOTION_STYLE: LocomotionStyle = Object.freeze({
+  stride: 64,
+  backStrideMultiplier: 0.82,
+  stanceFraction: 0.55,
+  swingFootLift: 8,
+  pelvisBobAmplitude: 2.1,
+  forwardTorsoLean: 0.045,
+  backwardTorsoLean: -0.07,
+  hipCounterRotationAmplitude: 0,
+  chestCounterRotationAmplitude: 0,
+  freeArmSwingAmplitude: 0,
+  weightTransferScale: 0,
+  neutralFootSpread: 16,
+  swingArcPower: 1,
 });
 
-const NEUTRAL_FRONT_X = 16;
-const NEUTRAL_BACK_X = -16;
-const STANCE_FRACTION = 0.55;
+export const LOCOMOTION_STYLES: Readonly<Record<string, LocomotionStyle>> = Object.freeze({
+  chameleon: Object.freeze({
+    stride: 56,
+    backStrideMultiplier: 0.84,
+    stanceFraction: 0.58,
+    swingFootLift: 9.5,
+    pelvisBobAmplitude: 1.7,
+    forwardTorsoLean: 0.075,
+    backwardTorsoLean: -0.045,
+    hipCounterRotationAmplitude: 0.042,
+    chestCounterRotationAmplitude: 0.055,
+    freeArmSwingAmplitude: 15,
+    weightTransferScale: 6,
+    neutralFootSpread: 14,
+    swingArcPower: 0.82,
+  }),
+  supernariz: Object.freeze({
+    stride: 72,
+    backStrideMultiplier: 0.86,
+    stanceFraction: 0.52,
+    swingFootLift: 7,
+    pelvisBobAmplitude: 2.5,
+    forwardTorsoLean: 0.022,
+    backwardTorsoLean: -0.082,
+    hipCounterRotationAmplitude: 0.024,
+    chestCounterRotationAmplitude: 0.032,
+    freeArmSwingAmplitude: 10,
+    weightTransferScale: 5,
+    neutralFootSpread: 15,
+    swingArcPower: 1.04,
+  }),
+  juanchi: Object.freeze({
+    stride: 54,
+    backStrideMultiplier: 0.80,
+    stanceFraction: 0.62,
+    swingFootLift: 6,
+    pelvisBobAmplitude: 1.3,
+    forwardTorsoLean: 0.035,
+    backwardTorsoLean: -0.055,
+    hipCounterRotationAmplitude: 0.032,
+    chestCounterRotationAmplitude: 0.046,
+    freeArmSwingAmplitude: 12,
+    weightTransferScale: 8,
+    neutralFootSpread: 17,
+    swingArcPower: 0.94,
+  }),
+  'el-toro': Object.freeze({
+    stride: 48,
+    backStrideMultiplier: 0.76,
+    stanceFraction: 0.68,
+    swingFootLift: 4.8,
+    pelvisBobAmplitude: 0.85,
+    forwardTorsoLean: 0.048,
+    backwardTorsoLean: -0.038,
+    hipCounterRotationAmplitude: 0.022,
+    chestCounterRotationAmplitude: 0.032,
+    freeArmSwingAmplitude: 8,
+    weightTransferScale: 10,
+    neutralFootSpread: 22,
+    swingArcPower: 1.34,
+  }),
+});
+
+export function getLocomotionStyle(fighterId: string): LocomotionStyle {
+  return LOCOMOTION_STYLES[fighterId] ?? DEFAULT_LOCOMOTION_STYLE;
+}
 
 function mod1(value: number): number {
   return ((value % 1) + 1) % 1;
-}
-
-function baseStride(fighterId: string): number {
-  return STRIDE_BY_FIGHTER[fighterId] ?? 64;
 }
 
 function footForCycle(
@@ -64,24 +155,27 @@ function footForCycle(
   travelSign: -1 | 0 | 1,
   movementBlend: number,
   neutralX: number,
+  stanceFraction: number,
+  swingFootLift: number,
+  swingArcPower: number,
 ): Point2 {
   if (travelSign === 0 || movementBlend <= 0.0001) return { x: neutralX, y: 0 };
 
   const u = mod1(phase + offset);
-  const stanceTravel = stride * STANCE_FRACTION;
+  const stanceTravel = stride * stanceFraction;
   const halfTravel = stanceTravel * 0.5;
 
   let x: number;
   let y = 0;
-  if (u < STANCE_FRACTION) {
-    const t = u / STANCE_FRACTION;
+  if (u < stanceFraction) {
+    const t = u / stanceFraction;
     // Root translation plus this opposite local translation produces a
     // near-planted support foot in world space.
     x = travelSign * lerp(halfTravel, -halfTravel, t);
   } else {
-    const t = (u - STANCE_FRACTION) / (1 - STANCE_FRACTION);
+    const t = (u - stanceFraction) / (1 - stanceFraction);
     x = travelSign * lerp(-halfTravel, halfTravel, t);
-    y = Math.sin(Math.PI * t) * 8;
+    y = Math.pow(Math.max(0, Math.sin(Math.PI * t)), swingArcPower) * swingFootLift;
   }
 
   return {
@@ -91,6 +185,7 @@ function footForCycle(
 }
 
 function neutralPose(fighter: FighterSnapshot): LocomotionPose {
+  const style = getLocomotionStyle(fighter.id);
   const clashBrace = fighter.clashRecoveryFrames > 0 && fighter.y <= 0.001 ? 1 : 0;
   const clashRecoil = fighter.clashRecoveryFrames > 0 && fighter.y > 0.001 ? 1 : 0;
   const preparation = !clashBrace && fighter.grounded && fighter.jumpStartupFrames > 0
@@ -111,8 +206,8 @@ function neutralPose(fighter: FighterSnapshot): LocomotionPose {
     : 0;
   return {
     phase: 0,
-    frontFoot: { x: NEUTRAL_FRONT_X, y: 0 },
-    backFoot: { x: NEUTRAL_BACK_X, y: 0 },
+    frontFoot: { x: style.neutralFootSpread, y: 0 },
+    backFoot: { x: -style.neutralFootSpread, y: 0 },
     pelvisDrop: preparation * 18 + landingAbsorption * 20 + tuck * 5 + clashBrace * 11,
     torsoLean: descentBrace * 0.035 + clashBrace * 0.13 - clashRecoil * 0.11,
     preparation,
@@ -127,6 +222,12 @@ function neutralPose(fighter: FighterSnapshot): LocomotionPose {
     clashRecoil,
     travelIntent: 'idle',
     actualTravel: 0,
+    hipCounterRotation: 0,
+    chestCounterRotation: 0,
+    freeArmSwing: 0,
+    weightTransfer: 0,
+    startDrive: 0,
+    stopSettle: 0,
   };
 }
 
@@ -193,10 +294,12 @@ export class LocomotionPoseTracker {
     const ordinaryTravel = isOrdinaryGroundTravel(fighter) && plausibleTravel;
     const localTravel = dx * fighter.facing;
     const moving = ordinaryTravel && travel > 0.025;
+    const style = getLocomotionStyle(fighter.id);
+    const previousBlend = state.movementBlend;
 
     if (moving) {
       state.travelSign = localTravel >= 0 ? 1 : -1;
-      const effectiveStride = baseStride(fighter.id) * (state.travelSign < 0 ? 0.82 : 1);
+      const effectiveStride = style.stride * (state.travelSign < 0 ? style.backStrideMultiplier : 1);
       state.gaitCycles += travel / effectiveStride;
       state.movementBlend = clamp01(state.movementBlend + advancingTicks / 3);
     } else {
@@ -204,15 +307,19 @@ export class LocomotionPoseTracker {
       if (state.movementBlend <= 0.001) state.travelSign = 0;
     }
 
+    const blendDelta = state.movementBlend - previousBlend;
     const phase = mod1(state.gaitCycles);
-    const effectiveStride = baseStride(fighter.id) * (state.travelSign < 0 ? 0.82 : 1);
+    const effectiveStride = style.stride * (state.travelSign < 0 ? style.backStrideMultiplier : 1);
     const frontFoot = footForCycle(
       phase,
       0,
       effectiveStride,
       state.travelSign,
       state.movementBlend,
-      NEUTRAL_FRONT_X,
+      style.neutralFootSpread,
+      style.stanceFraction,
+      style.swingFootLift,
+      style.swingArcPower,
     );
     const backFoot = footForCycle(
       phase,
@@ -220,7 +327,10 @@ export class LocomotionPoseTracker {
       effectiveStride,
       state.travelSign,
       state.movementBlend,
-      NEUTRAL_BACK_X,
+      -style.neutralFootSpread,
+      style.stanceFraction,
+      style.swingFootLift,
+      style.swingArcPower,
     );
 
     const clashBrace = fighter.clashRecoveryFrames > 0 && fighter.y <= 0.001 ? 1 : 0;
@@ -251,9 +361,17 @@ export class LocomotionPoseTracker {
       ? 0
       : clamp01(fighter.dashFrame / 6);
 
-    const walkBob = state.movementBlend * Math.sin(phase * Math.PI * 4) * 2.1;
+    const walkBob = state.movementBlend * Math.sin(phase * Math.PI * 4) * style.pelvisBobAmplitude;
     const travelLean = state.movementBlend
-      * (state.travelSign > 0 ? 0.045 : state.travelSign < 0 ? -0.07 : 0);
+      * (state.travelSign > 0 ? style.forwardTorsoLean : state.travelSign < 0 ? style.backwardTorsoLean : 0);
+    const gaitWave = Math.sin(phase * Math.PI * 2) * state.movementBlend;
+    const hipCounterRotation = gaitWave * style.hipCounterRotationAmplitude;
+    const chestCounterRotation = -gaitWave * style.chestCounterRotationAmplitude;
+    const backwardArmRestraint = state.travelSign < 0 ? 0.68 : 1;
+    const freeArmSwing = -gaitWave * style.freeArmSwingAmplitude * backwardArmRestraint;
+    const weightTransfer = blendDelta * style.weightTransferScale * (state.travelSign || 1);
+    const startDrive = clamp01(Math.max(0, blendDelta) * 3);
+    const stopSettle = clamp01(Math.max(0, -blendDelta) * 4);
     const dashLean = fighter.dashKind === 'forward'
       ? 0.16 * dashDrive
       : fighter.dashKind === 'back'
@@ -270,7 +388,9 @@ export class LocomotionPoseTracker {
         + landingAbsorption * 20
         + tuck * 5
         + dashCompression * 10
-        + clashBrace * 11,
+        + clashBrace * 11
+        + startDrive * style.weightTransferScale * 0.32
+        + stopSettle * style.weightTransferScale * 0.42,
       torsoLean:
         travelLean
         + dashLean
@@ -278,7 +398,8 @@ export class LocomotionPoseTracker {
         - clashRecoil * 0.11
         - preparation * 0.035
         + extension * 0.045
-        + descentBrace * 0.04,
+        + descentBrace * 0.04
+        + weightTransfer * 0.012,
       preparation,
       extension,
       tuck,
@@ -292,6 +413,12 @@ export class LocomotionPoseTracker {
       travelIntent:
         state.travelSign > 0 ? 'forward' : state.travelSign < 0 ? 'back' : 'idle',
       actualTravel: moving ? travel : 0,
+      hipCounterRotation,
+      chestCounterRotation,
+      freeArmSwing,
+      weightTransfer,
+      startDrive,
+      stopSettle,
     };
 
     state.lastFrame = frame;

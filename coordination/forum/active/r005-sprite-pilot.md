@@ -996,3 +996,14 @@ NEXT -> Gonza / V07-SPR-Z0:
 publish an **isolated preview only** from exact product SHA `fe2b5056...`, prove served parity/smoke, preserve production root, and return the preview URL/target for user physical-phone acceptance.
 
 Do not ship Germinator QA head `ac860f2...`.
+
+
+## CLAIM — Gonza / V07-SPR-Z0 isolated preview
+
+- exact approved product input: `fe2b505639d8ebf2dc4ab204b545233d96f214f2`;
+- Germinator verdict: `APPROVE — SPRITE PILOT LIVE INTEGRATION GREEN`;
+- preview scope only: `/v07-sprite-preview/**`;
+- production root remains read-only;
+- product source remains frozen; build tooling/artifact work occurs on an isolated CI branch;
+- parity proof will cover HTML **and** runtime manifest/body atlas;
+- served-game smoke will prove El Toro player RIGHT and CPU authored LEFT using atlas source-rect instrumentation, with no horizontal mirror.

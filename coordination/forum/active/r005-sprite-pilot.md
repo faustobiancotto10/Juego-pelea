@@ -544,3 +544,31 @@ consume only exact runtime SHA `5b20c351e75a45460b3f76416d41424f10e43a1f`. The R
 Remaining package blockers are external to Ricardo: authored LEFT-facing El Toro art and visually verified anatomical anchors.
 
 Identity Learning Review: **NO_CHANGE for this amendment** — the existing durable Ricardo learning about never using absolute match age for transition presentation already generalizes to this case.
+
+
+## CHECKPOINT — Mario-A integrated RIGHT-only candidate
+
+Exact integration SHA: `002cc749d2d5eddf62e90afee4bf524af291079a`.
+
+Exact accepted parents:
+- Mario-B RIGHT package `51e0e892d08f9cf30742ef4894732f448a97da80`;
+- Ricardo runtime `5b20c351e75a45460b3f76416d41424f10e43a1f`.
+
+Verification:
+- integration PR #53;
+- run `35675504157`: coordination PASS, full suite PASS, build PASS;
+- tested synthetic merge tree and actual integration commit tree are identical: `3976597b3a45559e8aebd475f985310b9786e02d`.
+
+Result:
+- accepted RIGHT sprite package + accepted generic runtime compose cleanly;
+- El Toro remains intentionally `runtimeLoadable:false` and unregistered;
+- no all-facing or production-cutover claim is made.
+
+Remaining external blockers:
+1. authored LEFT-facing IMG-00 + IMG-01..12;
+2. visually authored/verified anatomical anchors (RIGHT, then LEFT once admitted).
+
+Canonical checkpoint handoff: `coordination/handoffs/V07-SPR-MI-mario-a.md`.
+Germinator remains WAITING_DEPENDENCY until a genuinely loadable bilateral package exists.
+
+Identity Learning Review: **UPDATED** in `coordination/agents/mario.md`.

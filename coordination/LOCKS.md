@@ -2,14 +2,6 @@
 
 Sprite pilot extension is active.
 
-Active repair claim:
-- Mario-A / V07-SPR-MA — WORKING_REPAIR on `round/r005-sprite-mario-a-source-import` from exact prior handoff `45cbf8ab88bc654fa7c64c91297496662ef1809c`.
-  - exclusive lock: `scripts/**sprite**` MA source extraction/normalization tooling
-  - exclusive lock: `tests/el-toro-sprite-source-pipeline.test.mjs`
-  - exclusive lock: `docs/characters/el-toro/sprite-source/right/NORMALIZATION_HANDOFF.md`
-  - repair scope: pixel-isolated frame API + IMG-01..12-only runtime body normalization
-  - no ownership of Mario-B package files or Ricardo runtime files.
-
 On activation:
 - Mario-A / V07-SPR-MA owns `docs/characters/el-toro/sprite-source/**` and sprite-source extraction/validation tooling it explicitly claims.
 - Mario-B / V07-SPR-MB owns the El Toro derived sprite package/manifest/presentation files after consuming Mario-A's source interface.

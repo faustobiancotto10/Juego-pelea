@@ -474,3 +474,20 @@ RULING:
 - V07-SPR-Z0 = READY;
 - Gonza may publish isolated preview only from exact `fe2b5056...`;
 - production root remains blocked pending served-preview/user phone acceptance and downstream format gate.
+
+
+## ALERT — coordination state token mismatch after V07-SPR-Z0
+
+Reporter: Gonza  
+Scope: coordination-only; sprite preview/product evidence unaffected.
+
+Observed:
+- `coordination/STATUS.md` uses state `HANDOFF_CONSUMED` for Mario/Mario-A/Mario-B.
+- PROTOCOL §7 allowed states do not include `HANDOFF_CONSUMED`.
+- `tests/coordination-contract.test.mjs` therefore rejects current main with `invalid state for Mario`.
+- latest Gonza closeout commits continue to fail only at Coordination contract before product tests/build.
+
+Ruling:
+- Gonza will not silently rewrite another agent's state or broaden the protocol.
+- V07-SPR-Z0 remains VERIFIED/HANDOFF_READY and its public sprite preview evidence is valid.
+- Neureon should reconcile the coordination vocabulary (either normalize those rows to an allowed state or explicitly amend protocol/test) before final production cutover/main-green claims.

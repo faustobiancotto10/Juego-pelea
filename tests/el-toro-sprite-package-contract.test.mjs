@@ -236,3 +236,63 @@ test('Super Eructo phase retiming exactly matches forwardBlast authoritative pha
     assert.equal(timing.frameDurations.reduce((sum, ticks) => sum + ticks, 0), timing.totalTicks);
   }
 });
+
+
+test('El Toro runtime state keys map to contractual frame windows without hidden aliases', () => {
+  const pkg = loadPackage();
+  assert.deepEqual(pkg.resolverMap.runtimeStateWindows, {
+    idle: { semanticKey: 'idle', firstFrame: 1, lastFrame: 8, loop: true },
+    crouch: { semanticKey: 'crouch', firstFrame: 1, lastFrame: 4, loop: false },
+    'walk-forward': { semanticKey: 'walk-forward', firstFrame: 1, lastFrame: 8, loop: true },
+    'walk-back': { semanticKey: 'walk-back', firstFrame: 1, lastFrame: 8, loop: true },
+    'dash-forward': {
+      semanticKey: 'walk-forward', firstFrame: 1, lastFrame: 8, loop: false,
+      requiresGameplayScaleReview: true,
+    },
+    'dash-back': {
+      semanticKey: 'walk-back', firstFrame: 1, lastFrame: 8, loop: false,
+      requiresGameplayScaleReview: true,
+    },
+    'jump-startup': { semanticKey: 'jump', firstFrame: 1, lastFrame: 2, loop: false },
+    'jump-ascent': { semanticKey: 'jump', firstFrame: 2, lastFrame: 3, loop: false },
+    'jump-apex': { semanticKey: 'jump', firstFrame: 4, lastFrame: 4, loop: false },
+    'jump-descent': { semanticKey: 'jump', firstFrame: 5, lastFrame: 6, loop: false },
+    land: { semanticKey: 'jump', firstFrame: 6, lastFrame: 6, loop: false },
+    block: { semanticKey: 'block', firstFrame: 1, lastFrame: 4, loop: false },
+    'block-crouch': {
+      semanticKey: 'block', firstFrame: 1, lastFrame: 4, loop: false,
+      requiresGameplayScaleReview: true,
+    },
+    hurt: { semanticKey: 'hurt-knockdown', firstFrame: 1, lastFrame: 4, loop: false },
+    'guard-break': {
+      semanticKey: 'hurt-knockdown', firstFrame: 1, lastFrame: 4, loop: false,
+      requiresGameplayScaleReview: true,
+    },
+    knockdown: { semanticKey: 'hurt-knockdown', firstFrame: 5, lastFrame: 8, loop: false },
+    captured: {
+      semanticKey: 'hurt-knockdown', firstFrame: 4, lastFrame: 4, loop: false,
+      requiresGameplayScaleReview: true,
+    },
+  });
+
+  assert.deepEqual(
+    Object.keys(pkg.resolverMap.runtimeStateWindows).sort(),
+    Object.keys(pkg.resolverMap.stateToSemantic).sort(),
+    'every non-move resolver state must have an explicit frame-window policy',
+  );
+});
+
+test('El Toro package pins the frozen V0.7 move IDs used to compile runtime manifest keys', () => {
+  const pkg = loadPackage();
+  assert.deepEqual(pkg.resolverMap.expectedMoveIdsByRole, {
+    standing: 'toroJab',
+    chain: 'toroShoulder',
+    low: 'toroLow',
+    air: 'toroAir',
+    closeSpecial: 'topete',
+    rangedSpecial: 'shawarmazoThrow',
+    ultimate: 'superEructo',
+  });
+  assert.equal(pkg.resolverMap.moveKeyPolicy, 'verify-frozen-character-content-at-integration');
+  assert.equal(pkg.resolverMap.ultimatePhasePolicy, 'compile-superEructo-forwardBlast-phases-at-integration');
+});

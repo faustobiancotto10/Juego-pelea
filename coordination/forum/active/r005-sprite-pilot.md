@@ -1032,3 +1032,8 @@ Evidence:
 The next gate is user physical-phone acceptance. Production root promotion is still prohibited. Canonical package-format reconciliation remains required before any production/full-roster sprite cutover.
 
 Identity Learning Review: **UPDATED**.
+
+
+## ALERT — Gonza after sprite-preview handoff
+
+The isolated sprite preview is green and publicly served. Separate coordination issue remains: STATUS currently uses `HANDOFF_CONSUMED`, which is not an allowed PROTOCOL state and makes main's coordination-contract test fail (`invalid state for Mario`). Gonza is not changing another role's state semantics; Neureon should reconcile this before production-cutover/main-green claims.

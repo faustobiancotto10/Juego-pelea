@@ -2,7 +2,7 @@ import { createHash } from 'node:crypto';
 import { existsSync, mkdirSync, readFileSync, readdirSync, writeFileSync } from 'node:fs';
 import { join, relative, resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
-import { SHEETS, REJECTED_ALTERNATE } from './sprite-source-config.mjs';
+import { REJECTED_ALTERNATE, sheetsForFacing } from './sprite-source-config.mjs';
 import { parseRgbaPng } from './sprite-png-alpha.mjs';
 import { extractFramesByComponents, extractPixelIsolatedFrames } from './sprite-component-extractor.mjs';
 import { buildNormalization, normalizedTransform } from './sprite-normalize-contract.mjs';
@@ -12,14 +12,14 @@ function sha256(buffer) {
   return createHash('sha256').update(buffer).digest('hex');
 }
 
-export function generateSpriteSourceEvidence({sourceDir,outDir}) {
-  const sourceRoot=resolve(sourceDir),outputRoot=resolve(outDir);
+export function generateSpriteSourceEvidence({sourceDir,outDir,facing='right'}) {
+  const sourceRoot=resolve(sourceDir),outputRoot=resolve(outDir);\n  const sheetSpecs=sheetsForFacing(facing);
   mkdirSync(outputRoot,{recursive:true});
   const names=new Set(readdirSync(sourceRoot));
   const hashMismatches=[],unsupportedPngs=[],emptyFrames=[],canvasEdgeClipping=[],cellBoundaryTouches=[];
   const sheets=[],frames=[];
 
-  for (const spec of SHEETS) {
+  for (const spec of sheetSpecs) {
     const path=join(sourceRoot,spec.file);
     if (!existsSync(path)) throw new Error('missing accepted source sheet '+spec.file);
     const bytes=readFileSync(path);
@@ -63,25 +63,25 @@ export function generateSpriteSourceEvidence({sourceDir,outDir}) {
 
   const normalization=buildNormalization(frames);
   const manifestFrames=frames.map((frame)=>({...frame,normalized:normalizedTransform(frame,normalization)}));
-  const rejectedAlternatePresent=names.has(REJECTED_ALTERNATE);
+  const rejectedAlternatePresent=facing==='right' && names.has(REJECTED_ALTERNATE);
   const manifest={
     contractVersion:1,
     fighterId:'el-toro',
-    facing:'right',
-    shippingStatus:'pilot-only-left-facing-blocked',
+    facing,
+    shippingStatus:facing==='right' ? 'pilot-only-left-facing-blocked' : 'pilot-only-anchor-blocked',
     authority:[
       'docs/SPRITE_PRODUCTION_CONTRACT.md',
       'docs/characters/el-toro/SPRITE_INTAKE_2026-09-21.md',
       'docs/characters/el-toro/LEFT_FACING_SET_PROMPT.md',
     ],
     runtimeBoundary:'Runtime consumes normalized derived frames/atlases and this transform contract; source sheets remain authoring-only and must never be loaded as fighter textures.',
-    leftFacingGate:'El Toro is not mirror-safe. Authored LEFT-IMG-00 + LEFT IMG-01..12 remain mandatory before production cutover.',
+    leftFacingGate:facing==='right'\n      ? 'El Toro is not mirror-safe. Authored LEFT-IMG-00 + LEFT IMG-01..12 remain mandatory before production cutover.'\n      : 'Authored LEFT source is admitted; visually verified anatomical attachment anchors remain mandatory before production cutover.',
     normalization,sheets,frames:manifestFrames,
     diagnostics:{hashMismatches,rejectedAlternatePresent,emptyFrames,canvasEdgeClipping,cellBoundaryTouches,unsupportedPngs},
   };
 
   writeFileSync(join(outputRoot,'NORMALIZATION_MANIFEST.json'),JSON.stringify(manifest,null,2)+'\n');
-  writeFileSync(join(outputRoot,'NORMALIZED_PREVIEW.svg'),renderNormalizedPreview(manifestFrames,sheets,normalization));
+  writeFileSync(join(outputRoot,'NORMALIZED_PREVIEW.svg'),renderNormalizedPreview(manifestFrames,sheets,normalization,facing));
 
   const bodyFrameCount=frames.filter((frame)=>/^IMG-(0[1-9]|1[0-2])$/.test(frame.sheetId)).length;
   const fxFrameCount=frames.filter((frame)=>frame.kind==='fx').length;
@@ -95,7 +95,7 @@ export function generateSpriteSourceEvidence({sourceDir,outDir}) {
 }
 
 
-export function generatePixelIsolatedFrameSet({sourceDir}) {
+export function generatePixelIsolatedFrameSet({sourceDir,facing='right'}) {
   const sourceRoot=resolve(sourceDir);
   const names=new Set(readdirSync(sourceRoot));
   if (names.has(REJECTED_ALTERNATE)) {
@@ -105,7 +105,7 @@ export function generatePixelIsolatedFrameSet({sourceDir}) {
   const frames=[];
   const sourceHashes={};
 
-  for (const spec of SHEETS) {
+  for (const spec of sheetSpecs) {
     const path=join(sourceRoot,spec.file);
     if (!existsSync(path)) throw new Error('missing accepted source sheet '+spec.file);
     const bytes=readFileSync(path);
@@ -144,7 +144,7 @@ export function generatePixelIsolatedFrameSet({sourceDir}) {
 
   return {
     fighterId:'el-toro',
-    facing:'right',
+    facing,
     isolationVersion:'component-owned-rgba-v1',
     contentAlpha:32,
     sourceHashes,

@@ -449,3 +449,14 @@ NOTE -> Ricardo:
 replacement v2 `79f8d81...` is GREEN for hurt/guard-break/jump-startup/land/captured/knockdown, but Mario-B re-audit still finds crouch/block/block-crouch using ambient absolute combatTick. Those three must be entry-timed before the one-shot IMG-04/IMG-08 progressions are integrated.
 
 Mario-B remains **BLOCKED / RIGHT-PACKAGE-READY**. Mario-A integrator may consume the exact package handoff for composition planning but must not claim an all-facing runtime package until the gates above are satisfied.
+
+## CHECKPOINT — Mario-B anchor-review infrastructure GREEN
+
+- exact SHA: `51e0e892d08f9cf30742ef4894732f448a97da80`
+- run `35675088000`: coordination + full suite + build PASS
+- package now emits `right-anchor-review.json` + `right-anchor-review.svg` from the derived body atlas
+- all 84 pivots come from normalization/packing; anatomical anchor fields remain intentionally null/unverified
+- strict verifier rejects incomplete or out-of-bounds reviews
+- no anatomical points were inferred from alpha geometry or fabricated
+
+Remaining hard inputs: authored LEFT set + visual anatomical-anchor verification. Runtime amendment for `crouch`/`block`/`block-crouch` remains requested from Ricardo.

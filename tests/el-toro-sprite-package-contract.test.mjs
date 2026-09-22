@@ -126,8 +126,8 @@ test('El Toro package maps resolver states and kit roles without hardcoding unkn
     rangedSpecial: 'shawarmazo',
     ultimate: 'super-eructo',
   });
-  assert.equal(pkg.resolverMap.moveKeyPolicy, 'derive-from-fighter-kit-at-integration');
-  assert.equal(pkg.resolverMap.ultimatePhasePolicy, 'derive-from-fighter-kit-ultimate-at-integration');
+  assert.equal(pkg.resolverMap.moveKeyPolicy, 'verify-frozen-character-content-at-integration');
+  assert.equal(pkg.resolverMap.ultimatePhasePolicy, 'compile-superEructo-forwardBlast-phases-at-integration');
 
   const semanticKeys = new Set(pkg.body.map((entry) => entry.semanticKey));
   for (const semantic of Object.values(pkg.resolverMap.stateToSemantic)) {

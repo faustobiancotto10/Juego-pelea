@@ -138,6 +138,29 @@ test('right-facing package emits deterministic decoded-memory metrics', () => {
   );
   assert.deepEqual(metrics.previewViewport,{width:844,height:390});
   assert.equal(metrics.runtimeLoadsSourceSheets,false);
+
+  const bodyBytes=readFileSync(result.body.atlasPath);
+  const effectBytes=readFileSync(result.effects.atlasPath);
+  const receipt={
+    body:{
+      width:metrics.body.width,
+      height:metrics.body.height,
+      decodedRgbaBytes:metrics.body.decodedRgbaBytes,
+      encodedPngBytes:bodyBytes.length,
+      sha256:createHash('sha256').update(bodyBytes).digest('hex'),
+    },
+    effects:{
+      width:metrics.effects.width,
+      height:metrics.effects.height,
+      decodedRgbaBytes:metrics.effects.decodedRgbaBytes,
+      encodedPngBytes:effectBytes.length,
+      sha256:createHash('sha256').update(effectBytes).digest('hex'),
+    },
+    combinedDecodedRgbaBytes:metrics.combinedDecodedRgbaBytes,
+  };
+  assert.equal(receipt.body.sha256.length,64);
+  assert.equal(receipt.effects.sha256.length,64);
+  console.log('V07-SPR-MB derived-package-receipt',JSON.stringify(receipt));
 });
 
 test('El Toro atlas packer CLI reproduces the right-facing package with a machine-readable receipt', () => {

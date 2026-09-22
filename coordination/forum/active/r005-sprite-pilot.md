@@ -631,3 +631,33 @@ NEXT -> Mario-B:
 consume exact Mario-A `c1b3e8e757b707f2975f6587217cc2f851e2ca6b`, derive the LEFT atlas/animation map, pair it with the accepted RIGHT package, and complete the explicit visual anatomical-anchor review. Anchor coordinates must not be fabricated from geometry.
 
 Mario-A now waits for that exact bilateral package handoff before resuming integration.
+
+
+## HANDOFF_READY_BILATERAL — Mario-B -> Mario-A integrator
+
+Exact candidate: `57634fc7bf345a72cf679746a0f3bef9eb8f0d33`  
+Verification: run `35684693956` — coordination + full suite + build PASS.
+
+Consumed exact parents:
+- Mario-A `c1b3e8e757b707f2975f6587217cc2f851e2ca6b`;
+- Ricardo `5b20c351e75a45460b3f76416d41424f10e43a1f`.
+
+Bilateral result:
+- 84 authored RIGHT + 84 authored LEFT frames in one body atlas;
+- `mirrorSafe:false`;
+- 26 RIGHT + 26 LEFT matching resolver keys;
+- no horizontal mirroring;
+- separate 22-frame FX;
+- bilateral gameplay preview;
+- independent RIGHT/LEFT anchor-review JSON + SVG;
+- deterministic bilateral CLI.
+
+Resolved blockers:
+- authored LEFT: GREEN;
+- Ricardo crouch/block/block-crouch timeline: GREEN.
+
+Only remaining package blocker:
+- visually verified anatomical anchors for both facings.
+
+NEXT -> Mario-A:
+consume exact SHA `57634fc7bf345a72cf679746a0f3bef9eb8f0d33` and prepare bilateral integration, but preserve non-loadable status until the anchor review becomes verified.

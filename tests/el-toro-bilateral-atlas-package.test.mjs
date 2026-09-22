@@ -158,3 +158,23 @@ test('bilateral package is deterministic and reproducible through CLI', () => {
   assert.equal(receipt.manifest,'el-toro-animations.json');
   assert.equal(readFileSync(join(outDir,'el-toro-animations.json'),'utf8').length>0,true);
 });
+
+
+test('repaired LEFT Topete remains 8/8 in the bilateral derived manifest', () => {
+  const {outDir}=build();
+  const manifest=JSON.parse(readFileSync(join(outDir,'el-toro-animations.json'),'utf8'));
+  const topete=manifest.leftAnimations['move:topete'];
+  assert.ok(topete);
+  assert.equal(topete.frames.length,8);
+
+  const rects=topete.frames.map((frame)=>[
+    frame.x,frame.y,frame.width,frame.height,
+  ].join(':'));
+  assert.equal(new Set(rects).size,8);
+
+  for (const frame of topete.frames) {
+    assert.ok(frame.width>=1);
+    assert.ok(frame.height>=1);
+    assert.ok(frame.durationTicks>=1);
+  }
+});

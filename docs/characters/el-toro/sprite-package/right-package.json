@@ -526,6 +526,166 @@
       "closeSpecial": "topete",
       "rangedSpecial": "shawarmazoThrow",
       "ultimate": "superEructo"
+    },
+    "runtimeStateTimings": {
+      "idle": {
+        "clockPolicy": "ambient-loop",
+        "frameDurations": [
+          8,
+          8,
+          8,
+          8,
+          8,
+          8,
+          8,
+          8
+        ]
+      },
+      "crouch": {
+        "clockPolicy": "presentation-state-entry-age",
+        "frameDurations": [
+          2,
+          2,
+          3,
+          3
+        ]
+      },
+      "walk-forward": {
+        "clockPolicy": "ambient-loop",
+        "frameDurations": [
+          4,
+          4,
+          4,
+          4,
+          4,
+          4,
+          4,
+          4
+        ]
+      },
+      "walk-back": {
+        "clockPolicy": "ambient-loop",
+        "frameDurations": [
+          4,
+          4,
+          4,
+          4,
+          4,
+          4,
+          4,
+          4
+        ]
+      },
+      "dash-forward": {
+        "clockPolicy": "dashFrame",
+        "frameDurations": [
+          2,
+          1,
+          2,
+          1,
+          2,
+          1,
+          2,
+          1
+        ]
+      },
+      "dash-back": {
+        "clockPolicy": "dashFrame",
+        "frameDurations": [
+          2,
+          2,
+          2,
+          2,
+          2,
+          2,
+          2,
+          2
+        ]
+      },
+      "jump-startup": {
+        "clockPolicy": "presentation-state-entry-age",
+        "frameDurations": [
+          1,
+          1
+        ]
+      },
+      "jump-ascent": {
+        "clockPolicy": "airborneTicks",
+        "frameDurations": [
+          7,
+          7
+        ]
+      },
+      "jump-apex": {
+        "clockPolicy": "airborneTicks",
+        "frameDurations": [
+          1000
+        ]
+      },
+      "jump-descent": {
+        "clockPolicy": "airborneTicks",
+        "frameDurations": [
+          23,
+          1000
+        ]
+      },
+      "land": {
+        "clockPolicy": "presentation-state-entry-age",
+        "frameDurations": [
+          4
+        ]
+      },
+      "block": {
+        "clockPolicy": "presentation-state-entry-age",
+        "frameDurations": [
+          2,
+          2,
+          3,
+          3
+        ]
+      },
+      "block-crouch": {
+        "clockPolicy": "presentation-state-entry-age",
+        "frameDurations": [
+          2,
+          2,
+          3,
+          3
+        ]
+      },
+      "hurt": {
+        "clockPolicy": "presentation-state-entry-age",
+        "frameDurations": [
+          2,
+          2,
+          2,
+          2
+        ]
+      },
+      "guard-break": {
+        "clockPolicy": "presentation-state-entry-age",
+        "frameDurations": [
+          6,
+          6,
+          12,
+          18
+        ]
+      },
+      "knockdown": {
+        "clockPolicy": "presentation-state-entry-age",
+        "frameDurations": [
+          3,
+          3,
+          4,
+          6
+        ]
+      },
+      "captured": {
+        "clockPolicy": "presentation-state-entry-age",
+        "frameDurations": [
+          1
+        ]
+      }
     }
   },
   "effectPackagePlan": {

@@ -7,6 +7,7 @@ const renderFiles = [
   'src/game/render/SupernarizRig.ts',
   'src/game/render/FightRenderer.ts',
   'src/game/render/FighterRenderer.ts',
+  'src/game/render/sprites/SpriteFighterRenderer.ts',
   'src/game/render/CombatEffects.ts',
 ];
 
@@ -15,13 +16,16 @@ function read(file) {
   return readFileSync(file, 'utf8');
 }
 
-test('runtime fighter renderer stays procedural and reference-image free', () => {
+test('runtime body renderers keep authoring references out while allowing normalized atlas draws', () => {
   const source = renderFiles.map(read).join('\n');
-  for (const banned of ['new Image(', 'drawImage(', '.png', '.jpg', '.jpeg', 'spritesheet']) {
-    assert.equal(source.includes(banned), false, `renderer must not contain ${banned}`);
+  for (const banned of ['.png', '.jpg', '.jpeg', 'sprite-source', 'reference-sheet']) {
+    assert.equal(source.includes(banned), false, `renderer must not contain authoring reference marker ${banned}`);
   }
-  assert.match(source, /CanvasRenderingContext2D/);
-  assert.match(source, /bezierCurveTo|quadraticCurveTo/);
+  const sprite = read('src/game/render/sprites/SpriteFighterRenderer.ts');
+  const procedural = read('src/game/render/ChameleonRig.ts') + read('src/game/render/SupernarizRig.ts');
+  assert.match(sprite, /drawImage/);
+  assert.equal(sprite.includes('new Image('), false, 'atlas loading belongs in SpriteAssetStore, not the body renderer');
+  assert.match(procedural, /bezierCurveTo|quadraticCurveTo/);
 });
 
 test('V0.4 Coletazo has authored windup strike follow-through recovery and trail', () => {

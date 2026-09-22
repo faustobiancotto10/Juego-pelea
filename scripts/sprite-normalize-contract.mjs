@@ -11,16 +11,26 @@ function sharedScale(frames,canvas,bottomAnchored) {
 }
 
 export function buildNormalization(frames) {
+  const masterFrames=frames.filter((frame)=>frame.kind==='master');
   const bodyFrames=frames.filter((frame)=>frame.kind==='body');
   const fxFrames=frames.filter((frame)=>frame.kind==='fx');
+  const masterScale=masterFrames.length ? sharedScale(masterFrames,BODY_CANVAS,true) : 0;
   const bodyScale=bodyFrames.length ? sharedScale(bodyFrames,BODY_CANVAS,true) : 0;
   const fxScale=fxFrames.length ? sharedScale(fxFrames,FX_CANVAS,false) : 0;
   return {
+    master:{
+      canvas:{width:BODY_CANVAS.width,height:BODY_CANVAS.height},
+      anchor:'bottom-center',
+      groundPivot:{x:BODY_CANVAS.pivotX,y:BODY_CANVAS.pivotY},
+      sharedScale:masterScale,
+      role:'review-reference-only',
+    },
     body:{
       canvas:{width:BODY_CANVAS.width,height:BODY_CANVAS.height},
       anchor:'bottom-center',
       groundPivot:{x:BODY_CANVAS.pivotX,y:BODY_CANVAS.pivotY},
       sharedScale:bodyScale,
+      role:'runtime-img-01-through-img-12',
     },
     fx:{
       canvas:{width:FX_CANVAS.width,height:FX_CANVAS.height},
@@ -42,7 +52,9 @@ export function normalizedTransform(frame,normalization) {
       width:rounded(frame.bbox.width*scale),height:rounded(frame.bbox.height*scale),
     };
   }
-  const scale=normalization.body.sharedScale;
+
+  const domain=frame.kind==='master' ? normalization.master : normalization.body;
+  const scale=domain.sharedScale;
   return {
     scale,
     pivotX:BODY_CANVAS.pivotX,pivotY:BODY_CANVAS.pivotY,

@@ -113,3 +113,17 @@ Build the production-intended El Toro sprite package from Mario-A's admitted/nor
   2. verified per-frame attachment anchors;
   3. Ricardo narrow timeline amendment for `crouch`, `block`, `block-crouch` (current v2 timeline covers other one-shot transition states but these three still receive absolute ambient combatTick).
 - action-readability evidence exists, but human/device visual acceptance is still downstream and is not self-declared green by Mario-B.
+
+
+## Mario-B anchor-review checkpoint — 2026-09-22
+
+- exact candidate SHA: `63ed61fc438a471541bbd99abba294cd7b2719fc`
+- verification: run `35674688193` — coordination contract + full suite + build PASS
+- stable per-frame ground pivots now exist for all 84 packed RIGHT body frames
+- `right-anchor-review.json` is generated deterministically with all required anatomical anchor slots and packed-frame-local bounds
+- `assertVerifiedElToroAnchorReview()` prevents an incomplete/unreviewed anchor file from being accepted as verified
+- anatomical anchor coordinates remain intentionally unset pending visual verification; they were not fabricated
+- task remains BLOCKED_EXTERNAL_INPUTS_RIGHT_PACKAGE_GREEN on:
+  1. authored LEFT-facing body set;
+  2. visually verified anatomical anchors;
+  3. Ricardo crouch/block/block-crouch entry-timeline amendment.

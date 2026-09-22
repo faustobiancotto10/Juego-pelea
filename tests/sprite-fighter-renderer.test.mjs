@@ -338,3 +338,49 @@ test('decrementing transition counters never drive guard-break, jump-startup or 
   assert.equal(sourceX(fighter({ landingRecoveryFrames: 3 }), 300), 17);
   assert.equal(sourceX(fighter({ landingRecoveryFrames: 2 }), 301), 97);
 });
+
+
+test('crouch and blocking sprite progressions begin at state entry instead of ambient match age', () => {
+  const stanceFrames = [
+    frame({ x: 27, durationTicks: 1 }),
+    frame({ x: 107, durationTicks: 1 }),
+    frame({ x: 187, durationTicks: 1 }),
+  ];
+  const loaded = {
+    image: { id: 'stance-atlas' },
+    manifest: {
+      version: 1,
+      atlas: 'body.webp',
+      mirrorSafe: true,
+      animations: {
+        crouch: { loop: false, frames: stanceFrames },
+        block: { loop: false, frames: stanceFrames },
+        'block-crouch': { loop: false, frames: stanceFrames },
+      },
+    },
+  };
+  const renderer = new SpriteFighterRenderer({ get: () => loaded });
+
+  function sourceX(snapshot, combatTick) {
+    let drawArgs = null;
+    const ctx = {
+      globalAlpha: 1,
+      save() {},
+      restore() {},
+      translate() {},
+      scale() {},
+      drawImage(...args) { drawArgs = args; },
+    };
+    renderer.draw(ctx, snapshot, 'pkg-stances', combatTick, 1, 0);
+    return drawArgs[1];
+  }
+
+  assert.equal(sourceX(fighter({ crouching: true }), 700), 27, 'crouch must enter on frame zero');
+  assert.equal(sourceX(fighter({ crouching: true }), 701), 107, 'crouch advances from its own entry tick');
+
+  assert.equal(sourceX(fighter({ blocking: true }), 900), 27, 'standing block key change restarts at frame zero');
+  assert.equal(sourceX(fighter({ blocking: true }), 901), 107, 'standing block advances from state entry');
+
+  assert.equal(sourceX(fighter({ crouching: true, blocking: true }), 1100), 27, 'crouch-block key change restarts at frame zero');
+  assert.equal(sourceX(fighter({ crouching: true, blocking: true }), 1101), 107, 'crouch-block advances from state entry');
+});

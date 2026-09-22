@@ -10,13 +10,13 @@ Estado: **EN CURSO; no representa un veredicto final ni autorización de cutover
 
 ## Revisado / pendiente
 
-Revisado: `AGENTS.md`, coordinación actual; código exacto `fe2b5056…` de manifest, normalizador/packer, resolver, renderer, loader y contrato FX; simulation/CPU/character registry, stage, UI/lifecycle y tests pertinentes. Hallazgos S-001/2/3 en [SPRITES.md](SPRITES.md); A-002/3/4/5 en [ARCHITECTURE.md](ARCHITECTURE.md). Pendiente: preview en navegador/teléfono, edge cases de gameplay, cobertura UI/input y multiagentes/performance, tests y roadmap.
+Revisado: `AGENTS.md`, coordinación actual; código exacto `fe2b5056…` de manifest, normalizador/packer, resolver, renderer, loader y contrato FX; simulation/CPU/character registry, stage, UI/lifecycle y tests pertinentes; preview pública observada en browser desktop. Hallazgos S-001/2/3 en [SPRITES.md](SPRITES.md); A-002/3/4/5 en [ARCHITECTURE.md](ARCHITECTURE.md); gameplay, QA, mobile y multiagentes en [SYSTEMS.md](SYSTEMS.md). Pendiente: teléfono físico, tests ejecutados en `main` posterior a candidato, roadmap/hand-off.
 
-## Hallazgo confirmado A-001 — estado de coordinación fuera del contrato [MEDIUM; escalabilidad operativa]
+## Hallazgo confirmado A-001 — estado de coordinación fuera del contrato [HIGH; CI actual roja]
 
 **Problema.** `coordination/STATUS.md` asigna `HANDOFF_CONSUMED` a Mario, Mario-A y Mario-B; `coordination/PROTOCOL.md` §7 enumera los estados válidos y no incluye ese token. El commit en `main` `c527d46` ya señala el desajuste; sigue presente en el árbol auditado.
 
-**Impacto.** Un parser o agente que aplique la lista cerrada puede rechazar o interpretar de forma distinta estas transiciones. Esto debilita los gates de AUTO_CHAIN justo en un cutover delicado.
+**Impacto.** Un parser o agente que aplique la lista cerrada puede rechazar o interpretar de forma distinta estas transiciones. La regresión es **reproducida** en el checkout exacto de `main` `c527d463…`: `node --test tests/coordination-contract.test.mjs` da 9 PASS / 1 FAIL, `invalid state for Mario`, en test 91:1 / assertion 106. Esto debilita los gates de AUTO_CHAIN justo en un cutover delicado. Los 433/433 verdes pertenecen al candidato previo, no al `main` auditado.
 
 **Causa probable.** El lenguaje informal de handoff evolucionó sin actualizar el contrato enumerado. **Propuesta.** Neureon define si `HANDOFF_CONSUMED` es estado legal con semántica y transición documentadas, o lo sustituye por `VERIFIED`/`HANDOFF_READY` con un campo separado de consumo. Una prueba de contrato debe validar todos los tokens de STATUS/tasks respecto de PROTOCOL. **Alcance:** `coordination/PROTOCOL.md`, `coordination/STATUS.md`, `tests/coordination-contract.test.mjs`; posible tooling de coordinación. **Riesgo:** cambiar estados puede alterar elegibilidad de tareas existentes; fijar transición con round activo. **Validación:** parser de todos los estados + comprobación de cadena Z0 sin inferencias de chat. **Owner:** Neureon; QA Germinator.
 

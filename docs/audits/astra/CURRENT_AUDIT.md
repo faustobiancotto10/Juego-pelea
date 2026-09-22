@@ -10,7 +10,7 @@ Estado: **EN CURSO; no representa un veredicto final ni autorización de cutover
 
 ## Revisado / pendiente
 
-Revisado: `AGENTS.md`, `coordination/PROTOCOL.md` (autoridad, estados, handoffs), secciones actuales de `coordination/CURRENT_ROUND.md`, `coordination/STATUS.md` y handoff Gonza Z0; código exacto `fe2b5056…` de manifest, normalizador/packer, resolver, renderer, loader y contrato FX. Hallazgos S-001/2/3 en [SPRITES.md](SPRITES.md). Pendiente: preview en navegador/teléfono, simulation, character/mode architecture, UI/input, tests, performance, agentes y roadmap.
+Revisado: `AGENTS.md`, coordinación actual; código exacto `fe2b5056…` de manifest, normalizador/packer, resolver, renderer, loader y contrato FX; simulation/CPU/character registry, stage, UI/lifecycle y tests pertinentes. Hallazgos S-001/2/3 en [SPRITES.md](SPRITES.md); A-002/3/4/5 en [ARCHITECTURE.md](ARCHITECTURE.md). Pendiente: preview en navegador/teléfono, edge cases de gameplay, cobertura UI/input y multiagentes/performance, tests y roadmap.
 
 ## Hallazgo confirmado A-001 — estado de coordinación fuera del contrato [MEDIUM; escalabilidad operativa]
 

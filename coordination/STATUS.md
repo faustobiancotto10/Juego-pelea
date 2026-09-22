@@ -11,7 +11,7 @@ Canonical continuation pulse: `.`
 | Ricardo | Gameplay / runtime engineer | V07-SPR-R1 | HANDOFF_READY | Replacement exact SHA `79f8d81...`; transition clock repair green, 308/308 tests + build PASS; old `d07cba...` superseded. |
 | Mario | Character / Rendering Engineer | V07-SPR-MA + V07-SPR-MB | READY | Run two isolated sprite-pilot lanes and converge through one Mario integration point. |
 | ↳ Mario-A | Sprite source / pipeline lead | V07-SPR-MA | HANDOFF_READY | Revised exact SHA `0eb4a2b...` green on run `35671720767`; pixel-isolated RGBA API + IMG-01..12-only runtime scale handed to Mario-B. |
-| ↳ Mario-B | El Toro sprite package | V07-SPR-MB | BLOCKED_DEPENDENCY | Right-facing metadata GREEN at `f4a1b3f...`; revised MA pixel-isolated + body-scale handoff is available at `0eb4a2b...`. Remaining gates: revised Ricardo transition clock, verified anchors and authored LEFT-facing set. |
+| ↳ Mario-B | El Toro sprite package | V07-SPR-MB | READY | MA v2 `0eb4a2b...` and Ricardo v2 `79f8d81...` are GREEN. Resume right-facing atlas/anchor/preview work from `f4a1b3f...`; production-complete still blocked on authored LEFT-facing set. |
 | Brancaforte | UI / Input / UX | standby | OFF_ROUND | Activate only if a real loading/menu/HUD/input contract changes. |
 | Germinator | Independent QA | V07-SPR-G1 | WAITING_DEPENDENCY | Wait for one integrated El Toro sprite-pilot candidate. |
 | Gonza | Integration / release | V07-SPR-Z0 | WAITING_DEPENDENCY | Wait for Germinator approval; then publish isolated sprite preview only. |

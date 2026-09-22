@@ -522,3 +522,72 @@ Production-complete status remains blocked on:
 3. Ricardo entry-clock amendment for `crouch`, `block`, `block-crouch`.
 
 Downstream Mario-A integration must consume this exact SHA and preserve `runtimeLoadable:false` until those gates are satisfied.
+
+
+## Revision 7 — Bilateral authored package GREEN
+
+Exact Mario-B candidate:
+`57634fc7bf345a72cf679746a0f3bef9eb8f0d33`
+
+Verification:
+- workflow run `35684693956`;
+- coordination contract PASS;
+- full repository suite PASS;
+- build PASS.
+
+Exact dependencies consumed:
+- Mario-A LEFT/source pipeline `c1b3e8e757b707f2975f6587217cc2f851e2ca6b`;
+- Ricardo generic sprite runtime `5b20c351e75a45460b3f76416d41424f10e43a1f`.
+
+### Bilateral package
+
+The derived package now builds a single authored body atlas containing:
+- 84 RIGHT body frames;
+- 84 LEFT body frames;
+- internal `right:` / `left:` packing namespaces only;
+- no internal frame IDs exposed by the runtime manifest.
+
+Runtime manifest:
+- `version:1`;
+- `atlas:"el-toro-body.png"`;
+- `mirrorSafe:false`;
+- 26 resolver keys in `animations`;
+- exact same 26-key set in `leftAnimations`;
+- no horizontal mirroring;
+- authored LEFT source gate removed;
+- Ricardo transition-clock gate removed.
+
+FX remain separate:
+- 22 frames;
+- `el-toro-effects.png`;
+- no duplicated LEFT FX atlas.
+
+Review/evidence:
+- `bilateral-gameplay-preview.svg` shows RIGHT + authored LEFT at identical gameplay scale;
+- `right-anchor-review.json` / `left-anchor-review.json`;
+- `right-anchor-review.svg` / `left-anchor-review.svg`;
+- bilateral CLI and metrics are deterministic.
+
+### Runtime-loadable gate
+
+Without verified anchor reviews, generated manifest blockers are exactly:
+- `verified-right-attachment-anchors`;
+- `verified-left-attachment-anchors`.
+
+When both review files are complete, visually verified, in-bounds and match the deterministic packed geometry, the builder bakes anchors into every runtime frame and emits `runtimeLoadable:true`.
+
+Mario-B does not infer anatomical coordinates from alpha, pivots, proportions or bounding boxes.
+
+### Current status
+
+**HANDOFF_READY_BILATERAL / ANCHOR_REVIEW_BLOCKED**
+
+Mario-A may consume exact SHA `57634fc7bf345a72cf679746a0f3bef9eb8f0d33` for bilateral integration. It must not register the package as production-ready until the anchor-review gate is satisfied.
+
+No production cutover, full-roster fanout or procedural-body retirement is authorized by this handoff.
+
+### Identity Learning Review
+
+**PROPOSAL** to Mario-A integrator:
+
+> For authored non-mirror-safe fighters, namespace facing only inside packing. Keep runtime animation keys facing-agnostic and pair `animations` / `leftAnimations` over one atlas. This prevents logical-key drift while preserving authored directional text and identity.

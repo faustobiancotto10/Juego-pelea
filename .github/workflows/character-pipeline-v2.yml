@@ -84,6 +84,9 @@ jobs:
           test -s artifacts/v07-m3/phone-landscape.png
           test -s artifacts/v07-m3/sprite-runtime.png
           test -s artifacts/v07-m3/sprite-runtime-phone.png
+          node tools/character-pipeline-v2/compose-sprite-atlas-evidence.mjs
+          test -s artifacts/v07-m3/sprite-atlas-evidence.png
+          test -s artifacts/v07-m3/sprite-atlas-evidence-phone.png
 
       - name: Upload V07-M3 visual evidence
         uses: actions/upload-artifact@v4

@@ -238,3 +238,15 @@ Build the production-intended El Toro sprite package from Mario-A's admitted/nor
 - only remaining package gate:
   - visually authored/verified anatomical anchors for RIGHT and LEFT.
 - generated manifest becomes `runtimeLoadable:true` only when both verified anchor reviews pass identity, bounds and packed-geometry validation.
+
+
+## Mario-B bilateral anchor-review-tool checkpoint — 2026-09-22
+
+- exact candidate: `d6b41ff8c9f83162442d01d9d412d5eab9edc9be`
+- verification: run `35742812047` / #1635 — coordination contract + full suite + build PASS
+- supersedes bilateral package candidate `57634fc7bf345a72cf679746a0f3bef9eb8f0d33`
+- adds `bilateral-anchor-review.html`, a self-contained review UI over `el-toro-body.png`
+- tool supports RIGHT/LEFT frame selection, seven explicit anatomical anchors, copy-previous, per-frame verification and separate RIGHT/LEFT JSON exports
+- editing or copying coordinates always forces `verified:false`; only explicit Verify frame can set `verified:true`
+- no anatomical coordinates are prefilled or inferred
+- package remains anchor-blocked until both exported reviews are visually completed and verified

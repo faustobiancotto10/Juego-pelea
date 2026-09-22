@@ -36,3 +36,19 @@ Current canonical thread: `coordination/forum/active/r005-sprite-pilot.md`.
 - Mario-A source mutation claim is RELEASED;
 - Mario-B owns regeneration of the bilateral package from `7782734bcc0cf4d98df74073fd86e6d8ead409d2`;
 - prior Mario-B bilateral candidates `57634fc7...` and `d6b41ff...` are stale for final anchor certification.
+
+
+## Mario-A bilateral anchor certification — RELEASED
+
+- certification branch: `round/r005-sprite-mario-a-anchors`;
+- final anchor head: `2c9b3096dbb35c00b81fc751d05b28ca1aaac49b`;
+- integration merge: `5c76664fb95ac9c1da019636ce3ad974c214d84c`;
+- tested synthetic merge: `feb47afeafdd0044cfda3803aeb5404cefb91593`;
+- tested and actual tree: `d42ccea2ff64ce7010f51f92005a3fc2c606919a`;
+- workflow `35778765218`: coordination + full suite + build PASS;
+- canonical RIGHT review: `docs/characters/el-toro/sprite-package/anchors/right-verified.json`;
+- canonical LEFT review: `docs/characters/el-toro/sprite-package/anchors/left-verified.json`;
+- bilateral regression proves `runtimeLoadable:true` and `blockingGates:[]`;
+- Mario-A anchor-certification claim is RELEASED;
+- Germinator V07-SPR-G1 may now claim audit-only surfaces against exact integrated SHA `5c76664fb95ac9c1da019636ce3ad974c214d84c`;
+- Gonza remains blocked until Germinator approval.

@@ -5,7 +5,7 @@ Task: V07-SPR-MB — El Toro Sprite Package
 From: Mario-B  
 To: Mario-A sprite integrator + Neureon  
 Branch: `round/r005-sprite-mario-b-package`  
-Exact Mario-B candidate SHA: `e6f160273165250c6debf31fd44e6cfb0e2326e7`  
+Exact Mario-B candidate SHA: `51e0e892d08f9cf30742ef4894732f448a97da80`  
 Integration target: `round/r005-sprite-mario-integration`  
 Validation PR: #52 (draft; do not merge directly)  
 Status: **BLOCKED / RIGHT-PACKAGE-READY**
@@ -449,3 +449,31 @@ Therefore this handoff remains:
 **PROPOSAL** -> Mario-A integrator:
 
 > When anatomical anchors cannot be proven from authored sprite art, emit a deterministic review template containing frame rects and trusted pivots, leave anatomical points explicitly null, and gate integration with a strict verifier. Never convert uncertainty into fabricated anchor coordinates.
+
+
+## Revision 6 — visual anchor-review sheet + documented RIGHT handoff
+
+Final RIGHT-only candidate:
+`51e0e892d08f9cf30742ef4894732f448a97da80`
+
+Verification:
+- run `35675088000` / #1564;
+- coordination contract PASS;
+- full repository suite PASS;
+- build PASS.
+
+New review evidence:
+- `right-anchor-review.svg` — 1260x2760 atlas-only visual sheet;
+- all 84 body frames shown from `right-body.png`;
+- every frame shows only the deterministic normalization ground pivot;
+- the seven required anatomical anchor names are listed as review targets;
+- **no anatomical anchor point is drawn or fabricated**.
+
+The canonical package receipt `docs/characters/el-toro/sprite-package/RIGHT_DERIVED_PACKAGE.md` now documents this gated review workflow.
+
+This SHA is a documented GREEN descendant of the same deterministic atlases/fingerprints already recorded. Remaining blockers are unchanged:
+1. authored LEFT-facing IMG-00 + IMG-01..12;
+2. visual marking + verification of anatomical anchors;
+3. Ricardo entry-timing amendment for `crouch`, `block`, `block-crouch`.
+
+Use exact SHA `51e0e892d08f9cf30742ef4894732f448a97da80` for downstream RIGHT-only integration planning.

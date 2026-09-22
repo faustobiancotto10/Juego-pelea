@@ -267,6 +267,58 @@ function buildRuntimeFragment(packageContract, sourcePlan, frameRects) {
   };
 }
 
+
+function renderGameplayPreview(runtimeFragment, atlasWidth, atlasHeight) {
+  const scale = 390 / 720;
+  const baseline = 306;
+  const samples = [
+    ['idle', 3, 'IDLE'],
+    ['walk-forward', 3, 'WALK'],
+    ['move:toroJab', 3, 'JAB ACTIVE'],
+    ['move:topete', 4, 'TOPETE PEAK'],
+    ['move:shawarmazoThrow', 3, 'SHAWARMA RELEASE'],
+    ['ultimate:superEructo:capture', 1, 'SUPER ERUCTO'],
+  ];
+  const anchors = [70, 208, 346, 484, 622, 760];
+
+  const sprites = samples.map(([key, requestedIndex, label], sampleIndex) => {
+    const animation = runtimeFragment.animations[key];
+    if (!animation) throw new Error('Missing preview animation '+key);
+    const index = Math.min(requestedIndex, animation.frames.length - 1);
+    const frame = animation.frames[index];
+    const width = frame.width * scale;
+    const height = frame.height * scale;
+    const x = anchors[sampleIndex] - frame.pivotX * scale;
+    const y = baseline - frame.pivotY * scale;
+    const labelX = anchors[sampleIndex];
+
+    return [
+      '<g>',
+      '<rect x="'+(anchors[sampleIndex]-66)+'" y="54" width="132" height="274" rx="10" fill="rgba(8,12,19,0.28)" stroke="rgba(255,255,255,0.08)"/>',
+      '<svg data-animation="'+key+'" x="'+x.toFixed(3)+'" y="'+y.toFixed(3)+'" width="'+width.toFixed(3)+'" height="'+height.toFixed(3)+'" viewBox="'+frame.x+' '+frame.y+' '+frame.width+' '+frame.height+'" overflow="visible">',
+      '<image href="right-body.png" x="0" y="0" width="'+atlasWidth+'" height="'+atlasHeight+'"/>',
+      '</svg>',
+      '<text x="'+labelX+'" y="350" text-anchor="middle" font-family="system-ui,sans-serif" font-size="11" font-weight="800" fill="#f5e8cf">'+label+'</text>',
+      '</g>',
+    ].join('');
+  }).join('');
+
+  return [
+    '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 844 390" width="844" height="390">',
+    '<defs><linearGradient id="sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#17202b"/><stop offset="1" stop-color="#3c2d25"/></linearGradient></defs>',
+    '<rect width="844" height="390" fill="url(#sky)"/>',
+    '<circle cx="710" cy="86" r="44" fill="#d9b36a" opacity="0.18"/>',
+    '<path d="M0 290 L90 258 L165 280 L250 246 L346 282 L440 252 L548 281 L655 242 L760 278 L844 260 L844 390 L0 390 Z" fill="#201a18" opacity="0.82"/>',
+    '<rect x="0" y="'+baseline+'" width="844" height="'+(390-baseline)+'" fill="#493328" opacity="0.72"/>',
+    '<line x1="0" y1="'+baseline+'" x2="844" y2="'+baseline+'" stroke="#d6ae68" stroke-width="1.5" opacity="0.65"/>',
+    '<text x="22" y="29" font-family="system-ui,sans-serif" font-size="16" font-weight="900" fill="#f5e8cf">EL TORO — RIGHT-FACING DERIVED ATLAS / 844×390 GAMEPLAY-SCALE EVIDENCE</text>',
+    '<text x="22" y="47" font-family="system-ui,sans-serif" font-size="10" font-weight="600" fill="#cdbb9d">Rendered only from right-body.png at FightRenderer phone-landscape scale (390/720). Source sheets are not referenced.</text>',
+    sprites,
+    '</svg>',
+    '',
+  ].join('');
+}
+
 export function buildElToroRightAtlasPackage({
   sourceDir,
   packageContractPath,
@@ -307,6 +359,11 @@ export function buildElToroRightAtlasPackage({
   writeFileSync(
     join(outputRoot, 'right-runtime-fragment.json'),
     JSON.stringify(runtimeFragment, null, 2)+'\n',
+  );
+  const previewPath = join(outputRoot, 'right-gameplay-preview.svg');
+  writeFileSync(
+    previewPath,
+    renderGameplayPreview(runtimeFragment, bodyAtlas.width, bodyAtlas.height),
   );
 
   const effectPlan = compileEffectFrameSourcePlan(packageContract, manifestLike);
@@ -359,5 +416,6 @@ export function buildElToroRightAtlasPackage({
       atlasHeight: effectAtlas.height,
       frameRects: effectAtlas.frameRects,
     },
+    previewPath,
   };
 }

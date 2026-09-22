@@ -1,7 +1,8 @@
-import type { FighterSnapshot } from '../../types.js';
+import type { FighterIndex, FighterSnapshot } from '../../types.js';
 import type { Point2 } from '../LocomotionPose.js';
 import { GROUND_Y } from '../drawUtils.js';
 import { resolveSpriteAnimation } from './AnimationResolver.js';
+import { SpriteAnimationTimeline } from './SpriteAnimationTimeline.js';
 import type { SpriteAssetStore } from './SpriteAssetStore.js';
 import { sampleSpriteAnchor } from './SpriteAnchorSampler.js';
 import { sampleSpriteFrame } from './SpriteFrameSampler.js';
@@ -76,7 +77,13 @@ function selectAnimationMap(
 }
 
 export class SpriteFighterRenderer {
+  private readonly animationTimeline = new SpriteAnimationTimeline();
+
   constructor(private readonly store: Pick<SpriteAssetStore, 'get'>) {}
+
+  resetPresentation(): void {
+    this.animationTimeline.reset();
+  }
 
   draw(
     ctx: CanvasRenderingContext2D,
@@ -84,11 +91,13 @@ export class SpriteFighterRenderer {
     packageKey: string,
     combatTick: number,
     alpha = 1,
+    slot: FighterIndex = 0,
   ): void {
     const { image, frame, mirrorHorizontal } = this.resolveFrame(
       fighter,
       packageKey,
       combatTick,
+      slot,
     );
     const placement = computeSpriteDrawPlacement(fighter, frame, mirrorHorizontal);
 
@@ -115,8 +124,9 @@ export class SpriteFighterRenderer {
     packageKey: string,
     combatTick: number,
     name: string,
+    slot: FighterIndex = 0,
   ): Point2 | null {
-    const { frame, authoredLeft } = this.resolveFrame(fighter, packageKey, combatTick);
+    const { frame, authoredLeft } = this.resolveFrame(fighter, packageKey, combatTick, slot);
     const anchor = sampleSpriteAnchor(frame, name);
     if (!anchor) return null;
 
@@ -131,9 +141,15 @@ export class SpriteFighterRenderer {
     fighter: FighterSnapshot,
     packageKey: string,
     combatTick: number,
+    slot: FighterIndex,
   ): ResolvedSpriteFrame {
     const loaded = this.store.get(packageKey);
-    const resolved = resolveSpriteAnimation(fighter, combatTick);
+    const resolved = this.animationTimeline.sample(
+      slot,
+      fighter,
+      resolveSpriteAnimation(fighter, combatTick),
+      combatTick,
+    );
     const selection = selectAnimationMap(loaded.manifest, fighter);
     const animation = selection.animations[resolved.key];
     if (!animation) {

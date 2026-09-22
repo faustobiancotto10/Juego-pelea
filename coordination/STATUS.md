@@ -9,8 +9,8 @@ Canonical continuation pulse: `.`
 | --- | --- | --- | --- | --- |
 | Neureon | Lead / Coordinator | V07-SPR-N0 | VERIFIED | Intake, contract and dependency graph established; remain coordinator. |
 | Ricardo | Gameplay / runtime engineer | V07-SPR-R1 | HANDOFF_READY | Replacement exact SHA `5b20c351...`; crouch/block/block-crouch amendment green, 309/309 tests + build PASS; `79f8d81...` superseded. |
-| Mario | Character / Rendering Engineer | V07-SPR-MI repair | HANDOFF_READY | Mario-A repair is complete; replacement exact candidate `fe2b5056...` / tree `ed5ee226...` is ready for fresh Germinator audit. |
-| ↳ Mario-A | Sprite source lead / designated integrator | V07-SPR-MI | HANDOFF_READY | Exact replacement `fe2b5056...` on `round/r005-sprite-mario-integration-repair`; same tested tree `ed5ee226...` as PR #59. 422/422 + build + visual pipeline GREEN. |
+| Mario | Character / Rendering Engineer | V07-SPR-MI repair | HANDOFF_CONSUMED | Repair `fe2b5056...` passed Germinator G1; no further Mario work unless preview QA finds a new defect. |
+| ↳ Mario-A | Sprite source lead / designated integrator | V07-SPR-MI | HANDOFF_CONSUMED | Replacement `fe2b5056...` is G1-approved and frozen as Gonza's exact preview input. |
 | ↳ Mario-B | El Toro sprite package | V07-SPR-MB | HANDOFF_CONSUMED | Rebuilt bilateral package `1a1d14df...` was consumed by Mario-A integration; final anchor certification now lives in integrated candidate `5c76664f...`. No further package work unless QA finds a reproducible defect. |
 | Brancaforte | UI / Input / UX | standby | OFF_ROUND | Activate only if a real loading/menu/HUD/input contract changes. |
 | Germinator | Independent QA | V07-SPR-G1 | VERIFIED | `APPROVE — SPRITE PILOT LIVE INTEGRATION GREEN` on exact `fe2b5056...`; final Repository #1722 + Pipeline #74 green, 433/433 PASS, build PASS, served-atlas RIGHT/LEFT/Topete/Ultimate evidence inspected. |

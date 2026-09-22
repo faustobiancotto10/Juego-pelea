@@ -147,3 +147,21 @@ Production root remains unchanged until physical-phone/user acceptance and the l
 Receipt: **UPDATED**
 
 Reusable QA lesson: when a renderer migration coexists with legacy visual-evidence tooling, verify that the evidence actually consumes the target runtime backend/assets. A green screenshot job may still capture the old renderer or race asynchronous image decode; inspect pixels and maintain a deterministic asset-level visual fallback tied to the exact runtime manifest.
+
+
+## Final evidence refresh — same APPROVE verdict
+
+A later QA-only head supersedes the intermediate evidence receipt without changing the approved product candidate or verdict.
+
+- exact product candidate remains: `fe2b505639d8ebf2dc4ab204b545233d96f214f2`;
+- final QA-only head: `ac860f2ef320f83a977939483e742472b40389f9`;
+- Repository verification #1722 / `35788816202`: **433/433 PASS + build PASS**;
+- Character Pipeline V2 #74 / `35788816195`: **PASS**;
+- final artifact ID: `10721013048`;
+- final artifact digest: `sha256:9fafac53621a87e574f8ab1e20a0e872ae110e00993f7a73acbdc1b84a362b26`;
+- direct served-atlas browser capture `sprite-runtime.png` / `sprite-runtime-phone.png` now visibly renders RIGHT idle, LEFT idle, RIGHT Topete and LEFT Ultimate from the actual runtime atlas;
+- deterministic `sprite-atlas-evidence.png` independently shows the same four authored states.
+
+The QA-only delta remains confined to validation workflow/tests/evidence tooling. No product file changed after `fe2b5056...`.
+
+Verdict remains: **APPROVE — SPRITE PILOT LIVE INTEGRATION GREEN**.

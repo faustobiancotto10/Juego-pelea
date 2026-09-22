@@ -299,3 +299,36 @@ Active order now:
 **Germinator V07-SPR-G1 fresh audit of `fe2b505639d8ebf2dc4ab204b545233d96f214f2` → Gonza V07-SPR-Z0 only if approved**.
 
 Gonza remains blocked until that independent audit is green.
+
+
+## V07-SPR-G1 replacement audit — GREEN
+
+The earlier blocker on `5c76664fb95ac9c1da019636ce3ad974c214d84c` remains historical/rejected.
+
+Germinator independently audited replacement exact product candidate:
+`fe2b505639d8ebf2dc4ab204b545233d96f214f2`
+
+Product tree:
+`ed5ee226bca6c5da6c4c4769f14ccf7e2316c31a`
+
+Verdict:
+**APPROVE — SPRITE PILOT LIVE INTEGRATION GREEN**
+
+Fresh evidence:
+- Repository verification #1720 / `35788754170`: 433/433 tests + build PASS;
+- Character Pipeline V2 #72 / `35788754059`: 433/433 + build + deterministic sprite visual evidence + runtime raster/reference guard PASS;
+- visual artifact `10721170926`, digest `sha256:6ca46fa33819251b1811e1b1027c5ce4e069bf5e18990344789d05bd77cc1f60`;
+- RIGHT/LEFT authored sprite facings visually checked from the exact runtime atlas;
+- readable garment text is correctly oriented on both facings;
+- Topete/Ultimate effects-off body poses remain readable at normal and 844×390 evidence scale.
+
+Active sequence:
+**Gonza V07-SPR-Z0 isolated sprite preview → user physical-phone acceptance → canonical production-package reconciliation → explicit production-cutover decision**.
+
+Gonza is eligible now, but only for the isolated preview. Production root must remain unchanged.
+
+### Production-format gate
+
+The pilot currently serves `el-toro-body.png` + `el-toro-animations.json`.
+
+The authoritative sprite architecture/plan still specifies canonical production `body.webp` + `animations.json`. This naming/encoding mismatch does not block the pre-cutover isolated pilot preview, but it must be reconciled (or explicitly amended by Neureon) before production/full-roster sprite cutover.

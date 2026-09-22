@@ -460,3 +460,20 @@ Mario-B remains **BLOCKED / RIGHT-PACKAGE-READY**. Mario-A integrator may consum
 - no anatomical points were inferred from alpha geometry or fabricated
 
 Remaining hard inputs: authored LEFT set + visual anatomical-anchor verification. Runtime amendment for `crouch`/`block`/`block-crouch` remains requested from Ricardo.
+
+
+## FINAL RIGHT-ONLY HANDOFF — Mario-B
+
+- exact candidate: `51e0e892d08f9cf30742ef4894732f448a97da80`
+- verification: `35675088000` / #1564 — coordination + full suite + build PASS
+- supersedes earlier RIGHT-only SHAs only by review tooling/documentation; deterministic body/FX fingerprints remain unchanged
+- added `right-anchor-review.svg`: 1260x2760 atlas-only contact sheet for all 84 frames
+- sheet shows deterministic normalization pivots and lists required anatomical anchor names, but draws **zero fabricated anatomical anchor points**
+- `right-anchor-review.json` + strict verifier remain the authoring contract
+
+Mario-B is now **HANDOFF_READY_RIGHT_ONLY / BLOCKED_EXTERNAL_INPUTS**.
+
+No further safe lane work remains until one of:
+1. authored LEFT-facing set arrives;
+2. anatomical anchor coordinates are visually authored/verified;
+3. Ricardo publishes the crouch/block/block-crouch state-entry timing amendment.

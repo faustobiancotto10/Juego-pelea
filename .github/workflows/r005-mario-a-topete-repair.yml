@@ -1,0 +1,44 @@
+name: Mario-A one-shot LEFT Topete repair
+
+on:
+  push:
+    branches:
+      - round/r005-sprite-mario-a-source-import
+    paths:
+      - .github/workflows/r005-mario-a-topete-repair.yml
+      - scripts/repair-el-toro-left-topete.mjs
+
+permissions:
+  contents: write
+
+jobs:
+  repair:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref_name }}
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Repair LEFT Topete source and update receipts
+        run: node scripts/repair-el-toro-left-topete.mjs
+      - name: Prove source quality gate
+        run: node --test tests/el-toro-left-topete-source-quality.test.mjs
+      - name: Remove one-shot machinery
+        run: |
+          rm scripts/repair-el-toro-left-topete.mjs
+          rm .github/workflows/r005-mario-a-topete-repair.yml
+      - name: Commit repaired source
+        run: |
+          git config user.name "Mario-A sprite repair"
+          git config user.email "actions@users.noreply.github.com"
+          git add docs/characters/el-toro/sprite-source/left/el-toro__LEFT-IMG-10__topete.png \
+                  docs/characters/el-toro/sprite-source/left/LEFT_SOURCE_HASHES.json \
+                  scripts/sprite-source-config.mjs \
+                  tests/el-toro-left-topete-source-quality.test.mjs \
+                  scripts/repair-el-toro-left-topete.mjs \
+                  .github/workflows/r005-mario-a-topete-repair.yml
+          git commit -m "fix(sprite): separate LEFT Topete authored poses"
+          git push origin HEAD:${{ github.ref_name }}

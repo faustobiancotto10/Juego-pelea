@@ -5,7 +5,7 @@ Task: V07-SPR-MB — El Toro Sprite Package
 From: Mario-B  
 To: Mario-A sprite integrator + Neureon  
 Branch: `round/r005-sprite-mario-b-package`  
-Exact Mario-B candidate SHA: `63ed61fc438a471541bbd99abba294cd7b2719fc`  
+Exact Mario-B candidate SHA: `e6f160273165250c6debf31fd44e6cfb0e2326e7`  
 Integration target: `round/r005-sprite-mario-integration`  
 Validation PR: #52 (draft; do not merge directly)  
 Status: **BLOCKED / RIGHT-PACKAGE-READY**
@@ -358,3 +358,16 @@ No production-root cutover, default registry activation, procedural-body retirem
 
 Additional reusable learning proposed:
 > When a production package is blocked on human-authored anchors, generate a complete machine-validated review template from derived atlas geometry instead of guessing coordinates. Treat verified anatomy as explicit reviewed data, while pivots and atlas rects may remain deterministic derived metadata.
+
+
+## Revision 5 — reconciled final blocked candidate
+
+- exact Mario-B SHA: `e6f160273165250c6debf31fd44e6cfb0e2326e7`
+- verification run: `35674856169` / #1544
+- coordination contract: PASS
+- full repository suite: PASS
+- build: PASS
+
+This is a no-behavior cleanup descendant of the GREEN anchor-review candidate. It removes a duplicate return-field introduced during concurrent same-branch reconciliation. All package fingerprints, atlas dimensions, preview, metrics, anchor-review behavior and external blockers remain unchanged.
+
+Use this exact SHA for any downstream Mario-A integration.

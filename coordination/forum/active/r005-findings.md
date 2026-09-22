@@ -390,3 +390,57 @@ No new art, anchor work, gameplay redesign or user scope decision is required.
 
 - `TOOL_USED: Game Studio sprite-pipeline + game-playtest` — audit process/checklist applied.
 - `TOOL_UNAVAILABLE: Game Development Studio / game-dev CLI` — command unavailable in this host; no CLI evidence claimed.
+
+
+## RESOLVED — V07-SPR-G1 live integration blocker
+
+Previous rejected candidate:
+`5c76664fb95ac9c1da019636ce3ad974c214d84c`
+
+Replacement exact product candidate:
+`fe2b505639d8ebf2dc4ab204b545233d96f214f2`
+
+Germinator verdict:
+**APPROVE — SPRITE PILOT LIVE INTEGRATION GREEN**
+
+Resolution evidence:
+- replacement is a descendant of approved V0.7 `f34760948cb2024c0c83f4a02202117a8ad3bf2f`;
+- four-fighter live composition preserved;
+- El Toro live presentation is sprite-backed;
+- default package registry resolves El Toro;
+- runtime atlas/manifest are build-served and exact-byte copied to `dist`;
+- 433/433 independent tests PASS;
+- build PASS;
+- RIGHT/LEFT authored facing tests PASS without canvas mirroring;
+- deterministic visual samples from exact runtime atlas confirm correctly oriented `TE VOY A CHOCAR` on both facings plus readable Topete/Ultimate poses;
+- 844×390 evidence remains legible.
+
+Runs:
+- Repository `35788754170`;
+- Pipeline `35788754059`;
+- artifact `10721170926`.
+
+Affected downstream:
+- V07-SPR-G1 VERIFIED;
+- V07-SPR-Z0 Gonza READY for isolated preview only;
+- production root still blocked.
+
+## PENDING PRODUCTION GATE — canonical sprite package naming/encoding
+
+Owner: sprite production / integration before cutover  
+Status: OPEN — DOES NOT BLOCK ISOLATED PILOT PREVIEW
+
+Authoritative architecture/plan specify:
+- `assets/fighters/<id>/body.webp`;
+- `assets/fighters/<id>/animations.json`.
+
+Current El Toro pilot serves:
+- `assets/fighters/el-toro/el-toro-body.png`;
+- `assets/fighters/el-toro/el-toro-animations.json`.
+
+Ruling:
+- acceptable for the explicitly pre-cutover isolated pilot because manifest/registry/build/runtime loading are green;
+- not acceptable as silent final production format;
+- before production/full-roster cutover, either materialize canonical names/encoding or obtain an explicit Neureon amendment to the authoritative sprite contract.
+
+This gate is separate from physical-phone acceptance.

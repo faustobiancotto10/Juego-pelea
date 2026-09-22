@@ -2,7 +2,7 @@
 
 Round: R005-V07-GAMEPLAY-PRESENTATION-EXPANSION  
 Owner: Mario-B  
-Status: READY_WITH_LEFT_FACING_BLOCKER
+Status: BLOCKED_EXTERNAL_DEPENDENCIES_RIGHT_METADATA_GREEN
 
 ## Execution branch
 
@@ -63,3 +63,28 @@ Build the production-intended El Toro sprite package from Mario-A's admitted/nor
 - Mario-A extraction finding: internal grid boundaries contain solid sprite pixels; current MA component-based extraction is therefore the required source of bboxes/transforms
 - runtime conflict: Ricardo currently mirrors body art with `scaleX: fighter.facing`; El Toro is not mirror-safe, so authored-facing selection is required before integration
 - remaining gates: MA exact-SHA normalization handoff, Ricardo facing-aware runtime handoff, authored LEFT-facing set, verified per-frame anchor coordinates
+
+
+## Mario-B right-metadata handoff checkpoint — 2026-09-21/22
+
+- exact Mario-B branch SHA: `f4a1b3f291fafabc364b4f52a8872014cb8664f6`
+- PR: #52 -> `round/r005-sprite-mario-integration`
+- final current-lane verification: run `35670898169` — coordination contract + full suite + build PASS
+- exact Mario-A dependency SHA consumed by two-parent merge: `45cbf8ab88bc654fa7c64c91297496662ef1809c`
+- right-facing contract complete in metadata:
+  - exactly 84 body frames;
+  - exactly 22 FX frames kept separate;
+  - 26 resolver-reachable body animation keys compiled to admitted MA frame IDs;
+  - frozen V0.7 move IDs and presentation-only move/Ultimate retiming recorded;
+  - FX source/routing blueprint recorded with runtime effect routing explicitly deferred;
+  - source sheets remain prohibited as runtime textures;
+  - non-mirror-safe LEFT-facing requirement remains explicit.
+- packer safety guards are GREEN and intentionally reject unsafe inputs:
+  - 20 overlapping MA frame bbox pairs require pixel-isolated component outputs before atlas crop/pack;
+  - IMG-00 currently constrains runtime body normalization: current `0.22988506` vs body-only `0.40114613180515757` (ratio `1.7449856541575932`).
+- external blockers before body/FX atlas, runtime manifest, anchors and gameplay-scale preview:
+  1. Mario-A revised exact-SHA handoff with pixel-isolated frame outputs and IMG-01..12-only runtime body scale;
+  2. Ricardo revised exact-SHA runtime handoff with forward presentation-state-entry age for non-looping transition/reaction states;
+  3. authored LEFT-facing IMG-00 + IMG-01..12;
+  4. verified per-frame attachment-anchor coordinates from admitted/normalized art.
+- Game Development Studio local `game-dev` CLI remains unavailable in this host; no CLI evidence is claimed.

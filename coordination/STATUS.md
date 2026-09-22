@@ -8,7 +8,7 @@ Canonical continuation pulse: `.`
 | Agent / Instance | Role | Active task | State | Next |
 | --- | --- | --- | --- | --- |
 | Neureon | Lead / Coordinator | V07-SPR-N0 | VERIFIED | Intake, contract and dependency graph established; remain coordinator. |
-| Ricardo | Gameplay / runtime engineer | V07-SPR-R1 | HANDOFF_READY | Replacement exact SHA `79f8d81...`; transition clock repair green, 308/308 tests + build PASS; old `d07cba...` superseded. |
+| Ricardo | Gameplay / runtime engineer | V07-SPR-R1 | WORKING | Reopened narrowly for Mario-B request: make `crouch`, `block`, `block-crouch` state-entry timed; TDD repair in progress from exact `79f8d81...`. |
 | Mario | Character / Rendering Engineer | V07-SPR-MA + V07-SPR-MB | READY | Run two isolated sprite-pilot lanes and converge through one Mario integration point. |
 | ↳ Mario-A | Sprite source / pipeline lead | V07-SPR-MA | HANDOFF_READY | Revised exact SHA `0eb4a2b...` green on run `35671720767`; pixel-isolated RGBA API + IMG-01..12-only runtime scale handed to Mario-B. |
 | ↳ Mario-B | El Toro sprite package | V07-SPR-MB | BLOCKED_EXTERNAL_INPUTS | Documented RIGHT-only package GREEN at `51e0e89...` / run `35675088000`: deterministic 84-body + 22-FX atlases, 26-key fragment, 844x390 gameplay preview, metrics/hash receipt, 84-frame anchor template and 1260x2760 atlas-only anchor review sheet. Wait on authored LEFT set, visual anchor coordinates and Ricardo crouch/block/block-crouch timeline amendment. |

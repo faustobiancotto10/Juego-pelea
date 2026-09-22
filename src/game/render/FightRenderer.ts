@@ -113,6 +113,7 @@ export class FightRenderer {
   private consumeEvent(event: CombatEvent, snapshot: MatchSnapshot): void {
     if (event.type === 'round-start') {
       resetFighterPresentation();
+      this.spriteFighterRenderer?.resetPresentation();
       this.clashFlashes = [];
       this.stageReactionTicks = 0;
       this.lastRenderedCombatTick = null;

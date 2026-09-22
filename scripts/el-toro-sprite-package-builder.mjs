@@ -230,3 +230,63 @@ export function compileRuntimeFrameSourcePlan(packageContract, normalizationMani
     animations: Object.freeze(animations),
   });
 }
+
+
+export function compileEffectFrameSourcePlan(packageContract, normalizationManifest) {
+  if (packageContract?.fighterId !== 'el-toro') {
+    throw new Error('El Toro effect source plan requires fighterId "el-toro"');
+  }
+  const packagePlan = packageContract.effectPackagePlan;
+  if (!packagePlan?.effects || typeof packagePlan.runtimeIntegration !== 'string') {
+    throw new Error('El Toro effect source plan requires effectPackagePlan metadata');
+  }
+
+  const effectEntries = new Map(
+    (packageContract.effects ?? []).map((entry) => [entry.id, entry]),
+  );
+  const effects = {};
+
+  for (const [semanticKey, policy] of Object.entries(packagePlan.effects)) {
+    const source = effectEntries.get(policy.sourceId);
+    if (!source) {
+      throw new Error(
+        `El Toro effect "${semanticKey}" references unknown package source "${policy.sourceId}"`,
+      );
+    }
+    if (source.semanticKey !== semanticKey) {
+      throw new Error(
+        `El Toro effect "${semanticKey}" source semantic mismatch: ${source.semanticKey}`,
+      );
+    }
+
+    const sourceFrameIds = frameIdsForWindow(source.id, 1, source.frames);
+    assertFrameIdsAdmitted(sourceFrameIds, normalizationManifest);
+
+    if (
+      policy.frameDurations !== undefined
+      && policy.frameDurations.length !== sourceFrameIds.length
+    ) {
+      throw new Error(
+        `El Toro effect "${semanticKey}" has ${policy.frameDurations.length} durations for ${sourceFrameIds.length} source frames`,
+      );
+    }
+
+    effects[semanticKey] = Object.freeze({
+      sourceId: source.id,
+      sourceFrameIds: Object.freeze(sourceFrameIds),
+      loop: policy.loop,
+      clockPolicy: policy.clockPolicy,
+      routingRequirement: policy.routingRequirement,
+      durationTicks: policy.frameDurations === undefined
+        ? null
+        : Object.freeze([...policy.frameDurations]),
+    });
+  }
+
+  return Object.freeze({
+    fighterId: packageContract.fighterId,
+    facing: packageContract.facing,
+    runtimeIntegration: packagePlan.runtimeIntegration,
+    effects: Object.freeze(effects),
+  });
+}

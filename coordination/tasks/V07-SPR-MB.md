@@ -150,3 +150,25 @@ Build the production-intended El Toro sprite package from Mario-A's admitted/nor
   2. visually verified per-frame anatomical anchors for all 84 body frames;
   3. Ricardo narrow presentation-timeline amendment for `crouch`, `block`, `block-crouch` (requested against current exact SHA `79f8d81c...`).
 - no production-root cutover, registry activation or full-roster fanout is authorized from this lane.
+
+
+## Mario-B canonical latest checkpoint — 2026-09-22
+
+- exact candidate SHA: `e6f160273165250c6debf31fd44e6cfb0e2326e7`
+- verification: run `35674856169` / #1544 — coordination contract PASS, full suite PASS, build PASS
+- right-facing package remains reproducible and GREEN:
+  - 84 body frames -> deterministic body atlas;
+  - 22 FX frames -> separate deterministic FX atlas;
+  - 26 resolver-reachable RIGHT body keys;
+  - atlas-only 844x390 gameplay-scale preview;
+  - package metrics + CLI receipt;
+  - 84-frame anchor-review template with normalized ground pivots and strict verified-anchor gate.
+- canonical receipt: `docs/characters/el-toro/sprite-package/RIGHT_DERIVED_PACKAGE.md`
+- body fingerprint: `2048x1509`, PNG `3,203,017` bytes, SHA-256 `06d06bdfbc72b9ee07eae053d801f9f180b8776433e837839cbbfea1aa2826cc`
+- FX fingerprint: `1024x901`, PNG `916,922` bytes, SHA-256 `2fb2835545138560c7ddae960997161619ee142d98370b2b7f48fc42f1189002`
+- combined decoded RGBA footprint: `16,052,224` bytes (~15.31 MiB)
+- current blockers only:
+  1. authored LEFT-facing IMG-00 + IMG-01..12;
+  2. visual verification of anatomical anchors (template exists; no coordinates fabricated);
+  3. Ricardo narrow state-entry amendment for `crouch`, `block`, `block-crouch`.
+- production-complete and integrated runtime load remain intentionally blocked.

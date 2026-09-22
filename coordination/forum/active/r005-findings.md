@@ -444,3 +444,33 @@ Ruling:
 - before production/full-roster cutover, either materialize canonical names/encoding or obtain an explicit Neureon amendment to the authoritative sprite contract.
 
 This gate is separate from physical-phone acceptance.
+
+
+## CLOSED — V07-SPR-G1 replacement approved with final served-atlas evidence
+
+Historical rejected candidate:
+`5c76664fb95ac9c1da019636ce3ad974c214d84c`
+
+Approved replacement product:
+`fe2b505639d8ebf2dc4ab204b545233d96f214f2`
+
+Final Germinator QA-only head:
+`ac860f2ef320f83a977939483e742472b40389f9`
+
+Verdict:
+**APPROVE — SPRITE PILOT LIVE INTEGRATION GREEN**
+
+Evidence:
+- Repository #1722 / `35788816202`: 433/433 + build PASS;
+- Character Pipeline V2 #74 / `35788816195`: tests/build/evidence/raster guard PASS;
+- artifact `10721013048`;
+- digest `sha256:9fafac53621a87e574f8ab1e20a0e872ae110e00993f7a73acbdc1b84a362b26`;
+- static served-atlas evidence visibly confirmed RIGHT idle, LEFT idle, RIGHT Topete and LEFT Ultimate at full and phone scale;
+- authored LEFT is not runtime-mirrored and readable garment text remains correctly oriented;
+- QA-only branch adds only workflow/test/evidence tooling; product candidate remains unchanged.
+
+RULING:
+- V07-SPR-G1 = VERIFIED;
+- V07-SPR-Z0 = READY;
+- Gonza may publish isolated preview only from exact `fe2b5056...`;
+- production root remains blocked pending served-preview/user phone acceptance and downstream format gate.

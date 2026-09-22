@@ -1,0 +1,1069 @@
+{
+  "version": 1,
+  "fighterId": "el-toro",
+  "facing": "right",
+  "status": "verified",
+  "coordinateSpace": "packed-frame-local",
+  "requiredAnchors": [
+    "head",
+    "chest",
+    "frontHand",
+    "backHand",
+    "belt",
+    "frontFoot",
+    "backFoot"
+  ],
+  "frames": [
+    {
+      "frameId": "IMG-01__f01",
+      "atlasRect": {
+        "x": 2,
+        "y": 2,
+        "width": 137,
+        "height": 192
+      },
+      "pivot": {
+        "x": 68.5,
+        "y": 192,
+        "source": "normalization-ground-pivot"
+      },
+      "anchors": {
+        "head": {
+          "x": 80.0,
+          "y": 18.0
+        },
+        "chest": {
+          "x": 69.0,
+          "y": 54.0
+        },
+        "frontHand": {
+          "x": 120.0,
+          "y": 58.0
+        },
+        "backHand": {
+          "x": 50.0,
+          "y": 54.0
+        },
+        "belt": {
+          "x": 67.0,
+          "y": 98.0
+        },
+        "frontFoot": {
+          "x": 103.0,
+          "y": 186.0
+        },
+        "backFoot": {
+          "x": 10.0,
+          "y": 191.0
+        }
+      },
+      "verified": true
+    },
+    {
+      "frameId": "IMG-01__f02",
+      "atlasRect": {
+        "x": 141,
+        "y": 2,
+        "width": 135,
+        "height": 191
+      },
+      "pivot": {
+        "x": 67.5,
+        "y": 191,
+        "source": "normalization-ground-pivot"
+      },
+      "anchors": {
+        "head": {
+          "x": 72.0,
+          "y": 20.0
+        },
+        "chest": {
+          "x": 60.0,
+          "y": 57.0
+        },
+        "frontHand": {
+          "x": 113.0,
+          "y": 56.0
+        },
+        "backHand": {
+          "x": 44.0,
+          "y": 59.0
+        },
+        "belt": {
+          "x": 58.0,
+          "y": 97.0
+        },
+        "frontFoot": {
+          "x": 107.0,
+          "y": 185.0
+        },
+        "backFoot": {
+          "x": 11.0,
+          "y": 190.0
+        }
+      },
+      "verified": true
+    },
+    {
+      "frameId": "IMG-01__f03",
+      "atlasRect": {
+        "x": 27
+…[50298 chars truncated — re-run with head/grep/tail for full output]…
+,
+      "verified": true
+    },
+    {
+      "frameId": "IMG-10__f06",
+      "atlasRect": {
+        "x": 1039,
+        "y": 915,
+        "width": 166,
+        "height": 139
+      },
+      "pivot": {
+        "x": 83,
+        "y": 139,
+        "source": "normalization-ground-pivot"
+      },
+      "anchors": {
+        "head": {
+          "x": 146.0,
+          "y": 19.0
+        },
+        "chest": {
+          "x": 118.0,
+          "y": 37.0
+        },
+        "frontHand": {
+          "x": 147.0,
+          "y": 51.0
+        },
+        "backHand": {
+          "x": 148.0,
+          "y": 51.0
+        },
+        "belt": {
+          "x": 96.0,
+          "y": 59.0
+        },
+        "frontFoot": {
+          "x": 116.0,
+          "y": 125.0
+        },
+        "backFoot": {
+          "x": 108.0,
+          "y": 122.0
+        }
+      },
+      "verified": true
+    },
+    {
+      "frameId": "IMG-10__f07",
+      "atlasRect": {
+        "x": 1207,
+        "y": 915,
+        "width": 112,
+        "height": 161
+      },
+      "pivot": {
+        "x": 56,
+        "y": 161,
+        "source": "normalization-ground-pivot"
+      },
+      "anchors": {
+        "head": {
+          "x": 87.0,
+          "y": 19.0
+        },
+        "chest": {
+          "x": 64.0,
+          "y": 43.0
+        },
+        "frontHand": {
+          "x": 105.0,
+          "y": 59.0
+        },
+        "backHand": {
+          "x": 69.0,
+          "y": 59.0
+        },
+        "belt": {
+          "x": 50.0,
+          "y": 79.0
+        },
+        "frontFoot": {
+          "x": 81.0,
+          "y": 156.0
+        },
+        "backFoot": {
+          "x": 9.0,
+          "y": 160.0
+        }
+      },
+      "verified": true
+    },
+    {
+      "frameId": "IMG-10__f08",
+      "atlasRect": {
+        "x": 1321,
+        "y": 915,
+        "width": 122,
+        "height": 179
+      },
+      "pivot": {
+        "x": 61,
+        "y": 179,
+        "source": "normalization-ground-pivot"
+      },
+      "anchors": {
+        "head": {
+          "x": 77.0,
+          "y": 19.0
+        },
+        "chest": {
+          "x": 61.0,
+          "y": 52.0
+        },
+        "frontHand": {
+          "x": 104.0,
+          "y": 57.0
+        },
+        "backHand": {
+          "x": 44.0,
+          "y": 53.0
+        },
+        "belt": {
+          "x": 55.0,
+          "y": 88.0
+        },
+        "frontFoot": {
+          "x": 92.0,
+          "y": 175.0
+        },
+        "backFoot": {
+          "x": 5.0,
+          "y": 178.0
+        }
+      },
+      "verified": true
+    },
+    {
+      "frameId": "IMG-11__f01",
+      "atlasRect": {
+        "x": 1445,
+        "y": 915,
+        "width": 132,
+        "height": 173
+      },
+      "pivot": {
+        "x": 66,
+        "y": 173,
+        "source": "normalization-ground-pivot"
+      },
+      "anchors": {
+        "head": {
+          "x": 80.0,
+          "y": 15.0
+        },
+        "chest": {
+          "x": 68.0,
+          "y": 51.0
+        },
+        "frontHand": {
+          "x": 110.0,
+          "y": 53.0
+        },
+        "backHand": {
+          "x": 50.0,
+          "y": 55.0
+        },
+        "belt": {
+          "x": 64.0,
+          "y": 86.0
+        },
+        "frontFoot": {
+          "x": 105.0,
+          "y": 169.0
+        },
+        "backFoot": {
+          "x": 13.0,
+          "y": 172.0
+        }
+      },
+      "verified": true
+    },
+    {
+      "frameId": "IMG-11__f02",
+      "atlasRect": {
+        "x": 1579,
+        "y": 915,
+        "width": 137,
+        "height": 170
+      },
+      "pivot": {
+        "x": 68.5,
+        "y": 170,
+        "source": "normalization-ground-pivot"
+      },
+      "anchors": {
+        "head": {
+          "x": 83.0,
+          "y": 17.0
+        },
+        "chest": {
+          "x": 72.0,
+          "y": 48.0
+        },
+        "frontHand": {
+          "x": 114.0,
+          "y": 50.0
+        },
+        "backHand": {
+          "x": 52.0,
+          "y": 71.0
+        },
+        "belt": {
+          "x": 67.0,
+          "y": 85.0
+        },
+        "frontFoot": {
+          "x": 114.0,
+          "y": 168.0
+        },
+        "backFoot": {
+          "x": 11.0,
+          "y": 169.0
+        }
+      },
+      "verified": true
+    },
+    {
+      "frameId": "IMG-11__f03",
+      "atlasRect": {
+        "x": 1718,
+        "y": 915,
+        "width": 147,
+        "height": 166
+      },
+      "pivot": {
+        "x": 73.5,
+        "y": 166,
+        "source": "normalization-ground-pivot"
+      },
+      "anchors": {
+        "head": {
+          "x": 74.0,
+          "y": 16.0
+        },
+        "chest": {
+          "x": 61.0,
+          "y": 47.0
+        },
+        "frontHand": {
+          "x": 112.0,
+          "y": 50.0
+        },
+        "backHand": {
+          "x": 23.0,
+          "y": 37.0
+        },
+        "belt": {
+          "x": 58.0,
+          "y": 83.0
+        },
+        "frontFoot": {
+          "x": 107.0,
+          "y": 163.0
+        },
+        "backFoot": {
+          "x": 17.0,
+          "y": 165.0
+        }
+      },
+      "verified": true
+    },
+    {
+      "frameId": "IMG-11__f04",
+      "atlasRect": {
+        "x": 1867,
+        "y": 915,
+        "width": 151,
+        "height": 163
+      },
+      "pivot": {
+        "x": 75.5,
+        "y": 163,
+        "source": "normalization-ground-pivot"
+      },
+      "anchors": {
+        "head": {
+          "x": 74.0,
+          "y": 21.0
+        },
+        "chest": {
+          "x": 57.0,
+          "y": 44.0
+        },
+        "frontHand": {
+          "x": 102.0,
+          "y": 42.0
+        },
+        "backHand": {
+          "x": 97.0,
+          "y": 41.0
+        },
+        "belt": {
+          "x": 51.0,
+          "y": 78.0
+        },
+        "frontFoot": {
+          "x": 111.0,
+          "y": 160.0
+        },
+        "backFoot": {
+          "x": 98.0,
+          "y": 159.0
+        }
+      },
+      "verified": true
+    },
+    {
+      "frameId": "IMG-11__f05",
+      "atlasRect": {
+        "x": 2,
+        "y": 1096,
+        "width": 164,
+        "height": 171
+      },
+      "pivot": {
+        "x": 82,
+        "y": 171,
+        "source": "normalization-ground-pivot"
+      },
+      "anchors": {
+        "head": {
+          "x": 76.0,
+          "y": 14.0
+        },
+        "chest": {
+          "x": 61.0,
+          "y": 48.0
+        },
+        "frontHand": {
+          "x": 131.0,
+          "y": 40.0
+        },
+        "backHand": {
+          "x": 40.0,
+          "y": 51.0
+        },
+        "belt": {
+          "x": 55.0,
+          "y": 87.0
+        },
+        "frontFoot": {
+          "x": 110.0,
+          "y": 169.0
+        },
+        "backFoot": {
+          "x": 16.0,
+          "y": 170.0
+        }
+      },
+      "verified": true
+    },
+    {
+      "frameId": "IMG-11__f06",
+      "atlasRect": {
+        "x": 168,
+        "y": 1096,
+        "width": 168,
+        "height": 159
+      },
+      "pivot": {
+        "x": 84,
+        "y": 159,
+        "source": "normalization-ground-pivot"
+      },
+      "anchors": {
+        "head": {
+          "x": 107.0,
+          "y": 20.0
+        },
+        "chest": {
+          "x": 82.0,
+          "y": 41.0
+        },
+        "frontHand": {
+          "x": 96.0,
+          "y": 63.0
+        },
+        "backHand": {
+          "x": 147.0,
+          "y": 38.0
+        },
+        "belt": {
+          "x": 68.0,
+          "y": 75.0
+        },
+        "frontFoot": {
+          "x": 116.0,
+          "y": 156.0
+        },
+        "backFoot": {
+          "x": 111.0,
+          "y": 155.0
+        }
+      },
+      "verified": true
+    },
+    {
+      "frameId": "IMG-11__f07",
+      "atlasRect": {
+        "x": 338,
+        "y": 1096,
+        "width": 140,
+        "height": 165
+      },
+      "pivot": {
+        "x": 70,
+        "y": 165,
+        "source": "normalization-ground-pivot"
+      },
+      "anchors": {
+        "head": {
+          "x": 78.0,
+          "y": 17.0
+        },
+        "chest": {
+          "x": 69.0,
+          "y": 48.0
+        },
+        "frontHand": {
+          "x": 105.0,
+          "y": 44.0
+        },
+        "backHand": {
+          "x": 56.0,
+          "y": 51.0
+        },
+        "belt": {
+          "x": 68.0,
+          "y": 81.0
+        },
+        "frontFoot": {
+          "x": 117.0,
+          "y": 163.0
+        },
+        "backFoot": {
+          "x": 14.0,
+          "y": 164.0
+        }
+      },
+      "verified": true
+    },
+    {
+      "frameId": "IMG-11__f08",
+      "atlasRect": {
+        "x": 480,
+        "y": 1096,
+        "width": 130,
+        "height": 171
+      },
+      "pivot": {
+        "x": 65,
+        "y": 171,
+        "source": "normalization-ground-pivot"
+      },
+      "anchors": {
+        "head": {
+          "x": 72.0,
+          "y": 16.0
+        },
+        "chest": {
+          "x": 61.0,
+          "y": 48.0
+        },
+        "frontHand": {
+          "x": 103.0,
+          "y": 50.0
+        },
+        "backHand": {
+          "x": 45.0,
+          "y": 50.0
+        },
+        "belt": {
+          "x": 58.0,
+          "y": 82.0
+        },
+        "frontFoot": {
+          "x": 104.0,
+          "y": 168.0
+        },
+        "backFoot": {
+          "x": 11.0,
+          "y": 170.0
+        }
+      },
+      "verified": true
+    },
+    {
+      "frameId": "IMG-12__f01",
+      "atlasRect": {
+        "x": 612,
+        "y": 1096,
+        "width": 114,
+        "height": 167
+      },
+      "pivot": {
+        "x": 57,
+        "y": 167,
+        "source": "normalization-ground-pivot"
+      },
+      "anchors": {
+        "head": {
+          "x": 73.0,
+          "y": 18.0
+        },
+        "chest": {
+          "x": 57.0,
+          "y": 51.0
+        },
+        "frontHand": {
+          "x": 102.0,
+          "y": 49.0
+        },
+        "backHand": {
+          "x": 61.0,
+          "y": 48.0
+        },
+        "belt": {
+          "x": 50.0,
+          "y": 89.0
+        },
+        "frontFoot": {
+          "x": 88.0,
+          "y": 164.0
+        },
+        "backFoot": {
+          "x": 5.0,
+          "y": 166.0
+        }
+      },
+      "verified": true
+    },
+    {
+      "frameId": "IMG-12__f02",
+      "atlasRect": {
+        "x": 728,
+        "y": 1096,
+        "width": 123,
+        "height": 156
+      },
+      "pivot": {
+        "x": 61.5,
+        "y": 156,
+        "source": "normalization-ground-pivot"
+      },
+      "anchors": {
+        "head": {
+          "x": 85.0,
+          "y": 23.0
+        },
+        "chest": {
+          "x": 62.0,
+          "y": 44.0
+        },
+        "frontHand": {
+          "x": 106.0,
+          "y": 54.0
+        },
+        "backHand": {
+          "x": 68.0,
+          "y": 52.0
+        },
+        "belt": {
+          "x": 48.0,
+          "y": 77.0
+        },
+        "frontFoot": {
+          "x": 100.0,
+          "y": 153.0
+        },
+        "backFoot": {
+          "x": 7.0,
+          "y": 155.0
+        }
+      },
+      "verified": true
+    },
+    {
+      "frameId": "IMG-12__f03",
+      "atlasRect": {
+        "x": 853,
+        "y": 1096,
+        "width": 110,
+        "height": 168
+      },
+      "pivot": {
+        "x": 55,
+        "y": 168,
+        "source": "normalization-ground-pivot"
+      },
+      "anchors": {
+        "head": {
+          "x": 52.0,
+          "y": 13.0
+        },
+        "chest": {
+          "x": 47.0,
+          "y": 53.0
+        },
+        "frontHand": {
+          "x": 94.0,
+          "y": 67.0
+        },
+        "backHand": {
+          "x": 17.0,
+          "y": 71.0
+        },
+        "belt": {
+          "x": 46.0,
+          "y": 98.0
+        },
+        "frontFoot": {
+          "x": 89.0,
+          "y": 165.0
+        },
+        "backFoot": {
+          "x": 7.0,
+          "y": 167.0
+        }
+      },
+      "verified": true
+    },
+    {
+      "frameId": "IMG-12__f04",
+      "atlasRect": {
+        "x": 965,
+        "y": 1096,
+        "width": 108,
+        "height": 178
+      },
+      "pivot": {
+        "x": 54,
+        "y": 178,
+        "source": "normalization-ground-pivot"
+      },
+      "anchors": {
+        "head": {
+          "x": 49.0,
+          "y": 15.0
+        },
+        "chest": {
+          "x": 46.0,
+          "y": 56.0
+        },
+        "frontHand": {
+          "x": 90.0,
+          "y": 81.0
+        },
+        "backHand": {
+          "x": 17.0,
+          "y": 80.0
+        },
+        "belt": {
+          "x": 48.0,
+          "y": 100.0
+        },
+        "frontFoot": {
+          "x": 85.0,
+          "y": 174.0
+        },
+        "backFoot": {
+          "x": 14.0,
+          "y": 177.0
+        }
+      },
+      "verified": true
+    },
+    {
+      "frameId": "IMG-12__f05",
+      "atlasRect": {
+        "x": 1075,
+        "y": 1096,
+        "width": 112,
+        "height": 178
+      },
+      "pivot": {
+        "x": 56,
+        "y": 178,
+        "source": "normalization-ground-pivot"
+      },
+      "anchors": {
+        "head": {
+          "x": 45.0,
+          "y": 18.0
+        },
+        "chest": {
+          "x": 46.0,
+          "y": 57.0
+        },
+        "frontHand": {
+          "x": 93.0,
+          "y": 77.0
+        },
+        "backHand": {
+          "x": 23.0,
+          "y": 85.0
+        },
+        "belt": {
+          "x": 50.0,
+          "y": 99.0
+        },
+        "frontFoot": {
+          "x": 91.0,
+          "y": 175.0
+        },
+        "backFoot": {
+          "x": 13.0,
+          "y": 177.0
+        }
+      },
+      "verified": true
+    },
+    {
+      "frameId": "IMG-12__f06",
+      "atlasRect": {
+        "x": 1189,
+        "y": 1096,
+        "width": 119,
+        "height": 174
+      },
+      "pivot": {
+        "x": 59.5,
+        "y": 174,
+        "source": "normalization-ground-pivot"
+      },
+      "anchors": {
+        "head": {
+          "x": 48.0,
+          "y": 14.0
+        },
+        "chest": {
+          "x": 51.0,
+          "y": 53.0
+        },
+        "frontHand": {
+          "x": 100.0,
+          "y": 79.0
+        },
+        "backHand": {
+          "x": 11.0,
+          "y": 89.0
+        },
+        "belt": {
+          "x": 58.0,
+          "y": 100.0
+        },
+        "frontFoot": {
+          "x": 95.0,
+          "y": 170.0
+        },
+        "backFoot": {
+          "x": 17.0,
+          "y": 173.0
+        }
+      },
+      "verified": true
+    },
+    {
+      "frameId": "IMG-12__f07",
+      "atlasRect": {
+        "x": 1310,
+        "y": 1096,
+        "width": 123,
+        "height": 174
+      },
+      "pivot": {
+        "x": 61.5,
+        "y": 174,
+        "source": "normalization-ground-pivot"
+      },
+      "anchors": {
+        "head": {
+          "x": 47.0,
+          "y": 14.0
+        },
+        "chest": {
+          "x": 51.0,
+          "y": 54.0
+        },
+        "frontHand": {
+          "x": 96.0,
+          "y": 79.0
+        },
+        "backHand": {
+          "x": 13.0,
+          "y": 94.0
+        },
+        "belt": {
+          "x": 56.0,
+          "y": 102.0
+        },
+        "frontFoot": {
+          "x": 98.0,
+          "y": 170.0
+        },
+        "backFoot": {
+          "x": 19.0,
+          "y": 173.0
+        }
+      },
+      "verified": true
+    },
+    {
+      "frameId": "IMG-12__f08",
+      "atlasRect": {
+        "x": 1435,
+        "y": 1096,
+        "width": 106,
+        "height": 169
+      },
+      "pivot": {
+        "x": 53,
+        "y": 169,
+        "source": "normalization-ground-pivot"
+      },
+      "anchors": {
+        "head": {
+          "x": 52.0,
+          "y": 21.0
+        },
+        "chest": {
+          "x": 44.0,
+          "y": 49.0
+        },
+        "frontHand": {
+          "x": 71.0,
+          "y": 40.0
+        },
+        "backHand": {
+          "x": 26.0,
+          "y": 73.0
+        },
+        "belt": {
+          "x": 43.0,
+          "y": 88.0
+        },
+        "frontFoot": {
+          "x": 81.0,
+          "y": 166.0
+        },
+        "backFoot": {
+          "x": 8.0,
+          "y": 168.0
+        }
+      },
+      "verified": true
+    },
+    {
+      "frameId": "IMG-12__f09",
+      "atlasRect": {
+        "x": 1543,
+        "y": 1096,
+        "width": 100,
+        "height": 171
+      },
+      "pivot": {
+        "x": 50,
+        "y": 171,
+        "source": "normalization-ground-pivot"
+      },
+      "anchors": {
+        "head": {
+          "x": 54.0,
+          "y": 17.0
+        },
+        "chest": {
+          "x": 49.0,
+          "y": 49.0
+        },
+        "frontHand": {
+          "x": 77.0,
+          "y": 27.0
+        },
+        "backHand": {
+          "x": 25.0,
+          "y": 78.0
+        },
+        "belt": {
+          "x": 49.0,
+          "y": 87.0
+        },
+        "frontFoot": {
+          "x": 73.0,
+          "y": 167.0
+        },
+        "backFoot": {
+          "x": 15.0,
+          "y": 170.0
+        }
+      },
+      "verified": true
+    },
+    {
+      "frameId": "IMG-12__f10",
+      "atlasRect": {
+        "x": 1645,
+        "y": 1096,
+        "width": 116,
+        "height": 165
+      },
+      "pivot": {
+        "x": 58,
+        "y": 165,
+        "source": "normalization-ground-pivot"
+      },
+      "anchors": {
+        "head": {
+          "x": 71.0,
+          "y": 17.0
+        },
+        "chest": {
+          "x": 56.0,
+          "y": 50.0
+        },
+        "frontHand": {
+          "x": 100.0,
+          "y": 47.0
+        },
+        "backHand": {
+          "x": 62.0,
+          "y": 44.0
+        },
+        "belt": {
+          "x": 48.0,
+          "y": 88.0
+        },
+        "frontFoot": {
+          "x": 88.0,
+          "y": 161.0
+        },
+        "backFoot": {
+          "x": 4.0,
+          "y": 164.0
+        }
+      },
+      "verified": true
+    }
+  ],
+  "reviewMethod": "authored-frame visual review; pose landmarks only as draft aids",
+  "reviewNotes": [
+    "Reviewed against authored RIGHT/LEFT contact sheets and high-risk pose groups.",
+    "head targets anatomical head/face center for runtime prop attachment, not hair-top.",
+    "front/back hand and foot identity is fixed from the facing-relative idle limb and preserved through animation.",
+    "foot anchors target visible shoe/foot silhouette near the corresponding pose-estimated ankle; pose-only off-silhouette points are rejected."
+  ],
+  "sanityMaxNonFootSilhouetteSnapPx": 11.488
+}

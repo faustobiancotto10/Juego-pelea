@@ -5,10 +5,10 @@ Task: V07-SPR-MB — El Toro Sprite Package
 From: Mario-B  
 To: Mario-A sprite integrator + Neureon  
 Branch: `round/r005-sprite-mario-b-package`  
-Exact Mario-B candidate SHA: `f4a1b3f291fafabc364b4f52a8872014cb8664f6`  
+Exact Mario-B candidate SHA: `a5dfaa6d35ec3f32eaac15f687c7a098ed10500d`  
 Integration target: `round/r005-sprite-mario-integration`  
 Validation PR: #52 (draft; do not merge directly)  
-Status: **BLOCKED / RIGHT-METADATA-READY**
+Status: **BLOCKED / RIGHT-PACKAGE-READY**
 
 ## What is green
 
@@ -166,3 +166,88 @@ Proposed durable Mario learnings:
 - Game Studio `sprite-pipeline` contract used.
 - Superpowers TDD/execution/verification workflow used.
 - `TOOL_UNAVAILABLE: Game Development Studio / game-dev CLI` in this host; no CLI result is claimed.
+
+
+## Revision 3 — derived right-facing package GREEN
+
+This revision supersedes the earlier right-metadata-only checkpoint.
+
+### Exact candidate and verification
+
+- exact Mario-B SHA: `a5dfaa6d35ec3f32eaac15f687c7a098ed10500d`
+- verification run: `35674533122` / #1530
+- coordination contract: PASS
+- full repository suite: PASS
+- build: PASS
+
+### Revised dependency consumed
+
+Mario-B consumed revised Mario-A exact SHA:
+`0eb4a2b985813d1cdc9f8c53d059a81efe49be20`
+
+The previous MA blockers are resolved:
+- pixel-isolated RGBA is provided by MA-owned `generatePixelIsolatedFrameSet()`;
+- runtime body scale excludes IMG-00 and now matches IMG-01..12 body-only scale.
+
+### New derived outputs
+
+`scripts/el-toro-sprite-atlas-packer.mjs` deterministically produces:
+- `right-body.png` — normalized 84-frame body atlas;
+- `right-effects.png` — separate 22-frame FX atlas;
+- `right-runtime-fragment.json` — 26 resolver-reachable RIGHT animation keys;
+- `right-effects-fragment.json` — FX package metadata;
+- `right-gameplay-preview.svg` — 844x390 atlas-only phone-landscape evidence;
+- `right-package-metrics.json` — decoded-memory metrics.
+
+The CLI is reproducible:
+
+```bash
+node scripts/el-toro-sprite-atlas-packer.mjs \
+  --source-dir docs/characters/el-toro/sprite-source/right \
+  --package-contract docs/characters/el-toro/sprite-package/right-package.json \
+  --out-dir <output-dir>
+```
+
+No source sheet path is emitted into runtime fragments or preview evidence.
+
+### Derived-package fingerprint
+
+Body:
+- atlas dimensions: 2048x1509
+- decoded RGBA: 12,361,728 bytes
+- encoded PNG: 3,203,017 bytes
+- SHA-256: `06d06bdfbc72b9ee07eae053d801f9f180b8776433e837839cbbfea1aa2826cc`
+
+FX:
+- atlas dimensions: 1024x901
+- decoded RGBA: 3,690,496 bytes
+- encoded PNG: 916,922 bytes
+- SHA-256: `2fb2835545138560c7ddae960997161619ee142d98370b2b7f48fc42f1189002`
+
+Combined decoded RGBA:
+- 16,052,224 bytes
+
+These are reproducibility measurements, not target-device acceptance.
+
+### Runtime readiness boundary
+
+The generated RIGHT runtime fragment is intentionally marked:
+- `mirrorSafe: false`
+- `runtimeLoadable: false`
+- `leftAnimationsRequired: true`
+
+Mario-B does not bypass the authored LEFT requirement.
+
+### Remaining blockers
+
+1. Authored LEFT-facing IMG-00 + IMG-01..12 remain absent.
+2. Required per-frame attachment anchors remain unverified; Mario-B will not fabricate head/chest/hands/belt/feet coordinates.
+3. Ricardo v2 SHA `79f8d81c2db75eebc595a93668e7332a9f429373` correctly repairs hurt/guard-break/jump-startup/land/captured/knockdown timing, but `crouch`, `block`, and `block-crouch` still use absolute ambient `combatTick`. Mario-B requested the narrow state-entry timeline amendment on PR #51.
+4. Gameplay-scale evidence is generated, but human/device artistic acceptance remains downstream.
+
+### Updated Identity Learning Review
+
+**PROPOSAL** -> designated Mario-A integrator.
+
+Additional reusable lesson:
+- when normalized sprite dimensions are rounded to integer atlas pixels, transform pivots into the same rounded coordinate space before manifest emission; carrying pre-rounding float pivots directly can place an otherwise correct baseline a fraction outside the packed rect.

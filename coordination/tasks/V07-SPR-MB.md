@@ -2,7 +2,7 @@
 
 Round: R005-V07-GAMEPLAY-PRESENTATION-EXPANSION  
 Owner: Mario-B  
-Status: HANDOFF_READY_RIGHT_ONLY_BLOCKED_EXTERNAL_INPUTS
+Status: HANDOFF_READY_BILATERAL_ANCHOR_BLOCKED
 
 ## Execution branch
 
@@ -216,3 +216,25 @@ Build the production-intended El Toro sprite package from Mario-A's admitted/nor
   1. authored LEFT-facing IMG-00 + IMG-01..12;
   2. visual completion/verification of the 84-frame anatomical anchor data;
   3. Ricardo state-entry timing amendment for `crouch`, `block`, `block-crouch`.
+
+
+## Mario-B bilateral package checkpoint — 2026-09-22
+
+- exact candidate: `57634fc7bf345a72cf679746a0f3bef9eb8f0d33`
+- verification: run `35684693956` — coordination contract + full suite + build PASS
+- exact source dependency consumed by merge: Mario-A `c1b3e8e757b707f2975f6587217cc2f851e2ca6b`
+- exact runtime dependency consumed by merge: Ricardo `5b20c351e75a45460b3f76416d41424f10e43a1f`
+- bilateral package now reproducibly generates:
+  - one `el-toro-body.png` containing 84 authored RIGHT + 84 authored LEFT body frames;
+  - `mirrorSafe:false`, no runtime horizontal mirroring;
+  - 26 RIGHT keys in `animations` + identical 26-key coverage in `leftAnimations`;
+  - separate 22-frame `el-toro-effects.png`;
+  - bilateral gameplay-scale preview;
+  - independent RIGHT/LEFT JSON + SVG anchor-review surfaces;
+  - deterministic bilateral CLI + metrics.
+- resolved gates:
+  - authored LEFT source;
+  - Ricardo crouch/block/block-crouch presentation-entry clock.
+- only remaining package gate:
+  - visually authored/verified anatomical anchors for RIGHT and LEFT.
+- generated manifest becomes `runtimeLoadable:true` only when both verified anchor reviews pass identity, bounds and packed-geometry validation.

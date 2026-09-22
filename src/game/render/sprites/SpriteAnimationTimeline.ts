@@ -15,6 +15,9 @@ const ENTRY_TIMED_KEYS = new Set([
   'hurt',
   'jump-startup',
   'land',
+  'crouch',
+  'block',
+  'block-crouch',
 ]);
 
 function stableTick(value: number): number {

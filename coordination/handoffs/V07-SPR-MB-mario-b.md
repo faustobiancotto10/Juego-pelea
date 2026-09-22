@@ -626,3 +626,39 @@ Remaining blocker:
 Once the two exported JSON reviews are complete and verified, the existing baking path can validate geometry, bake anchors into both animation maps and emit `runtimeLoadable:true`.
 
 The current connected GitHub binary surface does not expose repository PNG bytes to this model's visual runtime, so Mario-B does not self-certify anchor coordinates without seeing the rendered frames.
+
+
+## Revision 9 — Repaired LEFT Topete bilateral rebuild GREEN
+
+Exact Mario-B candidate:
+`1a1d14df00e3b0f5942d2b1db29f2063dcb758bd`
+
+Verification:
+- workflow run `35750820290`;
+- coordination contract PASS;
+- full repository suite PASS;
+- build PASS.
+
+Exact repaired dependency:
+- Mario-A `7782734bcc0cf4d98df74073fd86e6d8ead409d2`.
+
+This supersedes Mario-B `d6b41ff8c9f83162442d01d9d412d5eab9edc9be` for LEFT-facing Topete review/certification.
+
+Repair validation:
+- Mario-A source-quality test `V07-SPR-MA LEFT Topete has one substantial authored body pose per expected slot`: PASS;
+- Mario-B derived-package test `repaired LEFT Topete remains 8/8 in the bilateral derived manifest`: PASS;
+- LEFT `move:topete` exposes 8 frames mapped to 8 distinct atlas rectangles;
+- the bilateral package, manifest, gameplay preview and `bilateral-anchor-review.html` regenerate from the repaired LEFT source.
+
+No other package contract changed:
+- 84 authored RIGHT + 84 authored LEFT body frames;
+- one non-mirrored body atlas;
+- 26 RIGHT + 26 LEFT resolver keys;
+- 22 separate FX frames;
+- `mirrorSafe:false`;
+- bilateral JSON/SVG/HTML anchor-review surfaces.
+
+Remaining blocker:
+**explicit visual verification of the seven anatomical anchors for both authored facings.**
+
+Do not use `d6b41ff...` or `57634fc7...` for anchor certification. Downstream integration must consume exact SHA `1a1d14df00e3b0f5942d2b1db29f2063dcb758bd`.

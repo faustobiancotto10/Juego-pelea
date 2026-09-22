@@ -22,7 +22,7 @@ Publish an isolated preview of the exact Germinator-approved El Toro sprite-pilo
 - [ ] Identity Learning Receipt recorded.
 
 
-## Current blocker
+## Historical rejected candidate
 
 Do not publish `5c76664fb95ac9c1da019636ce3ad974c214d84c`.
 
@@ -32,7 +32,7 @@ Germinator PR #58 / run `35779776446` proved:
 - default sprite package registry contains no El Toro registration;
 - the exact candidate ships no runtime `assets/` root for the build to serve.
 
-Resume only after V07-SPR-G1 approval on a replacement exact candidate.
+Replacement approval is now satisfied by exact `fe2b505639d8ebf2dc4ab204b545233d96f214f2`. This section is retained only to prevent accidental reuse of the rejected `5c76664f...` candidate.
 
 
 ## Approved input
@@ -51,3 +51,5 @@ Required Z0 work:
 - hand the preview to the user for physical-phone acceptance.
 
 The canonical production package-format gate remains downstream and does not block this isolated preview.
+
+Final Germinator evidence: Repository #1722 / `35788816202`, Character Pipeline V2 #74 / `35788816195`, artifact `10721013048`.

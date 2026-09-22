@@ -4,6 +4,7 @@ import assert from 'node:assert/strict';
 import { mkdtempSync, readFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
+import { spawnSync } from 'node:child_process';
 import { parseRgbaPng } from '../scripts/sprite-png-alpha.mjs';
 import { buildElToroRightAtlasPackage } from '../scripts/el-toro-sprite-atlas-packer.mjs';
 
@@ -114,4 +115,46 @@ test('atlas package is deterministic byte-for-byte and source sheets never appea
   assert.equal(text.includes('sprite-source/right'),false);
   assert.equal(text.includes('__IMG-'),false);
   assert.equal(text.includes('__FX-'),false);
+});
+
+
+test('right-facing package emits deterministic decoded-memory metrics', () => {
+  const {outDir,result}=build();
+  const metricsPath=join(outDir,'right-package-metrics.json');
+  assert.equal(result.metricsPath,metricsPath);
+  const metrics=JSON.parse(readFileSync(metricsPath,'utf8'));
+
+  assert.equal(metrics.body.frameCount,84);
+  assert.equal(metrics.effects.frameCount,22);
+  assert.equal(metrics.body.width,result.body.atlasWidth);
+  assert.equal(metrics.body.height,result.body.atlasHeight);
+  assert.equal(metrics.effects.width,result.effects.atlasWidth);
+  assert.equal(metrics.effects.height,result.effects.atlasHeight);
+  assert.equal(metrics.body.decodedRgbaBytes,metrics.body.width*metrics.body.height*4);
+  assert.equal(metrics.effects.decodedRgbaBytes,metrics.effects.width*metrics.effects.height*4);
+  assert.equal(
+    metrics.combinedDecodedRgbaBytes,
+    metrics.body.decodedRgbaBytes+metrics.effects.decodedRgbaBytes,
+  );
+  assert.deepEqual(metrics.previewViewport,{width:844,height:390});
+  assert.equal(metrics.runtimeLoadsSourceSheets,false);
+});
+
+test('El Toro atlas packer CLI reproduces the right-facing package with a machine-readable receipt', () => {
+  const outDir=mkdtempSync(join(tmpdir(),'el-toro-right-cli-'));
+  const run=spawnSync(process.execPath,[
+    resolve('scripts/el-toro-sprite-atlas-packer.mjs'),
+    '--source-dir',sourceDir,
+    '--package-contract',packageContractPath,
+    '--out-dir',outDir,
+  ],{encoding:'utf8'});
+  assert.equal(run.status,0,run.stderr);
+  const receipt=JSON.parse(run.stdout);
+  assert.equal(receipt.fighterId,'el-toro');
+  assert.equal(receipt.facing,'right');
+  assert.equal(receipt.bodyFrames,84);
+  assert.equal(receipt.effectFrames,22);
+  assert.equal(receipt.runtimeLoadable,false);
+  assert.equal(receipt.preview,'right-gameplay-preview.svg');
+  assert.equal(readFileSync(join(outDir,'right-package-metrics.json'),'utf8').length>0,true);
 });

@@ -1007,3 +1007,28 @@ Do not ship Germinator QA head `ac860f2...`.
 - product source remains frozen; build tooling/artifact work occurs on an isolated CI branch;
 - parity proof will cover HTML **and** runtime manifest/body atlas;
 - served-game smoke will prove El Toro player RIGHT and CPU authored LEFT using atlas source-rect instrumentation, with no horizontal mirror.
+
+
+## HANDOFF_READY — Gonza / V07-SPR-Z0 isolated sprite preview
+
+Exact approved product:
+`fe2b505639d8ebf2dc4ab204b545233d96f214f2`
+
+Public phone-test target:
+https://faustobiancotto10.github.io/Juego-pelea/v07-sprite-preview/
+
+Evidence:
+- product source/tree parity proved before build;
+- build/verification run `35790115564`: SUCCESS;
+- generated HTML SHA-256 `f9cfc89bd0cc2d909f58388e04186a0e6fe3cf54e1dc098b63ef96c66133724e`;
+- manifest SHA-256 `c252c60076b0e0e242bb4e37f4b77435be6c1952bfec5164cf82832e3c885876`;
+- atlas SHA-256 `819a8d3d4f939c2edacc10fe92d09d0c073b41bcfdac3f469a1b6ce79e91d571`;
+- local served P1 RIGHT + CPU authored LEFT: PASS;
+- gh-pages preview SHA `5f0eed1335a887ec1daea9a42091eb77bdd90ab4`;
+- Pages `35790339751`: SUCCESS;
+- public served-byte + RIGHT/LEFT smoke `35790452035`: SUCCESS;
+- production root remains exact V0.6 blob `bda2d2a1...`.
+
+The next gate is user physical-phone acceptance. Production root promotion is still prohibited. Canonical package-format reconciliation remains required before any production/full-roster sprite cutover.
+
+Identity Learning Review: **UPDATED**.

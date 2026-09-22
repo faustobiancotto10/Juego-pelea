@@ -296,3 +296,38 @@ test('El Toro package pins the frozen V0.7 move IDs used to compile runtime mani
   assert.equal(pkg.resolverMap.moveKeyPolicy, 'verify-frozen-character-content-at-integration');
   assert.equal(pkg.resolverMap.ultimatePhasePolicy, 'compile-superEructo-forwardBlast-phases-at-integration');
 });
+
+
+test('El Toro non-move sprite durations match each resolver clock domain', () => {
+  const pkg = loadPackage();
+  assert.deepEqual(pkg.resolverMap.runtimeStateTimings, {
+    idle: { clockPolicy: 'ambient-loop', frameDurations: [8,8,8,8,8,8,8,8] },
+    crouch: { clockPolicy: 'presentation-state-entry-age', frameDurations: [2,2,3,3] },
+    'walk-forward': { clockPolicy: 'ambient-loop', frameDurations: [4,4,4,4,4,4,4,4] },
+    'walk-back': { clockPolicy: 'ambient-loop', frameDurations: [4,4,4,4,4,4,4,4] },
+    'dash-forward': { clockPolicy: 'dashFrame', frameDurations: [2,1,2,1,2,1,2,1] },
+    'dash-back': { clockPolicy: 'dashFrame', frameDurations: [2,2,2,2,2,2,2,2] },
+    'jump-startup': { clockPolicy: 'presentation-state-entry-age', frameDurations: [1,1] },
+    'jump-ascent': { clockPolicy: 'airborneTicks', frameDurations: [7,7] },
+    'jump-apex': { clockPolicy: 'airborneTicks', frameDurations: [1000] },
+    'jump-descent': { clockPolicy: 'airborneTicks', frameDurations: [23,1000] },
+    land: { clockPolicy: 'presentation-state-entry-age', frameDurations: [4] },
+    block: { clockPolicy: 'presentation-state-entry-age', frameDurations: [2,2,3,3] },
+    'block-crouch': { clockPolicy: 'presentation-state-entry-age', frameDurations: [2,2,3,3] },
+    hurt: { clockPolicy: 'presentation-state-entry-age', frameDurations: [2,2,2,2] },
+    'guard-break': { clockPolicy: 'presentation-state-entry-age', frameDurations: [6,6,12,18] },
+    knockdown: { clockPolicy: 'presentation-state-entry-age', frameDurations: [3,3,4,6] },
+    captured: { clockPolicy: 'presentation-state-entry-age', frameDurations: [1] },
+  });
+
+  const windows = pkg.resolverMap.runtimeStateWindows;
+  for (const [key, timing] of Object.entries(pkg.resolverMap.runtimeStateTimings)) {
+    const frameCount = windows[key].lastFrame - windows[key].firstFrame + 1;
+    assert.equal(timing.frameDurations.length, frameCount, `${key} timing must cover its source-frame window`);
+    assert.ok(timing.frameDurations.every((ticks) => Number.isInteger(ticks) && ticks >= 1));
+  }
+
+  assert.equal(pkg.resolverMap.runtimeStateTimings['dash-forward'].frameDurations.reduce((a,b) => a+b,0), 12);
+  assert.equal(pkg.resolverMap.runtimeStateTimings['dash-back'].frameDurations.reduce((a,b) => a+b,0), 16);
+  assert.equal(pkg.resolverMap.runtimeStateTimings['jump-startup'].frameDurations.reduce((a,b) => a+b,0), 2);
+});

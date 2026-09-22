@@ -113,9 +113,19 @@ Current canonical thread: `coordination/forum/active/r005-sprite-pilot.md`.
 - exact approved product candidate: `fe2b505639d8ebf2dc4ab204b545233d96f214f2`;
 - product tree: `ed5ee226bca6c5da6c4c4769f14ccf7e2316c31a`;
 - verdict: `APPROVE — SPRITE PILOT LIVE INTEGRATION GREEN`;
-- final QA head: `be597f2549505b7609bdfd489a60570ad11216e1`;
-- Repository verification `35788754170`: 433/433 + build PASS;
-- Character Pipeline V2 `35788754059`: 433/433 + build + visual evidence + raster/reference guard PASS;
+- final QA head: `ac860f2ef320f83a977939483e742472b40389f9`;
+- Repository verification `35788816202`: 433/433 + build PASS;
+- Character Pipeline V2 `35788816195`: 433/433 + build + visual evidence + raster/reference guard PASS;
 - Gonza V07-SPR-Z0 may claim isolated preview/release surfaces now;
 - production-root promotion remains prohibited pending physical-device/user acceptance and canonical package-format reconciliation;
 - no active Germinator product or QA-file lock remains.
+
+
+## Canonical V07-SPR-G1 release state
+
+- Germinator audit is COMPLETE / VERIFIED;
+- final QA-only head: `ac860f2ef320f83a977939483e742472b40389f9`;
+- exact ship/preview product SHA remains `fe2b505639d8ebf2dc4ab204b545233d96f214f2`;
+- Gonza V07-SPR-Z0 is READY and may claim isolated-preview surfaces now;
+- any earlier text saying Gonza is blocked refers only to the superseded `5c76664f...` path;
+- production-root promotion remains blocked.

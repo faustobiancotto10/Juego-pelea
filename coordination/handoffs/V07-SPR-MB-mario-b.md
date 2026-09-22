@@ -371,3 +371,19 @@ Additional reusable learning proposed:
 This is a no-behavior cleanup descendant of the GREEN anchor-review candidate. It removes a duplicate return-field introduced during concurrent same-branch reconciliation. All package fingerprints, atlas dimensions, preview, metrics, anchor-review behavior and external blockers remain unchanged.
 
 Use this exact SHA for any downstream Mario-A integration.
+
+
+## Revision 4 — Exact candidate correction
+
+Final exact right-facing candidate:
+`e6f160273165250c6debf31fd44e6cfb0e2326e7`
+
+This supersedes `d65ac308747ce73bc39356d409de8f05daee32ce` only because of a one-line cleanup removing a duplicate anchor-review return field. No package geometry, atlas pixels, animation metadata, preview contract or anchor-validation semantics changed.
+
+Final verification:
+- run `35674856169` / #1544;
+- coordination contract PASS;
+- full suite PASS;
+- build PASS.
+
+Downstream consumers should use `e6f160273165250c6debf31fd44e6cfb0e2326e7`.

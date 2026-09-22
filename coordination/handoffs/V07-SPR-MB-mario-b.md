@@ -493,3 +493,32 @@ Current remaining blockers:
 2. visually verified anatomical anchors for all required runtime frames;
 3. Ricardo state-entry timing for `crouch`, `block`, `block-crouch`;
 4. integrated QA and user/device acceptance.
+
+
+## Revision 5 — Stable final RIGHT-only handoff
+
+Use exact SHA:
+`51e0e892d08f9cf30742ef4894732f448a97da80`
+
+Verification:
+- run `35675088000` / #1564;
+- coordination contract PASS;
+- full suite PASS;
+- build PASS.
+
+This supersedes `e6f160273165250c6debf31fd44e6cfb0e2326e7`.
+
+Additional evidence since Revision 4:
+- `right-anchor-review.svg` renders all 84 packed body frames from `right-body.png`;
+- each frame exposes the deterministic normalization pivot;
+- all seven required anatomical anchor names are listed for manual review;
+- the SVG contains no anatomical anchor points, so no visual coordinate is fabricated;
+- `RIGHT_DERIVED_PACKAGE.md` documents the gated review workflow.
+
+Right-facing product status remains **HANDOFF_READY_RIGHT_ONLY**.
+Production-complete status remains blocked on:
+1. authored LEFT-facing IMG-00 + IMG-01..12;
+2. completed + visually verified 84-frame anatomical anchor review;
+3. Ricardo entry-clock amendment for `crouch`, `block`, `block-crouch`.
+
+Downstream Mario-A integration must consume this exact SHA and preserve `runtimeLoadable:false` until those gates are satisfied.

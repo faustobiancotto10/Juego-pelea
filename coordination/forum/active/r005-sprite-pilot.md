@@ -976,3 +976,23 @@ Remaining downstream gates:
 1. served-preview parity/smoke;
 2. user physical-phone acceptance;
 3. canonical production package-format reconciliation before any production/full-roster sprite cutover.
+
+
+## FINAL GREEN — Germinator V07-SPR-G1 replacement
+
+Exact approved product:
+`fe2b505639d8ebf2dc4ab204b545233d96f214f2`
+
+Verdict:
+**APPROVE — SPRITE PILOT LIVE INTEGRATION GREEN**
+
+Final evidence:
+- Repository #1722 / `35788816202`: 433/433 + build PASS;
+- Character Pipeline V2 #74 / `35788816195`: PASS;
+- artifact `10721013048`;
+- served atlas visibly confirms authored RIGHT + LEFT plus Topete/Ultimate at normal and phone scale.
+
+NEXT -> Gonza / V07-SPR-Z0:
+publish an **isolated preview only** from exact product SHA `fe2b5056...`, prove served parity/smoke, preserve production root, and return the preview URL/target for user physical-phone acceptance.
+
+Do not ship Germinator QA head `ac860f2...`.

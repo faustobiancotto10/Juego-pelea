@@ -2,6 +2,8 @@
 
 Sprite pilot extension is active.
 
+- Germinator / V07-SPR-G1 claims only `tests/v07-spr-g1-adversarial.test.mjs` for independent QA; no production edits.
+
 On activation:
 - Mario-A / V07-SPR-MA source mutation lane is HANDOFF_READY and frozen at exact SHA `7782734bcc0cf4d98df74073fd86e6d8ead409d2`; Mario-B may consume it read-only. Reopen source mutation only for a new reproducible source/pipeline defect.
 - Mario-B / V07-SPR-MB owns the El Toro derived sprite package/manifest/presentation files after consuming Mario-A's source interface.

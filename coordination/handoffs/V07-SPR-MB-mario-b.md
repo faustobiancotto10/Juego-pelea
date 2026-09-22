@@ -477,3 +477,19 @@ This SHA is a documented GREEN descendant of the same deterministic atlases/fing
 3. Ricardo entry-timing amendment for `crouch`, `block`, `block-crouch`.
 
 Use exact SHA `51e0e892d08f9cf30742ef4894732f448a97da80` for downstream RIGHT-only integration planning.
+
+## Revision 4 — gated anchor review workflow GREEN
+
+- exact Mario-B SHA: `51e0e892d08f9cf30742ef4894732f448a97da80`
+- verification run: `35675088000` — coordination + full suite + build PASS
+- `right-anchor-review.json` is emitted with 84 unique packed frame IDs, real atlas rects, real normalization pivots, all seven required anatomical anchor keys set to `null`, and `verified:false`;
+- `right-anchor-review.svg` renders all 84 body frames directly from `right-body.png`, marks only the normalization pivot, includes the seven anchor names as review legend, and contains no synthesized anatomical anchor markers;
+- `assertVerifiedElToroAnchorReview()` accepts only a complete verified review with finite in-bounds anchor points.
+
+This makes anchor verification reproducible without fabricating anatomy. The actual anchor coordinates remain an external visual-review gate and are not claimed complete.
+
+Current remaining blockers:
+1. authored LEFT-facing IMG-00 + IMG-01..12;
+2. visually verified anatomical anchors for all required runtime frames;
+3. Ricardo state-entry timing for `crouch`, `block`, `block-crouch`;
+4. integrated QA and user/device acceptance.

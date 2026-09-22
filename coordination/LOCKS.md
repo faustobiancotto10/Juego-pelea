@@ -2,7 +2,7 @@
 
 Sprite pilot extension is active.
 
-- Germinator / V07-SPR-G1 claims only `tests/v07-spr-g1-adversarial.test.mjs` for independent QA; no production edits.
+- Germinator V07-SPR-G1 QA lock is RELEASED after BLOCK evidence SHA `3b9d754b0d1f118c774404c2371f188033ab7346` / run `35779776446`.
 
 On activation:
 - Mario-A / V07-SPR-MA source mutation lane is HANDOFF_READY and frozen at exact SHA `7782734bcc0cf4d98df74073fd86e6d8ead409d2`; Mario-B may consume it read-only. Reopen source mutation only for a new reproducible source/pipeline defect.
@@ -54,3 +54,13 @@ Current canonical thread: `coordination/forum/active/r005-sprite-pilot.md`.
 - Mario-A anchor-certification claim is RELEASED;
 - Germinator V07-SPR-G1 may now claim audit-only surfaces against exact integrated SHA `5c76664fb95ac9c1da019636ce3ad974c214d84c`;
 - Gonza remains blocked until Germinator approval.
+
+
+## V07-SPR-G1 blocker routing
+
+- audited exact candidate: `5c76664fb95ac9c1da019636ce3ad974c214d84c`;
+- verdict: BLOCK;
+- bilateral packer/anchors remain accepted and must not be regenerated without a new defect;
+- Mario-A integration is the repair owner for the missing live composition/runtime asset path;
+- Gonza remains blocked until a replacement exact candidate passes Germinator;
+- no Germinator product-file lock remains active.

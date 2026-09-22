@@ -220,8 +220,8 @@
       "rangedSpecial": "shawarmazo",
       "ultimate": "super-eructo"
     },
-    "moveKeyPolicy": "derive-from-fighter-kit-at-integration",
-    "ultimatePhasePolicy": "derive-from-fighter-kit-ultimate-at-integration",
+    "moveKeyPolicy": "verify-frozen-character-content-at-integration",
+    "ultimatePhasePolicy": "compile-superEructo-forwardBlast-phases-at-integration",
     "pilotAliases": {
       "chain": {
         "semanticKey": "topete",
@@ -408,6 +408,124 @@
           10
         ]
       }
+    },
+    "runtimeStateWindows": {
+      "idle": {
+        "semanticKey": "idle",
+        "firstFrame": 1,
+        "lastFrame": 8,
+        "loop": true
+      },
+      "crouch": {
+        "semanticKey": "crouch",
+        "firstFrame": 1,
+        "lastFrame": 4,
+        "loop": false
+      },
+      "walk-forward": {
+        "semanticKey": "walk-forward",
+        "firstFrame": 1,
+        "lastFrame": 8,
+        "loop": true
+      },
+      "walk-back": {
+        "semanticKey": "walk-back",
+        "firstFrame": 1,
+        "lastFrame": 8,
+        "loop": true
+      },
+      "dash-forward": {
+        "semanticKey": "walk-forward",
+        "firstFrame": 1,
+        "lastFrame": 8,
+        "loop": false,
+        "requiresGameplayScaleReview": true
+      },
+      "dash-back": {
+        "semanticKey": "walk-back",
+        "firstFrame": 1,
+        "lastFrame": 8,
+        "loop": false,
+        "requiresGameplayScaleReview": true
+      },
+      "jump-startup": {
+        "semanticKey": "jump",
+        "firstFrame": 1,
+        "lastFrame": 2,
+        "loop": false
+      },
+      "jump-ascent": {
+        "semanticKey": "jump",
+        "firstFrame": 2,
+        "lastFrame": 3,
+        "loop": false
+      },
+      "jump-apex": {
+        "semanticKey": "jump",
+        "firstFrame": 4,
+        "lastFrame": 4,
+        "loop": false
+      },
+      "jump-descent": {
+        "semanticKey": "jump",
+        "firstFrame": 5,
+        "lastFrame": 6,
+        "loop": false
+      },
+      "land": {
+        "semanticKey": "jump",
+        "firstFrame": 6,
+        "lastFrame": 6,
+        "loop": false
+      },
+      "block": {
+        "semanticKey": "block",
+        "firstFrame": 1,
+        "lastFrame": 4,
+        "loop": false
+      },
+      "block-crouch": {
+        "semanticKey": "block",
+        "firstFrame": 1,
+        "lastFrame": 4,
+        "loop": false,
+        "requiresGameplayScaleReview": true
+      },
+      "hurt": {
+        "semanticKey": "hurt-knockdown",
+        "firstFrame": 1,
+        "lastFrame": 4,
+        "loop": false
+      },
+      "guard-break": {
+        "semanticKey": "hurt-knockdown",
+        "firstFrame": 1,
+        "lastFrame": 4,
+        "loop": false,
+        "requiresGameplayScaleReview": true
+      },
+      "knockdown": {
+        "semanticKey": "hurt-knockdown",
+        "firstFrame": 5,
+        "lastFrame": 8,
+        "loop": false
+      },
+      "captured": {
+        "semanticKey": "hurt-knockdown",
+        "firstFrame": 4,
+        "lastFrame": 4,
+        "loop": false,
+        "requiresGameplayScaleReview": true
+      }
+    },
+    "expectedMoveIdsByRole": {
+      "standing": "toroJab",
+      "chain": "toroShoulder",
+      "low": "toroLow",
+      "air": "toroAir",
+      "closeSpecial": "topete",
+      "rangedSpecial": "shawarmazoThrow",
+      "ultimate": "superEructo"
     }
   }
 }

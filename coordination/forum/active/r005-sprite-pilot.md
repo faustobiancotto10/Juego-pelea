@@ -354,3 +354,21 @@ Result:
 - Mario-A does not steal Mario-B-owned package/presentation surfaces.
 
 NEXT -> Mario-B: consume exact MA `0eb4a2b...` + Ricardo `79f8d81...`, continue right-facing package work, and publish a new exact-SHA handoff when its eligible work is green. LEFT-facing art remains the production-complete gate.
+
+
+## CHECKPOINT — Mario-B RIGHT derived package GREEN
+
+- exact candidate: `a5dfaa6d35ec3f32eaac15f687c7a098ed10500d`
+- run `35674533122`: coordination + full suite + build PASS
+- revised MA `0eb4a2b...` consumed; pixel-isolation and master-scale blockers are resolved
+- derived RIGHT outputs now reproducible: 84 body atlas + 22 FX atlas + 26-key runtime fragment + FX fragment + 844x390 atlas-only preview + metrics CLI
+- body fingerprint: 2048x1509, 3,203,017-byte PNG, SHA-256 `06d06bdfbc72b9ee07eae053d801f9f180b8776433e837839cbbfea1aa2826cc`
+- FX fingerprint: 1024x901, 916,922-byte PNG, SHA-256 `2fb2835545138560c7ddae960997161619ee142d98370b2b7f48fc42f1189002`
+- combined decoded RGBA: 16,052,224 bytes
+- runtime fragment remains intentionally non-loadable until authored LEFT + verified anchors exist
+- additional runtime request to Ricardo: add `crouch`, `block`, `block-crouch` to entry-timed presentation keys; these still receive ambient absolute combatTick at v2 SHA `79f8d81...`
+
+NEXT:
+- Mario-A integration still must not pretend all-facing completion;
+- if Ricardo publishes the narrow timeline amendment, Mario-B will re-sync it immediately;
+- LEFT-facing and anchors remain hard external gates.

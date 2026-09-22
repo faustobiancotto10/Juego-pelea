@@ -86,3 +86,70 @@ Mario durable learning was consolidated in `coordination/agents/mario.md`:
 - Game Studio sprite-pipeline contract applied through the accepted lane outputs.
 - Superpowers TDD/verification evidence inherited from exact accepted handoffs and verified again at integration.
 - Game Development Studio local CLI remains unavailable in this host; no CLI evidence is claimed.
+
+
+## Revision 2 — rebuilt bilateral integration checkpoint
+
+This revision supersedes the RIGHT-only checkpoint as the current Mario-A integration state.
+
+Exact integrated candidate:
+`1f556f1a7cadfbe3375222c17dd1ee4f4e71299f`
+
+Exact parents:
+- previous Mario integration tip: `b90ca595643ee7bb66e14c3c3bf80b56fef1d551`;
+- Mario-B repaired bilateral package: `1a1d14df00e3b0f5942d2b1db29f2063dcb758bd`.
+
+Mario-B's package consumed repaired Mario-A source:
+`7782734bcc0cf4d98df74073fd86e6d8ead409d2`.
+
+### Verification
+
+Mario-A created verification PR #56 against the exact pre-merge integration tip.
+
+Run:
+`35753931240`
+
+Result:
+- coordination contract: PASS;
+- full repository suite: PASS;
+- build: PASS.
+
+Verification-only merge commit:
+`b14a865b5539ca7e961767f1e6f4a3bf06b8d6a1`
+
+Verified tree:
+`ad4ae01b5840ffb49499824df1b8f45d812ff18f`
+
+Actual canonical integration merge:
+`1f556f1a7cadfbe3375222c17dd1ee4f4e71299f`
+
+Actual integration tree:
+`ad4ae01b5840ffb49499824df1b8f45d812ff18f`
+
+Therefore the exact canonical integration tree is byte-for-byte the tree that passed PR #56 verification.
+
+### Integrated bilateral state
+
+The integration branch now contains:
+- 84 authored RIGHT El Toro body frames;
+- 84 authored LEFT El Toro body frames;
+- repaired LEFT Topete 8/8;
+- one non-mirrored body atlas contract;
+- matching 26-key RIGHT + LEFT animation maps;
+- separate 22-frame FX package;
+- generic sprite runtime backend from Ricardo;
+- authored-facing selection with `mirrorSafe:false`;
+- bilateral gameplay/review tooling.
+
+### Intentionally still blocked
+
+El Toro remains non-loadable until the two explicit anatomical-anchor reviews are visually authored and verified.
+
+Current required gates:
+- `verified-right-attachment-anchors`;
+- `verified-left-attachment-anchors`.
+
+No procedural fallback is retired and no production registry cutover is authorized by this checkpoint.
+
+NEXT:
+complete the bilateral visual anchor review; once both reviews validate and Mario-B emits `runtimeLoadable:true`, Mario-A consumes that exact package and immediately hands the integrated candidate to Germinator.

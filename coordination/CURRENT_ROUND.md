@@ -245,3 +245,57 @@ Repair loop:
 Mario-A must preserve the accepted RIGHT/LEFT sources and anchors, compose the sprite/runtime deltas onto the approved V0.7 four-fighter product line, register/materialize the El Toro sprite package in the actual browser build, and return one replacement exact SHA.
 
 Gonza remains blocked until Germinator approves that replacement.
+
+
+## Sprite-pilot live integration repair — replacement ready for QA
+
+The prior V07-SPR-G1 blocker on `5c76664fb95ac9c1da019636ce3ad974c214d84c` is superseded for audit by a replacement integration.
+
+Approved V0.7 product lineage:
+`f34760948cb2024c0c83f4a02202117a8ad3bf2f`
+
+Mario-A repair branch/head:
+- branch: `round/r005-sprite-mario-a-live-repair`;
+- exact repair head: `4ee68f1cfe5ed06f9da5e547aadf71bb54cd32fd`.
+
+Exact replacement integration candidate:
+`fe2b505639d8ebf2dc4ab204b545233d96f214f2`
+
+Exact candidate tree:
+`ed5ee226bca6c5da6c4c4769f14ccf7e2316c31a`
+
+The candidate has two parents:
+- current coordination/main base: `ce5920b1211e47f38f7ee1e5b6340a200c55d331`;
+- repair head: `4ee68f1cfe5ed06f9da5e547aadf71bb54cd32fd`.
+
+The candidate is intentionally isolated on:
+`round/r005-sprite-mario-integration-repair`
+
+Resolved Germinator blockers:
+1. the approved four-fighter V0.7 roster/presentation lineage is preserved;
+2. El Toro's live presentation selects `bodyBackend:'sprite'` and `spritePackageKey:'el-toro'`;
+3. the default sprite package registry resolves `el-toro`;
+4. deterministic runtime manifest + body atlas are materialized under `assets/fighters/el-toro/` and copied to `dist/assets/` by the normal build;
+5. backend-neutral render anchors are used where runtime attachments depend on fighter anatomy.
+
+Preserved:
+- canonical RIGHT/LEFT source art;
+- verified bilateral anchors;
+- `mirrorSafe:false`;
+- authored LEFT rendering rather than runtime mirroring;
+- V0.7 gameplay/balance/CPU contracts.
+
+Verification:
+- materialization run `35782862607`: generator PASS, 422/422 tests PASS, build + runtime-asset gate PASS;
+- PR #59 Repository verification run `35783156610`: coordination + full suite + build PASS;
+- PR #59 Character Pipeline V2 run `35783156710`: full tests + build + visual evidence + runtime raster-reference guard PASS;
+- tested GitHub synthetic merge: `d0adc829e81810a69ba13acffe8257441d14a2f8`;
+- synthetic tested tree: `ed5ee226bca6c5da6c4c4769f14ccf7e2316c31a`;
+- replacement candidate tree: `ed5ee226bca6c5da6c4c4769f14ccf7e2316c31a`.
+
+PR #59 was verification-only and was closed without merging to production/main.
+
+Active order now:
+**Germinator V07-SPR-G1 fresh audit of `fe2b505639d8ebf2dc4ab204b545233d96f214f2` → Gonza V07-SPR-Z0 only if approved**.
+
+Gonza remains blocked until that independent audit is green.

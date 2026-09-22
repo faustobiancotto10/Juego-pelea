@@ -315,12 +315,13 @@ Verdict:
 **APPROVE — SPRITE PILOT LIVE INTEGRATION GREEN**
 
 Fresh evidence:
-- Repository verification #1720 / `35788754170`: 433/433 tests + build PASS;
-- Character Pipeline V2 #72 / `35788754059`: 433/433 + build + deterministic sprite visual evidence + runtime raster/reference guard PASS;
-- visual artifact `10721170926`, digest `sha256:6ca46fa33819251b1811e1b1027c5ce4e069bf5e18990344789d05bd77cc1f60`;
-- RIGHT/LEFT authored sprite facings visually checked from the exact runtime atlas;
+- Repository verification #1722 / `35788816202`: 433/433 tests + build PASS;
+- Character Pipeline V2 #74 / `35788816195`: 433/433 + build + deterministic sprite visual evidence + runtime raster/reference guard PASS;
+- final visual artifact `10721013048`, digest `sha256:9fafac53621a87e574f8ab1e20a0e872ae110e00993f7a73acbdc1b84a362b26`;
+- RIGHT/LEFT authored sprite facings visually checked from the exact served runtime atlas;
 - readable garment text is correctly oriented on both facings;
-- Topete/Ultimate effects-off body poses remain readable at normal and 844×390 evidence scale.
+- RIGHT idle, LEFT idle, RIGHT Topete and LEFT Ultimate were inspected at normal and 844×390 evidence scale;
+- QA branch changes are validation-only and do not modify product/runtime/gameplay source.
 
 Active sequence:
 **Gonza V07-SPR-Z0 isolated sprite preview → user physical-phone acceptance → canonical production-package reconciliation → explicit production-cutover decision**.

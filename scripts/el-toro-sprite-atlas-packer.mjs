@@ -323,6 +323,54 @@ function renderGameplayPreview(runtimeFragment, atlasWidth, atlasHeight) {
 }
 
 
+function renderAnchorReviewSheet(frameRects, atlasWidth, atlasHeight) {
+  const width = 1260;
+  const height = 2760;
+  const columns = 7;
+  const cellWidth = 180;
+  const cellHeight = 230;
+  const cards = [...frameRects.entries()].map(([frameId, rect], index) => {
+    const column = index % columns;
+    const row = Math.floor(index / columns);
+    const originX = column * cellWidth;
+    const originY = row * cellHeight;
+    const pivotX = originX + cellWidth / 2;
+    const pivotY = originY + 188;
+    const scale = Math.min(160 / rect.width, 170 / rect.height);
+    const spriteWidth = rect.width * scale;
+    const spriteHeight = rect.height * scale;
+    const spriteX = pivotX - rect.pivotX * scale;
+    const spriteY = pivotY - rect.pivotY * scale;
+
+    return [
+      '<g data-frame-id="'+frameId+'">',
+      '<rect x="'+(originX+5)+'" y="'+(originY+5)+'" width="170" height="220" rx="8" fill="#121922" stroke="#2d3a49"/>',
+      '<svg x="'+spriteX.toFixed(3)+'" y="'+spriteY.toFixed(3)+'" width="'+spriteWidth.toFixed(3)+'" height="'+spriteHeight.toFixed(3)+'" viewBox="'+rect.x+' '+rect.y+' '+rect.width+' '+rect.height+'" overflow="visible">',
+      '<image href="right-body.png" x="0" y="0" width="'+atlasWidth+'" height="'+atlasHeight+'"/>',
+      '</svg>',
+      '<g data-pivot="normalization-ground-pivot" stroke="#ffd36a" stroke-width="1.5">',
+      '<line x1="'+(pivotX-7)+'" y1="'+pivotY+'" x2="'+(pivotX+7)+'" y2="'+pivotY+'"/>',
+      '<line x1="'+pivotX+'" y1="'+(pivotY-7)+'" x2="'+pivotX+'" y2="'+(pivotY+7)+'"/>',
+      '</g>',
+      '<text x="'+pivotX+'" y="'+(originY+211)+'" text-anchor="middle" font-family="monospace" font-size="9" fill="#f5e8cf">'+frameId+'</text>',
+      '</g>',
+    ].join('');
+  }).join('');
+
+  const legend = REQUIRED_ANCHORS
+    .map((name, index) => '<text x="'+(12 + (index % 4) * 310)+'" y="'+(18 + Math.floor(index / 4) * 14)+'" font-family="system-ui,sans-serif" font-size="9" font-weight="700" fill="#9fb1c4">ANCHOR '+name+'</text>')
+    .join('');
+
+  return [
+    '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1260 2760" width="1260" height="2760">',
+    '<rect width="1260" height="2760" fill="#090d13"/>',
+    '<g opacity="0.9">'+legend+'</g>',
+    cards,
+    '</svg>',
+    '',
+  ].join('');
+}
+
 function buildAnchorReviewTemplate(frameRects) {
   return {
     version: 1,
@@ -458,6 +506,11 @@ export function buildElToroRightAtlasPackage({
     anchorReviewPath,
     JSON.stringify(buildAnchorReviewTemplate(bodyAtlas.frameRects), null, 2)+'\n',
   );
+  const anchorReviewSvgPath = join(outputRoot, 'right-anchor-review.svg');
+  writeFileSync(
+    anchorReviewSvgPath,
+    renderAnchorReviewSheet(bodyAtlas.frameRects, bodyAtlas.width, bodyAtlas.height),
+  );
 
   const effectPlan = compileEffectFrameSourcePlan(packageContract, manifestLike);
   writeFileSync(
@@ -524,6 +577,7 @@ export function buildElToroRightAtlasPackage({
     previewPath,
     metricsPath,
     anchorReviewPath,
+    anchorReviewSvgPath,
     body: {
       sourceFrameCount: bodyFrames.length,
       atlasPath: bodyAtlasPath,
@@ -573,6 +627,7 @@ if (process.argv[1] && import.meta.url === pathToFileURL(resolve(process.argv[1]
     preview: 'right-gameplay-preview.svg',
     metrics: 'right-package-metrics.json',
     anchorReview: 'right-anchor-review.json',
+    anchorReviewVisual: 'right-anchor-review.svg',
     runtimeLoadable: false,
   })+'\n');
 }

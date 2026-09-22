@@ -1,6 +1,7 @@
 import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import { deflateSync } from 'node:zlib';
+import { pathToFileURL } from 'node:url';
 import { generatePixelIsolatedFrameSet } from './el-toro-sprite-source-pipeline.mjs';
 import { buildNormalization, normalizedTransform } from './sprite-normalize-contract.mjs';
 import {
@@ -402,8 +403,35 @@ export function buildElToroRightAtlasPackage({
     }, null, 2)+'\n',
   );
 
+  const metricsPath = join(outputRoot, 'right-package-metrics.json');
+  const metrics = {
+    version: 1,
+    fighterId: 'el-toro',
+    facing: 'right',
+    body: {
+      frameCount: bodyFrames.length,
+      width: bodyAtlas.width,
+      height: bodyAtlas.height,
+      decodedRgbaBytes: bodyAtlas.width * bodyAtlas.height * 4,
+    },
+    effects: {
+      frameCount: effectFrames.length,
+      width: effectAtlas.width,
+      height: effectAtlas.height,
+      decodedRgbaBytes: effectAtlas.width * effectAtlas.height * 4,
+    },
+    combinedDecodedRgbaBytes:
+      bodyAtlas.width * bodyAtlas.height * 4
+      + effectAtlas.width * effectAtlas.height * 4,
+    previewViewport: { width: 844, height: 390 },
+    runtimeLoadsSourceSheets: false,
+    runtimeLoadable: false,
+  };
+  writeFileSync(metricsPath, JSON.stringify(metrics, null, 2)+'\n');
+
   return {
     previewPath,
+    metricsPath,
     body: {
       sourceFrameCount: bodyFrames.length,
       atlasPath: bodyAtlasPath,
@@ -419,4 +447,39 @@ export function buildElToroRightAtlasPackage({
       frameRects: effectAtlas.frameRects,
     },
   };
+}
+
+
+function parseCliArgs(argv) {
+  const args = {};
+  for (let index = 0; index < argv.length; index += 1) {
+    const token = argv[index];
+    if (token === '--source-dir') args.sourceDir = argv[++index];
+    else if (token === '--package-contract') args.packageContractPath = argv[++index];
+    else if (token === '--out-dir') args.outDir = argv[++index];
+    else throw new Error('unknown argument '+token);
+  }
+  if (!args.sourceDir || !args.packageContractPath || !args.outDir) {
+    throw new Error(
+      'usage: node scripts/el-toro-sprite-atlas-packer.mjs --source-dir <dir> --package-contract <json> --out-dir <dir>',
+    );
+  }
+  return args;
+}
+
+if (process.argv[1] && import.meta.url === pathToFileURL(resolve(process.argv[1])).href) {
+  const result = buildElToroRightAtlasPackage(parseCliArgs(process.argv.slice(2)));
+  process.stdout.write(JSON.stringify({
+    fighterId: 'el-toro',
+    facing: 'right',
+    bodyFrames: result.body.sourceFrameCount,
+    effectFrames: result.effects.sourceFrameCount,
+    bodyAtlas: 'right-body.png',
+    effectsAtlas: 'right-effects.png',
+    runtimeFragment: 'right-runtime-fragment.json',
+    effectsFragment: 'right-effects-fragment.json',
+    preview: 'right-gameplay-preview.svg',
+    metrics: 'right-package-metrics.json',
+    runtimeLoadable: false,
+  })+'\n');
 }

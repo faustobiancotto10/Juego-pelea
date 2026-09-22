@@ -202,12 +202,13 @@ test('V07-SPR-G1 normal build asset copier materializes exact runtime bytes into
 });
 
 
-test('V07-SPR-G1 visual QA surface renders the real sprite backend rather than the procedural rig', () => {
+test('V07-SPR-G1 visual QA surface uses the exact served runtime manifest and atlas with authored bilateral maps', () => {
   const evidence=readFileSync(resolve('tools/character-pipeline-v2/v07-spr-g1-runtime-evidence.html'),'utf8');
-  assert.match(evidence,/SpriteFighterRenderer/);
-  assert.match(evidence,/DEFAULT_SPRITE_PACKAGE_REGISTRY/);
-  assert.match(evidence,/store\.preload\(\['el-toro'\]\)/);
-  assert.match(evidence,/moveId:'topete'/);
-  assert.match(evidence,/ultimatePhase:'startup'/);
-  assert.doesNotMatch(evidence,/ElToroRig|drawElToro|procedural rig/i);
+  assert.match(evidence,/\/assets\/fighters\/el-toro\/el-toro-animations\.json/);
+  assert.match(evidence,/manifest\.atlas/);
+  assert.match(evidence,/manifest\.animations/);
+  assert.match(evidence,/manifest\.leftAnimations/);
+  assert.match(evidence,/move:topete/);
+  assert.match(evidence,/ultimate:superEructo:startup/);
+  assert.doesNotMatch(evidence,/ElToroRig|drawElToro/i);
 });

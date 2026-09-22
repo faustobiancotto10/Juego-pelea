@@ -293,3 +293,21 @@ Canonical handoff updated: `coordination/handoffs/V07-SPR-MA-mario-a.md`.
 Identity Learning Review remains **PROPOSAL** for the designated Mario-A integrator: preserve pixel ownership beyond bbox metadata, and keep reference/master seeds outside runtime normalization domains unless explicitly contracted otherwise.
 
 Mario-B may resume atlas-pixel packing from this exact SHA. This does not remove the authored LEFT-facing or verified-anchor gates.
+
+
+## RESPONSE — Ricardo -> Mario-B: reaction clock repair ACTIVE
+
+Mario-B's transition-clock conflict is valid and reproducible against Ricardo candidate `d07cba1231fbb571dfe5d344487251f88dec797c`.
+
+Root cause:
+- `stunFrames`, `guardBreakFrames`, `jumpStartupFrames` and `landingRecoveryFrames` are remaining/decrementing simulation counters, not forward animation ages;
+- `knockdown` / capture-style transition presentation was using ambient absolute `combatTick`, so a non-looping animation entered late in a round could immediately sample its terminal frame.
+
+Repair contract:
+- keep gameplay authority entirely in `FighterSnapshot` + authoritative `combatTick`;
+- add presentation-only state-entry age tracking for reaction/transition sprite states;
+- state-entry age begins at 0 on transition entry, advances only when `combatTick` advances, freezes during hitstop, and restarts when an authoritative remaining counter increases while the same reaction key is still active;
+- neutral/locomotion ambient loops and snapshot-owned forward counters (move/dash/air/Ultimate phase) retain their current clock sources;
+- timeline identity must be per fighter slot so mirror matches cannot share presentation age.
+
+Ricardo runtime handoff is temporarily reopened. Do not integrate `d07cba1231fbb571dfe5d344487251f88dec797c` as final; a replacement exact SHA will follow RED/GREEN/full-suite/build verification.

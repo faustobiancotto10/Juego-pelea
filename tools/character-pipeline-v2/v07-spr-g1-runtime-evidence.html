@@ -62,6 +62,11 @@ canvas{position:absolute;inset:0;width:1280px;height:720px}
     ctx.font='650 15px system-ui';
     ctx.fillStyle='#aeb8c8';
     ctx.fillText('mirrorSafe:false · '+Object.keys(manifest.animations).length+' RIGHT keys · '+Object.keys(manifest.leftAnimations).length+' LEFT keys',640,105);
+    const receipt=document.createElement('div');
+    receipt.textContent='READY · SPRITE BACKEND DRAWN';
+    receipt.setAttribute('data-ready-canvas',canvas.toDataURL('image/png'));
+    receipt.style.display='none';
+    document.body.appendChild(receipt);
     window.__SPRITE_EVIDENCE_READY__=true;
   } catch(error) {
     ctx.fillStyle='#ff8080';

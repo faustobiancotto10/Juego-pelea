@@ -1,0 +1,187 @@
+name: V07 SPR Z0 isolated preview build
+
+on:
+  push:
+    branches:
+      - ci/r005-sprite-z0-preview
+
+permissions:
+  contents: write
+
+jobs:
+  preview:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout exact preview branch
+        uses: actions/checkout@v4
+        with:
+          ref: ci/r005-sprite-z0-preview
+
+      - name: Prove product source equals approved candidate
+        run: |
+          git diff --exit-code fe2b505639d8ebf2dc4ab204b545233d96f214f2 -- src package.json scripts assets
+          test "$(git rev-parse fe2b505639d8ebf2dc4ab204b545233d96f214f2^{tree})" = "ed5ee226bca6c5da6c4c4769f14ccf7e2316c31a"
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Install tools
+        run: |
+          npm install --global typescript@latest esbuild@latest
+          npm install --no-save playwright@latest
+          npx playwright install --with-deps chromium
+
+      - name: Full verification
+        run: |
+          npm test
+          npm run typecheck
+          npm run build
+
+      - name: Build isolated preview
+        run: |
+          esbuild dist/main.js --bundle --format=iife --platform=browser --target=es2020 --outfile=standalone.js
+          rm -rf preview-site
+          mkdir -p preview-site/assets
+          cp -R dist/assets/* preview-site/assets/
+          node <<'NODE'
+          const fs=require('fs');
+          const crypto=require('crypto');
+          let html=fs.readFileSync('index.html','utf8');
+          const css=fs.readFileSync('src/styles.css','utf8');
+          const js=fs.readFileSync('standalone.js','utf8');
+          html=html
+            .replace(/<title>[^<]*<\/title>/,'<title>Juego Pelea V0.7 — Sprite Pilot</title>')
+            .replace('<link rel="stylesheet" href="./styles.css" />','<style>\n'+css+'\n</style>')
+            .replace('<script type="module" src="./main.js"></script>','<script>\n'+js+'\n</script>');
+          if(html.includes('src="./main.js"')||html.includes('href="./styles.css"')) throw new Error('external JS/CSS refs remain');
+          fs.writeFileSync('preview-site/index.html',html);
+          fs.writeFileSync('preview-site/play.html',html);
+          const hash=p=>crypto.createHash('sha256').update(fs.readFileSync(p)).digest('hex');
+          const paths={
+            html:'preview-site/index.html',
+            manifest:'preview-site/assets/fighters/el-toro/el-toro-animations.json',
+            atlas:'preview-site/assets/fighters/el-toro/el-toro-body.png',
+            sourceManifest:'assets/fighters/el-toro/el-toro-animations.json',
+            sourceAtlas:'assets/fighters/el-toro/el-toro-body.png'
+          };
+          const receipt={
+            approvedProductSha:'fe2b505639d8ebf2dc4ab204b545233d96f214f2',
+            approvedProductTree:'ed5ee226bca6c5da6c4c4769f14ccf7e2316c31a',
+            htmlSha256:hash(paths.html),
+            manifestSha256:hash(paths.manifest),
+            atlasSha256:hash(paths.atlas),
+            sourceManifestSha256:hash(paths.sourceManifest),
+            sourceAtlasSha256:hash(paths.sourceAtlas)
+          };
+          if(receipt.manifestSha256!==receipt.sourceManifestSha256) throw new Error('manifest build parity failed');
+          if(receipt.atlasSha256!==receipt.sourceAtlasSha256) throw new Error('atlas build parity failed');
+          fs.writeFileSync('preview-receipt.json',JSON.stringify(receipt,null,2)+'\n');
+          fs.writeFileSync('preview.generated.html',html);
+          console.log(JSON.stringify(receipt));
+          NODE
+
+      - name: Local served RIGHT and LEFT smoke
+        run: |
+          python3 -m http.server 4173 -d preview-site >/tmp/sprite-z0-http.log 2>&1 &
+          SERVER_PID=$!
+          trap "kill $SERVER_PID" EXIT
+          node <<'NODE'
+          const fs=require('fs');
+          const { chromium }=require('playwright');
+          const manifest=JSON.parse(fs.readFileSync('preview-site/assets/fighters/el-toro/el-toro-animations.json','utf8'));
+          const rectKey=f=>[f.x,f.y,f.width,f.height].join(',');
+          const rectSet=animations=>new Set(Object.values(animations).flatMap(a=>a.frames.map(rectKey)));
+          const rightRects=rectSet(manifest.animations);
+          const leftRects=rectSet(manifest.leftAnimations);
+          if(!manifest.leftAnimations || manifest.mirrorSafe!==false) throw new Error('bilateral manifest contract missing');
+
+          async function setupPage(browser){
+            const page=await browser.newPage({viewport:{width:844,height:390}});
+            const assetResponses=[];
+            page.on('response',r=>{ if(r.url().includes('/assets/fighters/el-toro/')) assetResponses.push({url:r.url(),status:r.status()}); });
+            await page.addInitScript(()=>{
+              window.__elToroDraws=[];
+              const orig=CanvasRenderingContext2D.prototype.drawImage;
+              CanvasRenderingContext2D.prototype.drawImage=function(...args){
+                const image=args[0];
+                const src=(image && (image.currentSrc||image.src)) || '';
+                if(String(src).includes('el-toro-body.png') && args.length>=9){
+                  const t=this.getTransform();
+                  window.__elToroDraws.push({
+                    sx:args[1],sy:args[2],sw:args[3],sh:args[4],
+                    transformA:t.a,transformD:t.d,src:String(src)
+                  });
+                }
+                return orig.apply(this,args);
+              };
+            });
+            return {page,assetResponses};
+          }
+
+          async function enterFight(page, player, cpu){
+            await page.goto('http://127.0.0.1:4173/index.html');
+            await page.waitForSelector('[data-game-phase="title"]');
+            await page.locator('[data-start]').click();
+            await page.waitForSelector('[data-game-phase="select-player"]');
+            await page.locator(`[data-fighter="${player}"]`).click();
+            await page.locator('[data-fighter-confirm]').click();
+            await page.waitForSelector('[data-game-phase="select-cpu"]');
+            await page.locator(`[data-fighter="${cpu}"]`).click();
+            await page.locator('[data-fighter-confirm]').click();
+            await page.waitForSelector('[data-game-phase="select-stage"]');
+            await page.locator('[data-stage="cancha-56"]').click();
+            await page.locator('[data-stage-confirm]').click();
+            await page.waitForSelector('[data-game-phase="vs"]');
+            await page.waitForSelector('[data-game-phase="fight"]',{timeout:10000});
+            await page.waitForFunction(()=>Array.isArray(window.__elToroDraws)&&window.__elToroDraws.length>2,{timeout:10000});
+            await page.waitForTimeout(350);
+            return await page.evaluate(()=>window.__elToroDraws.slice());
+          }
+
+          (async()=>{
+            const browser=await chromium.launch({headless:true});
+
+            const rightCtx=await setupPage(browser);
+            const rightDraws=await enterFight(rightCtx.page,'el-toro','chameleon');
+            const rightMatches=rightDraws.filter(d=>rightRects.has([d.sx,d.sy,d.sw,d.sh].join(',')));
+            if(!rightMatches.length) throw new Error('P1 El Toro did not draw authored RIGHT atlas frames');
+            if(rightMatches.some(d=>d.transformA<0)) throw new Error('RIGHT sprite was horizontally mirrored');
+            const rightStatuses=rightCtx.assetResponses.filter(x=>/el-toro-(animations\.json|body\.png)$/.test(x.url));
+            if(rightStatuses.length<2 || rightStatuses.some(x=>x.status!==200)) throw new Error('RIGHT fight runtime assets did not both resolve 200');
+            await rightCtx.page.close();
+
+            const leftCtx=await setupPage(browser);
+            const leftDraws=await enterFight(leftCtx.page,'chameleon','el-toro');
+            const leftMatches=leftDraws.filter(d=>leftRects.has([d.sx,d.sy,d.sw,d.sh].join(',')));
+            if(!leftMatches.length) throw new Error('CPU El Toro did not draw authored LEFT atlas frames');
+            if(leftMatches.some(d=>d.transformA<0)) throw new Error('authored LEFT sprite was horizontally mirrored');
+            const leftStatuses=leftCtx.assetResponses.filter(x=>/el-toro-(animations\.json|body\.png)$/.test(x.url));
+            if(leftStatuses.length<2 || leftStatuses.some(x=>x.status!==200)) throw new Error('LEFT fight runtime assets did not both resolve 200');
+
+            console.log('served-local P1 El Toro RIGHT atlas frame PASS');
+            console.log('served-local CPU El Toro authored LEFT atlas frame PASS');
+            console.log('served-local manifest + atlas HTTP 200 PASS');
+            await browser.close();
+          })().catch(e=>{console.error(e);process.exit(1)});
+          NODE
+
+      - name: Commit generated preview receipt
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add preview.generated.html preview-receipt.json
+          git commit -m "preview: materialize V07 sprite pilot artifact"
+          git push origin HEAD:ci/r005-sprite-z0-preview
+
+      - name: Upload preview evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: v07-sprite-z0-preview
+          path: |
+            preview-site/index.html
+            preview-site/assets/fighters/el-toro/el-toro-animations.json
+            preview-site/assets/fighters/el-toro/el-toro-body.png
+            preview-receipt.json

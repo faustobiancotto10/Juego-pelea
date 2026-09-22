@@ -9,12 +9,12 @@ Canonical continuation pulse: `.`
 | --- | --- | --- | --- | --- |
 | Neureon | Lead / Coordinator | V07-SPR-N0 | VERIFIED | Intake, contract and dependency graph established; remain coordinator. |
 | Ricardo | Gameplay / runtime engineer | V07-SPR-R1 | HANDOFF_READY | Replacement exact SHA `5b20c351...`; crouch/block/block-crouch amendment green, 309/309 tests + build PASS; `79f8d81...` superseded. |
-| Mario | Character / Rendering Engineer | V07-SPR-MI repair | WORKING | Mario-A is recomposing the verified sprite runtime onto the approved four-fighter V0.7 lineage; source/package art remains frozen. |
-| ↳ Mario-A | Sprite source lead / designated integrator | V07-SPR-MI | WORKING | Repair branch `round/r005-sprite-mario-a-live-repair` starts from approved V0.7 `f3476094...`; transplant only the verified generic sprite runtime, wire El Toro's live sprite backend/registry/assets, then return a replacement exact SHA. |
+| Mario | Character / Rendering Engineer | V07-SPR-MI repair | HANDOFF_READY | Mario-A repair is complete; replacement exact candidate `fe2b5056...` / tree `ed5ee226...` is ready for fresh Germinator audit. |
+| ↳ Mario-A | Sprite source lead / designated integrator | V07-SPR-MI | HANDOFF_READY | Exact replacement `fe2b5056...` on `round/r005-sprite-mario-integration-repair`; same tested tree `ed5ee226...` as PR #59. 422/422 + build + visual pipeline GREEN. |
 | ↳ Mario-B | El Toro sprite package | V07-SPR-MB | HANDOFF_CONSUMED | Rebuilt bilateral package `1a1d14df...` was consumed by Mario-A integration; final anchor certification now lives in integrated candidate `5c76664f...`. No further package work unless QA finds a reproducible defect. |
 | Brancaforte | UI / Input / UX | standby | OFF_ROUND | Activate only if a real loading/menu/HUD/input contract changes. |
-| Germinator | Independent QA | V07-SPR-G1 | BLOCKED | `BLOCK` on exact `5c76664f...`: 354/357 PASS; El Toro absent from live roster, default sprite registry empty, runtime assets not materialized. Await replacement Mario-A integration candidate. |
-| Gonza | Integration / release | V07-SPR-Z0 | BLOCKED | Do not publish `5c76664f...`; wait for repaired Mario-A candidate and Germinator re-approval. |
+| Germinator | Independent QA | V07-SPR-G1 | READY | Fresh independent audit of exact replacement `fe2b5056...` / tree `ed5ee226...`; verify live roster/backend/registry/assets, bilateral rendering, anchors, load/error lifecycle and no gameplay regression. |
+| Gonza | Integration / release | V07-SPR-Z0 | BLOCKED | Wait for fresh Germinator approval of replacement `fe2b5056...`; no preview/publication yet. |
 
 ## Current asset gate
 
@@ -23,7 +23,7 @@ Right-facing El Toro source intake: **CONDITIONALLY ACCEPTED FOR PILOT**.
 - accepted: IMG-00, exact 84-body IMG-01..12 set, FX-01..04;
 - rejected/superseded: `13F1BB3E-C57C-4649-B9E7-07664E5E8BE8.PNG`;
 - authored LEFT source: **ACCEPTED FOR PILOT** at Mario-A exact SHA `7782734bcc0cf4d98df74073fd86e6d8ead409d2`; 1 master + 84 body, decoded-RGBA/source hashes tracked, hard outer-edge clipping 0, and LEFT Topete now has eight substantial isolated poses rather than one collapsed pair.
-- bilateral package + anchors: **PACKAGE GREEN / LIVE INTEGRATION BLOCKED** at `5c76664fb95ac9c1da019636ce3ad974c214d84c`; 84 RIGHT + 84 LEFT anchors verify and the packer emits `runtimeLoadable:true`, but Germinator proved the exact candidate does not expose El Toro in the live roster, has no default package registration and ships no runtime `assets/` root.
+- bilateral package + anchors: **PACKAGE GREEN / LIVE INTEGRATION REPAIRED / QA PENDING**. Old `5c76664f...` remains rejected; replacement `fe2b505639d8ebf2dc4ab204b545233d96f214f2` preserves the approved four-fighter V0.7 lineage, registers/materializes the live El Toro sprite package, and passed PR #59 verification on tree `ed5ee226...`.
 
 Canonical audit: `docs/characters/el-toro/SPRITE_INTAKE_2026-09-21.md`.
 

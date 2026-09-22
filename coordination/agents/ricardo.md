@@ -116,3 +116,5 @@ Do not store current fighter numbers, temporary tuning, task SHAs or round-speci
 - When adding a new discriminated gameplay kind, audit every exhaustive runtime consumer before declaring schema-only work green; explicitly reserve not-yet-active kinds so compilation stays exhaustive without accidentally enabling unfinished semantics.
 
 - For sprite-backed fighters, never infer that horizontal mirroring is visually safe: require an explicit mirror-safety contract, use authored opposite-facing frames when it is false, and normalize authored-facing anchors back into canonical fighter-local coordinates before renderer/UI consumers use them.
+
+- For sprite presentation, never use a decrementing simulation duration or absolute match clock as transition animation age: derive a per-fighter-slot state-entry age only from authoritative `combatTick`, freeze it when that tick freezes, and restart it when the authoritative reaction duration is renewed.

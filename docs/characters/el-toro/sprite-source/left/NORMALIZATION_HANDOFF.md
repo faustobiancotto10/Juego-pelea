@@ -146,3 +146,53 @@ The LEFT source-art blocker is removed.
 Mario-A does **not** invent anatomical anchors from alpha bounds, component centroids, bboxes or pivots. RIGHT and LEFT anatomical attachment coordinates still require explicit visual authoring/verification in the package lane before El Toro becomes `runtimeLoadable:true`.
 
 NEXT: Mario-B consumes this exact Mario-A descendant and builds/verifies the bilateral derived package and visual anchors. Mario-A then performs the designated integration step.
+
+
+## Revision 4 — LEFT-IMG-10 Topete source-layout repair
+
+Visual anchor review exposed a reproducible source-layout defect that the earlier count-only intake did not catch.
+
+### RED evidence
+
+Exact pre-repair source byte SHA-256:
+`884b8c076daf9c9dfffaf1700fcf581a5d635f2dd0a5a8c8b5b342e991bb8904`
+
+The canonical 2×4 extractor reported body area by slot:
+
+`[83260, 79278, 77005, 93447, 101421, 115723, 1008, 168056]`
+
+Slot 6 contained only a small residual component while slot 7 contained two authored poses. This would have produced a visibly wrong Topete animation even though the sheet still counted as eight nominal slots.
+
+TDD RED:
+- commit `52595e82ba42de458760ab6dd9833757e3c1cf2d`;
+- run `35747218791`;
+- repository suite: 284 PASS / 1 intended failure;
+- the only failure was `el-toro-left-topete-source-quality.test.mjs`.
+
+### Mechanical repair
+
+One-shot repair run:
+- workflow `35749493759` — SUCCESS;
+- binary repair commit `4898b53aa21a81017f39cac1d62564e2d8138467`.
+
+The repair:
+- keeps the first six Topete poses in their authored pixel positions;
+- separates the final authored pose into additional transparent horizontal space;
+- does not resample, recolor or redraw visible sprite pixels;
+- copies every visible source pixel exactly once;
+- introduces no visible-pixel collision;
+- increases only the transparent canvas width from 1536 to 1664.
+
+Final LEFT-IMG-10:
+- dimensions: **1664×1024**;
+- repository byte SHA-256: `15d835f901cbc25f7eddaf8a8603d33129980fcb403ece3a550287b404d8dca9`;
+- decoded RGBA SHA-256: `b9cd6ecc2b26ea33fa5a4d2b3f07f7c965ec79dab82f303341660af08e2d09ea`;
+- visible pixels preserved: **457123**;
+- hard outer-edge pixels: **0**;
+- post-repair slot areas:
+  `[83260, 79278, 77005, 93447, 101641, 115853, 88084, 80630]`;
+- targeted quality test: PASS.
+
+The source-config hash and `LEFT_SOURCE_HASHES.json` receipt were updated by the same one-shot repair.
+
+This repair is source-layout-only. It does not change gameplay, resolver keys, animation timing or the anchor contract.

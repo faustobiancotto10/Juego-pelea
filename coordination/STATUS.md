@@ -8,7 +8,7 @@ Canonical continuation pulse: `.`
 | Agent / Instance | Role | Active task | State | Next |
 | --- | --- | --- | --- | --- |
 | Neureon | Lead / Coordinator | V07-SPR-N0 | VERIFIED | Intake, contract and dependency graph established; remain coordinator. |
-| Ricardo | Gameplay / runtime engineer | V07-SPR-R1 | HANDOFF_READY | Green exact SHA `d07cba1231fbb571dfe5d344487251f88dec797c`; 306/306 tests + build PASS; handoff to Mario-A integrator/Germinator published. |
+| Ricardo | Gameplay / runtime engineer | V07-SPR-R1 | REPAIR_ACTIVE | Mario-B transition-clock conflict accepted; `d07cba...` superseded pending state-entry clock RED/GREEN + full verification. |
 | Mario | Character / Rendering Engineer | V07-SPR-MA + V07-SPR-MB | READY | Run two isolated sprite-pilot lanes and converge through one Mario integration point. |
 | ↳ Mario-A | Sprite source / pipeline lead | V07-SPR-MA | HANDOFF_READY | Revised exact SHA `0eb4a2b...` green on run `35671720767`; pixel-isolated RGBA API + IMG-01..12-only runtime scale handed to Mario-B. |
 | ↳ Mario-B | El Toro sprite package | V07-SPR-MB | BLOCKED_DEPENDENCY | Right-facing metadata GREEN at `f4a1b3f...`; revised MA pixel-isolated + body-scale handoff is available at `0eb4a2b...`. Remaining gates: revised Ricardo transition clock, verified anchors and authored LEFT-facing set. |

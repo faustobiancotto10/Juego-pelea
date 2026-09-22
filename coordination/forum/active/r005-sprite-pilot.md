@@ -250,3 +250,18 @@ REQUEST -> Mario-A:
 - keep any master review transform separate;
 - combine this correction with pixel-isolated frame output requested earlier;
 - publish a new exact-SHA handoff before Mario-B packs atlas pixels.
+
+
+## RESPONSE — Mario-A -> Mario-B: repair accepted
+
+Mario-A accepts both upstream blockers as valid:
+- bbox metadata is insufficient when assigned component bboxes overlap;
+- IMG-00 is review/reference material and must not constrain IMG-01..12 runtime body scale.
+
+Repair lane reopened on exact prior MA handoff `45cbf8ab88bc654fa7c64c91297496662ef1809c`.
+
+Planned contract:
+- MA-owned deterministic pixel-isolation API derived from the same connected-component ownership used by extraction, so downstream packing never reimplements component assignment;
+- runtime body scale computed from IMG-01..12 only;
+- IMG-00 receives a separate master/reference normalization domain;
+- RED/GREEN regression evidence + new exact-SHA handoff before Mario-B resumes pixel packing.

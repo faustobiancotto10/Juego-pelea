@@ -5,7 +5,7 @@ Task: V07-SPR-MB — El Toro Sprite Package
 From: Mario-B  
 To: Mario-A sprite integrator + Neureon  
 Branch: `round/r005-sprite-mario-b-package`  
-Exact Mario-B candidate SHA: `a5dfaa6d35ec3f32eaac15f687c7a098ed10500d`  
+Exact Mario-B candidate SHA: `63ed61fc438a471541bbd99abba294cd7b2719fc`  
 Integration target: `round/r005-sprite-mario-integration`  
 Validation PR: #52 (draft; do not merge directly)  
 Status: **BLOCKED / RIGHT-PACKAGE-READY**
@@ -251,3 +251,49 @@ Mario-B does not bypass the authored LEFT requirement.
 
 Additional reusable lesson:
 - when normalized sprite dimensions are rounded to integer atlas pixels, transform pivots into the same rounded coordinate space before manifest emission; carrying pre-rounding float pivots directly can place an otherwise correct baseline a fraction outside the packed rect.
+
+
+## Revision 4 — anchor-review workflow GREEN
+
+This revision supersedes the package checkpoint only for the current exact candidate/verification receipt.
+
+- exact Mario-B SHA: `63ed61fc438a471541bbd99abba294cd7b2719fc`
+- verification run: `35674688193` / #1537
+- coordination contract: PASS
+- full repository suite: PASS
+- build: PASS
+
+New deterministic output:
+- `right-anchor-review.json`
+
+The file covers all 84 right-facing body frames and records:
+- packed atlas rect;
+- normalized ground pivot transformed into packed-frame-local coordinates;
+- required anatomical anchor keys:
+  - head;
+  - chest;
+  - frontHand;
+  - backHand;
+  - belt;
+  - frontFoot;
+  - backFoot;
+- all anatomical anchors intentionally `null`;
+- per-frame `verified:false`;
+- package-level `status: pending-visual-verification`.
+
+`assertVerifiedElToroAnchorReview()` rejects:
+- package status other than `verified`;
+- missing/duplicate frames;
+- incomplete anchor sets;
+- unverified frames;
+- missing/non-finite points;
+- points outside the packed frame bounds.
+
+This means Mario-B now has a precise authoring/review contract for anchors without inventing anatomical coordinates.
+
+Remaining external gates are unchanged:
+1. authored LEFT-facing IMG-00 + IMG-01..12;
+2. human/visual completion and verification of the 84-frame anatomical anchor review;
+3. Ricardo state-entry timeline amendment for `crouch`, `block`, `block-crouch`.
+
+The right-facing atlas/FX/preview/metrics/CLI/fingerprint outputs from Revision 3 remain valid and reproducible.

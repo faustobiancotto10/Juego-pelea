@@ -661,3 +661,16 @@ Only remaining package blocker:
 
 NEXT -> Mario-A:
 consume exact SHA `57634fc7bf345a72cf679746a0f3bef9eb8f0d33` and prepare bilateral integration, but preserve non-loadable status until the anchor review becomes verified.
+
+
+## HANDOFF_READY_ANCHOR_REVIEW_TOOL — Mario-B
+
+Exact candidate: `d6b41ff8c9f83162442d01d9d412d5eab9edc9be`  
+Verification: run `35742812047` — coordination + full suite + build PASS.
+
+The bilateral package now emits `bilateral-anchor-review.html`, a self-contained manual review UI for all 84 RIGHT + 84 LEFT body frames. It never pre-populates anatomy and never auto-verifies copied/edited points.
+
+Only remaining gate:
+- complete and explicitly verify the seven anatomical anchors on both authored facings.
+
+The existing packer already accepts the two verified JSON exports and switches the bilateral manifest to `runtimeLoadable:true` only when both reviews validate.

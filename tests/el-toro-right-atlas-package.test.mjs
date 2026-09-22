@@ -34,8 +34,8 @@ test('V07-SPR-MB builds deterministic right-facing body and FX PNG atlases from 
   assert.ok(effects.width>0 && effects.width<=2048);
   assert.ok(body.height>0);
   assert.ok(effects.height>0);
-  assert.equal(body.data.some((value,index)=>index%4===3 && value>0),true);
-  assert.equal(effects.data.some((value,index)=>index%4===3 && value>0),true);
+  assert.equal(body.rgba.some((value,index)=>index%4===3 && value>0),true);
+  assert.equal(effects.rgba.some((value,index)=>index%4===3 && value>0),true);
 
   assert.equal(result.body.frameRects.size,84);
   assert.equal(result.effects.frameRects.size,22);

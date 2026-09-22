@@ -180,3 +180,14 @@ Build the production-intended El Toro sprite package from Mario-A's admitted/nor
 - supersedes right-facing candidate `d65ac308747ce73bc39356d409de8f05daee32ce`
 - delta: one-line cleanup removing a duplicate anchor-review return field; no atlas/runtime/anchor contract change
 - verification: run `35674856169` / #1544 — coordination contract + full suite + build PASS
+
+## Mario-B anchor-review workflow checkpoint — 2026-09-22
+
+- exact branch SHA: `51e0e892d08f9cf30742ef4894732f448a97da80`
+- verification: run `35675088000` — coordination contract + full suite + build PASS
+- packer now additionally emits:
+  - `right-anchor-review.json`: all 84 packed body frames, authoritative packed rect + normalization pivot, seven required anatomical keys present as `null`, `verified:false`;
+  - `right-anchor-review.svg`: atlas-only 84-frame visual sheet with normalization pivot marked and no synthesized anatomical anchor points.
+- strict `assertVerifiedElToroAnchorReview()` rejects pending/incomplete/non-finite/out-of-bounds anchor reviews.
+- this resolves anchor-review infrastructure only; it does NOT satisfy the verified-anatomical-anchor acceptance gate.
+- remaining external gates are authored LEFT-facing art, actual visual anchor verification, Ricardo `crouch`/`block`/`block-crouch` timeline amendment, and downstream human/device acceptance.

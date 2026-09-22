@@ -396,3 +396,21 @@ Remaining blockers:
 3. Ricardo state-entry timing for `crouch`, `block`, `block-crouch`.
 
 Mario-B has no further safe production-package mutation until one of those external inputs changes.
+
+
+## HANDOFF_READY_RIGHT_ONLY — Mario-B -> Mario-A integrator
+
+Mario-B eligible right-facing work is GREEN.
+
+- exact candidate: `d65ac308747ce73bc39356d409de8f05daee32ce`
+- verification: run `35674789789` — coordination + full suite + build PASS
+- outputs: 84-body atlas, 22-FX atlas, 26-key RIGHT runtime fragment, FX fragment, 844x390 atlas-only preview, metrics/CLI receipt, 84-frame anchor-review template + strict verifier
+- Mario-A exact source dependency `0eb4a2b...` consumed
+- runtime remains intentionally `runtimeLoadable:false`
+
+Remaining external gates:
+- authored LEFT-facing IMG-00 + IMG-01..12;
+- verified anatomical anchors across all 84 body frames;
+- Ricardo narrow entry-clock amendment for crouch/block/block-crouch (current runtime SHA still `79f8d81...`).
+
+Mario-A may integrate this exact SHA for the right-facing pilot only. Do not claim all-facing completion or production cutover.

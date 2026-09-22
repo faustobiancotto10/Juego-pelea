@@ -110,6 +110,7 @@ Do not store transient art tweaks or fighter-specific tuning that belongs in cha
 
 
 - In multi-instance character rebuilds, make shared architecture additive: expose identity layers and anatomy-derived attachment anchors without rewriting specialist fighter files. Treat metadata/silhouette thresholds as regression gates only; reference likeness still requires rendered phone-scale evidence and human visual acceptance.
+- For authored sprite sheets, treat nominal cells and bounding boxes as sequencing/placement metadata, not pixel ownership. Preserve component-owned pixels for atlas packing, calculate shared runtime scale only from runtime animation frames (not master/reference seeds), and never synthesize anatomical attachment anchors from alpha bounds; require explicit visual anchor review before runtime activation.
 
 
 ## Multi-instance execution

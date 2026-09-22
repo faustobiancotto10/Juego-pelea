@@ -224,3 +224,24 @@ No full-roster sprite fan-out and no production fighter-body cutover until:
 3. the pilot is a clear visual win at gameplay scale;
 4. target-device memory/performance is acceptable;
 5. user physical-device acceptance is green.
+
+
+## Current sprite-pilot QA blocker — V07-SPR-G1
+
+Germinator audited exact integrated candidate:
+`5c76664fb95ac9c1da019636ce3ad974c214d84c`
+
+Verdict: **BLOCK**.
+
+The verified bilateral package/anchors remain accepted, but the exact candidate is not a live V0.7 sprite pilot:
+- El Toro is absent from the default playable/presentation composition;
+- the default sprite package registry is empty;
+- no build-served runtime `assets/` package is materialized;
+- the sprite candidate diverges from the approved four-fighter V0.7 product lineage at frozen base `378a991d55bed03e6237a03fdf6dfe96653fae72`.
+
+Repair loop:
+**Mario-A V07-SPR-MI live integration repair → Germinator V07-SPR-G1 rerun → Gonza V07-SPR-Z0**.
+
+Mario-A must preserve the accepted RIGHT/LEFT sources and anchors, compose the sprite/runtime deltas onto the approved V0.7 four-fighter product line, register/materialize the El Toro sprite package in the actual browser build, and return one replacement exact SHA.
+
+Gonza remains blocked until Germinator approves that replacement.

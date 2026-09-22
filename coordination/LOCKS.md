@@ -130,4 +130,3 @@ Current canonical thread: `coordination/forum/active/r005-sprite-pilot.md`.
 - any earlier text saying Gonza is blocked refers only to the superseded `5c76664f...` path;
 - production-root promotion remains blocked.
 
-- Gonza / V07-SPR-Z0 claims isolated Pages path `/v07-sprite-preview/**` plus preview-build CI artifacts only. Production root and product/runtime source remain read-only.

@@ -322,3 +322,71 @@ Required user checks:
 9. clipping, unreachable controls or severe performance problems.
 
 If accepted, Gonza resumes Z1 and promotes this exact rebuilt standalone to production root after final release-composition CI. If rejected, production root remains V0.6 and the finding routes to the owning repair lane.
+
+
+## BLOCKER — V07-SPR-G1 exact candidate is package-loadable but not live-previewable
+
+Task/owner: V07-SPR-G1 / Germinator  
+Repair owner: Mario-A / V07-SPR-MI  
+Audited candidate: `5c76664fb95ac9c1da019636ce3ad974c214d84c`  
+Candidate tree: `d42ccea2ff64ce7010f51f92005a3fc2c606919a`  
+QA evidence SHA: `3b9d754b0d1f118c774404c2371f188033ab7346`  
+Validation PR: #58  
+Run: `35779776446` / Repository verification #1681  
+Status: OPEN / DOWNSTREAM BLOCKED
+
+### Reproduction / evidence
+
+Independent G1 suite result:
+- coordination/tooling contract: PASS;
+- 357 tests total;
+- 354 PASS;
+- 3 FAIL;
+- build skipped after full-suite failure.
+
+Passed probe:
+- canonical verified RIGHT+LEFT packer emits `runtimeLoadable:true`, `blockingGates:[]`, `mirrorSafe:false`, matching RIGHT/LEFT key coverage and complete baked anchors.
+
+Failed probes:
+1. exact candidate does not expose El Toro through `DEFAULT_CHARACTER_COMPOSITION.playableIds` / default presentation composition;
+2. `DEFAULT_SPRITE_PACKAGE_REGISTRY` is empty, so no El Toro browser package can be requested;
+3. exact candidate has no runtime `assets/` root, while build only copies `assets/` to `dist/assets/`.
+
+Lineage check:
+- candidate `5c76664f...` and G2-approved V0.7 `f3476094...` diverge at frozen base `378a991d55bed03e6237a03fdf6dfe96653fae72`;
+- sprite candidate is 523 commits ahead / 142 behind that V0.7 line;
+- therefore publishing the exact candidate would regress the user-facing V0.7 composition instead of presenting El Toro's sprite pilot on top of it.
+
+### Expected
+
+One exact G1 candidate must be both:
+- package-valid; and
+- actually buildable/servable as the existing V0.7 El Toro fighter using the bilateral sprite backend.
+
+### Actual
+
+The generator and generic renderer are individually green, but they are not wired together in the exact candidate's live product path.
+
+### Affected dependencies
+
+- V07-SPR-G1: BLOCKED;
+- V07-SPR-Z0 / Gonza: BLOCKED;
+- user/device acceptance cannot start;
+- verified RIGHT/LEFT source art and anchor reviews remain accepted.
+
+### In-contract repair
+
+Mario-A integration should:
+1. compose the accepted sprite-pilot/runtime deltas onto the approved four-fighter V0.7 product lineage;
+2. preserve El Toro gameplay and change only body presentation to `sprite` / `spritePackageKey:'el-toro'`;
+3. materialize the verified generated manifest/body atlas in a build-served runtime asset path;
+4. register the package in the default browser sprite registry;
+5. prove build/serve, selected-fight loading, authored RIGHT/LEFT selection, anchors, error diagnostics and rematch lifecycle;
+6. return a replacement exact SHA to Germinator.
+
+No new art, anchor work, gameplay redesign or user scope decision is required.
+
+### Tool receipts
+
+- `TOOL_USED: Game Studio sprite-pipeline + game-playtest` — audit process/checklist applied.
+- `TOOL_UNAVAILABLE: Game Development Studio / game-dev CLI` — command unavailable in this host; no CLI evidence claimed.

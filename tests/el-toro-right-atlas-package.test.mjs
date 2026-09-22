@@ -71,7 +71,6 @@ test('right-facing runtime fragment covers all resolver keys and stays visibly n
   assert.deepEqual(fragment.blockingGates,[
     'authored-left-facing-animations',
     'verified-attachment-anchors',
-    'transition-clock-crouch-block-block-crouch',
   ]);
   assert.equal(Object.keys(fragment.animations).length,26);
   assert.equal(fragment.leftAnimationsRequired,true);

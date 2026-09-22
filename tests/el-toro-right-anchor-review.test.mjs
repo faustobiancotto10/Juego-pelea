@@ -79,3 +79,27 @@ test('anchor verifier accepts only complete in-bounds anatomical anchor data', (
     /out of bounds/,
   );
 });
+
+
+test('El Toro package emits an atlas-only visual sheet for manual anchor verification', () => {
+  const outDir=mkdtempSync(join(tmpdir(),'el-toro-anchor-visual-'));
+  const result=buildElToroRightAtlasPackage({sourceDir,packageContractPath,outDir});
+  const path=join(outDir,'right-anchor-review.svg');
+  assert.equal(result.anchorReviewSvgPath,path);
+
+  const svg=readFileSync(path,'utf8');
+  assert.match(svg,/viewBox="0 0 1260 2760"/);
+  assert.match(svg,/right-body\.png/);
+  assert.equal(svg.includes('sprite-source/right'),false);
+  assert.equal(svg.includes('__IMG-'),false);
+
+  const frameIds=[...svg.matchAll(/data-frame-id="([^"]+)"/g)].map((match)=>match[1]);
+  assert.equal(frameIds.length,84);
+  assert.equal(new Set(frameIds).size,84);
+  assert.equal((svg.match(/data-pivot="normalization-ground-pivot"/g) ?? []).length,84);
+
+  for (const name of REQUIRED) {
+    assert.equal(svg.includes('ANCHOR '+name),true,name);
+  }
+  assert.equal(svg.includes('data-anatomical-anchor='),false,'visual sheet must not fabricate anatomical anchor points');
+});

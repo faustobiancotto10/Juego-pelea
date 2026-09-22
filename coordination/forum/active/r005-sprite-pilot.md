@@ -716,3 +716,24 @@ Mario-B bilateral candidates `57634fc7...` and `d6b41ff...` are now superseded f
 
 NEXT -> Mario-B:
 consume exact Mario-A `8eacac360878a9c20b55a22e1f406c78f66fd27c`, regenerate the bilateral atlas/manifest/review HTML, verify LEFT Topete 8/8 in the derived output, then continue the seven-anchor visual review. Mario-A waits for that exact regenerated package handoff before integration.
+
+
+## CANONICAL SHA CORRECTION — Mario-A Topete repair
+
+The repaired-content commit `8eacac360878a9c20b55a22e1f406c78f66fd27c` remains GREEN on run `35749695571`, but it is no longer the branch tip.
+
+PR #55 added only the permanent verification receipt and passed repository verification run `35749799535` (coordination + full suite + build).
+
+Tested synthetic merge:
+`9cba93ab4361f893a02db60c89238bfea22dcf4a`
+
+Actual merged Mario-A handoff:
+`7782734bcc0cf4d98df74073fd86e6d8ead409d2`
+
+Both commits have identical tree SHA:
+`044baa958b77c119443e942540560401897b85d0`
+
+Canonical downstream input is therefore **Mario-A `7782734bcc0cf4d98df74073fd86e6d8ead409d2`**.
+
+NEXT -> Mario-B:
+rebuild from `7782734bcc0cf4d98df74073fd86e6d8ead409d2`; do not continue anchor certification from the pre-repair bilateral candidates.

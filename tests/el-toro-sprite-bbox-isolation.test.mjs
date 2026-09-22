@@ -5,6 +5,8 @@ import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 import { generateSpriteSourceEvidence } from '../scripts/el-toro-sprite-source-pipeline.mjs';
 import {
+  analyzeMasterSeedScaleInfluence,
+  assertMasterSeedDoesNotConstrainRuntimeBodyScale,
   assertPixelSafePackingInputs,
   findOverlappingFrameBboxes,
 } from '../scripts/el-toro-sprite-package-builder.mjs';
@@ -57,4 +59,21 @@ test('packing guard detects overlap independently of the current El Toro source 
   assert.doesNotThrow(() =>
     assertPixelSafePackingInputs(synthetic, { isolatedFrameIds: ['A', 'B'] }),
   );
+});
+
+
+test('El Toro package guard rejects normalization when IMG-00 Master Seed shrinks runtime body sprites', () => {
+  const manifest = generatedManifest();
+  const diagnostic = analyzeMasterSeedScaleInfluence(manifest);
+  console.log('V07-SPR-MB master-scale-diagnostic', JSON.stringify(diagnostic));
+
+  if (diagnostic.masterConstrainsRuntimeScale) {
+    assert.throws(
+      () => assertMasterSeedDoesNotConstrainRuntimeBodyScale(manifest),
+      /Master Seed/,
+    );
+    return;
+  }
+
+  assert.doesNotThrow(() => assertMasterSeedDoesNotConstrainRuntimeBodyScale(manifest));
 });

@@ -202,13 +202,15 @@ test('V07-SPR-G1 normal build asset copier materializes exact runtime bytes into
 });
 
 
-test('V07-SPR-G1 visual QA surface uses the exact served runtime manifest and atlas with authored bilateral maps', () => {
+test('V07-SPR-G1 visual QA surface crops exact authored bilateral frames from the served runtime atlas', () => {
   const evidence=readFileSync(resolve('tools/character-pipeline-v2/v07-spr-g1-runtime-evidence.html'),'utf8');
-  assert.match(evidence,/\/assets\/fighters\/el-toro\/el-toro-animations\.json/);
-  assert.match(evidence,/manifest\.atlas/);
-  assert.match(evidence,/manifest\.animations/);
-  assert.match(evidence,/manifest\.leftAnimations/);
-  assert.match(evidence,/move:topete/);
-  assert.match(evidence,/ultimate:superEructo:startup/);
-  assert.doesNotMatch(evidence,/ElToroRig|drawElToro/i);
+  assert.match(evidence,/\/assets\/fighters\/el-toro\/el-toro-body\.png/);
+  assert.match(evidence,/RIGHT · IDLE/);
+  assert.match(evidence,/LEFT · IDLE/);
+  assert.match(evidence,/RIGHT · TOPETE/);
+  assert.match(evidence,/LEFT · ULTIMATE/);
+  assert.match(evidence,/left:-1763px;top:-1096px/);
+  assert.match(evidence,/left:-857px;top:-915px/);
+  assert.match(evidence,/left:-1126px;top:-2407px/);
+  assert.doesNotMatch(evidence,/ElToroRig|drawElToro|SpriteFighterRenderer/i);
 });

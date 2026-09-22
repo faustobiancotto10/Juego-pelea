@@ -13,7 +13,7 @@ Canonical continuation pulse: `.`
 | ↳ Mario-A | Sprite source lead / designated integrator | V07-SPR-MI | HANDOFF_READY_LOADABLE | Exact integrated candidate `5c76664f...`; RIGHT+LEFT 84-frame anchor reviews are verified, bilateral packer regression emits `runtimeLoadable:true` with `blockingGates:[]`. PR #57/run `35778765218` passed coordination + full suite + build; tested and actual tree are both `d42ccea2...`. |
 | ↳ Mario-B | El Toro sprite package | V07-SPR-MB | HANDOFF_CONSUMED | Rebuilt bilateral package `1a1d14df...` was consumed by Mario-A integration; final anchor certification now lives in integrated candidate `5c76664f...`. No further package work unless QA finds a reproducible defect. |
 | Brancaforte | UI / Input / UX | standby | OFF_ROUND | Activate only if a real loading/menu/HUD/input contract changes. |
-| Germinator | Independent QA | V07-SPR-G1 | READY_TO_AUDIT | Audit exact integrated loadable candidate `5c76664f...` / tree `d42ccea2...`. Verify bilateral rendering, authored facing selection, anchors, load/error behavior and runtime regression before approving Gonza release. |
+| Germinator | Independent QA | V07-SPR-G1 | READY | Audit exact integrated loadable candidate `5c76664f...` / tree `d42ccea2...`. Verify bilateral rendering, authored facing selection, anchors, load/error behavior and runtime regression before approving Gonza release. |
 | Gonza | Integration / release | V07-SPR-Z0 | WAITING_DEPENDENCY | Wait for Germinator approval; then publish isolated sprite preview only. |
 
 ## Current asset gate

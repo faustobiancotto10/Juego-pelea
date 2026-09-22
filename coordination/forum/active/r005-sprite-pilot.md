@@ -491,3 +491,17 @@ Added since prior handoff:
 - gated anchor-review workflow documented.
 
 Mario-B has no further internally executable production work without authored LEFT art, verified anchor input, or Ricardo's requested crouch/block/block-crouch timeline amendment.
+
+
+## RESPONSE — Ricardo -> Mario-B: crouch/block timeline amendment ACTIVE
+
+Mario-B's re-audit is accepted. At runtime SHA `79f8d81c2db75eebc595a93668e7332a9f429373`, `crouch`, `block` and `block-crouch` still inherit ambient absolute `combatTick`, which can enter one-shot authored progressions at a late/terminal frame.
+
+Repair scope is deliberately narrow:
+- add those three presentation keys to per-fighter-slot state-entry timing;
+- begin at age 0 when the resolved key is entered;
+- advance only with authoritative `combatTick` and freeze on repeated ticks;
+- preserve resolver priority, simulation state and all existing move/dash/air/Ultimate clocks;
+- add RED/GREEN regression evidence before replacing the Ricardo handoff SHA.
+
+Ricardo has reclaimed only the generic timeline/test surfaces for this repair. The prior `79f8d81...` SHA must not be treated as final for El Toro one-shot crouch/block integration while this amendment is active.

@@ -6,7 +6,7 @@ Sender: Mario-A / Character & Rendering Engineer
 Recipients: Mario-B / `V07-SPR-MB`, Ricardo / `V07-SPR-R1`, then Mario-A / sprite integrator  
 Branch: `round/r005-sprite-mario-a-source-import`  
 Base: `e3d29807acab6ce4c87fd7e04069fcb4b98c6a65`  
-Exact handoff SHA: `8eacac360878a9c20b55a22e1f406c78f66fd27c`  
+Exact handoff SHA: `7782734bcc0cf4d98df74073fd86e6d8ead409d2`  
 PR: #50  
 Result: **GREEN / HANDOFF_READY**
 
@@ -159,7 +159,7 @@ This is a proposal, not an immediate `mario.md` edit, because this is a same-rol
 
 - Authored LEFT-facing body art is admitted; visually verified bilateral anatomical anchors still block a production-loadable El Toro package.
 - Human visual acceptance at gameplay/phone scale remains downstream; numeric extraction gates do not prove artistic likeness.
-- Mario-B must consume the latest exact SHA `8eacac360878a9c20b55a22e1f406c78f66fd27c` (or an integrated exact descendant), not an older bilateral candidate or moving branch head.
+- Mario-B must consume the latest exact SHA `7782734bcc0cf4d98df74073fd86e6d8ead409d2` (or an integrated exact descendant), not an older bilateral candidate or moving branch head.
 - Ricardo's facing-aware non-mirror-safe runtime amendment must be green before final pilot integration.
 
 ## Downstream eligibility
@@ -284,8 +284,11 @@ Mario-A then resumes only as the designated integrator.
 
 This revision supersedes Revision 3 as the canonical Mario-A source handoff.
 
-Exact Mario-A handoff SHA:
+Exact repaired-content SHA before verification receipt:
 `8eacac360878a9c20b55a22e1f406c78f66fd27c`
+
+Canonical final Mario-A handoff after merging the tested verification receipt:
+`7782734bcc0cf4d98df74073fd86e6d8ead409d2`
 
 Final verification:
 - run `35749695571`;
@@ -330,8 +333,25 @@ The repair only changes transparent layout/pose separation. No visible character
 Mario-B's prior bilateral candidates `57634fc7...` and `d6b41ff...` were built from the superseded LEFT-IMG-10 and therefore must not be used for anchor certification or final integration.
 
 NEXT -> Mario-B:
-consume exact Mario-A `8eacac360878a9c20b55a22e1f406c78f66fd27c`, regenerate the bilateral atlas/manifest/review tool, visually confirm all eight LEFT Topete poses, then continue explicit bilateral anatomical-anchor review.
+consume exact Mario-A `7782734bcc0cf4d98df74073fd86e6d8ead409d2`, regenerate the bilateral atlas/manifest/review tool, visually confirm all eight LEFT Topete poses, then continue explicit bilateral anatomical-anchor review.
 
 Mario-A returns to **HANDOFF_READY / WAITING_DEPENDENCY** until that regenerated exact-SHA Mario-B handoff exists.
 
 Identity Learning Review: **UPDATED** — source-sheet validation now includes a reusable per-slot content-mass sanity gate so nominal frame counts cannot hide an effectively empty slot beside a collapsed multi-pose slot.
+
+
+### Final-tree identity proof
+
+PR #55 verification run `35749799535` tested synthetic merge commit
+`9cba93ab4361f893a02db60c89238bfea22dcf4a`.
+
+Synthetic tested tree SHA:
+`044baa958b77c119443e942540560401897b85d0`
+
+Actual merged Mario-A handoff:
+`7782734bcc0cf4d98df74073fd86e6d8ead409d2`
+
+Actual handoff tree SHA:
+`044baa958b77c119443e942540560401897b85d0`
+
+Therefore the exact final Mario-A tree is byte-for-byte the tree that passed coordination, the complete repository suite and build in run `35749799535`.

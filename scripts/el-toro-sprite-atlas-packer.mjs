@@ -828,6 +828,7 @@ small{color:#aebcce}.anchors label{display:block;margin:5px 0}.anchors input{mar
 <script>
 const atlas={width:${atlasWidth},height:${atlasHeight}};
 const REQUIRED=['head','chest','frontHand','backHand','belt','frontFoot','backFoot'];
+function blankReviewFrame(){return {verified:false,anchors:{head:null,chest:null,frontHand:null,backHand:null,belt:null,frontFoot:null,backFoot:null}}}
 const reviews=${seed};
 let facing='right';
 let index=0;

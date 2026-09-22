@@ -245,3 +245,50 @@ test('mirror-safe LEFT fighters explicitly reuse right frames with a horizontal 
 
   assert.deepEqual(calls[2], ['scale', -1, 1]);
 });
+
+
+test('reaction and terminal sprite timelines start at state entry and advance only with authoritative combatTick per fighter slot', () => {
+  const image = { id: 'timeline-atlas' };
+  const timelineFrames = [
+    frame({ x: 7, durationTicks: 1 }),
+    frame({ x: 87, durationTicks: 1 }),
+    frame({ x: 167, durationTicks: 1 }),
+  ];
+  const loaded = {
+    image,
+    manifest: {
+      version: 1,
+      atlas: 'body.webp',
+      mirrorSafe: true,
+      animations: {
+        hurt: { loop: false, frames: timelineFrames },
+        knockdown: { loop: false, frames: timelineFrames },
+      },
+    },
+  };
+  const renderer = new SpriteFighterRenderer({ get: () => loaded });
+
+  function sampledSourceX(snapshot, combatTick, slot) {
+    const calls = [];
+    const ctx = {
+      globalAlpha: 1,
+      save() {},
+      restore() {},
+      translate() {},
+      scale() {},
+      drawImage(...args) { calls.push(args); },
+    };
+    renderer.draw(ctx, snapshot, 'pkg-timeline', combatTick, 1, slot);
+    return calls.at(-1)[1];
+  }
+
+  assert.equal(sampledSourceX(fighter({ stunFrames: 7 }), 500, 0), 7, 'hurt must enter on frame zero');
+  assert.equal(sampledSourceX(fighter({ stunFrames: 6 }), 501, 0), 87, 'hurt advances with combatTick, not remaining stun');
+  assert.equal(sampledSourceX(fighter({ stunFrames: 6 }), 501, 0), 87, 'hitstop/repeated render at the same combatTick must freeze presentation age');
+  assert.equal(sampledSourceX(fighter({ stunFrames: 10 }), 502, 0), 7, 'a renewed hit that raises remaining stun restarts the hurt timeline');
+
+  assert.equal(sampledSourceX(fighter({ stunFrames: 5 }), 502, 1), 7, 'mirror-match slots must not share reaction age');
+
+  assert.equal(sampledSourceX(fighter({ health: 0 }), 900, 0), 7, 'knockdown entered late in the round must start on frame zero');
+  assert.equal(sampledSourceX(fighter({ health: 0 }), 901, 0), 87, 'knockdown then advances from its own entry tick');
+});

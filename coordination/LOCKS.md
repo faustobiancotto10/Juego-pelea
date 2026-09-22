@@ -92,3 +92,15 @@ Current canonical thread: `coordination/forum/active/r005-sprite-pilot.md`.
 - Mario-A repair claim is RELEASED;
 - Germinator V07-SPR-G1 may now claim audit-only surfaces against exact `fe2b505639d8ebf2dc4ab204b545233d96f214f2`;
 - Gonza remains blocked until Germinator approval.
+
+
+## Active Germinator replacement-candidate audit
+
+- task: `V07-SPR-G1`;
+- exact candidate: `fe2b505639d8ebf2dc4ab204b545233d96f214f2`;
+- exact tree: `ed5ee226bca6c5da6c4c4769f14ccf7e2316c31a`;
+- QA branch: `round/r005-germinator-live-repair-audit`;
+- ownership: QA tests/evidence + coordination findings only;
+- product/runtime/source/anchor files are read-only during this audit;
+- Mario-A repair lane remains released;
+- Gonza remains blocked until Germinator issues APPROVE.

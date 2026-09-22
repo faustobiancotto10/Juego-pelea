@@ -5,77 +5,62 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>V07-SPR-G1 Runtime Sprite Assets</title>
 <style>
-html,body{margin:0;background:#0e1520;color:#eef3fb;font-family:system-ui,sans-serif}
-main{width:1280px;height:720px;position:relative;overflow:hidden;background:linear-gradient(#111a27,#182334)}
-h1{position:absolute;left:32px;top:18px;margin:0;font-size:28px;letter-spacing:.04em;z-index:2}
-p{position:absolute;left:34px;top:58px;margin:0;color:#aeb8c8;font-weight:650;z-index:2}
-canvas{position:absolute;inset:0;width:1280px;height:720px}
+*{box-sizing:border-box}
+html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#0e1520;color:#eef3fb;font-family:system-ui,sans-serif}
+main{width:100vw;height:100vh;padding:20px 26px 18px;background:linear-gradient(#111a27,#182334)}
+h1{margin:0;font-size:clamp(20px,2.2vw,30px);letter-spacing:.04em}
+p{margin:4px 0 12px;color:#aeb8c8;font-weight:650;font-size:clamp(11px,1.15vw,16px)}
+.grid{height:calc(100% - 76px);display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+.card{position:relative;overflow:hidden;border:1px solid #324359;border-radius:12px;background:#0b111a;min-width:0}
+.label{position:absolute;left:0;right:0;bottom:10px;text-align:center;font-weight:850;font-size:clamp(11px,1.25vw,17px);z-index:3}
+.crop{position:absolute;left:50%;bottom:48px;overflow:hidden;transform-origin:bottom center}
+.crop img{position:absolute;max-width:none}
+.meta{position:absolute;left:10px;top:8px;color:#8ea0b8;font-size:11px;font-weight:700;z-index:3}
+@media (max-width:900px){
+  main{padding:10px 12px 8px}
+  h1{font-size:18px}
+  p{font-size:10px;margin-bottom:6px}
+  .grid{height:calc(100% - 50px);gap:5px}
+  .card{border-radius:7px}
+  .label{bottom:5px;font-size:9px}
+  .meta{font-size:7px;left:5px;top:4px}
+}
 </style>
 </head>
 <body>
 <main>
-<h1>EL TORO — SERVED SPRITE ASSETS</h1>
-<p>Exact runtime manifest + atlas · authored RIGHT + LEFT · no procedural fighter rig</p>
-<canvas id="c" width="1280" height="720"></canvas>
+<h1>EL TORO — SERVED RUNTIME SPRITES</h1>
+<p>Exact browser atlas · authored RIGHT + LEFT · effects disabled · no procedural fighter rig</p>
+<section class="grid">
+  <article class="card">
+    <span class="meta">idle[0] · RIGHT</span>
+    <div class="crop" style="width:137px;height:192px;transform:translateX(-50%) scale(1.55)">
+      <img src="/assets/fighters/el-toro/el-toro-body.png" alt="" style="left:-2px;top:-2px">
+    </div>
+    <div class="label">RIGHT · IDLE</div>
+  </article>
+  <article class="card">
+    <span class="meta">idle[0] · LEFT</span>
+    <div class="crop" style="width:133px;height:192px;transform:translateX(-50%) scale(1.55)">
+      <img src="/assets/fighters/el-toro/el-toro-body.png" alt="" style="left:-1763px;top:-1096px">
+    </div>
+    <div class="label">LEFT · IDLE</div>
+  </article>
+  <article class="card">
+    <span class="meta">move:topete[4] · RIGHT</span>
+    <div class="crop" style="width:180px;height:133px;transform:translateX(-50%) scale(1.45)">
+      <img src="/assets/fighters/el-toro/el-toro-body.png" alt="" style="left:-857px;top:-915px">
+    </div>
+    <div class="label">RIGHT · TOPETE</div>
+  </article>
+  <article class="card">
+    <span class="meta">ultimate:startup[3] · LEFT</span>
+    <div class="crop" style="width:118px;height:190px;transform:translateX(-50%) scale(1.55)">
+      <img src="/assets/fighters/el-toro/el-toro-body.png" alt="" style="left:-1126px;top:-2407px">
+    </div>
+    <div class="label">LEFT · ULTIMATE</div>
+  </article>
+</section>
 </main>
-<script>
-(async()=>{
-  const canvas=document.querySelector('#c');
-  const ctx=canvas.getContext('2d');
-  ctx.fillStyle='#eef3fb';
-  ctx.textAlign='center';
-  ctx.font='800 20px system-ui';
-
-  try {
-    const manifest=await fetch('/assets/fighters/el-toro/el-toro-animations.json').then(r=>{
-      if(!r.ok) throw new Error('manifest HTTP '+r.status);
-      return r.json();
-    });
-    const image=new Image();
-    image.src='/assets/fighters/el-toro/'+manifest.atlas;
-    await image.decode();
-
-    const poses=[
-      {label:'RIGHT · IDLE',x:170,map:manifest.animations,key:'idle',frame:0},
-      {label:'LEFT · IDLE',x:470,map:manifest.leftAnimations,key:'idle',frame:0},
-      {label:'RIGHT · TOPETE',x:790,map:manifest.animations,key:'move:topete',frame:4},
-      {label:'LEFT · ULTIMATE',x:1100,map:manifest.leftAnimations,key:'ultimate:superEructo:startup',frame:3},
-    ];
-
-    for(const pose of poses){
-      const frames=pose.map[pose.key].frames;
-      const fr=frames[Math.min(pose.frame,frames.length-1)];
-      const scale=Math.min(1.55,260/fr.width,500/fr.height);
-      const ground=640;
-      ctx.save();
-      ctx.translate(pose.x,ground);
-      ctx.scale(scale,scale);
-      ctx.drawImage(
-        image,
-        fr.x,fr.y,fr.width,fr.height,
-        -fr.pivotX,-fr.pivotY,fr.width,fr.height
-      );
-      ctx.restore();
-      ctx.fillText(pose.label,pose.x,690);
-    }
-
-    ctx.font='650 15px system-ui';
-    ctx.fillStyle='#aeb8c8';
-    ctx.fillText('mirrorSafe:false · '+Object.keys(manifest.animations).length+' RIGHT keys · '+Object.keys(manifest.leftAnimations).length+' LEFT keys',640,105);
-    const receipt=document.createElement('div');
-    receipt.textContent='READY · SPRITE BACKEND DRAWN';
-    receipt.setAttribute('data-ready-canvas',canvas.toDataURL('image/png'));
-    receipt.style.display='none';
-    document.body.appendChild(receipt);
-    window.__SPRITE_EVIDENCE_READY__=true;
-  } catch(error) {
-    ctx.fillStyle='#ff8080';
-    ctx.textAlign='left';
-    ctx.font='700 20px monospace';
-    ctx.fillText('SPRITE EVIDENCE ERROR: '+String(error),32,150);
-    document.body.dataset.error=String(error);
-  }
-})();
-</script>
 </body>
 </html>

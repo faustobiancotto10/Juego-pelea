@@ -153,3 +153,59 @@ No procedural fallback is retired and no production registry cutover is authoriz
 
 NEXT:
 complete the bilateral visual anchor review; once both reviews validate and Mario-B emits `runtimeLoadable:true`, Mario-A consumes that exact package and immediately hands the integrated candidate to Germinator.
+
+
+## Revision 3 — bilateral anchors verified / QA-ready
+
+Mario-A completed the final pre-QA anchor gate.
+
+Exact integrated candidate:
+`5c76664fb95ac9c1da019636ce3ad974c214d84c`
+
+Anchor review inputs:
+- RIGHT: `docs/characters/el-toro/sprite-package/anchors/right-verified.json`;
+- LEFT: `docs/characters/el-toro/sprite-package/anchors/left-verified.json`;
+- 84 verified body frames per facing;
+- seven required anchors per frame: `head`, `chest`, `frontHand`, `backHand`, `belt`, `frontFoot`, `backFoot`.
+
+The review preserves facing-relative front/back limb identity. `head` targets anatomical head/face center for runtime attachment behavior rather than hair-top. Pose landmarks were drafting aids only; the final review is stored as explicit authored-frame coordinates.
+
+### Runtime gate
+
+Regression:
+`tests/el-toro-bilateral-reviewed-anchors.test.mjs`
+
+It validates both canonical review files against the frozen anchor contract, rebuilds the repaired bilateral package with them, and proves:
+- `runtimeLoadable:true`;
+- `blockingGates:[]`;
+- `mirrorSafe:false`;
+- identical RIGHT/LEFT resolver-key coverage;
+- all runtime frames carry the seven required anchors.
+
+### Verification
+
+PR #57 final head:
+`2c9b3096dbb35c00b81fc751d05b28ca1aaac49b`
+
+Repository verification:
+`35778765218`
+- coordination contract: PASS;
+- full test suite: PASS;
+- build: PASS.
+
+GitHub-tested synthetic merge:
+`feb47afeafdd0044cfda3803aeb5404cefb91593`
+
+Canonical integration merge:
+`5c76664fb95ac9c1da019636ce3ad974c214d84c`
+
+Both commits resolve to identical tree:
+`d42ccea2ff64ce7010f51f92005a3fc2c606919a`
+
+Therefore the exact QA handoff tree is the tree that passed PR #57 verification.
+
+State:
+**HANDOFF_READY_LOADABLE / QA_READY**
+
+NEXT -> Germinator:
+independently audit exact integrated SHA `5c76664fb95ac9c1da019636ce3ad974c214d84c`. Gonza remains blocked until Germinator approval.

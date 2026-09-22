@@ -51,7 +51,11 @@ test('right-facing runtime fragment covers all resolver keys and stays visibly n
   assert.equal(fragment.atlas,'right-body.png');
   assert.equal(fragment.mirrorSafe,false);
   assert.equal(fragment.runtimeLoadable,false);
-  assert.equal(fragment.blockedOn,'authored-left-facing-animations-and-verified-anchors');
+  assert.deepEqual(fragment.blockingGates,[
+    'authored-left-facing-animations',
+    'verified-attachment-anchors',
+    'transition-clock-crouch-block-block-crouch',
+  ]);
   assert.equal(Object.keys(fragment.animations).length,26);
   assert.equal(fragment.leftAnimationsRequired,true);
   assert.equal(fragment.leftAnimations,undefined);

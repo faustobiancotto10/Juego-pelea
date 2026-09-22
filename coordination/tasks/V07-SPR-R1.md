@@ -2,7 +2,7 @@
 
 Round: R005-V07-GAMEPLAY-PRESENTATION-EXPANSION  
 Owner: Ricardo  
-Status: REPAIR_ACTIVE
+Status: HANDOFF_READY
 
 ## Execution branch
 
@@ -51,8 +51,12 @@ Implement the generic, presentation-only sprite runtime foundation from `docs/su
 
 ## Completion receipt
 
-- superseded candidate pending reaction-clock repair: `d07cba1231fbb571dfe5d344487251f88dec797c`
-- final verification: run `35669435920` / job `106562356524` — 306/306 full-suite PASS + build PASS
+- final exact candidate: `79f8d81c2db75eebc595a93668e7332a9f429373`
+- supersedes: `d07cba1231fbb571dfe5d344487251f88dec797c`
+- TDD RED: run `35673297473` / job `106574354315` — coordination PASS; full suite 306 PASS / 2 expected regression FAIL
+- final GREEN: run `35673440101` / job `106574802177` — coordination 10/10 PASS; 308/308 full-suite PASS; build PASS
 - handoff: `coordination/handoffs/V07-SPR-R1-ricardo.md`
-- authored-facing amendment: explicit `mirrorSafe`; non-mirror-safe packages require matching `leftAnimations`
+- authored-facing contract: explicit `mirrorSafe`; non-mirror-safe packages require matching `leftAnimations`
+- transition-clock repair: presentation-only per-slot state-entry age from authoritative `combatTick`; renewed reactions restart; hitstop freezes
+- full lane audit vs frozen start: 25 commits ahead / 0 behind; no `src/game/simulation/**` changes
 - Identity Learning Review: UPDATED

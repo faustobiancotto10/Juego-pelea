@@ -20,45 +20,19 @@ Current canonical thread: `coordination/forum/active/r005-sprite-pilot.md`.
 - branch: `round/r005-sprite-mario-b-package`
 - exclusive lane surface: El Toro derived sprite package/manifest/presentation assets and fighter-specific package tests/previews
 - no claim: `docs/characters/el-toro/sprite-source/**`, generic sprite runtime backend, shared UI/gameplay surfaces
-- authored LEFT source is available; Mario-B must rebuild from latest Mario-A `8eacac36...` before anchor certification
+- authored LEFT source is available; Mario-B must rebuild from latest Mario-A `7782734...` before anchor certification
 
-
-## Mario-A LEFT source handoff — lock release
-
-- exact frozen source/pipeline SHA: `c1b3e8e757b707f2975f6587217cc2f851e2ca6b`;
-- final verification run: `35683738506` — coordination + full suite + build PASS;
-- LEFT source-art dependency is released;
-- Mario-B owns the next package/anchor mutation;
-- Mario-A does not edit Mario-B package surfaces while waiting for the bilateral handoff.
-
-
-## Active narrow repair claim — Mario-A / LEFT Topete
-
-- reason: exact accepted `LEFT-IMG-10` reproduces a pathological component assignment under the canonical extractor;
-- evidence before repair: slot body areas `[83260,79278,77005,93447,101421,115723,1008,168056]`; slot 6 is effectively empty while slot 7 contains two authored poses;
-- claim surface: `docs/characters/el-toro/sprite-source/left/el-toro__LEFT-IMG-10__topete.png`, its source hash/receipt, and source-validation tests only;
-- no claim: Mario-B package/anchor files, Ricardo runtime, shared UI/gameplay;
-- exit: 8/8 visually isolated Topete poses, balanced source-slot body occupancy, hard-edge gate 0, full suite/build GREEN, exact re-handoff to Mario-B.
 
 
 ## Mario-A LEFT Topete repair — lock release
 
-- supersedes source handoff `c1b3e8e757b707f2975f6587217cc2f851e2ca6b`;
-- exact repaired source/pipeline SHA: `7782734bcc0cf4d98df74073fd86e6d8ead409d2`;
+- exact final source/pipeline SHA: `7782734bcc0cf4d98df74073fd86e6d8ead409d2`;
+- repaired-content parent: `8eacac360878a9c20b55a22e1f406c78f66fd27c`;
 - binary repair commit: `4898b53aa21a81017f39cac1d62564e2d8138467`;
-- one-shot repair run `35749493759`: targeted source-quality gate PASS;
-- repository-wide verification PR #55/run `35749799535`: coordination + full suite + build PASS;
-- active narrow Mario-A repair claim is released;
-- Mario-B now owns regeneration of the bilateral package from this exact repaired source.
-
-
-## Mario-A LEFT Topete repair — lock release
-
-- repaired source/pipeline handoff: `8eacac360878a9c20b55a22e1f406c78f66fd27c`;
-- binary repair commit: `4898b53aa21a81017f39cac1d62564e2d8138467`;
-- targeted repair workflow: `35749493759` — PASS;
-- final exact-SHA verification: `35749695571` — coordination + full suite + build PASS;
-- source-quality regression test remains in the suite;
-- Mario-A narrow source mutation claim is RELEASED;
-- Mario-B owns the next derived-package regeneration from `8eacac360878a9c20b55a22e1f406c78f66fd27c`;
-- prior Mario-B bilateral `d6b41ff...` is stale for anchor certification.
+- targeted repair workflow `35749493759`: PASS;
+- exact repaired-content verification `35749695571`: coordination + full suite + build PASS;
+- PR #55 final-tree verification `35749799535`: coordination + full suite + build PASS;
+- tested synthetic tree and actual final handoff tree are both `044baa958b77c119443e942540560401897b85d0`;
+- Mario-A source mutation claim is RELEASED;
+- Mario-B owns regeneration of the bilateral package from `7782734bcc0cf4d98df74073fd86e6d8ead409d2`;
+- prior Mario-B bilateral candidates `57634fc7...` and `d6b41ff...` are stale for final anchor certification.

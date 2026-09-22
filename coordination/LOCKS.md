@@ -64,3 +64,14 @@ Current canonical thread: `coordination/forum/active/r005-sprite-pilot.md`.
 - Mario-A integration is the repair owner for the missing live composition/runtime asset path;
 - Gonza remains blocked until a replacement exact candidate passes Germinator;
 - no Germinator product-file lock remains active.
+
+
+## Active Mario-A live-integration repair claim
+
+- branch: `round/r005-sprite-mario-a-live-repair`;
+- approved product base: `f34760948cb2024c0c83f4a02202117a8ad3bf2f`;
+- accepted sprite package input remains `5c76664fb95ac9c1da019636ce3ad974c214d84c` for source/anchors/runtime contracts only;
+- scope: generic sprite runtime composition, El Toro `bodyBackend:'sprite'`, package registry, runtime `assets/fighters/el-toro/**`, integration regression;
+- forbidden in this repair: gameplay balance/timing changes, source-art regeneration, anchor re-authoring, replacement of approved V0.7 visual modules;
+- Germinator remains blocked until Mario-A publishes a replacement exact SHA;
+- Gonza remains blocked until the fresh Germinator audit approves it.

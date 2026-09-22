@@ -1,0 +1,107 @@
+name: V07 SPR Z0 public served smoke
+
+on:
+  push:
+    branches:
+      - ci/r005-sprite-z0-served
+
+jobs:
+  served:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install browser
+        run: |
+          npm install --no-save playwright@latest
+          npx playwright install --with-deps chromium
+
+      - name: Verify public bytes
+        run: |
+          BASE="https://faustobiancotto10.github.io/Juego-pelea/v07-sprite-preview"
+          curl -fsSL "$BASE/index.html" -o served-index.html
+          curl -fsSL "$BASE/assets/fighters/el-toro/el-toro-animations.json" -o served-manifest.json
+          curl -fsSL "$BASE/assets/fighters/el-toro/el-toro-body.png" -o served-atlas.png
+          test "$(sha256sum served-index.html | cut -d' ' -f1)" = "f9cfc89bd0cc2d909f58388e04186a0e6fe3cf54e1dc098b63ef96c66133724e"
+          test "$(sha256sum served-manifest.json | cut -d' ' -f1)" = "c252c60076b0e0e242bb4e37f4b77435be6c1952bfec5164cf82832e3c885876"
+          test "$(sha256sum served-atlas.png | cut -d' ' -f1)" = "819a8d3d4f939c2edacc10fe92d09d0c073b41bcfdac3f469a1b6ce79e91d571"
+          echo "public HTML + manifest + atlas byte parity PASS"
+
+      - name: Public game RIGHT and authored LEFT smoke
+        run: |
+          node <<'NODE'
+          const fs=require('fs');
+          const { chromium }=require('playwright');
+          const manifest=JSON.parse(fs.readFileSync('served-manifest.json','utf8'));
+          const rectKey=f=>[f.x,f.y,f.width,f.height].join(',');
+          const rectSet=animations=>new Set(Object.values(animations).flatMap(a=>a.frames.map(rectKey)));
+          const rightRects=rectSet(manifest.animations);
+          const leftRects=rectSet(manifest.leftAnimations);
+          const base='https://faustobiancotto10.github.io/Juego-pelea/v07-sprite-preview/index.html';
+
+          async function makePage(browser){
+            const page=await browser.newPage({viewport:{width:844,height:390}});
+            const responses=[];
+            page.on('response',r=>{if(r.url().includes('/v07-sprite-preview/assets/fighters/el-toro/'))responses.push({url:r.url(),status:r.status()})});
+            await page.addInitScript(()=>{
+              window.__elToroDraws=[];
+              const original=CanvasRenderingContext2D.prototype.drawImage;
+              CanvasRenderingContext2D.prototype.drawImage=function(...args){
+                const image=args[0];
+                const src=(image&&(image.currentSrc||image.src))||'';
+                if(String(src).includes('el-toro-body.png')&&args.length>=9){
+                  const t=this.getTransform();
+                  window.__elToroDraws.push({sx:args[1],sy:args[2],sw:args[3],sh:args[4],a:t.a,d:t.d});
+                }
+                return original.apply(this,args);
+              };
+            });
+            return {page,responses};
+          }
+
+          async function fight(page,player,cpu){
+            await page.goto(base+'?z0=served',{waitUntil:'domcontentloaded'});
+            await page.waitForSelector('[data-game-phase="title"]');
+            await page.locator('[data-start]').click();
+            await page.waitForSelector('[data-game-phase="select-player"]');
+            await page.locator(`[data-fighter="${player}"]`).click();
+            await page.locator('[data-fighter-confirm]').click();
+            await page.waitForSelector('[data-game-phase="select-cpu"]');
+            await page.locator(`[data-fighter="${cpu}"]`).click();
+            await page.locator('[data-fighter-confirm]').click();
+            await page.waitForSelector('[data-game-phase="select-stage"]');
+            await page.locator('[data-stage="cancha-56"]').click();
+            await page.locator('[data-stage-confirm]').click();
+            await page.waitForSelector('[data-game-phase="fight"]',{timeout:15000});
+            await page.waitForFunction(()=>window.__elToroDraws?.length>2,{timeout:15000});
+            await page.waitForTimeout(400);
+            return page.evaluate(()=>window.__elToroDraws.slice());
+          }
+
+          (async()=>{
+            const browser=await chromium.launch({headless:true});
+
+            const r=await makePage(browser);
+            const rd=await fight(r.page,'el-toro','chameleon');
+            const rm=rd.filter(d=>rightRects.has([d.sx,d.sy,d.sw,d.sh].join(',')));
+            if(!rm.length)throw new Error('public P1 El Toro did not use RIGHT atlas frames');
+            if(rm.some(d=>d.a<0))throw new Error('public RIGHT frame was mirrored');
+            if(r.responses.filter(x=>/el-toro-(animations\.json|body\.png)$/.test(x.url)).some(x=>x.status!==200))throw new Error('public RIGHT asset request failed');
+            await r.page.close();
+
+            const l=await makePage(browser);
+            const ld=await fight(l.page,'chameleon','el-toro');
+            const lm=ld.filter(d=>leftRects.has([d.sx,d.sy,d.sw,d.sh].join(',')));
+            if(!lm.length)throw new Error('public CPU El Toro did not use authored LEFT atlas frames');
+            if(lm.some(d=>d.a<0))throw new Error('public authored LEFT was horizontally mirrored');
+            const lr=l.responses.filter(x=>/el-toro-(animations\.json|body\.png)$/.test(x.url));
+            if(lr.length<2||lr.some(x=>x.status!==200))throw new Error('public LEFT asset request failed');
+
+            console.log('PUBLIC P1 El Toro RIGHT PASS');
+            console.log('PUBLIC CPU El Toro authored LEFT PASS');
+            console.log('PUBLIC sprite asset requests PASS');
+            await browser.close();
+          })().catch(e=>{console.error(e);process.exit(1)});
+          NODE

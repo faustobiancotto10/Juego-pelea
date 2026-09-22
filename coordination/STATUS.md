@@ -10,10 +10,10 @@ Canonical continuation pulse: `.`
 | Neureon | Lead / Coordinator | V07-SPR-N0 | VERIFIED | Intake, contract and dependency graph established; remain coordinator. |
 | Ricardo | Gameplay / runtime engineer | V07-SPR-R1 | HANDOFF_READY | Replacement exact SHA `5b20c351...`; crouch/block/block-crouch amendment green, 309/309 tests + build PASS; `79f8d81...` superseded. |
 | Mario | Character / Rendering Engineer | V07-SPR-MA + V07-SPR-MB | READY | Run two isolated sprite-pilot lanes and converge through one Mario integration point. |
-| ↳ Mario-A | Sprite source lead / designated integrator | V07-SPR-MI | INTEGRATED_BILATERAL / ANCHOR_BLOCKED | Exact integration `1f556f1a...` composes Mario-B `1a1d14df...` with the existing Ricardo-backed integration tip. Tested tree `ad4ae01b...` passed coordination + full suite + build in PR #56/run `35753931240`. Wait only on explicit bilateral anatomical-anchor verification. |
-| ↳ Mario-B | El Toro sprite package | V07-SPR-MB | HANDOFF_READY_BILATERAL_ANCHOR_REVIEW | Rebuilt from repaired Mario-A `7782734...`; exact candidate `1a1d14df...` GREEN on run `35750820290`. LEFT Topete is 8/8 substantial in source and 8/8 distinct in the derived bilateral manifest. Only explicit bilateral anatomical-anchor verification remains before runtimeLoadable:true. |
+| ↳ Mario-A | Sprite source lead / designated integrator | V07-SPR-MI | HANDOFF_READY_LOADABLE | Exact integrated candidate `5c76664f...`; RIGHT+LEFT 84-frame anchor reviews are verified, bilateral packer regression emits `runtimeLoadable:true` with `blockingGates:[]`. PR #57/run `35778765218` passed coordination + full suite + build; tested and actual tree are both `d42ccea2...`. |
+| ↳ Mario-B | El Toro sprite package | V07-SPR-MB | HANDOFF_CONSUMED | Rebuilt bilateral package `1a1d14df...` was consumed by Mario-A integration; final anchor certification now lives in integrated candidate `5c76664f...`. No further package work unless QA finds a reproducible defect. |
 | Brancaforte | UI / Input / UX | standby | OFF_ROUND | Activate only if a real loading/menu/HUD/input contract changes. |
-| Germinator | Independent QA | V07-SPR-G1 | WAITING_DEPENDENCY | Integrated bilateral candidate exists at `1f556f1a...`, but QA remains blocked until both authored-facing anatomical anchor reviews validate and `runtimeLoadable:true` is emitted. |
+| Germinator | Independent QA | V07-SPR-G1 | READY_TO_AUDIT | Audit exact integrated loadable candidate `5c76664f...` / tree `d42ccea2...`. Verify bilateral rendering, authored facing selection, anchors, load/error behavior and runtime regression before approving Gonza release. |
 | Gonza | Integration / release | V07-SPR-Z0 | WAITING_DEPENDENCY | Wait for Germinator approval; then publish isolated sprite preview only. |
 
 ## Current asset gate
@@ -23,7 +23,7 @@ Right-facing El Toro source intake: **CONDITIONALLY ACCEPTED FOR PILOT**.
 - accepted: IMG-00, exact 84-body IMG-01..12 set, FX-01..04;
 - rejected/superseded: `13F1BB3E-C57C-4649-B9E7-07664E5E8BE8.PNG`;
 - authored LEFT source: **ACCEPTED FOR PILOT** at Mario-A exact SHA `7782734bcc0cf4d98df74073fd86e6d8ead409d2`; 1 master + 84 body, decoded-RGBA/source hashes tracked, hard outer-edge clipping 0, and LEFT Topete now has eight substantial isolated poses rather than one collapsed pair.
-- immediate dependency: Mario-B must regenerate its bilateral derived package from Mario-A `7782734...`; after that, the remaining package blocker is visually verified bilateral anatomical attachment anchors.
+- bilateral package + anchors: **GREEN FOR INDEPENDENT QA** at integrated SHA `5c76664fb95ac9c1da019636ce3ad974c214d84c`; 84 RIGHT + 84 LEFT anchors verified, `runtimeLoadable:true`, `blockingGates:[]`.
 
 Canonical audit: `docs/characters/el-toro/SPRITE_INTAKE_2026-09-21.md`.
 

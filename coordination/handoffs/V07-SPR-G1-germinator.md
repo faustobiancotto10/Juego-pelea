@@ -8,7 +8,7 @@ Replacement product candidate: `fe2b505639d8ebf2dc4ab204b545233d96f214f2`
 Replacement product tree: `ed5ee226bca6c5da6c4c4769f14ccf7e2316c31a`  
 Approved V0.7 ancestor: `f34760948cb2024c0c83f4a02202117a8ad3bf2f`  
 QA branch: `round/r005-germinator`  
-Final QA head: `be597f2549505b7609bdfd489a60570ad11216e1`  
+Final QA head: `ac860f2ef320f83a977939483e742472b40389f9`  
 Validation PR: #60  
 Verdict: **APPROVE — SPRITE PILOT LIVE INTEGRATION GREEN**
 
@@ -62,19 +62,19 @@ Bilateral package:
 ## Fresh independent verification
 
 ### Repository verification
-Run `35788754170` / Repository verification #1720:
+Run `35788816202` / Repository verification #1722:
 - coordination contract: PASS;
 - full suite: **433/433 PASS**;
 - build: PASS.
 
 ### Character Pipeline V2
-Run `35788754059` / Character Pipeline V2 #72:
+Run `35788816195` / Character Pipeline V2 #74:
 - full suite: **433/433 PASS**;
 - build: PASS;
 - visual-evidence generation: PASS;
 - runtime raster/reference guard: PASS;
-- artifact ID: `10721170926`;
-- artifact digest: `sha256:6ca46fa33819251b1811e1b1027c5ce4e069bf5e18990344789d05bd77cc1f60`.
+- artifact ID: `10721013048`;
+- artifact digest: `sha256:9fafac53621a87e574f8ab1e20a0e872ae110e00993f7a73acbdc1b84a362b26`.
 
 ### Independent G1 probes
 The replacement audit proves:
@@ -102,7 +102,7 @@ Direct inspection:
 - LEFT Ultimate startup remains a distinct readable body pose;
 - all four remain recognizable at the 844×390 evidence scale.
 
-The raw browser screenshot helper was found to race asynchronous image decode; its blank early screenshots are a **QA harness timing artifact**, not product evidence and are not used for approval.
+The async canvas helper was found to race image decode, so it was superseded by a static exact-atlas crop surface on the final QA head. Final browser captures `sprite-runtime.png` and `sprite-runtime-phone.png` visibly contain RIGHT idle, LEFT idle, RIGHT Topete and LEFT Ultimate from the served runtime atlas; no blank/pre-load capture is used for approval.
 
 ## Memory / device boundary
 

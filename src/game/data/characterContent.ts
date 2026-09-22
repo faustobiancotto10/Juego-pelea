@@ -4,12 +4,15 @@ import type { ProjectileDefinition } from './projectiles.js';
 import type { UltimateDefinition } from './ultimates.js';
 import type { MoveDefinition, HitboxSpec, MoveHitWindow } from '../simulation/moves.js';
 import type { FighterId, RegisteredFighterId } from '../types.js';
+import type { FighterBodyBackend } from '../render/sprites/SpriteManifest.js';
 import { CAMALEONI_CHARACTER_CONTENT } from './characters/camaleoni.js';
 import { SUPERNARIZ_CHARACTER_CONTENT } from './characters/supernariz.js';
 import { JUANCHI_CHARACTER_CONTENT } from './characters/juanchi.js';
 import { EL_TORO_CHARACTER_CONTENT } from './characters/elToro.js';
 
 export interface FighterPresentationDefinition {
+  bodyBackend?: FighterBodyBackend;
+  spritePackageKey?: string;
   rigKey: string;
   portraitKey: string;
   ultimateVisualKey: string;
@@ -403,6 +406,10 @@ function validateUltimate(path: string, ultimate: UltimateDefinition): void {
 }
 
 function validatePresentation(path: string, presentation: FighterPresentationDefinition): void {
+  const backend = presentation.bodyBackend ?? 'procedural';
+  if (backend !== 'procedural' && backend !== 'sprite') fail(`${path}.bodyBackend`, `unknown backend ${String(backend)}`);
+  if (backend === 'sprite') nonEmpty(`${path}.spritePackageKey`, presentation.spritePackageKey);
+  if (presentation.spritePackageKey !== undefined) nonEmpty(`${path}.spritePackageKey`, presentation.spritePackageKey);
   nonEmpty(`${path}.rigKey`, presentation.rigKey);
   nonEmpty(`${path}.portraitKey`, presentation.portraitKey);
   nonEmpty(`${path}.ultimateVisualKey`, presentation.ultimateVisualKey);

@@ -3,6 +3,8 @@ import type { CombatCharacterContent, FighterPresentationDefinition } from '../c
 export const EL_TORO_CHARACTER_ID = 'el-toro';
 
 export const EL_TORO_PRESENTATION: FighterPresentationDefinition = {
+  bodyBackend: 'sprite',
+  spritePackageKey: 'el-toro',
   rigKey: 'el-toro',
   portraitKey: 'el-toro',
   ultimateVisualKey: 'super-eructo',

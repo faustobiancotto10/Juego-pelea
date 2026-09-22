@@ -3,6 +3,8 @@ import {
   createFighterPresentationRegistry,
 } from './characterContent.js';
 
+export type { FighterBodyBackend } from '../render/sprites/SpriteManifest.js';
+
 export type {
   FighterPresentationDefinition,
   FighterPresentationRegistry,

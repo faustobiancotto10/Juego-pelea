@@ -1,0 +1,728 @@
+{
+  "version": 1,
+  "fighterId": "el-toro",
+  "facing": "right",
+  "mirrorSafe": false,
+  "shippingState": "pilot-right-only",
+  "master": {
+    "id": "IMG-00",
+    "source": "docs/characters/el-toro/sprite-source/right/el-toro__IMG-00__master-seed.png"
+  },
+  "body": [
+    {
+      "id": "IMG-01",
+      "semanticKey": "idle",
+      "frames": 8,
+      "grid": [
+        2,
+        4
+      ],
+      "source": "docs/characters/el-toro/sprite-source/right/el-toro__IMG-01__idle.png"
+    },
+    {
+      "id": "IMG-02",
+      "semanticKey": "walk-forward",
+      "frames": 8,
+      "grid": [
+        2,
+        4
+      ],
+      "source": "docs/characters/el-toro/sprite-source/right/el-toro__IMG-02__forward-shuffle.png"
+    },
+    {
+      "id": "IMG-03",
+      "semanticKey": "walk-back",
+      "frames": 8,
+      "grid": [
+        2,
+        4
+      ],
+      "source": "docs/characters/el-toro/sprite-source/right/el-toro__IMG-03__backward-shuffle.png"
+    },
+    {
+      "id": "IMG-04",
+      "semanticKey": "crouch",
+      "frames": 4,
+      "grid": [
+        1,
+        4
+      ],
+      "source": "docs/characters/el-toro/sprite-source/right/el-toro__IMG-04__crouch.png"
+    },
+    {
+      "id": "IMG-05",
+      "semanticKey": "jump",
+      "frames": 6,
+      "grid": [
+        2,
+        3
+      ],
+      "source": "docs/characters/el-toro/sprite-source/right/el-toro__IMG-05__jump.png"
+    },
+    {
+      "id": "IMG-06",
+      "semanticKey": "basic-attack",
+      "frames": 6,
+      "grid": [
+        2,
+        3
+      ],
+      "source": "docs/characters/el-toro/sprite-source/right/el-toro__IMG-06__basic-attack.png"
+    },
+    {
+      "id": "IMG-07",
+      "semanticKey": "low-attack",
+      "frames": 6,
+      "grid": [
+        2,
+        3
+      ],
+      "source": "docs/characters/el-toro/sprite-source/right/el-toro__IMG-07__low-attack.png"
+    },
+    {
+      "id": "IMG-08",
+      "semanticKey": "block",
+      "frames": 4,
+      "grid": [
+        1,
+        4
+      ],
+      "source": "docs/characters/el-toro/sprite-source/right/el-toro__IMG-08__block.png"
+    },
+    {
+      "id": "IMG-09",
+      "semanticKey": "hurt-knockdown",
+      "frames": 8,
+      "grid": [
+        2,
+        4
+      ],
+      "source": "docs/characters/el-toro/sprite-source/right/el-toro__IMG-09__hurt-knockdown.png"
+    },
+    {
+      "id": "IMG-10",
+      "semanticKey": "topete",
+      "frames": 8,
+      "grid": [
+        2,
+        4
+      ],
+      "source": "docs/characters/el-toro/sprite-source/right/el-toro__IMG-10__topete.png"
+    },
+    {
+      "id": "IMG-11",
+      "semanticKey": "shawarmazo",
+      "frames": 8,
+      "grid": [
+        2,
+        4
+      ],
+      "source": "docs/characters/el-toro/sprite-source/right/el-toro__IMG-11__shawarmazo.png"
+    },
+    {
+      "id": "IMG-12",
+      "semanticKey": "super-eructo",
+      "frames": 10,
+      "grid": [
+        2,
+        5
+      ],
+      "source": "docs/characters/el-toro/sprite-source/right/el-toro__IMG-12__super-eructo.png"
+    }
+  ],
+  "effects": [
+    {
+      "id": "FX-01",
+      "semanticKey": "topete-impact",
+      "frames": 4,
+      "grid": [
+        1,
+        4
+      ],
+      "source": "docs/characters/el-toro/sprite-source/right/el-toro__FX-01__topete-impact.png"
+    },
+    {
+      "id": "FX-02",
+      "semanticKey": "shawarmazo-projectile",
+      "frames": 8,
+      "grid": [
+        2,
+        4
+      ],
+      "source": "docs/characters/el-toro/sprite-source/right/el-toro__FX-02__shawarmazo-projectile.png"
+    },
+    {
+      "id": "FX-03",
+      "semanticKey": "shawarmazo-impact",
+      "frames": 4,
+      "grid": [
+        1,
+        4
+      ],
+      "source": "docs/characters/el-toro/sprite-source/right/el-toro__FX-03__shawarmazo-impact.png"
+    },
+    {
+      "id": "FX-04",
+      "semanticKey": "super-eructo-effect",
+      "frames": 6,
+      "grid": [
+        2,
+        3
+      ],
+      "source": "docs/characters/el-toro/sprite-source/right/el-toro__FX-04__super-eructo-effect.png"
+    }
+  ],
+  "normalization": {
+    "pivotPolicy": "bottom-center-per-frame",
+    "sharedScaleAcrossAnimation": true,
+    "requiredAnchors": [
+      "pivot",
+      "head",
+      "chest",
+      "frontHand",
+      "backHand",
+      "belt",
+      "frontFoot",
+      "backFoot"
+    ]
+  },
+  "runtimePolicy": {
+    "sourceSheetsAllowed": false,
+    "leftFacingRequiredForShipping": true,
+    "horizontalMirrorAllowedForBodyShipping": false
+  },
+  "resolverMap": {
+    "stateToSemantic": {
+      "idle": "idle",
+      "crouch": "crouch",
+      "walk-forward": "walk-forward",
+      "walk-back": "walk-back",
+      "dash-forward": "walk-forward",
+      "dash-back": "walk-back",
+      "jump-startup": "jump",
+      "jump-ascent": "jump",
+      "jump-apex": "jump",
+      "jump-descent": "jump",
+      "land": "jump",
+      "block": "block",
+      "block-crouch": "block",
+      "hurt": "hurt-knockdown",
+      "guard-break": "hurt-knockdown",
+      "knockdown": "hurt-knockdown",
+      "captured": "hurt-knockdown"
+    },
+    "moveRoleToSemantic": {
+      "standing": "basic-attack",
+      "chain": "topete",
+      "low": "low-attack",
+      "air": "jump",
+      "closeSpecial": "topete",
+      "rangedSpecial": "shawarmazo",
+      "ultimate": "super-eructo"
+    },
+    "moveKeyPolicy": "verify-frozen-character-content-at-integration",
+    "ultimatePhasePolicy": "compile-superEructo-forwardBlast-phases-at-integration",
+    "pilotAliases": {
+      "chain": {
+        "semanticKey": "topete",
+        "rationale": "procedural toroShoulder is a shoulder/lean body drive closest to IMG-10 Topete body language",
+        "requiresGameplayScaleReview": true
+      },
+      "air": {
+        "semanticKey": "jump",
+        "rationale": "procedural toroAir is primarily an airborne leg/posture variation closest to IMG-05 Jump",
+        "requiresGameplayScaleReview": true
+      }
+    },
+    "ultimatePhaseWindows": {
+      "startup": {
+        "semanticKey": "super-eructo",
+        "firstFrame": 1,
+        "lastFrame": 4
+      },
+      "capture": {
+        "semanticKey": "super-eructo",
+        "firstFrame": 5,
+        "lastFrame": 7
+      },
+      "recovery": {
+        "semanticKey": "super-eructo",
+        "firstFrame": 8,
+        "lastFrame": 10
+      }
+    },
+    "unreachableUltimatePhase": "sequence",
+    "moveRoleTimings": {
+      "standing": {
+        "semanticKey": "basic-attack",
+        "totalTicks": 22,
+        "frameDurations": [
+          3,
+          3,
+          2,
+          1,
+          6,
+          7
+        ],
+        "authoredBeat": {
+          "kind": "active",
+          "startTick": 6,
+          "endTick": 8,
+          "visualFrames": [
+            3,
+            4
+          ]
+        }
+      },
+      "chain": {
+        "semanticKey": "topete",
+        "totalTicks": 28,
+        "frameDurations": [
+          3,
+          4,
+          2,
+          2,
+          3,
+          4,
+          5,
+          5
+        ],
+        "authoredBeat": {
+          "kind": "active",
+          "startTick": 7,
+          "endTick": 10,
+          "visualFrames": [
+            3,
+            4
+          ]
+        }
+      },
+      "low": {
+        "semanticKey": "low-attack",
+        "totalTicks": 28,
+        "frameDurations": [
+          4,
+          4,
+          2,
+          1,
+          8,
+          9
+        ],
+        "authoredBeat": {
+          "kind": "active",
+          "startTick": 8,
+          "endTick": 10,
+          "visualFrames": [
+            3,
+            4
+          ]
+        }
+      },
+      "air": {
+        "semanticKey": "jump",
+        "totalTicks": 26,
+        "frameDurations": [
+          3,
+          3,
+          3,
+          2,
+          7,
+          8
+        ],
+        "authoredBeat": {
+          "kind": "active",
+          "startTick": 6,
+          "endTick": 10,
+          "visualFrames": [
+            3,
+            4
+          ]
+        }
+      },
+      "closeSpecial": {
+        "semanticKey": "topete",
+        "totalTicks": 42,
+        "frameDurations": [
+          4,
+          4,
+          2,
+          3,
+          4,
+          4,
+          10,
+          11
+        ],
+        "authoredBeat": {
+          "kind": "active",
+          "startTick": 10,
+          "endTick": 16,
+          "visualFrames": [
+            4,
+            5
+          ]
+        }
+      },
+      "rangedSpecial": {
+        "semanticKey": "shawarmazo",
+        "totalTicks": 41,
+        "frameDurations": [
+          4,
+          4,
+          5,
+          1,
+          5,
+          6,
+          8,
+          8
+        ],
+        "authoredBeat": {
+          "kind": "spawn",
+          "tick": 13,
+          "visualFrame": 4
+        }
+      }
+    },
+    "ultimatePhaseTimings": {
+      "startup": {
+        "totalTicks": 26,
+        "frameDurations": [
+          6,
+          6,
+          7,
+          7
+        ]
+      },
+      "capture": {
+        "totalTicks": 18,
+        "frameDurations": [
+          6,
+          6,
+          6
+        ]
+      },
+      "recovery": {
+        "totalTicks": 30,
+        "frameDurations": [
+          10,
+          10,
+          10
+        ]
+      }
+    },
+    "runtimeStateWindows": {
+      "idle": {
+        "semanticKey": "idle",
+        "firstFrame": 1,
+        "lastFrame": 8,
+        "loop": true
+      },
+      "crouch": {
+        "semanticKey": "crouch",
+        "firstFrame": 1,
+        "lastFrame": 4,
+        "loop": false
+      },
+      "walk-forward": {
+        "semanticKey": "walk-forward",
+        "firstFrame": 1,
+        "lastFrame": 8,
+        "loop": true
+      },
+      "walk-back": {
+        "semanticKey": "walk-back",
+        "firstFrame": 1,
+        "lastFrame": 8,
+        "loop": true
+      },
+      "dash-forward": {
+        "semanticKey": "walk-forward",
+        "firstFrame": 1,
+        "lastFrame": 8,
+        "loop": false,
+        "requiresGameplayScaleReview": true
+      },
+      "dash-back": {
+        "semanticKey": "walk-back",
+        "firstFrame": 1,
+        "lastFrame": 8,
+        "loop": false,
+        "requiresGameplayScaleReview": true
+      },
+      "jump-startup": {
+        "semanticKey": "jump",
+        "firstFrame": 1,
+        "lastFrame": 2,
+        "loop": false
+      },
+      "jump-ascent": {
+        "semanticKey": "jump",
+        "firstFrame": 2,
+        "lastFrame": 3,
+        "loop": false
+      },
+      "jump-apex": {
+        "semanticKey": "jump",
+        "firstFrame": 4,
+        "lastFrame": 4,
+        "loop": false
+      },
+      "jump-descent": {
+        "semanticKey": "jump",
+        "firstFrame": 5,
+        "lastFrame": 6,
+        "loop": false
+      },
+      "land": {
+        "semanticKey": "jump",
+        "firstFrame": 6,
+        "lastFrame": 6,
+        "loop": false
+      },
+      "block": {
+        "semanticKey": "block",
+        "firstFrame": 1,
+        "lastFrame": 4,
+        "loop": false
+      },
+      "block-crouch": {
+        "semanticKey": "block",
+        "firstFrame": 1,
+        "lastFrame": 4,
+        "loop": false,
+        "requiresGameplayScaleReview": true
+      },
+      "hurt": {
+        "semanticKey": "hurt-knockdown",
+        "firstFrame": 1,
+        "lastFrame": 4,
+        "loop": false
+      },
+      "guard-break": {
+        "semanticKey": "hurt-knockdown",
+        "firstFrame": 1,
+        "lastFrame": 4,
+        "loop": false,
+        "requiresGameplayScaleReview": true
+      },
+      "knockdown": {
+        "semanticKey": "hurt-knockdown",
+        "firstFrame": 5,
+        "lastFrame": 8,
+        "loop": false
+      },
+      "captured": {
+        "semanticKey": "hurt-knockdown",
+        "firstFrame": 4,
+        "lastFrame": 4,
+        "loop": false,
+        "requiresGameplayScaleReview": true
+      }
+    },
+    "expectedMoveIdsByRole": {
+      "standing": "toroJab",
+      "chain": "toroShoulder",
+      "low": "toroLow",
+      "air": "toroAir",
+      "closeSpecial": "topete",
+      "rangedSpecial": "shawarmazoThrow",
+      "ultimate": "superEructo"
+    },
+    "runtimeStateTimings": {
+      "idle": {
+        "clockPolicy": "ambient-loop",
+        "frameDurations": [
+          8,
+          8,
+          8,
+          8,
+          8,
+          8,
+          8,
+          8
+        ]
+      },
+      "crouch": {
+        "clockPolicy": "presentation-state-entry-age",
+        "frameDurations": [
+          2,
+          2,
+          3,
+          3
+        ]
+      },
+      "walk-forward": {
+        "clockPolicy": "ambient-loop",
+        "frameDurations": [
+          4,
+          4,
+          4,
+          4,
+          4,
+          4,
+          4,
+          4
+        ]
+      },
+      "walk-back": {
+        "clockPolicy": "ambient-loop",
+        "frameDurations": [
+          4,
+          4,
+          4,
+          4,
+          4,
+          4,
+          4,
+          4
+        ]
+      },
+      "dash-forward": {
+        "clockPolicy": "dashFrame",
+        "frameDurations": [
+          2,
+          1,
+          2,
+          1,
+          2,
+          1,
+          2,
+          1
+        ]
+      },
+      "dash-back": {
+        "clockPolicy": "dashFrame",
+        "frameDurations": [
+          2,
+          2,
+          2,
+          2,
+          2,
+          2,
+          2,
+          2
+        ]
+      },
+      "jump-startup": {
+        "clockPolicy": "presentation-state-entry-age",
+        "frameDurations": [
+          1,
+          1
+        ]
+      },
+      "jump-ascent": {
+        "clockPolicy": "airborneTicks",
+        "frameDurations": [
+          7,
+          7
+        ]
+      },
+      "jump-apex": {
+        "clockPolicy": "airborneTicks",
+        "frameDurations": [
+          1000
+        ]
+      },
+      "jump-descent": {
+        "clockPolicy": "airborneTicks",
+        "frameDurations": [
+          23,
+          1000
+        ]
+      },
+      "land": {
+        "clockPolicy": "presentation-state-entry-age",
+        "frameDurations": [
+          4
+        ]
+      },
+      "block": {
+        "clockPolicy": "presentation-state-entry-age",
+        "frameDurations": [
+          2,
+          2,
+          3,
+          3
+        ]
+      },
+      "block-crouch": {
+        "clockPolicy": "presentation-state-entry-age",
+        "frameDurations": [
+          2,
+          2,
+          3,
+          3
+        ]
+      },
+      "hurt": {
+        "clockPolicy": "presentation-state-entry-age",
+        "frameDurations": [
+          2,
+          2,
+          2,
+          2
+        ]
+      },
+      "guard-break": {
+        "clockPolicy": "presentation-state-entry-age",
+        "frameDurations": [
+          6,
+          6,
+          12,
+          18
+        ]
+      },
+      "knockdown": {
+        "clockPolicy": "presentation-state-entry-age",
+        "frameDurations": [
+          3,
+          3,
+          4,
+          6
+        ]
+      },
+      "captured": {
+        "clockPolicy": "presentation-state-entry-age",
+        "frameDurations": [
+          1
+        ]
+      }
+    }
+  },
+  "effectPackagePlan": {
+    "runtimeIntegration": "package-ready-effect-router-deferred",
+    "effects": {
+      "topete-impact": {
+        "sourceId": "FX-01",
+        "loop": false,
+        "clockPolicy": "event-age",
+        "routingRequirement": "topete-contact-event"
+      },
+      "shawarmazo-projectile": {
+        "sourceId": "FX-02",
+        "loop": true,
+        "clockPolicy": "projectile-age",
+        "routingRequirement": "toroShawarma-projectile-visual"
+      },
+      "shawarmazo-impact": {
+        "sourceId": "FX-03",
+        "loop": false,
+        "clockPolicy": "event-age",
+        "routingRequirement": "toroShawarma-impact-event"
+      },
+      "super-eructo-effect": {
+        "sourceId": "FX-04",
+        "loop": false,
+        "clockPolicy": "ultimatePhaseFrame",
+        "routingRequirement": "superEructo-forwardBlast-capture-phase",
+        "frameDurations": [
+          3,
+          3,
+          3,
+          3,
+          3,
+          3
+        ]
+      }
+    }
+  }
+}

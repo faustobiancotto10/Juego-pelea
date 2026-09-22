@@ -4,6 +4,9 @@ import { GameInput } from '../input/GameInput.js';
 import { FightRenderer } from '../render/FightRenderer.js';
 import { mountFighterPortraits } from '../render/PortraitRenderer.js';
 import { DEFAULT_STAGE_REGISTRY } from '../render/StageRegistry.js';
+import { FightSpriteAssetStore, createBrowserSpritePackageLoader, type SpriteAssetStore } from '../render/sprites/SpriteAssetStore.js';
+import { SpriteFightAssetLifecycle } from '../render/sprites/SpriteFightAssetLifecycle.js';
+import { DEFAULT_SPRITE_PACKAGE_REGISTRY } from '../render/sprites/SpritePackageRegistry.js';
 import { CombatSimulation } from '../simulation/CombatSimulation.js';
 import { CpuController } from '../simulation/CpuController.js';
 import { EMPTY_INPUT, type FighterId, type FighterIndex, type MatchSnapshot } from '../types.js';
@@ -108,8 +111,18 @@ export class AppController {
   private superHintTimer = 0;
   private pendingFighter: FighterId | null = null;
   private pendingStage: StageSelectionId = DEFAULT_STAGE;
+  private readonly spriteAssets: SpriteAssetStore;
+  private readonly spriteLifecycle: SpriteFightAssetLifecycle;
+  private spriteLoadGeneration = 0;
 
-  constructor(private readonly root: HTMLElement) {}
+  constructor(
+    private readonly root: HTMLElement,
+    spriteAssets?: SpriteAssetStore,
+  ) {
+    this.spriteAssets = spriteAssets
+      ?? new FightSpriteAssetStore(createBrowserSpritePackageLoader(DEFAULT_SPRITE_PACKAGE_REGISTRY));
+    this.spriteLifecycle = new SpriteFightAssetLifecycle(this.spriteAssets);
+  }
 
   start(): void {
     const params = new URLSearchParams(location.search);
@@ -382,6 +395,7 @@ export class AppController {
           <span>${fighterPresentation(p1).select.role}</span>
         </div>
         <div class="vs-mark">VS</div>
+        <div class="vs-loading is-hidden" data-sprite-loading aria-live="polite">PREPARANDO LUCHADORES…</div>
         <div class="vs-side vs-side--right fighter-card--${p2}">
           <span class="vs-label">CPU · ${this.flow.cpuDifficulty.toUpperCase()}</span>
           ${this.fighterPortrait(p2, 'vs-portrait')}
@@ -394,10 +408,43 @@ export class AppController {
     `;
     mountFighterPortraits(this.root);
     clearTimeout(this.vsTimer);
+    const loadGeneration = ++this.spriteLoadGeneration;
     this.vsTimer = window.setTimeout(() => {
-      this.flow = startFight(this.flow);
-      this.mountFight();
+      void this.prepareFightFromVs(p1, p2, loadGeneration);
     }, delay);
+  }
+
+  private async prepareFightFromVs(
+    player: FighterId,
+    cpu: FighterId,
+    loadGeneration: number,
+  ): Promise<void> {
+    if (loadGeneration !== this.spriteLoadGeneration) return;
+    const loading = this.root.querySelector<HTMLElement>('[data-sprite-loading]');
+    loading?.classList.remove('is-hidden');
+
+    try {
+      await this.spriteLifecycle.prepare([player, cpu]);
+    } catch (error: unknown) {
+      if (loadGeneration !== this.spriteLoadGeneration) return;
+      const message = error instanceof Error ? error.message : String(error);
+      if (loading) {
+        loading.classList.remove('is-hidden');
+        loading.textContent = `ERROR DE CARGA · ${message}`;
+      }
+      console.error('Unable to prepare selected fighter sprite packages', error);
+      return;
+    }
+
+    if (
+      loadGeneration !== this.spriteLoadGeneration
+      || this.flow.phase !== 'vs'
+      || this.flow.player !== player
+      || this.flow.cpu !== cpu
+    ) return;
+
+    this.flow = startFight(this.flow);
+    this.mountFight();
   }
 
   private mountFight(): void {
@@ -448,7 +495,7 @@ export class AppController {
     if (!canvas || !touchRoot) throw new Error('Fight UI failed to mount');
 
     const simulation = new CombatSimulation(this.flow.player, this.flow.cpu);
-    const renderer = new FightRenderer(canvas, DEFAULT_STAGE_REGISTRY.get(this.flow.stage));
+    const renderer = new FightRenderer(canvas, DEFAULT_STAGE_REGISTRY.get(this.flow.stage), this.spriteAssets);
     const cpu = new CpuController(1, { difficulty: this.flow.cpuDifficulty });
     const playerCpu = this.autoplayPlayer ? new CpuController(0) : null;
     this.input = new GameInput(touchRoot, {
@@ -641,6 +688,7 @@ export class AppController {
   }
 
   private cleanupFight(): void {
+    this.spriteLoadGeneration += 1;
     if (this.raf) cancelAnimationFrame(this.raf);
     this.raf = 0;
     clearTimeout(this.vsTimer);

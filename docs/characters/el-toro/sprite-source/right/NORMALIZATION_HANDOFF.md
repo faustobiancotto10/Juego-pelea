@@ -51,14 +51,46 @@ Implementation:
 - `scripts/el-toro-sprite-source-pipeline.mjs`
 - `tests/el-toro-sprite-source-pipeline.test.mjs`
 
+## Pixel-isolation contract
+
+Bounding boxes are metadata only; they are not safe crop ownership boundaries when
+two assigned component bboxes overlap.
+
+The MA-owned runtime packing API is:
+
+```js
+generatePixelIsolatedFrameSet({ sourceDir })
+```
+
+It returns all 107 admitted entries with:
+
+- `frameId`, `sheetId`, kind and assigned bbox;
+- `cropWidth` / `cropHeight`;
+- `ownedPixelCount`;
+- an RGBA buffer containing ONLY pixels owned by components assigned to that frame;
+- transparent pixels everywhere else inside the bbox.
+
+This means two frames may have overlapping bboxes without sharing visible pixels
+in their isolated RGBA crops. Downstream atlas code must consume this API rather
+than copying raw bbox rectangles from the source sheet or reimplementing connected
+component assignment.
+
+Isolation version: `component-owned-rgba-v1`.
+
 ## Normalization contract
 
-Body/master frames:
+Runtime body frames (IMG-01..12):
 
-- normalized review canvas: 320x320;
-- one shared scale for the whole body/master set;
+- normalized review/runtime canvas: 320x320;
+- one shared scale computed ONLY from IMG-01..12;
 - stable bottom-center anchor;
 - ground pivot: `x=160, y=300`.
+
+Master seed (IMG-00):
+
+- reference/review domain only;
+- separate shared scale under `normalization.master`;
+- never constrains runtime body scale.
 
 FX frames:
 
@@ -67,8 +99,9 @@ FX frames:
 - center anchor;
 - FX pivot: `x=160, y=160`.
 
-The pipeline never rescales individual body frames independently. The shared
-scale and stable pivot are part of the handoff contract.
+The pipeline never rescales individual runtime body frames independently. IMG-00
+is deliberately excluded from `normalization.body.sharedScale`. The shared
+IMG-01..12 scale and stable pivot are part of the runtime handoff contract.
 
 ## Generate manifest and normalized preview
 
@@ -90,7 +123,11 @@ The manifest contains, per frame:
 - source sheet and nominal slot;
 - extracted component bounding box;
 - extraction method and whether content crossed the nominal slot;
+- pixel-isolation API/version metadata;
 - normalized scale, dimensions and pivot placement.
+
+For actual atlas pixels, consume `generatePixelIsolatedFrameSet()`; the JSON
+manifest intentionally does not embed raw RGBA payloads.
 
 ## Runtime boundary
 
@@ -122,9 +159,10 @@ Production cutover remains blocked until the authored LEFT package required by
 
 ## Verification
 
-The source-pipeline regression test verifies all 17 hashes, exact frame counts,
+The source-pipeline regressions verify all 17 hashes, exact frame counts,
 rejected-alternate absence, non-empty extraction, hard outer-edge clipping,
-shared body/FX normalization, manifest shape and all 107 preview entries.
+107 deterministic pixel-isolated crops, IMG-01..12-only runtime body scale,
+separate IMG-00 review normalization, manifest shape and all 107 preview entries.
 
 A fresh repository-verification run must be green on the final handoff SHA
 before this lane is marked complete.

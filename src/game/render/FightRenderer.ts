@@ -18,11 +18,13 @@ import {
   drawUltimateImpact,
   getColetazoPresentation,
 } from './CombatEffects.js';
-import { drawFighter, resetFighterPresentation, sampleFighterAnchors } from './FighterRenderer.js';
-import { drawPoliceCapProp, drawRugbyBallProp } from './JuanchiRig.js';
+import { drawFighter, resetFighterPresentation, sampleFighterAnchor } from './FighterRenderer.js';
+import { drawPoliceCapProp, drawRugbyBallProp } from './props/JuanchiProps.js';
 import { localAnchorToWorld } from './RigAnchors.js';
 import { drawStage } from './StageRenderer.js';
 import { DEFAULT_STAGE_REGISTRY, type StageDefinition } from './StageRegistry.js';
+import type { SpriteAssetStore } from './sprites/SpriteAssetStore.js';
+import { SpriteFighterRenderer } from './sprites/SpriteFighterRenderer.js';
 import { GROUND_Y, WORLD_HEIGHT, WORLD_WIDTH, ellipse } from './drawUtils.js';
 
 interface Particle {
@@ -83,15 +85,18 @@ export class FightRenderer {
   private lastRenderedSimulationFrame: number | null = null;
   private lastRenderedCombatTick: number | null = null;
   private stage: StageDefinition;
+  private readonly spriteFighterRenderer: SpriteFighterRenderer | null;
 
   constructor(
     private readonly canvas: HTMLCanvasElement,
     stage: StageDefinition = DEFAULT_STAGE_REGISTRY.get('tramontana-dusk'),
+    spriteAssets?: SpriteAssetStore,
   ) {
     const ctx = canvas.getContext('2d');
     if (!ctx) throw new Error('Canvas2D unavailable');
     this.ctx = ctx;
     this.stage = stage;
+    this.spriteFighterRenderer = spriteAssets ? new SpriteFighterRenderer(spriteAssets) : null;
   }
 
   setStage(stage: StageDefinition): void {
@@ -108,6 +113,7 @@ export class FightRenderer {
   private consumeEvent(event: CombatEvent, snapshot: MatchSnapshot): void {
     if (event.type === 'round-start') {
       resetFighterPresentation();
+      this.spriteFighterRenderer?.resetPresentation();
       this.clashFlashes = [];
       this.stageReactionTicks = 0;
       this.lastRenderedCombatTick = null;
@@ -357,6 +363,7 @@ export class FightRenderer {
         snapshot.frame,
         snapshot.combatTick,
         combatTimeSeconds,
+        this.spriteFighterRenderer,
       );
     }
 
@@ -522,9 +529,16 @@ export class FightRenderer {
 
   private drawJuanchiCaptureCap(snapshot: MatchSnapshot, targetIndex: 0 | 1): void {
     const target = snapshot.fighters[targetIndex];
-    const anchors = sampleFighterAnchors(targetIndex, target, snapshot.frame, snapshot.combatTick);
-    if (!anchors) return;
-    const head = localAnchorToWorld(target, anchors.head);
+    const headAnchor = sampleFighterAnchor(
+      targetIndex,
+      target,
+      snapshot.frame,
+      snapshot.combatTick,
+      'head',
+      this.spriteFighterRenderer,
+    );
+    if (!headAnchor) return;
+    const head = localAnchorToWorld(target, headAnchor);
     drawPoliceCapProp(this.ctx, head.x, GROUND_Y - head.y - 18, target.facing * -0.04);
   }
 

@@ -1,11 +1,12 @@
 import type { FighterIndex, FighterSnapshot } from '../types.js';
 import { ULTIMATES } from '../data/ultimates.js';
-import { DEFAULT_FIGHTER_PRESENTATION_REGISTRY } from '../data/presentationRegistry.js';
+import { DEFAULT_FIGHTER_PRESENTATION_REGISTRY, type FighterPresentationDefinition } from '../data/presentationRegistry.js';
 import { drawChameleon } from './ChameleonRig.js';
 import { drawJuanchi, sampleJuanchiAnchors } from './JuanchiRig.js';
 import { LocomotionPoseTracker, type LocomotionPose } from './LocomotionPose.js';
-import { sampleBaseRigAnchors, type RigAnchors } from './RigAnchors.js';
+import { sampleBaseRigAnchors, type Point2, type RigAnchors } from './RigAnchors.js';
 import { drawSupernariz } from './SupernarizRig.js';
+import { SpriteFighterRenderer } from './sprites/SpriteFighterRenderer.js';
 import { clamp01, lerp } from './drawUtils.js';
 
 type RigRenderer = (
@@ -28,12 +29,16 @@ export function resetFighterPresentation(): void {
   locomotionTracker.reset();
 }
 
-function resolveRigKey(fighter: FighterSnapshot): string | null {
+function resolvePresentation(fighter: FighterSnapshot): FighterPresentationDefinition | null {
   try {
-    return DEFAULT_FIGHTER_PRESENTATION_REGISTRY.getPresentation(fighter.id).rigKey;
+    return DEFAULT_FIGHTER_PRESENTATION_REGISTRY.getPresentation(fighter.id);
   } catch {
     return null;
   }
+}
+
+function resolveRigKey(fighter: FighterSnapshot): string | null {
+  return resolvePresentation(fighter)?.rigKey ?? null;
 }
 
 function drawMissingRig(ctx: CanvasRenderingContext2D, fighter: FighterSnapshot, rigKey: string | null): void {
@@ -101,12 +106,37 @@ export function sampleFighterAnchors(
   frame: number,
   combatTick: number,
 ): RigAnchors | null {
-  const rigKey = resolveRigKey(fighter);
-  if (!rigKey) return null;
+  const presentation = resolvePresentation(fighter);
+  if (!presentation || (presentation.bodyBackend ?? 'procedural') === 'sprite') return null;
+  const rigKey = presentation.rigKey;
   const locomotion = sampleFighterLocomotion(slot, fighter, frame, combatTick);
   if (rigKey === 'juanchi') return sampleJuanchiAnchors(fighter, locomotion);
   if (!RIGS[rigKey]) return null;
   return sampleBaseRigAnchors(rigKey, locomotion);
+}
+
+export function sampleFighterAnchor(
+  slot: FighterIndex,
+  fighter: FighterSnapshot,
+  frame: number,
+  combatTick: number,
+  name: keyof RigAnchors,
+  spriteRenderer: SpriteFighterRenderer | null = null,
+): Point2 | null {
+  const presentation = resolvePresentation(fighter);
+  if (!presentation) return null;
+
+  if ((presentation.bodyBackend ?? 'procedural') === 'sprite') {
+    if (!spriteRenderer) {
+      throw new Error(`Sprite renderer unavailable for fighter "${fighter.id}"`);
+    }
+    if (!presentation.spritePackageKey) {
+      throw new Error(`Sprite fighter "${fighter.id}" has no spritePackageKey`);
+    }
+    return spriteRenderer.sampleAnchor(fighter, presentation.spritePackageKey, combatTick, name, slot);
+  }
+
+  return sampleFighterAnchors(slot, fighter, frame, combatTick)?.[name] ?? null;
 }
 
 export function drawFighter(
@@ -116,9 +146,34 @@ export function drawFighter(
   frame: number,
   combatTick: number,
   combatTimeSeconds: number,
+  spriteRenderer: SpriteFighterRenderer | null = null,
 ): void {
-  const rigKey = resolveRigKey(fighter);
-  const rig = rigKey ? RIGS[rigKey] : undefined;
+  const presentation = resolvePresentation(fighter);
+  if (!presentation) {
+    drawMissingRig(ctx, fighter, null);
+    return;
+  }
+
+  if ((presentation.bodyBackend ?? 'procedural') === 'sprite') {
+    if (!spriteRenderer) {
+      throw new Error(`Sprite renderer unavailable for fighter "${fighter.id}"`);
+    }
+    if (!presentation.spritePackageKey) {
+      throw new Error(`Sprite fighter "${fighter.id}" has no spritePackageKey`);
+    }
+    spriteRenderer.draw(
+      ctx,
+      fighter,
+      presentation.spritePackageKey,
+      combatTick,
+      camaleoniUltimateAlpha(fighter),
+      slot,
+    );
+    return;
+  }
+
+  const rigKey = presentation.rigKey;
+  const rig = RIGS[rigKey];
   if (!rig) {
     drawMissingRig(ctx, fighter, rigKey);
     return;

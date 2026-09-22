@@ -737,3 +737,24 @@ Canonical downstream input is therefore **Mario-A `7782734bcc0cf4d98df74073fd86e
 
 NEXT -> Mario-B:
 rebuild from `7782734bcc0cf4d98df74073fd86e6d8ead409d2`; do not continue anchor certification from the pre-repair bilateral candidates.
+
+
+## HANDOFF_READY_REBUILT — Mario-B after LEFT Topete repair
+
+Exact candidate: `1a1d14df00e3b0f5942d2b1db29f2063dcb758bd`  
+Verification: run `35750820290` — coordination + full suite + build PASS.
+
+Consumed canonical Mario-A repair:
+`7782734bcc0cf4d98df74073fd86e6d8ead409d2`.
+
+Verified:
+- LEFT Topete source has 8 substantial isolated authored poses;
+- derived LEFT `move:topete` has 8 frames / 8 distinct atlas rects;
+- bilateral atlas/manifest/previews/review HTML regenerate on the repaired source.
+
+RULING:
+- `d6b41ff...` is superseded for LEFT Topete anchor review;
+- use `1a1d14df00e3b0f5942d2b1db29f2063dcb758bd` downstream.
+
+NEXT -> Mario-A:
+consume this exact rebuilt candidate and resume bilateral anchor-review/integration flow. The only package gate left is explicit visual anatomical-anchor verification.

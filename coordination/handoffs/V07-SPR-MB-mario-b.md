@@ -297,3 +297,64 @@ Remaining external gates are unchanged:
 3. Ricardo state-entry timeline amendment for `crouch`, `block`, `block-crouch`.
 
 The right-facing atlas/FX/preview/metrics/CLI/fingerprint outputs from Revision 3 remain valid and reproducible.
+
+
+## Revision 3 — Right-facing derived package + anchor workflow GREEN
+
+This revision supersedes the earlier Mario-B candidate `f4a1b3f...` for downstream right-facing pilot integration.
+
+Exact Mario-B candidate:
+`d65ac308747ce73bc39356d409de8f05daee32ce`
+
+Verification:
+- workflow run `35674789789` / #1543;
+- coordination contract PASS;
+- full repository suite PASS;
+- build PASS.
+
+Consumed source dependency:
+- Mario-A exact SHA `0eb4a2b985813d1cdc9f8c53d059a81efe49be20`;
+- pixel-isolated RGBA API used directly;
+- IMG-01..12-only runtime body scale preserved;
+- no raw-bbox copying and no extraction reimplementation.
+
+Reproducible right-facing package now provides:
+- `right-body.png`: 84 body frames;
+- `right-effects.png`: 22 FX frames;
+- `right-runtime-fragment.json`: all 26 resolver-reachable RIGHT keys;
+- `right-effects-fragment.json`: separate FX metadata;
+- `right-gameplay-preview.svg`: 844x390 atlas-only gameplay-scale evidence;
+- `right-package-metrics.json`: decoded-memory/viewport/runtime-boundary metrics;
+- deterministic CLI receipt;
+- `right-anchor-review.json`: 84-frame packed-frame-local anchor review template.
+
+Deterministic derived-package fingerprint from prior green receipt remains:
+- body atlas: 2048x1509, PNG 3,203,017 bytes, SHA-256 `06d06bdfbc72b9ee07eae053d801f9f180b8776433e837839cbbfea1aa2826cc`;
+- FX atlas: 1024x901, PNG 916,922 bytes, SHA-256 `2fb2835545138560c7ddae960997161619ee142d98370b2b7f48fc42f1189002`;
+- combined decoded RGBA: 16,052,224 bytes.
+
+Anchor policy:
+- stable normalized pivot is derived automatically for every body frame;
+- required anatomical anchors are `head/chest/frontHand/backHand/belt/frontFoot/backFoot`;
+- template leaves all anatomical anchors explicitly `null` and `verified:false`;
+- `assertVerifiedElToroAnchorReview()` rejects pending, incomplete, duplicate and out-of-bounds reviews;
+- no anatomical coordinate was fabricated.
+
+Current status:
+**HANDOFF_READY_RIGHT_ONLY / BLOCKED_EXTERNAL_INPUTS**
+
+Remaining gates:
+1. authored LEFT-facing IMG-00 + IMG-01..12, because El Toro is `mirrorSafe:false`;
+2. visually verified anatomical anchors for all 84 body frames;
+3. Ricardo narrow presentation clock repair for `crouch`, `block`, `block-crouch` beyond current exact runtime SHA `79f8d81c2db75eebc595a93668e7332a9f429373`.
+
+Mario-A may consume exact SHA `d65ac308...` for a right-facing pilot/integration candidate, but must preserve `runtimeLoadable:false` and must not represent the package as all-facing or production-complete.
+
+No production-root cutover, default registry activation, procedural-body retirement or full-roster fanout is authorized by this handoff.
+
+### Identity Learning Review
+
+**PROPOSAL** remains for Mario-A integrator.
+
+Additional reusable learning proposed:
+> When a production package is blocked on human-authored anchors, generate a complete machine-validated review template from derived atlas geometry instead of guessing coordinates. Treat verified anatomy as explicit reviewed data, while pivots and atlas rects may remain deterministic derived metadata.

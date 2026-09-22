@@ -2,7 +2,7 @@
 
 Round: R005-V07-GAMEPLAY-PRESENTATION-EXPANSION  
 Owner: Mario-B  
-Status: BLOCKED_EXTERNAL_INPUTS_RIGHT_PACKAGE_GREEN
+Status: BLOCKED_EXTERNAL_INPUTS_RIGHT_PACKAGE_AND_ANCHOR_WORKFLOW_GREEN
 
 ## Execution branch
 
@@ -127,3 +127,26 @@ Build the production-intended El Toro sprite package from Mario-A's admitted/nor
   1. authored LEFT-facing body set;
   2. visually verified anatomical anchors;
   3. Ricardo crouch/block/block-crouch entry-timeline amendment.
+
+
+## Mario-B final right-facing package checkpoint — 2026-09-22
+
+- exact candidate SHA: `d65ac308747ce73bc39356d409de8f05daee32ce`
+- PR: #52 -> `round/r005-sprite-mario-integration`
+- verification: run `35674789789` / #1543 — coordination contract + full suite + build PASS
+- revised MA exact dependency consumed: `0eb4a2b985813d1cdc9f8c53d059a81efe49be20`
+- reproducible right-facing outputs:
+  - 84-frame body PNG atlas;
+  - 22-frame FX PNG atlas;
+  - 26-key right-facing runtime fragment;
+  - separate FX fragment;
+  - 844x390 atlas-only gameplay-scale SVG preview;
+  - deterministic metrics + CLI receipt;
+  - 84-frame `right-anchor-review.json` template with derived pivots and all seven anatomical anchors explicitly unset;
+  - strict anchor verifier rejects pending, incomplete, duplicate or out-of-bounds anchor reviews.
+- right-facing package remains intentionally `runtimeLoadable:false`.
+- external gates remaining before production-complete:
+  1. authored LEFT-facing IMG-00 + IMG-01..12;
+  2. visually verified per-frame anatomical anchors for all 84 body frames;
+  3. Ricardo narrow presentation-timeline amendment for `crouch`, `block`, `block-crouch` (requested against current exact SHA `79f8d81c...`).
+- no production-root cutover, registry activation or full-roster fanout is authorized from this lane.

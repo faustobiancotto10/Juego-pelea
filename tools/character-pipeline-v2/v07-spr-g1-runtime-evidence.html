@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>V07-SPR-G1 Runtime Sprite Evidence</title>
+<style>
+html,body{margin:0;background:#0e1520;color:#eef3fb;font-family:system-ui,sans-serif}
+main{width:1280px;height:720px;position:relative;overflow:hidden;background:linear-gradient(#111a27,#182334)}
+h1{position:absolute;left:32px;top:18px;margin:0;font-size:28px;letter-spacing:.04em}
+p{position:absolute;left:34px;top:58px;margin:0;color:#aeb8c8;font-weight:650}
+canvas{position:absolute;inset:0;width:1280px;height:720px}
+@media(max-width:900px){main,canvas{width:1280px;height:720px;transform-origin:top left;transform:scale(.659375)}body{width:844px;height:390px;overflow:hidden}}
+</style>
+</head>
+<body>
+<main>
+<h1>EL TORO — LIVE SPRITE RUNTIME</h1>
+<p>Actual SpriteFighterRenderer · authored RIGHT + LEFT · effects disabled</p>
+<canvas id="c" width="1280" height="720"></canvas>
+</main>
+<script type="module">
+import { FightSpriteAssetStore, createBrowserSpritePackageLoader } from '../../dist/game/render/sprites/SpriteAssetStore.js';
+import { DEFAULT_SPRITE_PACKAGE_REGISTRY } from '../../dist/game/render/sprites/SpritePackageRegistry.js';
+import { SpriteFighterRenderer } from '../../dist/game/render/sprites/SpriteFighterRenderer.js';
+
+const canvas=document.querySelector('#c');
+const ctx=canvas.getContext('2d');
+const store=new FightSpriteAssetStore(createBrowserSpritePackageLoader(
+  DEFAULT_SPRITE_PACKAGE_REGISTRY,
+  {baseUrl:location.origin+'/'}
+));
+await store.preload(['el-toro']);
+const renderer=new SpriteFighterRenderer(store);
+
+function fighter(overrides={}) {
+  return {
+    id:'el-toro',x:160,y:0,vx:0,vy:0,facing:1,health:1100,maxHealth:1100,
+    guard:100,maxGuard:100,guardRegenDelay:0,guardBreakFrames:0,grounded:true,
+    jumpStartupFrames:0,airborneTicks:0,crouching:false,blocking:false,stunFrames:0,
+    blockstunFrames:0,moveId:null,moveFrame:0,comboCount:0,moveContact:'none',
+    chilledFrames:0,projectileCooldown:0,projectileCooldownMax:96,rangedAvailability:'ready',
+    rangedRecoveryFrames:0,dashKind:null,dashFrame:0,landingRecoveryFrames:0,
+    pushGuardRecoveryFrames:0,superMeter:0,maxSuper:100,superReady:false,
+    ultimatePhase:'idle',ultimatePhaseFrame:0,ultimateConnected:false,ultimateTarget:null,
+    ultimateEffectiveTick:null,ultimateProbe:null,captureAnchorX:null,clashRecoveryFrames:0,
+    capturedBy:null,roundWins:0,...overrides
+  };
+}
+
+ctx.fillStyle='#eef3fb';ctx.textAlign='center';ctx.font='800 20px system-ui';
+const poses=[
+  {label:'RIGHT · IDLE',x:170,slot:0,snapshot:fighter({x:170,facing:1})},
+  {label:'LEFT · IDLE',x:470,slot:1,snapshot:fighter({x:470,facing:-1})},
+  {label:'RIGHT · TOPETE',x:790,slot:0,snapshot:fighter({x:790,facing:1,moveId:'topete',moveFrame:12})},
+  {label:'LEFT · ULTIMATE',x:1100,slot:1,snapshot:fighter({x:1100,facing:-1,moveId:'superEructo',ultimatePhase:'startup',ultimatePhaseFrame:12})},
+];
+for(const pose of poses){
+  renderer.resetPresentation();
+  renderer.draw(ctx,pose.snapshot,'el-toro',120,1,pose.slot);
+  ctx.fillText(pose.label,pose.x,690);
+}
+window.__SPRITE_EVIDENCE_READY__=true;
+</script>
+</body>
+</html>

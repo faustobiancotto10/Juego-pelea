@@ -202,3 +202,17 @@ Build the production-intended El Toro sprite package from Mario-A's admitted/nor
 - right-facing package evidence now includes both:
   - `right-anchor-review.json` machine-review template;
   - `right-anchor-review.svg` 84-frame atlas-only manual-review sheet with deterministic pivots and zero fabricated anatomical anchors.
+
+
+## Mario-B documented RIGHT-only handoff — 2026-09-22
+
+- exact candidate: `51e0e892d08f9cf30742ef4894732f448a97da80`
+- verification: run `35675088000` / #1564 — coordination contract + full suite + build PASS
+- adds `right-anchor-review.svg`: 1260x2760 atlas-only manual-review sheet for all 84 body frames
+- sheet draws only the deterministic normalization pivot; it lists anatomical anchor targets but never fabricates their coordinates
+- canonical receipt updated at `docs/characters/el-toro/sprite-package/RIGHT_DERIVED_PACKAGE.md`
+- current state: HANDOFF_READY_RIGHT_ONLY / BLOCKED_EXTERNAL_INPUTS
+- remaining gates only:
+  1. authored LEFT-facing IMG-00 + IMG-01..12;
+  2. visual completion/verification of the 84-frame anatomical anchor data;
+  3. Ricardo state-entry timing amendment for `crouch`, `block`, `block-crouch`.

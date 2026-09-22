@@ -884,3 +884,24 @@ NEXT -> Mario-A / integration:
 produce one replacement exact candidate that composes the already-verified sprite/runtime work onto the approved V0.7 four-fighter product lineage, wires El Toro's existing gameplay presentation to `bodyBackend:'sprite'` + `spritePackageKey:'el-toro'`, materializes/registers the verified bilateral runtime package, and proves the build serves it. Preserve the existing anchors/source art and gameplay contract.
 
 Then return the replacement exact SHA to Germinator for a fresh V07-SPR-G1 audit.
+
+
+## CLAIM — Mario-A live V0.7 sprite integration repair
+
+Mario-A claims `round/r005-sprite-mario-a-live-repair`, based on approved four-fighter V0.7 exact SHA:
+`f34760948cb2024c0c83f4a02202117a8ad3bf2f`.
+
+Root cause reproduced:
+- V0.7 lineage already resolves Germinator's missing-roster/presentation blocker;
+- verified bilateral packer remains GREEN;
+- remaining REDs are package registration + runtime asset materialization.
+
+Repair policy:
+- preserve V0.7 gameplay/CPU/visual-quality code;
+- transplant only generic verified sprite runtime pieces;
+- preserve existing RIGHT/LEFT sources + anchor reviews;
+- set El Toro live presentation to sprite body backend;
+- register and serve the deterministic bilateral manifest/body atlas;
+- prove exact replacement with full suite + build before returning it to Germinator.
+
+No source-art or anchor mutation is claimed.

@@ -1,6 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
+import { spawnSync } from 'node:child_process';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 import { parseRgbaPng } from '../scripts/sprite-png-alpha.mjs';
@@ -124,4 +125,36 @@ test('bilateral manifest becomes runtime-loadable only when both facing anchor r
       }
     }
   }
+});
+
+
+test('bilateral package is deterministic and reproducible through CLI', () => {
+  const first=build();
+  const second=build();
+  assert.deepEqual(readFileSync(first.result.body.atlasPath),readFileSync(second.result.body.atlasPath));
+  assert.deepEqual(readFileSync(first.result.effects.atlasPath),readFileSync(second.result.effects.atlasPath));
+  assert.equal(
+    readFileSync(first.result.manifestPath,'utf8'),
+    readFileSync(second.result.manifestPath,'utf8'),
+  );
+
+  const outDir=mkdtempSync(join(tmpdir(),'el-toro-bilateral-cli-'));
+  const run=spawnSync(process.execPath,[
+    resolve('scripts/el-toro-sprite-atlas-packer.mjs'),
+    '--source-dir',rightSourceDir,
+    '--left-source-dir',leftSourceDir,
+    '--package-contract',packageContractPath,
+    '--out-dir',outDir,
+  ],{encoding:'utf8'});
+  assert.equal(run.status,0,run.stderr);
+  const receipt=JSON.parse(run.stdout);
+  assert.equal(receipt.fighterId,'el-toro');
+  assert.equal(receipt.facing,'authored-bilateral');
+  assert.equal(receipt.rightBodyFrames,84);
+  assert.equal(receipt.leftBodyFrames,84);
+  assert.equal(receipt.effectFrames,22);
+  assert.equal(receipt.mirrorSafe,false);
+  assert.equal(receipt.runtimeLoadable,false);
+  assert.equal(receipt.manifest,'el-toro-animations.json');
+  assert.equal(readFileSync(join(outDir,'el-toro-animations.json'),'utf8').length>0,true);
 });

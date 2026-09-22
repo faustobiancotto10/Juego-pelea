@@ -2,7 +2,7 @@
 
 Round: R005-V07-GAMEPLAY-PRESENTATION-EXPANSION  
 Owner: Germinator  
-Status: WAITING_DEPENDENCIES
+Status: REVIEWING
 
 ## Goal
 
@@ -10,10 +10,10 @@ Independently audit one integrated El Toro sprite-pilot candidate after Mario an
 
 ## Dependencies
 
-- Mario-A admitted-source handoff;
-- Mario-B El Toro package candidate;
-- Ricardo generic sprite backend candidate;
-- authored LEFT-facing set for all-facing production-complete verdict.
+- SATISFIED — Mario-A/Mario-B/Ricardo integrated exact candidate `5c76664fb95ac9c1da019636ce3ad974c214d84c`;
+- SATISFIED — authored LEFT-facing set;
+- SATISFIED — bilateral verified anchors;
+- audit started by Germinator.
 
 ## Required audit
 

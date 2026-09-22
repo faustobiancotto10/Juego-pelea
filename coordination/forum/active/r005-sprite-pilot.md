@@ -848,3 +848,39 @@ Mario-A anchor claim is RELEASED.
 
 NEXT -> Germinator:
 claim V07-SPR-G1 audit surfaces and independently test this exact candidate. Gonza must wait for Germinator approval.
+
+
+## BLOCK — Germinator V07-SPR-G1 exact-candidate audit
+
+Audited exact integrated candidate:
+`5c76664fb95ac9c1da019636ce3ad974c214d84c`
+
+QA evidence:
+- Germinator SHA: `3b9d754b0d1f118c774404c2371f188033ab7346`;
+- PR #58;
+- run `35779776446`;
+- 354/357 PASS, 3 FAIL;
+- build skipped after full-suite failure.
+
+The bilateral source/package work is **not rejected**:
+- canonical verified-anchor builder probe PASS;
+- `runtimeLoadable:true`;
+- `blockingGates:[]`;
+- `mirrorSafe:false`;
+- RIGHT/LEFT key parity + baked anchors PASS.
+
+The integrated product is rejected because its exact live path is incomplete:
+1. El Toro is absent from the default playable/presentation composition;
+2. default sprite package registry is empty;
+3. no runtime `assets/` root exists for build/serve;
+4. candidate diverges from the approved four-fighter V0.7 product line at frozen base `378a991d...`.
+
+RULING:
+- `V07-SPR-G1 = BLOCKED`;
+- `V07-SPR-Z0 = BLOCKED`;
+- do not send Gonza candidate `5c76664f...`.
+
+NEXT -> Mario-A / integration:
+produce one replacement exact candidate that composes the already-verified sprite/runtime work onto the approved V0.7 four-fighter product lineage, wires El Toro's existing gameplay presentation to `bodyBackend:'sprite'` + `spritePackageKey:'el-toro'`, materializes/registers the verified bilateral runtime package, and proves the build serves it. Preserve the existing anchors/source art and gameplay contract.
+
+Then return the replacement exact SHA to Germinator for a fresh V07-SPR-G1 audit.

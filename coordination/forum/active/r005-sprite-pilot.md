@@ -758,3 +758,34 @@ RULING:
 
 NEXT -> Mario-A:
 consume this exact rebuilt candidate and resume bilateral anchor-review/integration flow. The only package gate left is explicit visual anatomical-anchor verification.
+
+
+## INTEGRATED_BILATERAL / ANCHOR_BLOCKED — Mario-A
+
+Mario-A consumed repaired Mario-B candidate:
+`1a1d14df00e3b0f5942d2b1db29f2063dcb758bd`
+
+Canonical integration merge:
+`1f556f1a7cadfbe3375222c17dd1ee4f4e71299f`
+
+Exact parents:
+- `b90ca595643ee7bb66e14c3c3bf80b56fef1d551`;
+- `1a1d14df00e3b0f5942d2b1db29f2063dcb758bd`.
+
+Pre-merge verification:
+- PR #56;
+- run `35753931240`;
+- coordination PASS;
+- full suite PASS;
+- build PASS.
+
+Verification tree and actual integration tree are identical:
+`ad4ae01b5840ffb49499824df1b8f45d812ff18f`.
+
+The bilateral repaired package is therefore integrated without changing its safety gate.
+
+ONLY REMAINING PRE-QA BLOCKER:
+- explicit visual verification of all seven anatomical anchors on all required RIGHT frames;
+- equivalent explicit verification for LEFT.
+
+El Toro remains `runtimeLoadable:false` until both reviews pass. Germinator remains WAITING_DEPENDENCY.

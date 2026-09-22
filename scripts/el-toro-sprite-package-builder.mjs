@@ -103,3 +103,130 @@ export function assertMasterSeedDoesNotConstrainRuntimeBodyScale(manifest) {
   }
   return diagnostic;
 }
+
+
+function bodyEntryForSemantic(packageContract, semanticKey) {
+  const matches = (packageContract?.body ?? []).filter((entry) => entry?.semanticKey === semanticKey);
+  if (matches.length !== 1) {
+    throw new Error(
+      `El Toro runtime source plan requires exactly one body sheet for semantic "${semanticKey}", found ${matches.length}`,
+    );
+  }
+  return matches[0];
+}
+
+function frameIdsForWindow(sheetId, firstFrame, lastFrame) {
+  if (!Number.isInteger(firstFrame) || !Number.isInteger(lastFrame) || firstFrame < 1 || lastFrame < firstFrame) {
+    throw new Error(`Invalid El Toro frame window ${sheetId} ${firstFrame}..${lastFrame}`);
+  }
+  const ids = [];
+  for (let frame = firstFrame; frame <= lastFrame; frame += 1) {
+    ids.push(`${sheetId}__f${String(frame).padStart(2, '0')}`);
+  }
+  return ids;
+}
+
+function assertFrameIdsAdmitted(sourceFrameIds, normalizationManifest) {
+  const admitted = new Set((normalizationManifest?.frames ?? []).map((frame) => frame?.frameId));
+  for (const frameId of sourceFrameIds) {
+    if (!admitted.has(frameId)) {
+      throw new Error(`El Toro runtime source plan references non-admitted MA frame "${frameId}"`);
+    }
+  }
+}
+
+function sourcePlanEntry({
+  semanticKey,
+  sourceFrameIds,
+  loop,
+  clockPolicy,
+  durationTicks = null,
+  requiresGameplayScaleReview = false,
+}) {
+  return Object.freeze({
+    semanticKey,
+    sourceFrameIds: Object.freeze([...sourceFrameIds]),
+    loop,
+    clockPolicy,
+    durationTicks: durationTicks === null ? null : Object.freeze([...durationTicks]),
+    requiresGameplayScaleReview,
+  });
+}
+
+export function compileRuntimeFrameSourcePlan(packageContract, normalizationManifest) {
+  if (packageContract?.fighterId !== 'el-toro') {
+    throw new Error('El Toro runtime source plan requires fighterId "el-toro"');
+  }
+  if (packageContract?.facing !== 'right') {
+    throw new Error('El Toro Mario-B source plan currently compiles the admitted RIGHT-facing package only');
+  }
+
+  const resolverMap = packageContract.resolverMap;
+  if (!resolverMap?.runtimeStateWindows || !resolverMap?.expectedMoveIdsByRole) {
+    throw new Error('El Toro runtime source plan requires frozen resolver windows and move IDs');
+  }
+
+  const animations = {};
+
+  for (const [key, window] of Object.entries(resolverMap.runtimeStateWindows)) {
+    const body = bodyEntryForSemantic(packageContract, window.semanticKey);
+    const sourceFrameIds = frameIdsForWindow(body.id, window.firstFrame, window.lastFrame);
+    assertFrameIdsAdmitted(sourceFrameIds, normalizationManifest);
+    animations[key] = sourcePlanEntry({
+      semanticKey: window.semanticKey,
+      sourceFrameIds,
+      loop: window.loop,
+      clockPolicy: window.loop ? 'ambient-loop' : 'presentation-state-entry-age',
+      requiresGameplayScaleReview: window.requiresGameplayScaleReview === true,
+    });
+  }
+
+  for (const [role, moveId] of Object.entries(resolverMap.expectedMoveIdsByRole)) {
+    if (role === 'ultimate') continue;
+    const timing = resolverMap.moveRoleTimings?.[role];
+    if (!timing) throw new Error(`Missing El Toro presentation timing for move role "${role}"`);
+    const body = bodyEntryForSemantic(packageContract, timing.semanticKey);
+    const sourceFrameIds = frameIdsForWindow(body.id, 1, body.frames);
+    if (timing.frameDurations.length !== sourceFrameIds.length) {
+      throw new Error(
+        `El Toro move role "${role}" has ${timing.frameDurations.length} durations for ${sourceFrameIds.length} source frames`,
+      );
+    }
+    assertFrameIdsAdmitted(sourceFrameIds, normalizationManifest);
+    animations[`move:${moveId}`] = sourcePlanEntry({
+      semanticKey: timing.semanticKey,
+      sourceFrameIds,
+      loop: false,
+      clockPolicy: 'moveFrame',
+      durationTicks: timing.frameDurations,
+      requiresGameplayScaleReview: resolverMap.pilotAliases?.[role]?.requiresGameplayScaleReview === true,
+    });
+  }
+
+  const ultimateMoveId = resolverMap.expectedMoveIdsByRole.ultimate;
+  for (const [phase, window] of Object.entries(resolverMap.ultimatePhaseWindows ?? {})) {
+    const timing = resolverMap.ultimatePhaseTimings?.[phase];
+    if (!timing) throw new Error(`Missing El Toro Ultimate presentation timing for phase "${phase}"`);
+    const body = bodyEntryForSemantic(packageContract, window.semanticKey);
+    const sourceFrameIds = frameIdsForWindow(body.id, window.firstFrame, window.lastFrame);
+    if (timing.frameDurations.length !== sourceFrameIds.length) {
+      throw new Error(
+        `El Toro Ultimate phase "${phase}" has ${timing.frameDurations.length} durations for ${sourceFrameIds.length} source frames`,
+      );
+    }
+    assertFrameIdsAdmitted(sourceFrameIds, normalizationManifest);
+    animations[`ultimate:${ultimateMoveId}:${phase}`] = sourcePlanEntry({
+      semanticKey: window.semanticKey,
+      sourceFrameIds,
+      loop: false,
+      clockPolicy: 'ultimatePhaseFrame',
+      durationTicks: timing.frameDurations,
+    });
+  }
+
+  return Object.freeze({
+    fighterId: packageContract.fighterId,
+    facing: packageContract.facing,
+    animations: Object.freeze(animations),
+  });
+}

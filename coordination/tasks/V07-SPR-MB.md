@@ -2,7 +2,7 @@
 
 Round: R005-V07-GAMEPLAY-PRESENTATION-EXPANSION  
 Owner: Mario-B  
-Status: BLOCKED_EXTERNAL_INPUTS_RIGHT_PACKAGE_AND_ANCHOR_WORKFLOW_GREEN
+Status: HANDOFF_READY_RIGHT_ONLY_BLOCKED_EXTERNAL_INPUTS
 
 ## Execution branch
 
@@ -172,3 +172,11 @@ Build the production-intended El Toro sprite package from Mario-A's admitted/nor
   2. visual verification of anatomical anchors (template exists; no coordinates fabricated);
   3. Ricardo narrow state-entry amendment for `crouch`, `block`, `block-crouch`.
 - production-complete and integrated runtime load remain intentionally blocked.
+
+
+## Mario-B exact handoff correction — 2026-09-22
+
+- final exact candidate: `e6f160273165250c6debf31fd44e6cfb0e2326e7`
+- supersedes right-facing candidate `d65ac308747ce73bc39356d409de8f05daee32ce`
+- delta: one-line cleanup removing a duplicate anchor-review return field; no atlas/runtime/anchor contract change
+- verification: run `35674856169` / #1544 — coordination contract + full suite + build PASS

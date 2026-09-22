@@ -2,7 +2,7 @@
 
 Round: R005-V07-GAMEPLAY-PRESENTATION-EXPANSION  
 Owner: Mario-B  
-Status: BLOCKED_EXTERNAL_DEPENDENCIES_RIGHT_METADATA_GREEN
+Status: BLOCKED_EXTERNAL_INPUTS_RIGHT_PACKAGE_GREEN
 
 ## Execution branch
 
@@ -35,13 +35,13 @@ Build the production-intended El Toro sprite package from Mario-A's admitted/nor
 
 ## Acceptance criteria
 
-- [ ] Right-facing body set maps exactly to 84 contractual sprites.
+- [x] Right-facing body set maps exactly to 84 contractual sprites.
 - [ ] LEFT-facing body set maps exactly to the same 84 phases before production-complete status.
-- [ ] FX remain separate from body.
+- [x] FX remain separate from body.
 - [ ] Stable per-frame pivot and required attachment anchors exist.
 - [ ] Action reads at gameplay scale with generic FX disabled.
-- [ ] Source sheets are not imported directly by runtime.
-- [ ] Identity Learning Receipt recorded.
+- [x] Source sheets are not imported directly by runtime.
+- [x] Identity Learning Receipt recorded.
 
 
 ## Active checkpoint — 2026-09-21
@@ -88,3 +88,28 @@ Build the production-intended El Toro sprite package from Mario-A's admitted/nor
   3. authored LEFT-facing IMG-00 + IMG-01..12;
   4. verified per-frame attachment-anchor coordinates from admitted/normalized art.
 - Game Development Studio local `game-dev` CLI remains unavailable in this host; no CLI evidence is claimed.
+
+
+## Mario-B derived-package checkpoint — 2026-09-22
+
+- exact Mario-B candidate SHA: `a5dfaa6d35ec3f32eaac15f687c7a098ed10500d`
+- PR: #52 -> `round/r005-sprite-mario-integration`
+- verification: run `35674533122` / #1530 — coordination contract + full suite + build PASS
+- revised Mario-A exact dependency consumed: `0eb4a2b985813d1cdc9f8c53d059a81efe49be20`
+- right-facing derived package is now reproducibly generated from MA pixel-isolated RGBA:
+  - 84-frame body PNG atlas;
+  - 22-frame separate FX PNG atlas;
+  - 26-key right-facing runtime fragment;
+  - separate FX fragment;
+  - 844x390 atlas-only gameplay-scale SVG evidence;
+  - deterministic CLI + metrics receipt.
+- reproducibility receipt from run `35674533122`:
+  - body: 2048x1509, decoded RGBA 12,361,728 bytes, encoded PNG 3,203,017 bytes, SHA-256 `06d06bdfbc72b9ee07eae053d801f9f180b8776433e837839cbbfea1aa2826cc`;
+  - FX: 1024x901, decoded RGBA 3,690,496 bytes, encoded PNG 916,922 bytes, SHA-256 `2fb2835545138560c7ddae960997161619ee142d98370b2b7f48fc42f1189002`;
+  - combined decoded RGBA: 16,052,224 bytes.
+- runtime fragment remains intentionally `runtimeLoadable:false` until all shipping gates exist.
+- remaining blockers:
+  1. authored LEFT-facing IMG-00 + IMG-01..12;
+  2. verified per-frame attachment anchors;
+  3. Ricardo narrow timeline amendment for `crouch`, `block`, `block-crouch` (current v2 timeline covers other one-shot transition states but these three still receive absolute ambient combatTick).
+- action-readability evidence exists, but human/device visual acceptance is still downstream and is not self-declared green by Mario-B.

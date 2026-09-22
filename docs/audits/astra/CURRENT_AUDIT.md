@@ -10,7 +10,7 @@ Estado: **EN CURSO; no representa un veredicto final ni autorización de cutover
 
 ## Revisado / pendiente
 
-Revisado: `AGENTS.md`, `coordination/PROTOCOL.md` (autoridad, estados, handoffs), secciones actuales de `coordination/CURRENT_ROUND.md`, `coordination/STATUS.md` y handoff Gonza Z0. Pendiente: candidato exacto y artefacto visual, cadena de escala y FX, dash, simulation, character/mode architecture, UI/input, tests, performance, loaders, agentes y roadmap.
+Revisado: `AGENTS.md`, `coordination/PROTOCOL.md` (autoridad, estados, handoffs), secciones actuales de `coordination/CURRENT_ROUND.md`, `coordination/STATUS.md` y handoff Gonza Z0; código exacto `fe2b5056…` de manifest, normalizador/packer, resolver, renderer, loader y contrato FX. Hallazgos S-001/2/3 en [SPRITES.md](SPRITES.md). Pendiente: preview en navegador/teléfono, simulation, character/mode architecture, UI/input, tests, performance, agentes y roadmap.
 
 ## Hallazgo confirmado A-001 — estado de coordinación fuera del contrato [MEDIUM; escalabilidad operativa]
 
@@ -22,9 +22,9 @@ Revisado: `AGENTS.md`, `coordination/PROTOCOL.md` (autoridad, estados, handoffs)
 
 ## Hipótesis abiertas (NO confirmadas)
 
-- La deriva de escala de El Toro podría estar en métricas/normalización, en rects de frames o en composición de transformaciones; no atribuirla todavía al runtime.
-- La ausencia de FX podría ocurrir en empaquetado, mapeo evento, dibujo, orden de capas o vida; requiere traza exacta.
-- El dash podría caer en locomoción por resolver, datos insuficientes del snapshot o ausencia de clips; requiere código exacto.
+- Medidas de frames confirman la deriva de `block` frente a `idle`; la causa exacta en la hoja de origen y el efecto del renormalizado sobre calidad artística requieren inspección visual/ensayo de pipeline.
+- Efectos procedurales podrían verse mientras faltan los efectos de identidad sprite; distinguirlos en la preview.
+- Telemetría de uso de memoria y rendimiento de iPhone aún no existe para el preview.
 
 ## Próximas decisiones / tareas derivadas
 

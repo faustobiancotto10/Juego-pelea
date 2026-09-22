@@ -789,3 +789,26 @@ ONLY REMAINING PRE-QA BLOCKER:
 - equivalent explicit verification for LEFT.
 
 El Toro remains `runtimeLoadable:false` until both reviews pass. Germinator remains WAITING_DEPENDENCY.
+
+
+## CLAIM — Mario-A bilateral anchor certification
+
+Mario-A claims only the final visual-anchor certification surface on branch:
+`round/r005-sprite-mario-a-anchors`
+
+Base:
+`1f556f1a7cadfbe3375222c17dd1ee4f4e71299f`
+
+Scope:
+- add explicit reviewed RIGHT + LEFT anchor JSON;
+- add verifier/regression proving both reviews match the repaired packed geometry;
+- prove bilateral packer emits `runtimeLoadable:true`;
+- no sprite-source PNG mutation;
+- no gameplay timing/hitbox/damage changes;
+- no unrelated Mario-B package redesign.
+
+Visual review policy:
+- model/geometry estimates may be used only as drafting aids;
+- final points are checked against the authored sprite frames;
+- `head` is treated as anatomical head center (runtime cap attachment), not hair-top;
+- front/back limb identity remains facing-relative and stable across animation rather than being re-sorted blindly per frame.

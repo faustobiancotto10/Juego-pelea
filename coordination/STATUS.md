@@ -14,7 +14,7 @@ Canonical continuation pulse: `.`
 | ↳ Mario-B | El Toro sprite package | V07-SPR-MB | HANDOFF_CONSUMED | Rebuilt bilateral package `1a1d14df...` was consumed by Mario-A integration; final anchor certification now lives in integrated candidate `5c76664f...`. No further package work unless QA finds a reproducible defect. |
 | Brancaforte | UI / Input / UX | standby | OFF_ROUND | Activate only if a real loading/menu/HUD/input contract changes. |
 | Germinator | Independent QA | V07-SPR-G1 | VERIFIED | `APPROVE — SPRITE PILOT LIVE INTEGRATION GREEN` on exact `fe2b5056...`; final Repository #1722 + Pipeline #74 green, 433/433 PASS, build PASS, served-atlas RIGHT/LEFT/Topete/Ultimate evidence inspected. |
-| Gonza | Integration / release | V07-SPR-Z0 | WORKING | Exact G1-approved `fe2b5056...`; building isolated sprite preview + served RIGHT/LEFT parity. |
+| Gonza | Integration / release | V07-SPR-Z0 | HANDOFF_READY | Isolated sprite preview VERIFIED and publicly served; wait for user/device acceptance, then production-format reconciliation + explicit cutover decision. |
 
 ## Current asset gate
 

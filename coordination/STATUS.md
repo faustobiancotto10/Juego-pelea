@@ -13,7 +13,7 @@ Canonical continuation pulse: `.`
 | ↳ Mario-A | Sprite source lead / designated integrator | V07-SPR-MI | HANDOFF_READY | Exact replacement `fe2b5056...` on `round/r005-sprite-mario-integration-repair`; same tested tree `ed5ee226...` as PR #59. 422/422 + build + visual pipeline GREEN. |
 | ↳ Mario-B | El Toro sprite package | V07-SPR-MB | HANDOFF_CONSUMED | Rebuilt bilateral package `1a1d14df...` was consumed by Mario-A integration; final anchor certification now lives in integrated candidate `5c76664f...`. No further package work unless QA finds a reproducible defect. |
 | Brancaforte | UI / Input / UX | standby | OFF_ROUND | Activate only if a real loading/menu/HUD/input contract changes. |
-| Germinator | Independent QA | V07-SPR-G1 | READY | Fresh independent audit of exact replacement `fe2b5056...` / tree `ed5ee226...`; verify live roster/backend/registry/assets, bilateral rendering, anchors, load/error lifecycle and no gameplay regression. |
+| Germinator | Independent QA | V07-SPR-G1 | REVIEWING | Independently auditing exact replacement `fe2b5056...` / tree `ed5ee226...`; product files are read-only during QA. |
 | Gonza | Integration / release | V07-SPR-Z0 | BLOCKED | Wait for fresh Germinator approval of replacement `fe2b5056...`; no preview/publication yet. |
 
 ## Current asset gate

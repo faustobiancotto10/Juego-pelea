@@ -405,6 +405,79 @@ export function assertVerifiedElToroAnchorReview(
   return true;
 }
 
+
+const REQUIRED_EL_TORO_ANCHORS=Object.freeze([
+  'head','chest','frontHand','backHand','belt','frontFoot','backFoot',
+]);
+
+function buildPendingAnchorReview(bodyAtlas) {
+  return {
+    version:1,
+    fighterId:'el-toro',
+    facing:'right',
+    status:'pending-visual-verification',
+    coordinateSpace:'packed-frame-local',
+    requiredAnchors:[...REQUIRED_EL_TORO_ANCHORS],
+    frames:[...bodyAtlas.frameRects.entries()].map(([frameId,rect])=>({
+      frameId,
+      atlasRect:{x:rect.x,y:rect.y,width:rect.width,height:rect.height},
+      pivot:{x:rect.pivotX,y:rect.pivotY,source:'normalization-ground-pivot'},
+      anchors:Object.fromEntries(REQUIRED_EL_TORO_ANCHORS.map((name)=>[name,null])),
+      verified:false,
+    })),
+  };
+}
+
+export function assertVerifiedElToroAnchorReview(review,{expectedFrameCount=84}={}) {
+  if (!review || review.version!==1 || review.fighterId!=='el-toro' || review.facing!=='right') {
+    throw new Error('El Toro anchor review has invalid identity/version metadata');
+  }
+  if (review.status!=='verified') {
+    throw new Error('El Toro anchor review is not verified');
+  }
+  if (review.coordinateSpace!=='packed-frame-local') {
+    throw new Error('El Toro anchor review must use packed-frame-local coordinates');
+  }
+  if (!Array.isArray(review.requiredAnchors)
+      || review.requiredAnchors.length!==REQUIRED_EL_TORO_ANCHORS.length
+      || REQUIRED_EL_TORO_ANCHORS.some((name,index)=>review.requiredAnchors[index]!==name)) {
+    throw new Error('El Toro anchor review requiredAnchors contract mismatch');
+  }
+  if (!Array.isArray(review.frames) || review.frames.length!==expectedFrameCount) {
+    throw new Error('El Toro anchor review frame count mismatch');
+  }
+
+  const seen=new Set();
+  for (const frame of review.frames) {
+    if (!frame || typeof frame.frameId!=='string' || frame.frameId.length===0) {
+      throw new Error('El Toro anchor review contains invalid frameId');
+    }
+    if (seen.has(frame.frameId)) throw new Error('El Toro anchor review contains duplicate frame '+frame.frameId);
+    seen.add(frame.frameId);
+
+    const rect=frame.atlasRect;
+    if (!rect || !Number.isFinite(rect.width) || !Number.isFinite(rect.height) || rect.width<1 || rect.height<1) {
+      throw new Error('El Toro anchor review contains invalid atlas rect for '+frame.frameId);
+    }
+    if (frame.verified!==true) throw new Error('El Toro anchor review frame is not verified: '+frame.frameId);
+
+    const anchors=frame.anchors;
+    if (!anchors || typeof anchors!=='object') {
+      throw new Error('El Toro anchor review missing anchors for '+frame.frameId);
+    }
+    for (const name of REQUIRED_EL_TORO_ANCHORS) {
+      const point=anchors[name];
+      if (!point || !Number.isFinite(point.x) || !Number.isFinite(point.y)) {
+        throw new Error('El Toro anchor review missing verified '+name+' for '+frame.frameId);
+      }
+      if (point.x<0 || point.y<0 || point.x>rect.width || point.y>rect.height) {
+        throw new Error('El Toro anchor '+name+' out of bounds for '+frame.frameId);
+      }
+    }
+  }
+  return review;
+}
+
 export function buildElToroRightAtlasPackage({
   sourceDir,
   packageContractPath,
@@ -493,6 +566,12 @@ export function buildElToroRightAtlasPackage({
     }, null, 2)+'\n',
   );
 
+  const anchorReviewPath=join(outputRoot,'right-anchor-review.json');
+  writeFileSync(
+    anchorReviewPath,
+    JSON.stringify(buildPendingAnchorReview(bodyAtlas),null,2)+'\n',
+  );
+
   const metricsPath = join(outputRoot, 'right-package-metrics.json');
   const metrics = {
     version: 1,
@@ -522,6 +601,7 @@ export function buildElToroRightAtlasPackage({
   return {
     previewPath,
     metricsPath,
+    anchorReviewPath,
     anchorReviewPath,
     body: {
       sourceFrameCount: bodyFrames.length,
@@ -571,6 +651,7 @@ if (process.argv[1] && import.meta.url === pathToFileURL(resolve(process.argv[1]
     effectsFragment: 'right-effects-fragment.json',
     preview: 'right-gameplay-preview.svg',
     metrics: 'right-package-metrics.json',
+    anchorReview: 'right-anchor-review.json',
     runtimeLoadable: false,
   })+'\n');
 }

@@ -505,3 +505,17 @@ Repair scope is deliberately narrow:
 - add RED/GREEN regression evidence before replacing the Ricardo handoff SHA.
 
 Ricardo has reclaimed only the generic timeline/test surfaces for this repair. The prior `79f8d81...` SHA must not be treated as final for El Toro one-shot crouch/block integration while this amendment is active.
+
+
+## CLAIM — Mario-A RIGHT-only integration checkpoint
+
+Mario-B has now published a stable exact handoff:
+- `51e0e892d08f9cf30742ef4894732f448a97da80`
+- run `35675088000` GREEN
+- this exact commit already contains Mario-A source pipeline v2 `0eb4a2b...`.
+
+Mario-A is therefore starting the explicitly authorized RIGHT-only integration branch composition. Current safe action is to fast-forward `round/r005-sprite-mario-integration` from frozen base `e3d29807...` to exact Mario-B handoff `51e0e892...`.
+
+Ricardo has reopened its lane for the required `crouch` / `block` / `block-crouch` state-entry amendment, so Mario-A will NOT integrate prior runtime SHA `79f8d81...` as final. Runtime composition waits for Ricardo's replacement exact green SHA.
+
+External gates remain: authored LEFT-facing set + visually verified anatomical anchors. No all-facing/runtime-loadable/production-cutover claim is made.

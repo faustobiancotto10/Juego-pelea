@@ -1,0 +1,69 @@
+name: R005 Mario-A LEFT binary intake
+on:
+  push:
+    branches:
+      - round/r005-sprite-mario-a-source-import
+    paths:
+      - .github/workflows/r005-mario-a-left-import.yml
+
+permissions:
+  contents: write
+
+jobs:
+  import-left:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: round/r005-sprite-mario-a-source-import
+          fetch-depth: 0
+      - name: Download canonical LEFT sheets
+        shell: bash
+        run: |
+          set -euo pipefail
+          d='docs/characters/el-toro/sprite-source/left'
+          mkdir -p "$d"
+          curl -fL --retry 3 'https://d2ol7oe51mr4n9.cloudfront.net/user_3D9HmxIE70fP7hTTYlNn2FjxT8U/d5fa9083-6473-4308-ba3d-60b693e75747.png' -o "$d/el-toro__LEFT-IMG-00__master-seed.png"
+          curl -fL --retry 3 'https://d2ol7oe51mr4n9.cloudfront.net/user_3D9HmxIE70fP7hTTYlNn2FjxT8U/32dfb751-7363-4d2e-8dcc-3bf493d461a7.png' -o "$d/el-toro__LEFT-IMG-01__idle.png"
+          curl -fL --retry 3 'https://d2ol7oe51mr4n9.cloudfront.net/user_3D9HmxIE70fP7hTTYlNn2FjxT8U/5a8b9fa8-f763-4156-913d-d595b0bbfe12.png' -o "$d/el-toro__LEFT-IMG-02__forward-shuffle.png"
+          curl -fL --retry 3 'https://d2ol7oe51mr4n9.cloudfront.net/user_3D9HmxIE70fP7hTTYlNn2FjxT8U/fa6a0e8c-c137-49e2-bfa2-b7bbe4d7510f.png' -o "$d/el-toro__LEFT-IMG-03__backward-shuffle.png"
+          curl -fL --retry 3 'https://d2ol7oe51mr4n9.cloudfront.net/user_3D9HmxIE70fP7hTTYlNn2FjxT8U/0eb88334-a3b0-48a9-8c82-9be835400e45.png' -o "$d/el-toro__LEFT-IMG-04__crouch.png"
+          curl -fL --retry 3 'https://d2ol7oe51mr4n9.cloudfront.net/user_3D9HmxIE70fP7hTTYlNn2FjxT8U/ef596e3c-73f6-439e-81ad-7847e1bf027d.png' -o "$d/el-toro__LEFT-IMG-05__jump.png"
+          curl -fL --retry 3 'https://d2ol7oe51mr4n9.cloudfront.net/user_3D9HmxIE70fP7hTTYlNn2FjxT8U/b142579b-7e59-4722-b728-5e90bdb2eb11.png' -o "$d/el-toro__LEFT-IMG-06__basic-attack.png"
+          curl -fL --retry 3 'https://d2ol7oe51mr4n9.cloudfront.net/user_3D9HmxIE70fP7hTTYlNn2FjxT8U/2eb3f347-5a27-41c4-8239-50d0fa6a9886.png' -o "$d/el-toro__LEFT-IMG-07__low-attack.png"
+          curl -fL --retry 3 'https://d2ol7oe51mr4n9.cloudfront.net/user_3D9HmxIE70fP7hTTYlNn2FjxT8U/f854fdb6-9853-4fd3-bb5a-41bacd9dbf4b.png' -o "$d/el-toro__LEFT-IMG-08__block.png"
+          curl -fL --retry 3 'https://d2ol7oe51mr4n9.cloudfront.net/user_3D9HmxIE70fP7hTTYlNn2FjxT8U/f0ba3447-f91b-450d-87c4-d3aeec64cb16.png' -o "$d/el-toro__LEFT-IMG-09__hurt-knockdown.png"
+          curl -fL --retry 3 'https://d2ol7oe51mr4n9.cloudfront.net/user_3D9HmxIE70fP7hTTYlNn2FjxT8U/b93977b0-2ec6-42cc-b03b-3ff10ad3a28f.png' -o "$d/el-toro__LEFT-IMG-10__topete.png"
+          curl -fL --retry 3 'https://d2ol7oe51mr4n9.cloudfront.net/user_3D9HmxIE70fP7hTTYlNn2FjxT8U/c68cd0a8-64f9-4663-ac78-184a2727a918.png' -o "$d/el-toro__LEFT-IMG-11__shawarmazo.png"
+          curl -fL --retry 3 'https://d2ol7oe51mr4n9.cloudfront.net/user_3D9HmxIE70fP7hTTYlNn2FjxT8U/b3bfd9e2-80e4-45e8-afb9-4593bda090de.png' -o "$d/el-toro__LEFT-IMG-12__super-eructo.png"
+      - name: Verify exact SHA-256
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd docs/characters/el-toro/sprite-source/left
+          cat > /tmp/left.sha256 <<'EOF'
+          4d34a42acf2823a830fc792987099c73f9dbfd0af0583507e1c4b2cc75e668ae  el-toro__LEFT-IMG-00__master-seed.png
+          1dbe4afc9f1f5564eddd18e802af2f4f41454f7c5c54266466a90949106ebac7  el-toro__LEFT-IMG-01__idle.png
+          63132b6519162c9ce160db35c408a0faf3557f07f00ec7b1e72f45264e106c2a  el-toro__LEFT-IMG-02__forward-shuffle.png
+          8caa648410c72ce1a726fbe13fbf3b816a38b6ad38a1e478b7ac778eeba6c823  el-toro__LEFT-IMG-03__backward-shuffle.png
+          196d38b07b9e7d1ce86ae1401d86b5594a815e576217543f2bddc04d0acc8e46  el-toro__LEFT-IMG-04__crouch.png
+          92850cfe18cc89f160dd44aa9fac0536c2eb2540f4535538b416bdba3cbe6e70  el-toro__LEFT-IMG-05__jump.png
+          d6a23e5cc2233dc45af5e4ebe3a206251d6374a61f3573225407fdab95b8e57b  el-toro__LEFT-IMG-06__basic-attack.png
+          92b61b872dd65650db7d62e2e36ce85cccd957a19dc62d9155836a72269764b4  el-toro__LEFT-IMG-07__low-attack.png
+          f6f35fa68b92cd2ae65c1a6b5841ae387459caa120efdeed918406ffaa15531f  el-toro__LEFT-IMG-08__block.png
+          ce52a6db568e32a65904c38d314b003ef1d4d7fef86a5dfb8db1f1f9618cb4a2  el-toro__LEFT-IMG-09__hurt-knockdown.png
+          884b8c076daf9c9dfffaf1700fcf581a5d635f2dd0a5a8c8b5b342e991bb8904  el-toro__LEFT-IMG-10__topete.png
+          2edec8b9124316342073775f3bc54251f7b548ff93971279ed962f4ee7e604b6  el-toro__LEFT-IMG-11__shawarmazo.png
+          10603c27cb14af276c92e18ce1686909a6be5fb2303de0f3a6317459fa863ddb  el-toro__LEFT-IMG-12__super-eructo.png
+          EOF
+          sha256sum -c /tmp/left.sha256
+      - name: Commit binary source set
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'Mario-A sprite intake'
+          git config user.email 'actions@users.noreply.github.com'
+          git add docs/characters/el-toro/sprite-source/left/*.png
+          git rm .github/workflows/r005-mario-a-left-import.yml
+          git commit -m 'assets(sprite): stage authored El Toro LEFT source set'
+          git push origin HEAD:round/r005-sprite-mario-a-source-import

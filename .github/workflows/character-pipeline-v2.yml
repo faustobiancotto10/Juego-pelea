@@ -71,11 +71,19 @@ jobs:
           "$chrome" --headless --no-sandbox --disable-gpu --hide-scrollbars --virtual-time-budget=2500 --window-size=844,390 \
             --screenshot=artifacts/v07-m3/phone-landscape.png \
             "http://127.0.0.1:4173/tools/character-pipeline-v2/visual-evidence.html?mode=phone"
+          "$chrome" --headless --no-sandbox --disable-gpu --hide-scrollbars --virtual-time-budget=3000 --window-size=1280,720 \
+            --screenshot=artifacts/v07-m3/sprite-runtime.png \
+            "http://127.0.0.1:4173/tools/character-pipeline-v2/v07-spr-g1-runtime-evidence.html"
+          "$chrome" --headless --no-sandbox --disable-gpu --hide-scrollbars --virtual-time-budget=3000 --window-size=844,390 \
+            --screenshot=artifacts/v07-m3/sprite-runtime-phone.png \
+            "http://127.0.0.1:4173/tools/character-pipeline-v2/v07-spr-g1-runtime-evidence.html"
           test -s artifacts/v07-m3/normal-color.png
           test -s artifacts/v07-m3/neutral-silhouette.png
           test -s artifacts/v07-m3/juanchi-vs-el-toro.png
           test -s artifacts/v07-m3/el-toro-actions.png
           test -s artifacts/v07-m3/phone-landscape.png
+          test -s artifacts/v07-m3/sprite-runtime.png
+          test -s artifacts/v07-m3/sprite-runtime-phone.png
 
       - name: Upload V07-M3 visual evidence
         uses: actions/upload-artifact@v4

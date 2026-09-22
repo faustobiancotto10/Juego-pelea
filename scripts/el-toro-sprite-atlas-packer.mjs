@@ -454,6 +454,59 @@ export function assertVerifiedElToroAnchorReview(
 }
 
 
+
+function renderAnchorReviewSvg(frameRects, atlasWidth, atlasHeight) {
+  const width = 1260;
+  const height = 2760;
+  const columns = 7;
+  const columnWidth = 180;
+  const top = 72;
+  const rowHeight = 218;
+  const cardWidth = 166;
+  const cardHeight = 204;
+  const imageXInset = 12;
+  const imageYInset = 28;
+  const imageWidth = 142;
+  const imageHeight = 150;
+
+  const cards = [...frameRects.entries()].map(([frameId, rect], index) => {
+    const column = index % columns;
+    const row = Math.floor(index / columns);
+    const x = column * columnWidth + 7;
+    const y = top + row * rowHeight;
+    const viewPivotX = rect.x + rect.pivotX;
+    const viewPivotY = rect.y + rect.pivotY;
+    return [
+      '<g data-frame-id="'+frameId+'">',
+      '<rect x="'+x+'" y="'+y+'" width="'+cardWidth+'" height="'+cardHeight+'" rx="8" fill="#111820" stroke="#33414f"/>',
+      '<text x="'+(x+8)+'" y="'+(y+18)+'" font-family="ui-monospace,monospace" font-size="11" font-weight="700" fill="#e7edf3">'+frameId+'</text>',
+      '<svg x="'+(x+imageXInset)+'" y="'+(y+imageYInset)+'" width="'+imageWidth+'" height="'+imageHeight+'" viewBox="'+rect.x+' '+rect.y+' '+rect.width+' '+rect.height+'" preserveAspectRatio="xMidYMax meet">',
+      '<image href="right-body.png" x="0" y="0" width="'+atlasWidth+'" height="'+atlasHeight+'"/>',
+      '<circle data-pivot="normalization-ground-pivot" cx="'+viewPivotX+'" cy="'+viewPivotY+'" r="'+Math.max(2,Math.min(rect.width,rect.height)*0.018).toFixed(2)+'" fill="#ffdf5d" stroke="#161616" stroke-width="1.5"/>',
+      '</svg>',
+      '<text x="'+(x+8)+'" y="'+(y+192)+'" font-family="ui-monospace,monospace" font-size="9" fill="#93a5b7">pivot ('+rect.pivotX.toFixed(1)+', '+rect.pivotY.toFixed(1)+')</text>',
+      '</g>',
+    ].join('');
+  }).join('');
+
+  const legend = REQUIRED_ANCHORS.map((name, index) => {
+    const x = 16 + index * 174;
+    return '<text x="'+x+'" y="2737" font-family="system-ui,sans-serif" font-size="12" font-weight="700" fill="#f0c879">ANCHOR '+name+'</text>';
+  }).join('');
+
+  return [
+    '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1260 2760" width="1260" height="2760">',
+    '<rect width="1260" height="2760" fill="#0b1016"/>',
+    '<text x="18" y="28" font-family="system-ui,sans-serif" font-size="18" font-weight="900" fill="#f3ead9">EL TORO — RIGHT ANCHOR REVIEW / ATLAS-ONLY</text>',
+    '<text x="18" y="49" font-family="system-ui,sans-serif" font-size="11" fill="#aab8c5">Yellow marker = deterministic normalization ground pivot. Anatomical anchors are intentionally not drawn until visual review.</text>',
+    cards,
+    '<line x1="14" y1="2710" x2="1246" y2="2710" stroke="#33414f"/>',
+    legend,
+    '</svg>',
+    '',
+  ].join('');
+}
+
 export function buildElToroRightAtlasPackage({
   sourceDir,
   packageContractPath,

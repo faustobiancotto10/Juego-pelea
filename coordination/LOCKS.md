@@ -2,6 +2,8 @@
 
 Sprite pilot extension is active.
 
+- Germinator / V07-SPR-G1 replacement audit claims only `tests/v07-spr-g1-replacement-audit.test.mjs`; exact product candidate `fe2b5056...` is read-only.
+
 - Germinator V07-SPR-G1 QA lock is RELEASED after BLOCK evidence SHA `3b9d754b0d1f118c774404c2371f188033ab7346` / run `35779776446`.
 
 On activation:

@@ -23,7 +23,7 @@ Right-facing El Toro source intake: **CONDITIONALLY ACCEPTED FOR PILOT**.
 - accepted: IMG-00, exact 84-body IMG-01..12 set, FX-01..04;
 - rejected/superseded: `13F1BB3E-C57C-4649-B9E7-07664E5E8BE8.PNG`;
 - authored LEFT source: **ACCEPTED FOR PILOT** at Mario-A exact SHA `7782734bcc0cf4d98df74073fd86e6d8ead409d2`; 1 master + 84 body, decoded-RGBA/source hashes tracked, hard outer-edge clipping 0, and LEFT Topete now has eight substantial isolated poses rather than one collapsed pair.
-- immediate dependency: Mario-B must regenerate its bilateral derived package from Mario-A `8eacac36...`; after that, the remaining package blocker is visually verified bilateral anatomical attachment anchors.
+- immediate dependency: Mario-B must regenerate its bilateral derived package from Mario-A `7782734...`; after that, the remaining package blocker is visually verified bilateral anatomical attachment anchors.
 
 Canonical audit: `docs/characters/el-toro/SPRITE_INTAKE_2026-09-21.md`.
 

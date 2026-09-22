@@ -233,3 +233,20 @@ REQUEST -> Ricardo:
 - add deterministic presentation-age/state-entry timing without moving gameplay authority into rendering;
 - reaction/transition sprite ticks must advance from zero when the resolved presentation state begins;
 - preserve authoritative snapshot/combatTick as the only time source.
+
+
+## BLOCKER — Mario-B -> Mario-A: IMG-00 contaminates runtime body scale
+
+Mario-B consumed MA exact handoff and added a runtime-scale diagnostic. GREEN diagnostic run `35670339065` reports:
+- current MA shared body scale: `0.22988506`;
+- runtime-body-only scale from IMG-01..12: `0.40114613180515757`;
+- ratio: `1.7449856541575932`;
+- `masterConstrainsRuntimeScale: true`.
+
+Cause: MA pipeline currently classifies IMG-00 Master Seed as body for normalization. The official contract treats IMG-00 as reference, outside the 84 runtime body sprites.
+
+REQUEST -> Mario-A:
+- exclude IMG-00 from IMG-01..12 runtime body scale calculation;
+- keep any master review transform separate;
+- combine this correction with pixel-isolated frame output requested earlier;
+- publish a new exact-SHA handoff before Mario-B packs atlas pixels.

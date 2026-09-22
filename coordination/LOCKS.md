@@ -2,7 +2,7 @@
 
 Sprite pilot extension is active.
 
-- Germinator V07-SPR-G1 replacement QA claim is RELEASED. Product candidate `fe2b5056...` is QA-approved for isolated preview; QA head `be597f25...` remains validation-only and must not be shipped.
+- Germinator V07-SPR-G1 replacement QA claim is RELEASED. Product candidate `fe2b5056...` is QA-approved for isolated preview; final QA head `ac860f2...` is validation-only and must not be shipped.
 
 - Germinator V07-SPR-G1 QA lock is RELEASED after BLOCK evidence SHA `3b9d754b0d1f118c774404c2371f188033ab7346` / run `35779776446`.
 

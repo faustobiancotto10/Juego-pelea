@@ -2,7 +2,7 @@
 
 Sprite pilot extension is active.
 
-- Germinator / V07-SPR-G1 replacement audit claims only `tests/v07-spr-g1-replacement-audit.test.mjs`; exact product candidate `fe2b5056...` is read-only.
+- Germinator V07-SPR-G1 replacement QA claim is RELEASED. Product candidate `fe2b5056...` is QA-approved for isolated preview; QA head `be597f25...` remains validation-only and must not be shipped.
 
 - Germinator V07-SPR-G1 QA lock is RELEASED after BLOCK evidence SHA `3b9d754b0d1f118c774404c2371f188033ab7346` / run `35779776446`.
 
@@ -106,3 +106,16 @@ Current canonical thread: `coordination/forum/active/r005-sprite-pilot.md`.
 - product/runtime/source/anchor files are read-only during this audit;
 - Mario-A repair lane remains released;
 - Gonza remains blocked until Germinator issues APPROVE.
+
+
+## V07-SPR-G1 replacement closure
+
+- exact approved product candidate: `fe2b505639d8ebf2dc4ab204b545233d96f214f2`;
+- product tree: `ed5ee226bca6c5da6c4c4769f14ccf7e2316c31a`;
+- verdict: `APPROVE — SPRITE PILOT LIVE INTEGRATION GREEN`;
+- final QA head: `be597f2549505b7609bdfd489a60570ad11216e1`;
+- Repository verification `35788754170`: 433/433 + build PASS;
+- Character Pipeline V2 `35788754059`: 433/433 + build + visual evidence + raster/reference guard PASS;
+- Gonza V07-SPR-Z0 may claim isolated preview/release surfaces now;
+- production-root promotion remains prohibited pending physical-device/user acceptance and canonical package-format reconciliation;
+- no active Germinator product or QA-file lock remains.

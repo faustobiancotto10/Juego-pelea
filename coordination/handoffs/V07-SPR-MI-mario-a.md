@@ -209,3 +209,111 @@ State:
 
 NEXT -> Germinator:
 independently audit exact integrated SHA `5c76664fb95ac9c1da019636ce3ad974c214d84c`. Gonza remains blocked until Germinator approval.
+
+
+## Revision 4 — live V0.7 integration repaired / replacement QA handoff
+
+Germinator's BLOCK on `5c76664fb95ac9c1da019636ce3ad974c214d84c` exposed a product-integration defect rather than a sprite-source/anchor defect.
+
+Mario-A rebuilt the live sprite pilot from the already-approved four-fighter V0.7 product candidate:
+`f34760948cb2024c0c83f4a02202117a8ad3bf2f`.
+
+### Exact replacement
+
+Repair branch:
+`round/r005-sprite-mario-a-live-repair`
+
+Final repair head:
+`4ee68f1cfe5ed06f9da5e547aadf71bb54cd32fd`
+
+Replacement integration branch:
+`round/r005-sprite-mario-integration-repair`
+
+Exact replacement candidate:
+`fe2b505639d8ebf2dc4ab204b545233d96f214f2`
+
+Exact replacement tree:
+`ed5ee226bca6c5da6c4c4769f14ccf7e2316c31a`
+
+The integration candidate composes:
+- current coordination/main parent `ce5920b1211e47f38f7ee1e5b6340a200c55d331`;
+- repair parent `4ee68f1cfe5ed06f9da5e547aadf71bb54cd32fd`.
+
+### What changed
+
+The repair preserves the approved V0.7 roster/gameplay/CPU/presentation lineage and adds only the live sprite integration needed for the El Toro pilot:
+
+- El Toro remains the released fourth fighter;
+- El Toro presentation selects `bodyBackend:'sprite'`;
+- El Toro presentation uses `spritePackageKey:'el-toro'`;
+- default sprite registry maps `el-toro` to `assets/fighters/el-toro/el-toro-animations.json`;
+- deterministic bilateral manifest + body atlas are materialized in `assets/fighters/el-toro/`;
+- normal build copies those bytes to `dist/assets/fighters/el-toro/`;
+- FightRenderer uses backend-neutral named anchors for runtime anatomy attachments;
+- authored LEFT stays authored LEFT; no runtime horizontal mirroring is introduced.
+
+No gameplay values, balance, CPU contracts, source sprite art or verified anchor coordinates were changed.
+
+### TDD / verification
+
+Germinator's prior live-path regression was reproduced RED against the repaired V0.7 line before wiring:
+- sprite backend selection: RED;
+- default package registration: RED;
+- runtime asset materialization: RED.
+
+After repair:
+- targeted V07-SPR-G1 regression: 5/5 PASS;
+- local full suite: 422/422 PASS;
+- local build: PASS;
+- local HTTP smoke: index, manifest and atlas all HTTP 200.
+
+GitHub materialization run:
+`35782862607`
+- canonical bilateral generator: PASS;
+- full suite: 422/422 PASS;
+- build + dist runtime-asset gate: PASS;
+- deterministic runtime assets committed;
+- temporary materializer workflow removed in the same branch update.
+
+Verification PR #59 was opened only to test composition against current main and then closed without merge.
+
+PR #59 Repository verification:
+`35783156610`
+- coordination: PASS;
+- full suite: PASS;
+- build: PASS.
+
+PR #59 Character Pipeline V2:
+`35783156710`
+- full tests: PASS;
+- build: PASS;
+- V0.7 visual evidence capture/upload: PASS;
+- runtime raster-reference guard: PASS.
+
+GitHub-tested synthetic merge:
+`d0adc829e81810a69ba13acffe8257441d14a2f8`
+
+Synthetic tested tree:
+`ed5ee226bca6c5da6c4c4769f14ccf7e2316c31a`
+
+Replacement candidate tree:
+`ed5ee226bca6c5da6c4c4769f14ccf7e2316c31a`
+
+Therefore the exact replacement QA candidate is byte-for-byte the tree that both PR #59 workflows tested.
+
+### Supersession
+
+`5c76664fb95ac9c1da019636ce3ad974c214d84c` remains rejected as a live candidate and must not be sent to Gonza.
+
+### Identity Learning Review
+
+Receipt: **UPDATED**.
+
+Durable Mario learning added: `runtimeLoadable` is only a package-level gate; live sprite cutover also requires approved-product-lineage backend selection, default registry wiring, build-served manifest/atlas bytes and fight-scoped lifecycle verification. Backend deltas should be recomposed onto the approved product lineage rather than merging an older product tree wholesale.
+
+### NEXT
+
+Germinator V07-SPR-G1 must independently audit exact:
+`fe2b505639d8ebf2dc4ab204b545233d96f214f2`
+
+Gonza V07-SPR-Z0 remains blocked until Germinator approves this replacement.

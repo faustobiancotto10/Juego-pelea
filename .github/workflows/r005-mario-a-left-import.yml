@@ -23,47 +23,72 @@ jobs:
           set -euo pipefail
           d='docs/characters/el-toro/sprite-source/left'
           mkdir -p "$d"
-          curl -fL --retry 3 'https://d2ol7oe51mr4n9.cloudfront.net/user_3D9HmxIE70fP7hTTYlNn2FjxT8U/d5fa9083-6473-4308-ba3d-60b693e75747.png' -o "$d/el-toro__LEFT-IMG-00__master-seed.png"
-          curl -fL --retry 3 'https://d2ol7oe51mr4n9.cloudfront.net/user_3D9HmxIE70fP7hTTYlNn2FjxT8U/32dfb751-7363-4d2e-8dcc-3bf493d461a7.png' -o "$d/el-toro__LEFT-IMG-01__idle.png"
-          curl -fL --retry 3 'https://d2ol7oe51mr4n9.cloudfront.net/user_3D9HmxIE70fP7hTTYlNn2FjxT8U/5a8b9fa8-f763-4156-913d-d595b0bbfe12.png' -o "$d/el-toro__LEFT-IMG-02__forward-shuffle.png"
-          curl -fL --retry 3 'https://d2ol7oe51mr4n9.cloudfront.net/user_3D9HmxIE70fP7hTTYlNn2FjxT8U/fa6a0e8c-c137-49e2-bfa2-b7bbe4d7510f.png' -o "$d/el-toro__LEFT-IMG-03__backward-shuffle.png"
-          curl -fL --retry 3 'https://d2ol7oe51mr4n9.cloudfront.net/user_3D9HmxIE70fP7hTTYlNn2FjxT8U/0eb88334-a3b0-48a9-8c82-9be835400e45.png' -o "$d/el-toro__LEFT-IMG-04__crouch.png"
-          curl -fL --retry 3 'https://d2ol7oe51mr4n9.cloudfront.net/user_3D9HmxIE70fP7hTTYlNn2FjxT8U/ef596e3c-73f6-439e-81ad-7847e1bf027d.png' -o "$d/el-toro__LEFT-IMG-05__jump.png"
-          curl -fL --retry 3 'https://d2ol7oe51mr4n9.cloudfront.net/user_3D9HmxIE70fP7hTTYlNn2FjxT8U/b142579b-7e59-4722-b728-5e90bdb2eb11.png' -o "$d/el-toro__LEFT-IMG-06__basic-attack.png"
-          curl -fL --retry 3 'https://d2ol7oe51mr4n9.cloudfront.net/user_3D9HmxIE70fP7hTTYlNn2FjxT8U/2eb3f347-5a27-41c4-8239-50d0fa6a9886.png' -o "$d/el-toro__LEFT-IMG-07__low-attack.png"
-          curl -fL --retry 3 'https://d2ol7oe51mr4n9.cloudfront.net/user_3D9HmxIE70fP7hTTYlNn2FjxT8U/f854fdb6-9853-4fd3-bb5a-41bacd9dbf4b.png' -o "$d/el-toro__LEFT-IMG-08__block.png"
-          curl -fL --retry 3 'https://d2ol7oe51mr4n9.cloudfront.net/user_3D9HmxIE70fP7hTTYlNn2FjxT8U/f0ba3447-f91b-450d-87c4-d3aeec64cb16.png' -o "$d/el-toro__LEFT-IMG-09__hurt-knockdown.png"
-          curl -fL --retry 3 'https://d2ol7oe51mr4n9.cloudfront.net/user_3D9HmxIE70fP7hTTYlNn2FjxT8U/b93977b0-2ec6-42cc-b03b-3ff10ad3a28f.png' -o "$d/el-toro__LEFT-IMG-10__topete.png"
-          curl -fL --retry 3 'https://d2ol7oe51mr4n9.cloudfront.net/user_3D9HmxIE70fP7hTTYlNn2FjxT8U/c68cd0a8-64f9-4663-ac78-184a2727a918.png' -o "$d/el-toro__LEFT-IMG-11__shawarmazo.png"
-          curl -fL --retry 3 'https://d2ol7oe51mr4n9.cloudfront.net/user_3D9HmxIE70fP7hTTYlNn2FjxT8U/b3bfd9e2-80e4-45e8-afb9-4593bda090de.png' -o "$d/el-toro__LEFT-IMG-12__super-eructo.png"
-      - name: Verify exact SHA-256
+          curl -fsSL --retry 3 'https://d2ol7oe51mr4n9.cloudfront.net/user_3D9HmxIE70fP7hTTYlNn2FjxT8U/d5fa9083-6473-4308-ba3d-60b693e75747.png' -o "$d/el-toro__LEFT-IMG-00__master-seed.png"
+          curl -fsSL --retry 3 'https://d2ol7oe51mr4n9.cloudfront.net/user_3D9HmxIE70fP7hTTYlNn2FjxT8U/32dfb751-7363-4d2e-8dcc-3bf493d461a7.png' -o "$d/el-toro__LEFT-IMG-01__idle.png"
+          curl -fsSL --retry 3 'https://d2ol7oe51mr4n9.cloudfront.net/user_3D9HmxIE70fP7hTTYlNn2FjxT8U/5a8b9fa8-f763-4156-913d-d595b0bbfe12.png' -o "$d/el-toro__LEFT-IMG-02__forward-shuffle.png"
+          curl -fsSL --retry 3 'https://d2ol7oe51mr4n9.cloudfront.net/user_3D9HmxIE70fP7hTTYlNn2FjxT8U/fa6a0e8c-c137-49e2-bfa2-b7bbe4d7510f.png' -o "$d/el-toro__LEFT-IMG-03__backward-shuffle.png"
+          curl -fsSL --retry 3 'https://d2ol7oe51mr4n9.cloudfront.net/user_3D9HmxIE70fP7hTTYlNn2FjxT8U/0eb88334-a3b0-48a9-8c82-9be835400e45.png' -o "$d/el-toro__LEFT-IMG-04__crouch.png"
+          curl -fsSL --retry 3 'https://d2ol7oe51mr4n9.cloudfront.net/user_3D9HmxIE70fP7hTTYlNn2FjxT8U/ef596e3c-73f6-439e-81ad-7847e1bf027d.png' -o "$d/el-toro__LEFT-IMG-05__jump.png"
+          curl -fsSL --retry 3 'https://d2ol7oe51mr4n9.cloudfront.net/user_3D9HmxIE70fP7hTTYlNn2FjxT8U/b142579b-7e59-4722-b728-5e90bdb2eb11.png' -o "$d/el-toro__LEFT-IMG-06__basic-attack.png"
+          curl -fsSL --retry 3 'https://d2ol7oe51mr4n9.cloudfront.net/user_3D9HmxIE70fP7hTTYlNn2FjxT8U/2eb3f347-5a27-41c4-8239-50d0fa6a9886.png' -o "$d/el-toro__LEFT-IMG-07__low-attack.png"
+          curl -fsSL --retry 3 'https://d2ol7oe51mr4n9.cloudfront.net/user_3D9HmxIE70fP7hTTYlNn2FjxT8U/f854fdb6-9853-4fd3-bb5a-41bacd9dbf4b.png' -o "$d/el-toro__LEFT-IMG-08__block.png"
+          curl -fsSL --retry 3 'https://d2ol7oe51mr4n9.cloudfront.net/user_3D9HmxIE70fP7hTTYlNn2FjxT8U/f0ba3447-f91b-450d-87c4-d3aeec64cb16.png' -o "$d/el-toro__LEFT-IMG-09__hurt-knockdown.png"
+          curl -fsSL --retry 3 'https://d2ol7oe51mr4n9.cloudfront.net/user_3D9HmxIE70fP7hTTYlNn2FjxT8U/b93977b0-2ec6-42cc-b03b-3ff10ad3a28f.png' -o "$d/el-toro__LEFT-IMG-10__topete.png"
+          curl -fsSL --retry 3 'https://d2ol7oe51mr4n9.cloudfront.net/user_3D9HmxIE70fP7hTTYlNn2FjxT8U/c68cd0a8-64f9-4663-ac78-184a2727a918.png' -o "$d/el-toro__LEFT-IMG-11__shawarmazo.png"
+          curl -fsSL --retry 3 'https://d2ol7oe51mr4n9.cloudfront.net/user_3D9HmxIE70fP7hTTYlNn2FjxT8U/b3bfd9e2-80e4-45e8-afb9-4593bda090de.png' -o "$d/el-toro__LEFT-IMG-12__super-eructo.png"
+      - name: Verify decoded RGBA, grid extraction and hard-edge gate
         shell: bash
         run: |
           set -euo pipefail
-          cd docs/characters/el-toro/sprite-source/left
-          cat > /tmp/left.sha256 <<'EOF'
-          4d34a42acf2823a830fc792987099c73f9dbfd0af0583507e1c4b2cc75e668ae  el-toro__LEFT-IMG-00__master-seed.png
-          1dbe4afc9f1f5564eddd18e802af2f4f41454f7c5c54266466a90949106ebac7  el-toro__LEFT-IMG-01__idle.png
-          63132b6519162c9ce160db35c408a0faf3557f07f00ec7b1e72f45264e106c2a  el-toro__LEFT-IMG-02__forward-shuffle.png
-          8caa648410c72ce1a726fbe13fbf3b816a38b6ad38a1e478b7ac778eeba6c823  el-toro__LEFT-IMG-03__backward-shuffle.png
-          196d38b07b9e7d1ce86ae1401d86b5594a815e576217543f2bddc04d0acc8e46  el-toro__LEFT-IMG-04__crouch.png
-          92850cfe18cc89f160dd44aa9fac0536c2eb2540f4535538b416bdba3cbe6e70  el-toro__LEFT-IMG-05__jump.png
-          d6a23e5cc2233dc45af5e4ebe3a206251d6374a61f3573225407fdab95b8e57b  el-toro__LEFT-IMG-06__basic-attack.png
-          92b61b872dd65650db7d62e2e36ce85cccd957a19dc62d9155836a72269764b4  el-toro__LEFT-IMG-07__low-attack.png
-          f6f35fa68b92cd2ae65c1a6b5841ae387459caa120efdeed918406ffaa15531f  el-toro__LEFT-IMG-08__block.png
-          ce52a6db568e32a65904c38d314b003ef1d4d7fef86a5dfb8db1f1f9618cb4a2  el-toro__LEFT-IMG-09__hurt-knockdown.png
-          884b8c076daf9c9dfffaf1700fcf581a5d635f2dd0a5a8c8b5b342e991bb8904  el-toro__LEFT-IMG-10__topete.png
-          2edec8b9124316342073775f3bc54251f7b548ff93971279ed962f4ee7e604b6  el-toro__LEFT-IMG-11__shawarmazo.png
-          10603c27cb14af276c92e18ce1686909a6be5fb2303de0f3a6317459fa863ddb  el-toro__LEFT-IMG-12__super-eructo.png
-          EOF
-          sha256sum -c /tmp/left.sha256
+          node --input-type=module <<'NODE'
+          import { readFileSync, writeFileSync } from 'node:fs';
+          import { createHash } from 'node:crypto';
+          import { join } from 'node:path';
+          import { parseRgbaPng } from './scripts/sprite-png-alpha.mjs';
+          import { extractFramesByComponents } from './scripts/sprite-component-extractor.mjs';
+
+          const root='docs/characters/el-toro/sprite-source/left';
+          const specs=[
+            ['LEFT-IMG-00','el-toro__LEFT-IMG-00__master-seed.png',1,1,1,1254,1254,'1088c2c73c81c54cfb6dca6ae43a9bc7dcb6d5e65d2b8e107aac52a7a9482cbe'],
+            ['LEFT-IMG-01','el-toro__LEFT-IMG-01__idle.png',2,4,8,1536,1040,'673594b3c17b6e7ec5874431aad917e5f351c813fcf846eaa79f4586f2f53af6'],
+            ['LEFT-IMG-02','el-toro__LEFT-IMG-02__forward-shuffle.png',2,4,8,1536,1024,'f0218cd17a399b1a1bc3ad712d6f31a6fba85bdf8aa4f01b19ce3bec3bb4ef23'],
+            ['LEFT-IMG-03','el-toro__LEFT-IMG-03__backward-shuffle.png',2,4,8,1536,1024,'64080d0e72a3cc10c0997ba53b151c477b98ba3e3d4b85f05b70ff6ed5001dee'],
+            ['LEFT-IMG-04','el-toro__LEFT-IMG-04__crouch.png',1,4,4,1536,1024,'8c6cb7ac33057eaf634d81854a6255acee76f11e1e4c8c571b7111deaa0069d5'],
+            ['LEFT-IMG-05','el-toro__LEFT-IMG-05__jump.png',2,3,6,1536,1024,'9bcf14f3d345d53ad36529849867332acd18de20942906e320ba44ddef579dec'],
+            ['LEFT-IMG-06','el-toro__LEFT-IMG-06__basic-attack.png',2,3,6,1536,1024,'959dc38b69578fc366937c5d683660bf8e4b93789c3dd109aa11151e631908d2'],
+            ['LEFT-IMG-07','el-toro__LEFT-IMG-07__low-attack.png',2,3,6,1536,1024,'b836ef4f3333ddbf324e40b185f55f4ee7b9e4e40cb9bd0d8700923c70891171'],
+            ['LEFT-IMG-08','el-toro__LEFT-IMG-08__block.png',1,4,4,1536,1024,'ce61c7949944d1da773bf0f741d152794b861edaba011eb65cb0f4e5b9a7b938'],
+            ['LEFT-IMG-09','el-toro__LEFT-IMG-09__hurt-knockdown.png',2,4,8,1536,1024,'bb67c89655566bf0a05b782a5cb0338fd92c4343eb7d30451b4aff7bfb7c2614'],
+            ['LEFT-IMG-10','el-toro__LEFT-IMG-10__topete.png',2,4,8,1536,1024,'a3f1ca4e9949bd81543e24da8fe62885255387a9ac7a9296e21d1465c568f295'],
+            ['LEFT-IMG-11','el-toro__LEFT-IMG-11__shawarmazo.png',2,4,8,1536,1024,'60d92a32696f50911451493044d503642d7614f170505cff5f73151bdea8cc9d'],
+            ['LEFT-IMG-12','el-toro__LEFT-IMG-12__super-eructo.png',2,5,10,1536,1024,'f080da87e18df8533c9521179cac3e8f4e6bd00079c7c97efe7412557274fb60'],
+          ];
+          const receipt={contractVersion:1,fighterId:'el-toro',facing:'left',transport:'lossless-rgba-verified',sheets:[]};
+          for(const [id,file,rows,cols,count,w,h,pixelHash] of specs){
+            const bytes=readFileSync(join(root,file));
+            const image=parseRgbaPng(bytes);
+            if(image.width!==w||image.height!==h) throw new Error(id+' dimensions mismatch '+image.width+'x'+image.height);
+            const actualPixelHash=createHash('sha256').update(image.rgba).digest('hex');
+            if(actualPixelHash!==pixelHash) throw new Error(id+' decoded RGBA mismatch expected '+pixelHash+' actual '+actualPixelHash);
+            const ex=extractFramesByComponents(image,rows,cols,{contentAlpha:32,clipAlpha:128});
+            const extracted=ex.frames.filter(f=>f.bbox).length;
+            if(extracted!==count) throw new Error(id+' extracted '+extracted+' expected '+count);
+            if(ex.hardCanvasEdge.length!==0) throw new Error(id+' hard outer-canvas clipping '+ex.hardCanvasEdge.length);
+            if(!(ex.visiblePixels>0&&ex.transparentPixels>0)) throw new Error(id+' alpha visibility/transparency invalid');
+            const byteHash=createHash('sha256').update(bytes).digest('hex');
+            receipt.sheets.push({id,file,width:w,height:h,rows,cols,expectedFrames:count,decodedRgbaSha256:actualPixelHash,repositoryByteSha256:byteHash,hardCanvasEdgePixels:0});
+            console.log(id,'PASS',byteHash);
+          }
+          writeFileSync(join(root,'LEFT_SOURCE_HASHES.json'),JSON.stringify(receipt,null,2)+'\n');
+          console.log('LEFT source verification PASS '+specs.length+'/13');
+          NODE
       - name: Commit binary source set
         shell: bash
         run: |
           set -euo pipefail
           git config user.name 'Mario-A sprite intake'
           git config user.email 'actions@users.noreply.github.com'
-          git add docs/characters/el-toro/sprite-source/left/*.png
+          git add docs/characters/el-toro/sprite-source/left/*.png docs/characters/el-toro/sprite-source/left/LEFT_SOURCE_HASHES.json
           git rm .github/workflows/r005-mario-a-left-import.yml
-          git commit -m 'assets(sprite): stage authored El Toro LEFT source set'
+          git commit -m 'assets(sprite): stage verified El Toro LEFT source set'
           git push origin HEAD:round/r005-sprite-mario-a-source-import

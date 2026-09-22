@@ -2,7 +2,7 @@
 
 Round: R005-V07-GAMEPLAY-PRESENTATION-EXPANSION  
 Owner: Mario-B  
-Status: HANDOFF_READY_BILATERAL_ANCHOR_BLOCKED
+Status: HANDOFF_READY_BILATERAL_ANCHOR_REVIEW
 
 ## Execution branch
 
@@ -36,7 +36,7 @@ Build the production-intended El Toro sprite package from Mario-A's admitted/nor
 ## Acceptance criteria
 
 - [x] Right-facing body set maps exactly to 84 contractual sprites.
-- [ ] LEFT-facing body set maps exactly to the same 84 phases before production-complete status.
+- [x] LEFT-facing body set maps exactly to the same 84 phases before production-complete status.
 - [x] FX remain separate from body.
 - [ ] Stable per-frame pivot and required attachment anchors exist.
 - [ ] Action reads at gameplay scale with generic FX disabled.
@@ -250,3 +250,15 @@ Build the production-intended El Toro sprite package from Mario-A's admitted/nor
 - editing or copying coordinates always forces `verified:false`; only explicit Verify frame can set `verified:true`
 - no anatomical coordinates are prefilled or inferred
 - package remains anchor-blocked until both exported reviews are visually completed and verified
+
+
+## Mario-B repaired LEFT Topete rebuild — 2026-09-22
+
+- exact candidate: `1a1d14df00e3b0f5942d2b1db29f2063dcb758bd`
+- verification: run `35750820290` — coordination contract + full suite + build PASS
+- exact repaired source dependency consumed by two-parent merge: Mario-A `7782734bcc0cf4d98df74073fd86e6d8ead409d2`
+- supersedes Mario-B `d6b41ff8c9f83162442d01d9d412d5eab9edc9be` for all LEFT-facing Topete review/certification
+- repaired LEFT-IMG-10 source-quality regression: PASS
+- Mario-B bilateral derived regression: LEFT `move:topete` has exactly 8 frames and 8 distinct packed atlas rects: PASS
+- bilateral packer, manifest, previews and `bilateral-anchor-review.html` now regenerate from the repaired source
+- remaining gate only: explicit visual verification of the seven anatomical anchors for RIGHT + LEFT

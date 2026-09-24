@@ -42,9 +42,9 @@ test('SUPER has no passive gain and clean Special rewards use the V0.5 category 
     30,
   );
 
-  assert.equal(snap.fighters[1].health, 920);
-  assert.equal(snap.fighters[0].superMeter, 8);
-  assert.equal(snap.fighters[1].superMeter, 4.4);
+  assert.equal(snap.fighters[1].health, 928);
+  assert.equal(snap.fighters[0].superMeter, 7.2);
+  assert.equal(snap.fighters[1].superMeter, 72 * 0.055);
 });
 
 test('SUPER READY is capped and emits once when damage crosses the threshold', () => {

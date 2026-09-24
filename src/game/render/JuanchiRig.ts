@@ -17,6 +17,8 @@ interface JuanchiActionPose {
   backFoot: Point2;
   shoulderDrive: number;
   rage: number;
+  rageAura: number;
+  rush: number;
   finisher: number;
   rub: number;
   palmRelease: number;
@@ -48,6 +50,17 @@ function frictionFactors(frame: number): { rub: number; load: number; release: n
   return { rub: 0, load: 0, release: 0 };
 }
 
+export function getJuanchiRageAuraIntensity(
+  phase: FighterSnapshot['ultimatePhase'],
+  frame: number,
+): number {
+  if (phase !== 'sequence' || frame <= 4 || frame >= 40) return 0;
+  if (frame <= 11) return clamp01((frame - 4) / 7);
+  if (frame <= 23) return 1;
+  if (frame <= 33) return lerp(1, 0.82, (frame - 23) / 10);
+  return 0.82 * clamp01(1 - (frame - 33) / 7);
+}
+
 function ultimateFactors(fighter: FighterSnapshot): {
   retrieve: number;
   rage: number;
@@ -55,16 +68,17 @@ function ultimateFactors(fighter: FighterSnapshot): {
   barrageA: number;
   barrageB: number;
   finisher: number;
+  aura: number;
 } {
   if (fighter.ultimatePhase === 'startup') {
     const retrieve = clamp01(fighter.ultimatePhaseFrame / 12);
-    return { retrieve, rage: 0, rush: 0, barrageA: 0, barrageB: 0, finisher: 0 };
+    return { retrieve, rage: 0, rush: 0, barrageA: 0, barrageB: 0, finisher: 0, aura: 0 };
   }
   if (fighter.ultimatePhase === 'capture') {
-    return { retrieve: 1, rage: 0, rush: 0, barrageA: 0, barrageB: 0, finisher: 0 };
+    return { retrieve: 1, rage: 0, rush: 0, barrageA: 0, barrageB: 0, finisher: 0, aura: 0 };
   }
   if (fighter.ultimatePhase !== 'sequence') {
-    return { retrieve: 0, rage: 0, rush: 0, barrageA: 0, barrageB: 0, finisher: 0 };
+    return { retrieve: 0, rage: 0, rush: 0, barrageA: 0, barrageB: 0, finisher: 0, aura: 0 };
   }
 
   const frame = fighter.ultimatePhaseFrame;
@@ -75,7 +89,8 @@ function ultimateFactors(fighter: FighterSnapshot): {
   const barrageA = Math.max(pulse(frame, 22, 24, 26), pulse(frame, 28, 30, 32));
   const barrageB = Math.max(pulse(frame, 25, 27, 29), pulse(frame, 31, 33, 35));
   const finisher = frame >= 34 ? pulse(frame, 33, 40, 43) : 0;
-  return { retrieve: 0, rage, rush, barrageA, barrageB, finisher };
+  const aura = getJuanchiRageAuraIntensity(fighter.ultimatePhase, frame);
+  return { retrieve: 0, rage, rush, barrageA, barrageB, finisher, aura };
 }
 
 function withAirLegPose(
@@ -109,8 +124,23 @@ function computeActionPose(fighter: FighterSnapshot, locomotion: LocomotionPose)
   const hurt = fighter.stunFrames > 0 ? 1 : 0;
   const ko = fighter.health <= 0 ? 1 : 0;
 
-  let frontHand: Point2 = { x: 31, y: 111 };
-  let backHand: Point2 = { x: -30, y: 109 };
+  const ordinaryTravel =
+    fighter.moveId === null
+    && fighter.ultimatePhase === 'idle'
+    && !fighter.blocking
+    && fighter.stunFrames === 0
+    && fighter.blockstunFrames === 0;
+  const gaitSwing = ordinaryTravel ? locomotion.freeArmSwing : 0;
+  const ballArmConstrained = fighter.rangedAvailability === 'ready';
+
+  let frontHand: Point2 = {
+    x: 31 + gaitSwing,
+    y: 111 + Math.abs(gaitSwing) * 0.12,
+  };
+  let backHand: Point2 = {
+    x: -30 - gaitSwing * (ballArmConstrained ? 0.16 : 0.72),
+    y: 109 - Math.abs(gaitSwing) * (ballArmConstrained ? 0.03 : 0.1),
+  };
 
   frontHand = {
     x:
@@ -212,6 +242,8 @@ function computeActionPose(fighter: FighterSnapshot, locomotion: LocomotionPose)
     backFoot,
     shoulderDrive: shoulder,
     rage: ultimate.rage,
+    rageAura: ultimate.aura,
+    rush: ultimate.rush,
     finisher: ultimate.finisher,
     rub: friction.rub,
     palmRelease: friction.release,
@@ -279,6 +311,63 @@ export function drawPoliceCapProp(
   ctx.restore();
 }
 
+export function drawJuanchiRageAura(
+  ctx: CanvasRenderingContext2D,
+  intensity: number,
+  rush: number,
+  finisher: number,
+  frame: number,
+): void {
+  const raw = clamp01(Math.max(intensity, rush * 0.82));
+  const collapse = clamp01(1 - finisher * 0.78);
+  const aura = raw * collapse;
+  if (aura <= 0.02) return;
+
+  ctx.save();
+
+  // Faint floor / ground edge glow stays behind the body and never fills the screen.
+  ctx.save();
+  ctx.globalAlpha = 0.08 + aura * 0.16;
+  ctx.scale(1 + rush * 0.38, 1);
+  ellipse(ctx, -4, 2, 58 + aura * 26, 10 + aura * 5, '#b51f31');
+  ctx.restore();
+
+  // Layered crimson flame wisps around shoulders/torso: a genuine aura outside silhouette.
+  ctx.lineCap = 'round';
+  const pulseBeat = 0.78 + 0.22 * Math.sin(frame * 0.82);
+  for (let i = 0; i < 6; i += 1) {
+    const side = i % 2 === 0 ? -1 : 1;
+    const tier = Math.floor(i / 2);
+    const baseX = side * (33 + tier * 7);
+    const baseY = -74 - tier * 22;
+    const stretch = 1 + rush * 0.8;
+    const wispLean = side * (10 + tier * 4) - rush * 20;
+    ctx.globalAlpha = aura * pulseBeat * (0.28 - tier * 0.035);
+    ctx.strokeStyle = tier === 0 ? '#ef334d' : tier === 1 ? '#d11b31' : '#8e1627';
+    ctx.lineWidth = 5 - tier * 0.8;
+    ctx.beginPath();
+    ctx.moveTo(baseX, baseY);
+    ctx.bezierCurveTo(
+      baseX + wispLean * 0.35 * stretch,
+      baseY - 20,
+      baseX - wispLean * 0.2 * stretch,
+      baseY - 43 - aura * 9,
+      baseX + wispLean * stretch,
+      baseY - 62 - aura * 14,
+    );
+    ctx.stroke();
+  }
+
+  ctx.globalAlpha = aura * 0.18;
+  ctx.strokeStyle = '#ff5266';
+  ctx.lineWidth = 2.5;
+  ctx.beginPath();
+  ctx.ellipse(-2 - rush * 16, -116, 50 + rush * 20, 82, -0.08, 0, Math.PI * 2);
+  ctx.stroke();
+
+  ctx.restore();
+}
+
 export function drawJuanchi(
   ctx: CanvasRenderingContext2D,
   fighter: FighterSnapshot,
@@ -301,8 +390,16 @@ export function drawJuanchi(
   ellipse(ctx, 0, fighter.y, 49, 10, '#030407');
   ctx.restore();
 
-  const frontHip: Point2 = { x: 13, y: 72 - action.drop };
-  const backHip: Point2 = { x: -12, y: 72 - action.drop };
+  drawJuanchiRageAura(ctx,
+    action.rageAura,
+    action.rush,
+    action.finisher,
+    fighter.ultimatePhaseFrame,
+  );
+
+  const hipTwist = locomotion.hipCounterRotation * 42;
+  const frontHip: Point2 = { x: 13 + hipTwist, y: 72 - action.drop };
+  const backHip: Point2 = { x: -12 - hipTwist, y: 72 - action.drop };
   const frontKnee = solveTwoBoneLeg(frontHip, action.frontFoot, 39, 41, 1);
   const backKnee = solveTwoBoneLeg(backHip, action.backFoot, 39, 41, -1);
 
@@ -322,6 +419,11 @@ export function drawJuanchi(
   ellipse(ctx, action.backFoot.x + 5, -action.backFoot.y + 1, 19, 7, '#f4f5f2', 0.03, '#090b0e', 2);
   ellipse(ctx, action.backFoot.x + 1, -action.backFoot.y - 2, 14, 5, '#15181d', 0.02);
   roundedLine(ctx, action.backFoot.x - 7, -action.backFoot.y - 3, action.backFoot.x + 9, -action.backFoot.y - 1, 2, '#c6a553');
+
+  ctx.save();
+  ctx.translate(locomotion.weightTransfer * 1.55, -94);
+  ctx.rotate(locomotion.chestCounterRotation);
+  ctx.translate(0, 94);
 
   const torsoY = -119 + action.drop * 0.58 + idle;
   // Oversized black shirt silhouette.
@@ -381,8 +483,23 @@ export function drawJuanchi(
     const hx = (action.frontHand.x + action.backHand.x) * 0.5;
     const hy = -(action.frontHand.y + action.backHand.y) * 0.5;
     ctx.save();
-    ctx.globalAlpha = 0.25 + action.rub * 0.35;
-    ellipse(ctx, hx, hy, 10 + action.rub * 6, 7 + action.rub * 4, '#ffb24d');
+    ctx.globalAlpha = 0.18 + action.rub * 0.26;
+    ellipse(ctx, hx, hy, 9 + action.rub * 5, 6 + action.rub * 3, '#ffb24d');
+
+    // Fricción sparks originate between the hands and rise with the rub beat.
+    ctx.strokeStyle = '#ffd27a';
+    ctx.lineWidth = 2;
+    ctx.lineCap = 'round';
+    for (let i = 0; i < 6; i += 1) {
+      const sparkPhase = combatTimeSeconds * 17 + fighter.moveFrame * 0.63 + i * 1.17;
+      const sx = hx + Math.sin(sparkPhase) * (4 + i * 0.7);
+      const sy = hy - 3 - i * 3.4;
+      ctx.globalAlpha = action.rub * (0.32 + (i % 3) * 0.1);
+      ctx.beginPath();
+      ctx.moveTo(sx, sy);
+      ctx.lineTo(sx + Math.cos(sparkPhase) * 5, sy - 7 - (i % 2) * 3);
+      ctx.stroke();
+    }
     ctx.restore();
   }
   if (action.palmRelease > 0.05) {
@@ -433,10 +550,10 @@ export function drawJuanchi(
   ctx.restore();
 
   if (action.rage > 0.12) {
-    // Upward rage face/open mouth without a full-screen wash.
+    // Modest warm body treatment supports the external aura; it is not the aura itself.
     ctx.save();
-    ctx.globalAlpha = 0.22 + action.rage * 0.35;
-    ellipse(ctx, headX + 5, headY - 2, 42, 47, '#a22f24');
+    ctx.globalAlpha = 0.08 + action.rage * 0.16;
+    ellipse(ctx, headX + 5, headY - 2, 40, 45, '#a22f24');
     ctx.restore();
     ellipse(ctx, headX + 20, headY + 19, 7, 9, '#451615', 0.05, '#1c0909', 1.5);
   } else {
@@ -455,6 +572,8 @@ export function drawJuanchi(
       -0.34 + action.throwPose * 0.72,
     );
   }
+
+  ctx.restore();
 
   const beltCapVisible =
     fighter.ultimatePhase === 'idle'

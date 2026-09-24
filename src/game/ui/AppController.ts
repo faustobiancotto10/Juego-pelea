@@ -2,6 +2,7 @@ import { DEFAULT_COMBAT_REGISTRY } from '../data/combatRegistry.js';
 import { DEFAULT_FIGHTER_PRESENTATION_REGISTRY } from '../data/presentationRegistry.js';
 import { GameInput } from '../input/GameInput.js';
 import { FightRenderer } from '../render/FightRenderer.js';
+import { mountFighterPortraits } from '../render/PortraitRenderer.js';
 import { DEFAULT_STAGE_REGISTRY } from '../render/StageRegistry.js';
 import { CombatSimulation } from '../simulation/CombatSimulation.js';
 import { CpuController } from '../simulation/CpuController.js';
@@ -12,6 +13,7 @@ import {
   beginSelection,
   changeFighters,
   changeStage,
+  chooseCpuDifficulty,
   chooseFighter,
   chooseStage,
   finishFight,
@@ -118,6 +120,7 @@ export class AppController {
         cpu: 'supernariz',
         stage: DEFAULT_STAGE,
         winner: null,
+        cpuDifficulty: 'normal',
       };
       this.autoplayPlayer = true;
       this.showVs(250);
@@ -137,7 +140,7 @@ export class AppController {
           <span class="cover-sigil cover-sigil--right">J</span>
         </div>
         <section class="cover-copy">
-          <span class="cover-kicker">V0.6 · TRES LUCHADORES · DOS ESCENARIOS</span>
+          <span class="cover-kicker">V0.7 · CUATRO LUCHADORES · DOS ESCENARIOS</span>
           <h1><span>JUEGO</span><strong>PELEA</strong></h1>
           <p>Elegí luchador, rival y escenario. Después resolvelo en la cancha.</p>
           <div class="cover-actions">
@@ -177,6 +180,7 @@ export class AppController {
     const selectedId = this.pendingFighter;
     const selected = fighterDefinition(selectedId);
     const selectedPresentation = fighterPresentation(selectedId).select;
+    const difficulty = this.flow.cpuDifficulty;
 
     this.root.innerHTML = `
       <main class="roster-screen" data-game-phase="${selectingCpu ? 'select-cpu' : 'select-player'}">
@@ -191,10 +195,12 @@ export class AppController {
           </div>
           <aside class="fighter-info" style="--fighter-accent:${fighterPresentation(selectedId).accent}">
             <span class="fighter-info-kicker">${selectedPresentation.kicker}</span>
-            <div class="fighter-info-mark" aria-hidden="true">${selectedPresentation.mark}</div>
+            ${this.fighterPortrait(selectedId, 'fighter-info-portrait')}
+            <div class="fighter-info-mark fighter-info-mark--accent" aria-hidden="true">${selectedPresentation.mark}</div>
             <h2>${selected.displayName}</h2>
             <strong>${selectedPresentation.role}</strong>
             <p>${selectedPresentation.moves}</p>
+            ${selectingCpu ? this.difficultySelector(difficulty) : ''}
             <div class="fighter-info-actions">
               <button class="primary-button" data-fighter-confirm data-primary type="button">
                 ${selectingCpu ? 'CONFIRMAR RIVAL' : 'CONFIRMAR LUCHADOR'}
@@ -212,11 +218,22 @@ export class AppController {
       ${this.orientationPrompt()}
     `;
 
+    mountFighterPortraits(this.root);
+
     for (const button of this.root.querySelectorAll<HTMLButtonElement>('[data-fighter]')) {
       button.addEventListener('click', () => {
         const id = playableFighterId(button.dataset.fighter);
         if (!id) throw new Error(`Unknown playable fighter ${String(button.dataset.fighter)}`);
         this.pendingFighter = id;
+        this.showRosterSelect();
+      });
+    }
+
+    for (const button of this.root.querySelectorAll<HTMLButtonElement>('[data-difficulty]')) {
+      button.addEventListener('click', () => {
+        const difficulty = button.dataset.difficulty;
+        if (difficulty !== 'easy' && difficulty !== 'normal' && difficulty !== 'hard') return;
+        this.flow = chooseCpuDifficulty(this.flow, difficulty);
         this.showRosterSelect();
       });
     }
@@ -255,11 +272,32 @@ export class AppController {
         style="--fighter-accent:${info.accent}"
       >
         <span class="roster-tile-kicker">${info.select.kicker}</span>
-        <span class="roster-tile-mark" aria-hidden="true">${info.select.mark}</span>
+        ${this.fighterPortrait(id, 'roster-tile-portrait')}
+        <span class="roster-tile-mark roster-tile-mark--accent" aria-hidden="true">${info.select.mark}</span>
         <strong>${fighterDefinition(id).displayName}</strong>
         <span>${info.select.role}</span>
       </button>
     `;
+  }
+
+  private fighterPortrait(id: FighterId, extraClass: string): string {
+    const presentation = fighterPresentation(id);
+    return `
+      <span
+        class="fighter-portrait-v07 ${extraClass}"
+        data-fighter-portrait
+        data-portrait-key="${presentation.portraitKey}"
+        aria-hidden="true"
+      >
+        <span class="fighter-portrait-fallback">${presentation.select.mark}</span>
+        <canvas class="fighter-portrait-canvas" width="192" height="168"></canvas>
+      </span>
+    `;
+  }
+
+  private difficultySelector(selected: 'easy' | 'normal' | 'hard'): string {
+    const options = [['easy', 'FÁCIL'], ['normal', 'NORMAL'], ['hard', 'DIFÍCIL']] as const;
+    return `<fieldset class="difficulty-selector" aria-label="Dificultad CPU"><legend>DIFICULTAD CPU</legend><div>${options.map(([value, label]) => `<button type="button" data-difficulty="${value}" class="${value === selected ? 'is-selected' : ''}" aria-pressed="${value === selected}">${label}</button>`).join('')}</div></fieldset>`;
   }
 
   private showStageSelect(): void {
@@ -338,13 +376,15 @@ export class AppController {
         <div class="vs-stage" data-stage-name>${stage.label}</div>
         <div class="vs-side vs-side--left fighter-card--${p1}">
           <span class="vs-label">JUGADOR</span>
+          ${this.fighterPortrait(p1, 'vs-portrait')}
           <span class="vs-portrait-mark" aria-hidden="true">${fighterPresentation(p1).select.mark}</span>
           <strong>${fighterDefinition(p1).displayName}</strong>
           <span>${fighterPresentation(p1).select.role}</span>
         </div>
         <div class="vs-mark">VS</div>
         <div class="vs-side vs-side--right fighter-card--${p2}">
-          <span class="vs-label">CPU</span>
+          <span class="vs-label">CPU · ${this.flow.cpuDifficulty.toUpperCase()}</span>
+          ${this.fighterPortrait(p2, 'vs-portrait')}
           <span class="vs-portrait-mark" aria-hidden="true">${fighterPresentation(p2).select.mark}</span>
           <strong>${fighterDefinition(p2).displayName}</strong>
           <span>${fighterPresentation(p2).select.role}</span>
@@ -352,6 +392,7 @@ export class AppController {
       </main>
       ${this.orientationPrompt()}
     `;
+    mountFighterPortraits(this.root);
     clearTimeout(this.vsTimer);
     this.vsTimer = window.setTimeout(() => {
       this.flow = startFight(this.flow);
@@ -408,7 +449,7 @@ export class AppController {
 
     const simulation = new CombatSimulation(this.flow.player, this.flow.cpu);
     const renderer = new FightRenderer(canvas, DEFAULT_STAGE_REGISTRY.get(this.flow.stage));
-    const cpu = new CpuController(1);
+    const cpu = new CpuController(1, { difficulty: this.flow.cpuDifficulty });
     const playerCpu = this.autoplayPlayer ? new CpuController(0) : null;
     this.input = new GameInput(touchRoot, {
       onReset: () => simulation.resetInputState(),
@@ -646,7 +687,7 @@ export class AppController {
           <div class="controls-heading"><span>GUÍA RÁPIDA</span><strong>CONTROLES</strong><button data-controls-close type="button" aria-label="Cerrar controles">×</button></div>
           <div class="controls-grid">
             <section><h3>MOVIMIENTO</h3><p><b>D-pad</b><span>Moverse</span></p><p><b>Atrás</b><span>Retroceder / bloquear</span></p><p><b>Abajo + atrás</b><span>Bloqueo bajo</span></p><p><b>Doble adelante</b><span>Dash</span></p><p><b>Doble atrás</b><span>Backdash / esquiva</span></p></section>
-            <section><h3>ACCIONES</h3><p><b>JUMP</b><span>Saltar / ataque aéreo con ATTACK</span></p><p><b>ATTACK</b><span>Ataque normal / cadena corta</span></p><p><b>Abajo + ATTACK</b><span>Low normal en el suelo</span></p><p><b>SPECIAL sin dirección</b><span>Especial a distancia: Lengua / Chorizo / Rugby Búmeran</span></p><p><b>Abajo + SPECIAL</b><span>Especial cercano: Coletazo / Tramontana / Fricción</span></p><p><b>SPECIAL bloqueando</b><span>Push Guard: pide separación usando GUARD</span></p><p><b>ULTIMATE (Touch)</b><span>Intento de Ultimate; requiere SUPER READY</span></p><p><b>L (teclado)</b><span>Ultimate dedicado en desktop</span></p></section>
+            <section><h3>ACCIONES</h3><p><b>JUMP</b><span>Saltar / ataque aéreo con ATTACK</span></p><p><b>ATTACK</b><span>Ataque normal / cadena corta</span></p><p><b>Abajo + ATTACK</b><span>Low normal en el suelo</span></p><p><b>SPECIAL sin dirección</b><span>Especial a distancia según luchador</span></p><p><b>Abajo + SPECIAL</b><span>Especial cercano según luchador</span></p><p><b>SPECIAL bloqueando</b><span>Push Guard: pide separación usando GUARD</span></p><p><b>ULTIMATE (Touch)</b><span>Intento de Ultimate; requiere SUPER READY</span></p><p><b>L (teclado)</b><span>Ultimate dedicado en desktop</span></p></section>
           </div>
           <div class="controls-tips"><strong>COMBATE</strong><span>Bloquear consume GUARD · El low vence guardia alta · Saltar evita lows · SPECIAL neutro controla distancia · Abajo + SPECIAL es la opción cercana · La disponibilidad del proyectil se muestra en HUD cuando aplica · Touch: ULTIMATE · Teclado: L</span></div>
         </div>

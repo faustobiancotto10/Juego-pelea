@@ -53,10 +53,10 @@ test('R3 final Special grammar is uniform and low tongue is not selectable', () 
 
 test('R3 applies approved commitment candidates to ranged Specials and Tramontana', () => {
   const tongue = getMoveDefinition('chameleon', 'tongueStraight');
-  assert.equal(tongue.totalFrames, 46);
+  assert.equal(tongue.totalFrames, 54);
   assert.deepEqual(
     [tongue.hitbox.start, tongue.hitbox.end, tongue.hitbox.damage, tongue.hitbox.chipDamage, tongue.hitbox.guardDamage],
-    [12, 14, 80, 4, 14],
+    [12, 14, 72, 3, 10],
   );
 
   const chorizo = getMoveDefinition('supernariz', 'chorizoThrow');
@@ -103,8 +103,8 @@ test('SUPER rewards clean offense by category; chip and Ultimate damage award ze
   special.fighters[0].x = 500; special.fighters[1].x = 700;
   special.step(input({ special: true }), E);
   result = runUntil(special, (_s, events) => events.some(e => e.type === 'hit'), 30);
-  assert.equal(result.snap.fighters[0].superMeter, 8);
-  assert.equal(result.snap.fighters[1].superMeter, 80 * 0.055);
+  assert.equal(result.snap.fighters[0].superMeter, 72 * 0.10);
+  assert.equal(result.snap.fighters[1].superMeter, 72 * 0.055);
 
   const chip = new CombatSimulation('chameleon', 'supernariz', { skipIntro: true });
   chip.fighters[0].x = 500; chip.fighters[1].x = 700;

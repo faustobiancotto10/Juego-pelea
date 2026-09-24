@@ -1,11 +1,17 @@
 import { DEFAULT_CHARACTER_COMPOSITION } from './characterContent.js';
 
-export type UltimateKind = 'dashCapture' | 'suctionCapture' | 'capCapture';
+export type UltimateKind = 'dashCapture' | 'suctionCapture' | 'capCapture' | 'forwardBlast';
 
 export interface UltimateHitBeat {
   frame: number;
   damage: number;
   knockback: number;
+  chipDamage?: number;
+  guardDamage?: number;
+  hitstun?: number;
+  blockstun?: number;
+  blockKnockback?: number;
+  hitstop?: number;
 }
 
 export interface UltimateDefinition {
@@ -22,6 +28,10 @@ export interface UltimateDefinition {
   suctionRange?: number;
   suctionSpeed?: number;
   captureDistance?: number;
+  blastFrames?: number;
+  blastRange?: number;
+  blastBottom?: number;
+  blastTop?: number;
   probeSpawnOffsetX?: number;
   probeSpeed?: number;
   probeHalfWidth?: number;

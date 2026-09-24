@@ -274,7 +274,7 @@ test('Juanchi police-cap presentation follows authoritative probe and capture st
   assert.match(source, /fighter\.ultimateProbe/);
   assert.match(source, /probe\.visualKey !== 'police-cap'/);
   assert.match(source, /target\.capturedBy === attackerIndex/);
-  assert.match(source, /sampleFighterAnchors/);
+  assert.match(source, /sampleFighterAnchor/);
   assert.match(source, /drawPoliceCapProp/);
   assert.doesNotMatch(source, /captureDistance|confrontation|collisionHalfWidth/);
 });

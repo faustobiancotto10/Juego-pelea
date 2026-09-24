@@ -7,7 +7,7 @@
     "clean": "rm -rf dist",
     "typecheck": "tsc --noEmit",
     "test": "rm -rf dist && tsc && node scripts/run-tests.mjs",
-    "build": "npm run clean && tsc && cp index.html dist/index.html && cp src/styles.css dist/styles.css",
+    "build": "npm run clean && tsc && cp index.html dist/index.html && cp src/styles.css dist/styles.css && node scripts/copy-runtime-assets.mjs",
     "serve": "python3 -m http.server 4173 -d dist"
   }
 }

@@ -10,7 +10,7 @@ Comparar AGENTS, protocolo, tooling, ronda, STATUS, LOCKS, tareas, handoffs, for
 
 ## Checkpoint 1 — evidencia inicial
 
-- `CONFIRMED`: `coordination/PROTOCOL.md` §7 permite OFF_ROUND, READY, WORKING, WAITING_DEPENDENCY, HANDOFF_READY, REVIEWING, VERIFIED, BLOCKED, UNRESPONSIVE. `coordination/STATUS.md` usa `HANDOFF_CONSUMED` en la fila Mario-B. Reproducción en base `main`: `node --test tests/coordination-contract.test.mjs` = 9/10, falla `invalid state for Mario` en línea 106; este PR documental no corrige el estado operativo.
+- `CONFIRMED`: `coordination/PROTOCOL.md` §7 permite OFF_ROUND, READY, WORKING, WAITING_DEPENDENCY, HANDOFF_READY, REVIEWING, VERIFIED, BLOCKED, UNRESPONSIVE. `coordination/STATUS.md` usa `HANDOFF_CONSUMED` en la fila Mario **y** en las subfilas Mario-A/B. Reproducción en base `main`: `node --test tests/coordination-contract.test.mjs` = 9/10, falla `invalid state for Mario` en línea 106; este PR documental no corrige el estado operativo.
 - `CONFIRMED`: `coordination/LOCKS.md` contiene un encabezado «Active sprite-pilot claim — Mario-B» y más abajo un claim «Active Mario-A live-integration repair», además de liberaciones históricas; hoy requiere interpretación humana para decidir qué claims siguen activos.
 - `CONFIRMED`: `coordination/README.md` admite N instancias si CURRENT_ROUND define lanes separables; la activación real exige leer al menos nueve superficies antes del código. La capacidad genérica prometida todavía no equivale a claiming atómico.
 - `CONFIRMED`: `main` sigue en R005 ACTIVE, AUTO_CHAIN / SAME-ROLE MARIO SQUAD. Se preserva intacto.

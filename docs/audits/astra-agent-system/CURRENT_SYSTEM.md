@@ -11,8 +11,8 @@
 | Superficie | Estado concreto en SHA base | Consecuencia |
 | --- | --- | --- |
 | Protocolo §7 y test línea 93–106 | Vocabulario cerrado; el test lee una sola fila por nombre de los seis roles | No valida el resto de instancias ni transiciones. |
-| `STATUS.md` | Mario-B `HANDOFF_CONSUMED` fuera de vocabulario; Mario-A `WORKING`, G1 y Gonza `BLOCKED` | 9/10 tests; contradice los handoffs G1 APPROVE y Z0 VERIFIED de la misma línea de trabajo. |
-| `CURRENT_ROUND.md` líneas 229–267 | Bloqueo G1 histórico, reemplazo `fe2b505…` pendiente de QA | La aprobación en `handoffs/V07-SPR-G1-germinator.md` y preview `V07-SPR-Z0-gonza.md` son posteriores; el lector debe resolver temporalidad. |
+| `STATUS.md` | Mario y Mario-A/B `HANDOFF_CONSUMED` fuera de vocabulario; G1 `VERIFIED` y Gonza `HANDOFF_READY` | 9/10 tests por Mario; el estado de las filas G1/Z0 es coherente con sus handoffs, pero no con encabezados históricos en CURRENT_ROUND y LOCKS. |
+| `CURRENT_ROUND.md` líneas 229–267 | Bloqueo G1 histórico, reemplazo `fe2b505…` pendiente de QA | La aprobación en `handoffs/V07-SPR-G1-germinator.md` y preview `V07-SPR-Z0-gonza.md` son posteriores; el lector debe resolver temporalidad. STATUS sí los registra como VERIFIED/HANDOFF_READY. |
 | `tasks/V07-SPR-MB.md` línea 5 | `HANDOFF_READY_BILATERAL_ANCHOR_REVIEW` no aparece en §7 | Otro token inválido que el test actual no ve. |
 | `tasks/V07-SPR-G1.md`, `tasks/V07-SPR-Z0.md` | `VERIFIED` | Contradicen las filas bloqueadas de STATUS; el preview aislado, NO producción, fue servido. |
 | `LOCKS.md` | Liberaciones y claims históricos con encabezados «Active» coexistentes | No ofrece conjunto único actual de reservas. |

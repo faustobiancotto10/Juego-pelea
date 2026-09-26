@@ -2,7 +2,8 @@
 
 Round: R005-V07-GAMEPLAY-PRESENTATION-EXPANSION  
 Owner: Mario-B  
-Status: HANDOFF_READY_BILATERAL_ANCHOR_REVIEW
+Status: HANDOFF_READY
+Handoff consumption: consumed by Mario-A integration; package/anchor evidence is preserved in downstream exact-SHA integration and QA receipts. Consumption is an event, not a task state.
 
 ## Execution branch
 

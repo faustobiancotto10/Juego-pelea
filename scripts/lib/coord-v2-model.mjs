@@ -97,7 +97,12 @@ function qaForHandoff(handoff, qaReceipts, errors) {
     errors.push(`handoff ${handoff.id} has multiple authoritative QA receipts`);
     return null;
   }
-  return matches[0] ?? null;
+  const qa = matches[0] ?? null;
+  if (!qa) return null;
+  if (qa.taskId !== handoff.taskId || qa.candidateSha !== handoff.candidateSha) {
+    return null;
+  }
+  return qa;
 }
 
 export function loadV2Model(root = '.') {

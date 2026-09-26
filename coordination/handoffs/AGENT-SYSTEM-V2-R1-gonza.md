@@ -7,7 +7,7 @@ To: Germinator fresh independent QA → Neureon
 Implementation PR: #65  
 Supersedes for QA: blocked V2 handoff on exact head `d6804e5a05adb4263a741115352320d7b722fbf9`  
 Repair code head: `7dfa45db6bdb934a29f5bec93138489470434558`  
-Identity-review head: `ab8ba0e541ec9a9d5ad741115352320d7b722fbf9` is not used; see PR head for exact final handoff commit.
+Identity-review head: `ab8ba0e541ec9a9d5ad741cf2ddd1d756deedc71` is not used; see PR head for exact final handoff commit.
 
 ## Germinator BLOCK repaired
 

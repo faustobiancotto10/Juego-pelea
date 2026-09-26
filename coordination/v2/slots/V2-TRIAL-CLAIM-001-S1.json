@@ -1,0 +1,13 @@
+{
+  "schemaVersion": 1,
+  "id": "V2-TRIAL-CLAIM-001-S1",
+  "taskId": "V2-TRIAL-CLAIM-001",
+  "roleId": "gonza",
+  "branchRef": "refs/heads/coord-v2-work/v2-trial-claim-001-s1",
+  "claimRef": "refs/heads/coord-v2-claims/v2-trial-claim-001-s1",
+  "baseSha": "4a47962e563b8e444ab6cf6a288db66c13dda743",
+  "ownedPaths": [
+    "coordination/v2/trials/V2-TRIAL-CLAIM-001/**"
+  ],
+  "integrationTarget": null
+}

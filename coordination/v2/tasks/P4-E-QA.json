@@ -1,0 +1,21 @@
+{
+  "schemaVersion": 1,
+  "id": "P4-E-QA",
+  "roleId": "ricardo",
+  "kind": "synthetic-phase4-trial",
+  "baseSha": "a6177203b3235589fcbcdeecc0c7c0b562e17763",
+  "lineageBaseSha": "a6177203b3235589fcbcdeecc0c7c0b562e17763",
+  "inputShas": [],
+  "dependencies": [],
+  "slotIds": [
+    "P4-E-QA-S1"
+  ],
+  "qaRequired": true,
+  "acceptance": [
+    "H1/C1 BLOCK remains historical",
+    "H2 supersedes H1",
+    "APPROVE binds H2/C2 only",
+    "VERIFIED derives from H2/C2"
+  ],
+  "downstreamTaskId": null
+}

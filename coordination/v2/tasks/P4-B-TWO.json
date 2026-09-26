@@ -1,0 +1,20 @@
+{
+  "schemaVersion": 1,
+  "id": "P4-B-TWO",
+  "roleId": "mario",
+  "kind": "synthetic-phase4-trial",
+  "baseSha": "a6177203b3235589fcbcdeecc0c7c0b562e17763",
+  "lineageBaseSha": "a6177203b3235589fcbcdeecc0c7c0b562e17763",
+  "inputShas": [],
+  "dependencies": [],
+  "slotIds": [
+    "P4-B-TWO-S1"
+  ],
+  "qaRequired": false,
+  "acceptance": [
+    "same disposable instance races distinct ref",
+    "no consumable duplicate ownership",
+    "preserve raw race evidence"
+  ],
+  "downstreamTaskId": null
+}

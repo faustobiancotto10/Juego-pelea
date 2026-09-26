@@ -1,0 +1,7 @@
+{
+  "schemaVersion": 1,
+  "id": "mario-v2-p4-c1",
+  "roleId": "mario",
+  "label": "Mario Phase 4 checkpoint worker",
+  "replacementOf": null
+}

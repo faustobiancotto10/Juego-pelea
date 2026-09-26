@@ -1,0 +1,24 @@
+{
+  "schemaVersion": 1,
+  "id": "P4-D-D",
+  "roleId": "ricardo",
+  "kind": "synthetic-phase4-trial",
+  "baseSha": "a6177203b3235589fcbcdeecc0c7c0b562e17763",
+  "lineageBaseSha": "a6177203b3235589fcbcdeecc0c7c0b562e17763",
+  "inputShas": [],
+  "dependencies": [
+    {
+      "taskId": "P4-D-U",
+      "requires": "VERIFIED"
+    }
+  ],
+  "slotIds": [
+    "P4-D-D-S1"
+  ],
+  "qaRequired": false,
+  "acceptance": [
+    "claim rejected before upstream evidence",
+    "eligible only after canonical upstream evidence"
+  ],
+  "downstreamTaskId": null
+}

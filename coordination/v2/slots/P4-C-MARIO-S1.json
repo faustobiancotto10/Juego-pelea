@@ -1,0 +1,13 @@
+{
+  "schemaVersion": 1,
+  "id": "P4-C-MARIO-S1",
+  "taskId": "P4-C-MARIO",
+  "roleId": "mario",
+  "branchRef": "refs/heads/coord-v2-p4-work/p4-c-mario",
+  "claimRef": "refs/heads/coord-v2-p4-claims/p4-c-mario",
+  "baseSha": "a6177203b3235589fcbcdeecc0c7c0b562e17763",
+  "ownedPaths": [
+    "coordination/v2/trials/P4-C/mario/**"
+  ],
+  "integrationTarget": null
+}

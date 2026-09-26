@@ -1,0 +1,13 @@
+{
+  "schemaVersion": 1,
+  "id": "P4-B-ONE-S1",
+  "taskId": "P4-B-ONE",
+  "roleId": "mario",
+  "branchRef": "refs/heads/coord-v2-p4-work/p4-b-one",
+  "claimRef": "refs/heads/coord-v2-p4-claims/p4-b-one",
+  "baseSha": "a6177203b3235589fcbcdeecc0c7c0b562e17763",
+  "ownedPaths": [
+    "coordination/v2/trials/P4-B/one/**"
+  ],
+  "integrationTarget": null
+}

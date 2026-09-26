@@ -1,0 +1,20 @@
+{
+  "schemaVersion": 1,
+  "id": "P4-C-MARIO",
+  "roleId": "mario",
+  "kind": "synthetic-phase4-trial",
+  "baseSha": "a6177203b3235589fcbcdeecc0c7c0b562e17763",
+  "lineageBaseSha": "a6177203b3235589fcbcdeecc0c7c0b562e17763",
+  "inputShas": [],
+  "dependencies": [],
+  "slotIds": [
+    "P4-C-MARIO-S1"
+  ],
+  "qaRequired": false,
+  "acceptance": [
+    "slot survives explicit release/replacement",
+    "replacement continues from checkpoint ancestor",
+    "claim history remains reconstructible"
+  ],
+  "downstreamTaskId": null
+}

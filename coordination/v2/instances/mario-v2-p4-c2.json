@@ -1,0 +1,7 @@
+{
+  "schemaVersion": 1,
+  "id": "mario-v2-p4-c2",
+  "roleId": "mario",
+  "label": "Mario Phase 4 replacement worker",
+  "replacementOf": "mario-v2-p4-c1"
+}

@@ -1,0 +1,20 @@
+{
+  "schemaVersion": 1,
+  "id": "P4-A-RICARDO",
+  "roleId": "ricardo",
+  "kind": "synthetic-phase4-trial",
+  "baseSha": "a6177203b3235589fcbcdeecc0c7c0b562e17763",
+  "lineageBaseSha": "a6177203b3235589fcbcdeecc0c7c0b562e17763",
+  "inputShas": [],
+  "dependencies": [],
+  "slotIds": [
+    "P4-A-RICARDO-S1"
+  ],
+  "qaRequired": false,
+  "acceptance": [
+    "ricardo disjoint claim",
+    "checkpoint confined to owned path",
+    "exact-SHA handoff"
+  ],
+  "downstreamTaskId": null
+}

@@ -1,0 +1,7 @@
+{
+  "schemaVersion": 1,
+  "id": "ricardo-v2-p4-d-d",
+  "roleId": "ricardo",
+  "label": "Ricardo Phase 4 downstream worker",
+  "replacementOf": null
+}

@@ -1,8 +1,10 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { existsSync, readFileSync } from 'node:fs';
+import { existsSync, readFileSync, readdirSync } from 'node:fs';
 
 const read = (path) => readFileSync(path, 'utf8');
+
+const allowedAgentStates = ['OFF_ROUND', 'READY', 'WORKING', 'WAITING_DEPENDENCY', 'HANDOFF_READY', 'REVIEWING', 'VERIFIED', 'BLOCKED', 'UNRESPONSIVE'];
 
 const requiredFiles = [
   'coordination/README.md',
@@ -98,12 +100,18 @@ test('coordination state is internally valid in idle or live rounds', () => {
   assert.ok(allowedGlobalStates.includes(globalState), `invalid global state ${globalState}`);
 
   const status = read('coordination/STATUS.md');
-  const agentStates = ['OFF_ROUND', 'READY', 'WORKING', 'WAITING_DEPENDENCY', 'HANDOFF_READY', 'REVIEWING', 'VERIFIED', 'BLOCKED', 'UNRESPONSIVE'];
+  const statusRows = status.split('\n').filter((line) => line.startsWith('| ') && !line.startsWith('| ---') && !line.startsWith('| Agent / Instance |'));
+
+  for (const line of statusRows) {
+    const cells = line.split('|').slice(1, -1).map((cell) => cell.trim());
+    const [name, , , state] = cells;
+    assert.ok(name, `missing agent/instance name in status row: ${line}`);
+    assert.ok(allowedAgentStates.includes(state), `invalid state ${state} for ${name}`);
+  }
 
   for (const name of ['Neureon', 'Ricardo', 'Mario', 'Brancaforte', 'Germinator', 'Gonza']) {
-    const line = status.split('\n').find((candidate) => candidate.startsWith(`| ${name} |`));
+    const line = statusRows.find((candidate) => candidate.startsWith(`| ${name} |`));
     assert.ok(line, `missing status row for ${name}`);
-    assert.ok(agentStates.some((state) => line.includes(`| ${state} |`)), `invalid state for ${name}`);
   }
 
   if (globalState === 'IDLE') {
@@ -118,6 +126,21 @@ test('coordination state is internally valid in idle or live rounds', () => {
   } else {
     assert.doesNotMatch(round, /Round:\s*none/);
     assert.doesNotMatch(round, /(Required|Planned) agents:\s*none/);
+  }
+});
+
+
+test('all task status tokens use the protocol state vocabulary', () => {
+  const taskFiles = readdirSync('coordination/tasks')
+    .filter((name) => name.endsWith('.md') && name !== 'README.md')
+    .sort();
+
+  for (const file of taskFiles) {
+    const content = read(`coordination/tasks/${file}`);
+    const match = content.match(/^Status:\s*([^\n]+)$/m);
+    assert.ok(match, `missing Status field in coordination/tasks/${file}`);
+    const state = match[1].trim();
+    assert.ok(allowedAgentStates.includes(state), `invalid task state ${state} in coordination/tasks/${file}`);
   }
 });
 

@@ -1,0 +1,21 @@
+name: Coord V2 strict validator
+
+on:
+  push:
+    branches:
+      - ci/coord-v2-strict-validator
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: V2 projection
+        run: node scripts/coord-v2-project.mjs --check
+      - name: V2 invariants with Git lineage
+        run: node scripts/coord-v2-validate.mjs --strict-git

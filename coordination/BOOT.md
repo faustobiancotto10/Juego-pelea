@@ -9,12 +9,15 @@ This file is the compact deterministic boot index for Agent Orchestration V2 tri
 1. Root `AGENTS.md`.
 2. This file.
 3. Durable identity: `coordination/agents/<role>.md`.
-4. Derived V2 current projection: `coordination/v2/CURRENT.json`.
+4. Reconstruct the **global V2 current projection**:
+   `node scripts/coord-v2-project.mjs --remote origin --strict-git`
 5. Canonical task record under `coordination/v2/tasks/`.
 6. Canonical slot record under `coordination/v2/slots/`.
-7. If the slot is claimed, the claim record on that slot's dedicated claim ref.
+7. If claimed, read the claim record from that slot's declared remote claim ref.
 8. Exact dependency handoff/QA receipts referenced by the task.
 9. Only the technical contracts needed for the task.
+
+Do not use a branch-local claim directory as current truth when remote claim refs exist. Boot truth is the aggregate of **all declared slot claim refs**.
 
 ## Authority boundary
 
@@ -34,12 +37,12 @@ V2 trial records under `coordination/v2/` are isolated coordination-system evide
 - slot = persistent execution surface that survives worker replacement;
 - instance = disposable worker occupying a slot through a claim.
 
-`coordination/v2/CURRENT.json` is generated/validated output, never an independent editable authority.
+Global current state is generated from canonical records and remote claims; it is never an independent editable authority.
 
 ## Claim rule
 
-A slot has a dedicated claim ref recorded in its slot contract. Claims advance that ref only by normal fast-forward updates. Two sibling claim commits based on the same ref head cannot both win without a force update.
+A slot has a dedicated claim ref recorded in its slot contract. Before claiming, fetch and validate **all** slot claim refs plus required task base/input SHAs. Claims advance only the target ref by normal fast-forward update.
 
 No force-push claiming is permitted.
 
-If the claim primitive cannot be proven or the remote update is unavailable, use explicit/manual slot assignment and do not race.
+If remote claim aggregation or strict SHA validation is unavailable, use explicit/manual slot assignment and do not race.

@@ -38,7 +38,7 @@ test('Phase 4 materialization is canonical, isolated, and locally READY', () => 
   for (const slotId of P4_SLOTS) {
     const slot = result.maps.slots.get(slotId);
     assert.ok(slot, `missing slot ${slotId}`);
-    assert.match(slot.claimRef, /^refs\/heads\/coord-v2-p4-claims\//);
+    assert.match(slot.claimRef, /^refs\/heads\/coord-v2-claims\/p4-/);
     assert.match(slot.branchRef, /^refs\/heads\/coord-v2-p4-work\//);
     assert.equal(result.claimBySlot.has(slotId), false);
   }

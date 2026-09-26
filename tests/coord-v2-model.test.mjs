@@ -45,6 +45,15 @@ const validInstance = (id, roleId) => ({
   label: id,
   replacementOf: null,
 });
+const byIdEntry = (entries, id) => {
+  const found = entries.find((entry) => entry.value.id === id);
+  assert.ok(found, `missing fixture entry ${id}`);
+  return found;
+};
+const trialTaskEntry = (model) => byIdEntry(model.tasksEntries, 'V2-TRIAL-CLAIM-001');
+const trialSlotEntry = (model) => byIdEntry(model.slotsEntries, 'V2-TRIAL-CLAIM-001-S1');
+const trialInstanceEntry = (model) => byIdEntry(model.instancesEntries, 'gonza-v2-a');
+
 const validClaim = (id, slotId, taskId, roleId, instanceId) => ({
   schemaVersion: 1,
   id,
@@ -80,14 +89,14 @@ test('BOOT is compact and explicitly keeps V2 isolated from live R005', () => {
 
 test('V2 claim eligibility rejects malformed inputShas instead of ignoring them', () => {
   const model = cloneModel(loadV2Model(process.cwd()));
-  model.tasksEntries[0].value.inputShas = ['not-a-git-sha'];
+  trialTaskEntry(model).value.inputShas = ['not-a-git-sha'];
   const result = validateLoadedModel(model);
   assert.ok(result.errors.some((error) => /inputSha is not a 40-char SHA/.test(error)), `claim-time validation ignored malformed inputShas: ${JSON.stringify(result.errors)}`);
 });
 
 test('strict V2 validation rejects missing required input commits', () => {
   const model = cloneModel(loadV2Model(process.cwd()));
-  model.tasksEntries[0].value.inputShas = ['1111111111111111111111111111111111111111'];
+  trialTaskEntry(model).value.inputShas = ['1111111111111111111111111111111111111111'];
   const result = validateLoadedModel(model, { strictGit: true });
   assert.ok(result.errors.some((error) => /inputSha .* unavailable in current checkout/.test(error)));
 });
@@ -107,16 +116,19 @@ test('strict V2 validation rejects required input commits outside task lineage',
       GIT_COMMITTER_EMAIL: 'coord-v2-test@example.invalid',
     },
   }).trim();
-  model.tasksEntries[0].value.baseSha = head;
-  model.tasksEntries[0].value.lineageBaseSha = head;
-  model.slotsEntries[0].value.baseSha = head;
-  model.tasksEntries[0].value.inputShas = [orphan];
+  trialTaskEntry(model).value.baseSha = head;
+  trialTaskEntry(model).value.lineageBaseSha = head;
+  trialSlotEntry(model).value.baseSha = head;
+  trialTaskEntry(model).value.inputShas = [orphan];
   const result = validateLoadedModel(model, { strictGit: true });
   assert.ok(result.errors.some((error) => /wrong lineage/.test(error)), `expected wrong-lineage error, got ${JSON.stringify(result.errors)}`);
 });
 
 test('remote claim aggregation overrides branch-local readiness and evaluates global conflicts together', () => {
   const model = cloneModel(loadV2Model(process.cwd()));
+  model.tasksEntries = model.tasksEntries.filter((entry) => entry.value.id === 'V2-TRIAL-CLAIM-001');
+  model.slotsEntries = model.slotsEntries.filter((entry) => entry.value.id === 'V2-TRIAL-CLAIM-001-S1');
+  model.instancesEntries = model.instancesEntries.filter((entry) => ['gonza-v2-a', 'gonza-v2-b'].includes(entry.value.id));
   model.tasksEntries.push(entry(validTask('T2', 'gonza', 'T2-S1'), 't2.json'));
   model.slotsEntries.push(entry(validSlot('T2-S1', 'T2', 'gonza', ['coordination/v2/trials/V2-TRIAL-CLAIM-001/sub/**']), 't2s1.json'));
   model.instancesEntries.push(entry(validInstance('gonza-v2-c', 'gonza'), 'c.json'));
@@ -156,9 +168,9 @@ test('remote claim aggregation overrides branch-local readiness and evaluates gl
 
 test('validator rejects mutable state copied into canonical task/slot/instance records', () => {
   const model = cloneModel(loadV2Model(process.cwd()));
-  model.tasksEntries[0].value.state = 'READY';
-  model.slotsEntries[0].value.instanceId = 'gonza-v2-a';
-  model.instancesEntries[0].value.state = 'ACTIVE';
+  trialTaskEntry(model).value.state = 'READY';
+  trialSlotEntry(model).value.instanceId = 'gonza-v2-a';
+  trialInstanceEntry(model).value.state = 'ACTIVE';
   const result = validateLoadedModel(model);
   assert.ok(result.errors.some((error) => /stores mutable state/.test(error)));
   assert.ok(result.errors.some((error) => /stores derived occupancy\/state/.test(error)));
@@ -210,7 +222,7 @@ test('validator rejects dependency cycles and a claim made before dependencies v
   const model = cloneModel(loadV2Model(process.cwd()));
   model.tasksEntries.push(entry(validTask('DEP', 'gonza', 'DEP-S1'), 'dep.json'));
   model.slotsEntries.push(entry(validSlot('DEP-S1', 'DEP', 'gonza', ['coordination/v2/trials/dep/**']), 'depslot.json'));
-  model.tasksEntries[0].value.dependencies = [{ taskId: 'DEP', requires: 'VERIFIED' }];
+  trialTaskEntry(model).value.dependencies = [{ taskId: 'DEP', requires: 'VERIFIED' }];
   model.claimsEntries.push(entry(validClaim('claim:a', 'V2-TRIAL-CLAIM-001-S1', 'V2-TRIAL-CLAIM-001', 'gonza', 'gonza-v2-a'), 'claim.json'));
   const result = validateLoadedModel(model);
   assert.equal(result.stateFor('V2-TRIAL-CLAIM-001'), 'WAITING_DEPENDENCY');
@@ -219,7 +231,7 @@ test('validator rejects dependency cycles and a claim made before dependencies v
 
 test('stale QA BLOCK remains attached to rejected SHA while approved replacement becomes current', () => {
   const model = cloneModel(loadV2Model(process.cwd()));
-  model.tasksEntries[0].value.qaRequired = true;
+  trialTaskEntry(model).value.qaRequired = true;
   const rejected = '1111111111111111111111111111111111111111';
   const approved = '2222222222222222222222222222222222222222';
   model.handoffsEntries.push(entry({
@@ -262,7 +274,7 @@ test('stale QA BLOCK remains attached to rejected SHA while approved replacement
 
 test('validator rejects QA candidate mismatch and release eligibility mismatch', () => {
   const model = cloneModel(loadV2Model(process.cwd()));
-  model.tasksEntries[0].value.qaRequired = true;
+  trialTaskEntry(model).value.qaRequired = true;
   model.handoffsEntries.push(entry({
     schemaVersion: 1,
     id: 'H1',

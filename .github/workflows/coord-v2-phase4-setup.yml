@@ -1,0 +1,72 @@
+name: Agent V2 Phase 4 setup preflight evidence
+
+on:
+  pull_request:
+    paths:
+      - 'coordination/v2/tasks/P4-*.json'
+      - 'coordination/v2/slots/P4-*.json'
+      - 'coordination/v2/instances/*-v2-p4-*.json'
+      - 'scripts/coord-v2-reassign.mjs'
+      - 'tests/coord-v2-phase4-setup.test.mjs'
+      - '.github/workflows/coord-v2-phase4-setup.yml'
+
+jobs:
+  setup:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout full setup history
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Prove global Phase 4 setup is unclaimed and resolvable
+        env:
+          P4_SETUP_SEED: ef5aac1989fef70fc7c04251e426086fc690e1d6
+        run: |
+          node scripts/coord-v2-project.mjs --remote origin --strict-git > /tmp/p4-current.json
+          node scripts/coord-v2-validate.mjs --remote origin --strict-git
+          node - <<'NODE'
+          const fs=require('fs');
+          const {execFileSync}=require('child_process');
+          const current=JSON.parse(fs.readFileSync('/tmp/p4-current.json','utf8'));
+          const seed=process.env.P4_SETUP_SEED;
+          const p4Tasks=current.v2.tasks.filter(x=>x.id.startsWith('P4-'));
+          const p4Slots=current.v2.slots.filter(x=>x.id.startsWith('P4-'));
+          const p4Instances=current.v2.instances.filter(x=>x.id.includes('-v2-p4-'));
+          if(p4Tasks.length!==8) throw new Error(`expected 8 P4 tasks, got ${p4Tasks.length}`);
+          if(p4Slots.length!==8) throw new Error(`expected 8 P4 slots, got ${p4Slots.length}`);
+          if(p4Instances.length!==8) throw new Error(`expected 8 P4 instances, got ${p4Instances.length}`);
+          for(const task of p4Tasks) {
+            const expected=task.id==='P4-D-D'?'WAITING_DEPENDENCY':'READY';
+            if(task.state!==expected) throw new Error(`${task.id} expected ${expected}, got ${task.state}`);
+          }
+          for(const slot of p4Slots) {
+            if(slot.state!=='READY'||slot.instanceId!==null) throw new Error(`${slot.id} is unexpectedly claimed`);
+            if(!slot.claimRef.startsWith('refs/heads/coord-v2-claims/p4-')) throw new Error(`noncanonical P4 claim ref ${slot.claimRef}`);
+            const out=execFileSync('git',['ls-remote','--heads','origin',slot.claimRef],{encoding:'utf8'}).trim();
+            const head=out.split(/\s+/)[0];
+            if(head!==seed) throw new Error(`${slot.claimRef} expected seed ${seed}, got ${head||'missing'}`);
+          }
+          for(const instance of p4Instances) {
+            if(instance.state!=='UNASSIGNED'||instance.slotId!==null) throw new Error(`${instance.id} unexpectedly active`);
+          }
+          console.log('PHASE4_SETUP_GLOBAL_READY_PASS');
+          NODE
+
+      - name: Prove every Phase 4 work ref is seeded
+        env:
+          P4_SETUP_SEED: ef5aac1989fef70fc7c04251e426086fc690e1d6
+        run: |
+          node - <<'NODE'
+          const fs=require('fs');
+          const {execFileSync}=require('child_process');
+          const seed=process.env.P4_SETUP_SEED;
+          const files=fs.readdirSync('coordination/v2/slots').filter(x=>x.startsWith('P4-')&&x.endsWith('.json'));
+          for(const file of files){
+            const slot=JSON.parse(fs.readFileSync('coordination/v2/slots/'+file,'utf8'));
+            const out=execFileSync('git',['ls-remote','--heads','origin',slot.branchRef],{encoding:'utf8'}).trim();
+            const head=out.split(/\s+/)[0];
+            if(head!==seed) throw new Error(`${slot.branchRef} expected seed ${seed}, got ${head||'missing'}`);
+          }
+          console.log('PHASE4_WORK_REFS_SEEDED_PASS');
+          NODE

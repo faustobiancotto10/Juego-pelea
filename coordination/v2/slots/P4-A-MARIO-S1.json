@@ -4,7 +4,7 @@
   "taskId": "P4-A-MARIO",
   "roleId": "mario",
   "branchRef": "refs/heads/coord-v2-p4-work/p4-a-mario",
-  "claimRef": "refs/heads/coord-v2-p4-claims/p4-a-mario",
+  "claimRef": "refs/heads/coord-v2-claims/p4-a-mario",
   "baseSha": "a6177203b3235589fcbcdeecc0c7c0b562e17763",
   "ownedPaths": [
     "coordination/v2/trials/P4-A/mario/**"

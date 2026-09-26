@@ -144,6 +144,25 @@ test('all task status tokens use the protocol state vocabulary', () => {
   }
 });
 
+test('current coordination surfaces separate live state from historical records', () => {
+  const round = read('coordination/CURRENT_ROUND.md');
+  const locks = read('coordination/LOCKS.md');
+
+  const roundSnapshot = round.indexOf('## Current operational snapshot');
+  const roundHistory = round.indexOf('## Historical execution record');
+  assert.ok(roundSnapshot >= 0, 'CURRENT_ROUND missing current operational snapshot');
+  assert.ok(roundHistory > roundSnapshot, 'CURRENT_ROUND history must follow the current snapshot');
+  const currentRound = round.slice(roundSnapshot, roundHistory);
+  assert.match(currentRound, /Current product candidate:/);
+  assert.match(currentRound, /Next action:/);
+
+  const liveLocks = locks.indexOf('## Current live locks');
+  const lockHistory = locks.indexOf('## Historical lock record');
+  assert.ok(liveLocks >= 0, 'LOCKS missing current live-lock section');
+  assert.ok(lockHistory > liveLocks, 'LOCKS historical record must follow live locks');
+  const currentLocks = locks.slice(liveLocks, lockHistory);
+  assert.match(currentLocks, /Active lock count:\s*\d+/);
+});
 test('root agent rules advertise the coordination workflow without losing game constraints', () => {
   const agents = read('AGENTS.md');
   assert.match(agents, /coordination\/PROTOCOL\.md/);

@@ -1,0 +1,229 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
+import {
+  buildProjection,
+  checkProjection,
+  cloneModel,
+  loadV2Model,
+  validateLoadedModel,
+  validateTaskTransition,
+} from '../scripts/lib/coord-v2-model.mjs';
+
+const BASE = '4a47962e563b8e444ab6cf6a288db66c13dda743';
+const entry = (value, path = 'fixture.json') => ({ path, value });
+const validTask = (id, roleId, slotId) => ({
+  schemaVersion: 1,
+  id,
+  roleId,
+  kind: 'synthetic',
+  baseSha: BASE,
+  lineageBaseSha: BASE,
+  inputShas: [],
+  dependencies: [],
+  slotIds: [slotId],
+  qaRequired: false,
+  acceptance: ['fixture'],
+  downstreamTaskId: null,
+});
+const validSlot = (id, taskId, roleId, ownedPaths) => ({
+  schemaVersion: 1,
+  id,
+  taskId,
+  roleId,
+  branchRef: `refs/heads/coord-v2-work/${id.toLowerCase()}`,
+  claimRef: `refs/heads/coord-v2-claims/${id.toLowerCase()}`,
+  baseSha: BASE,
+  ownedPaths,
+  integrationTarget: null,
+});
+const validInstance = (id, roleId) => ({
+  schemaVersion: 1,
+  id,
+  roleId,
+  label: id,
+  replacementOf: null,
+});
+const validClaim = (id, slotId, taskId, roleId, instanceId) => ({
+  schemaVersion: 1,
+  id,
+  slotId,
+  taskId,
+  roleId,
+  instanceId,
+  expectedParentSha: BASE,
+});
+
+test('baseline V2 trial model validates and committed CURRENT is derived exactly', () => {
+  const model = loadV2Model(process.cwd());
+  const result = checkProjection(model);
+  assert.deepEqual(result.errors, []);
+  assert.equal(result.projectionMatches, true);
+  assert.equal(result.stateFor('V2-TRIAL-CLAIM-001'), 'READY');
+
+  const projection = buildProjection(model, result);
+  assert.equal(projection.legacyCompatibility.roundId, 'R005-V07-GAMEPLAY-PRESENTATION-EXPANSION');
+  assert.equal(projection.legacyCompatibility.roundState, 'ACTIVE');
+  assert.equal(projection.legacyCompatibility.mode, 'read-only-compatibility');
+  assert.equal(projection.v2.instances.every((instance) => instance.state === 'UNASSIGNED'), true);
+});
+
+test('BOOT is compact and explicitly keeps V2 isolated from live R005', () => {
+  const boot = readFileSync('coordination/BOOT.md', 'utf8');
+  assert.match(boot, /ROLE != TASK != SLOT\/LANE != INSTANCE\/WORKER/);
+  assert.match(boot, /not converted to V2/i);
+  assert.match(boot, /fast-forward/i);
+  assert.match(boot, /No force-push claiming/i);
+});
+
+test('validator rejects mutable state copied into canonical task/slot/instance records', () => {
+  const model = cloneModel(loadV2Model(process.cwd()));
+  model.tasksEntries[0].value.state = 'READY';
+  model.slotsEntries[0].value.instanceId = 'gonza-v2-a';
+  model.instancesEntries[0].value.state = 'ACTIVE';
+  const result = validateLoadedModel(model);
+  assert.ok(result.errors.some((error) => /stores mutable state/.test(error)));
+  assert.ok(result.errors.some((error) => /stores derived occupancy\/state/.test(error)));
+  assert.ok(result.errors.some((error) => /stores derived assignment\/state/.test(error)));
+});
+
+test('validator rejects unknown and role-incompatible instance claims', () => {
+  const model = cloneModel(loadV2Model(process.cwd()));
+  model.instancesEntries.push(entry(validInstance('mario-v2-a', 'mario'), 'mario.json'));
+  model.claimsEntries.push(entry(
+    validClaim('claim:bad-role', 'V2-TRIAL-CLAIM-001-S1', 'V2-TRIAL-CLAIM-001', 'gonza', 'mario-v2-a'),
+    'bad-role.json',
+  ));
+  const result = validateLoadedModel(model);
+  assert.ok(result.errors.some((error) => /instance role does not match claim role/.test(error)));
+});
+
+test('validator rejects duplicate slot owner and one instance occupying multiple slots', () => {
+  const model = cloneModel(loadV2Model(process.cwd()));
+  model.claimsEntries.push(entry(
+    validClaim('claim:a', 'V2-TRIAL-CLAIM-001-S1', 'V2-TRIAL-CLAIM-001', 'gonza', 'gonza-v2-a'),
+    'a.json',
+  ));
+  model.claimsEntries.push(entry(
+    validClaim('claim:b', 'V2-TRIAL-CLAIM-001-S1', 'V2-TRIAL-CLAIM-001', 'gonza', 'gonza-v2-b'),
+    'b.json',
+  ));
+  const result = validateLoadedModel(model);
+  assert.ok(result.errors.some((error) => /duplicate active claim owner/.test(error)));
+});
+
+test('validator rejects overlapping active owned paths', () => {
+  const model = cloneModel(loadV2Model(process.cwd()));
+  model.tasksEntries.push(entry(validTask('T2', 'gonza', 'T2-S1'), 't2.json'));
+  model.slotsEntries.push(entry(validSlot('T2-S1', 'T2', 'gonza', ['coordination/v2/trials/V2-TRIAL-CLAIM-001/sub/**']), 't2s1.json'));
+  model.instancesEntries.push(entry(validInstance('gonza-v2-c', 'gonza'), 'c.json'));
+  model.claimsEntries.push(entry(validClaim('claim:a', 'V2-TRIAL-CLAIM-001-S1', 'V2-TRIAL-CLAIM-001', 'gonza', 'gonza-v2-a'), 'ca.json'));
+  model.claimsEntries.push(entry(validClaim('claim:c', 'T2-S1', 'T2', 'gonza', 'gonza-v2-c'), 'cc.json'));
+  const result = validateLoadedModel(model);
+  assert.ok(result.errors.some((error) => /ownedPaths overlap/.test(error)));
+});
+
+test('validator rejects dependency cycles and a claim made before dependencies verify', () => {
+  const cycle = cloneModel(loadV2Model(process.cwd()));
+  cycle.tasksEntries[0].value.dependencies = [{ taskId: 'V2-TRIAL-CLAIM-001', requires: 'VERIFIED' }];
+  const cycleResult = validateLoadedModel(cycle);
+  assert.ok(cycleResult.errors.some((error) => /depends on itself|dependency cycle/.test(error)));
+
+  const model = cloneModel(loadV2Model(process.cwd()));
+  model.tasksEntries.push(entry(validTask('DEP', 'gonza', 'DEP-S1'), 'dep.json'));
+  model.slotsEntries.push(entry(validSlot('DEP-S1', 'DEP', 'gonza', ['coordination/v2/trials/dep/**']), 'depslot.json'));
+  model.tasksEntries[0].value.dependencies = [{ taskId: 'DEP', requires: 'VERIFIED' }];
+  model.claimsEntries.push(entry(validClaim('claim:a', 'V2-TRIAL-CLAIM-001-S1', 'V2-TRIAL-CLAIM-001', 'gonza', 'gonza-v2-a'), 'claim.json'));
+  const result = validateLoadedModel(model);
+  assert.equal(result.stateFor('V2-TRIAL-CLAIM-001'), 'WAITING_DEPENDENCY');
+  assert.ok(result.errors.some((error) => /unsatisfied dependency DEP/.test(error)));
+});
+
+test('stale QA BLOCK remains attached to rejected SHA while approved replacement becomes current', () => {
+  const model = cloneModel(loadV2Model(process.cwd()));
+  model.tasksEntries[0].value.qaRequired = true;
+  const rejected = '1111111111111111111111111111111111111111';
+  const approved = '2222222222222222222222222222222222222222';
+  model.handoffsEntries.push(entry({
+    schemaVersion: 1,
+    id: 'H1',
+    taskId: 'V2-TRIAL-CLAIM-001',
+    candidateSha: rejected,
+    supersedes: null,
+  }, 'h1.json'));
+  model.handoffsEntries.push(entry({
+    schemaVersion: 1,
+    id: 'H2',
+    taskId: 'V2-TRIAL-CLAIM-001',
+    candidateSha: approved,
+    supersedes: 'H1',
+  }, 'h2.json'));
+  model.qaEntries.push(entry({
+    schemaVersion: 1,
+    id: 'Q1',
+    taskId: 'V2-TRIAL-CLAIM-001',
+    handoffId: 'H1',
+    candidateSha: rejected,
+    verdict: 'BLOCK',
+  }, 'q1.json'));
+  model.qaEntries.push(entry({
+    schemaVersion: 1,
+    id: 'Q2',
+    taskId: 'V2-TRIAL-CLAIM-001',
+    handoffId: 'H2',
+    candidateSha: approved,
+    verdict: 'APPROVE',
+  }, 'q2.json'));
+
+  const result = validateLoadedModel(model);
+  assert.equal(result.stateFor('V2-TRIAL-CLAIM-001'), 'VERIFIED');
+  assert.equal(result.maps.qaReceipts.get('Q1').verdict, 'BLOCK');
+  assert.equal(result.maps.qaReceipts.get('Q1').candidateSha, rejected);
+  assert.equal(result.maps.qaReceipts.get('Q2').candidateSha, approved);
+});
+
+test('validator rejects QA candidate mismatch and release eligibility mismatch', () => {
+  const model = cloneModel(loadV2Model(process.cwd()));
+  model.tasksEntries[0].value.qaRequired = true;
+  model.handoffsEntries.push(entry({
+    schemaVersion: 1,
+    id: 'H1',
+    taskId: 'V2-TRIAL-CLAIM-001',
+    candidateSha: '1111111111111111111111111111111111111111',
+    supersedes: null,
+  }, 'h1.json'));
+  model.qaEntries.push(entry({
+    schemaVersion: 1,
+    id: 'Q1',
+    taskId: 'V2-TRIAL-CLAIM-001',
+    handoffId: 'H1',
+    candidateSha: '2222222222222222222222222222222222222222',
+    verdict: 'APPROVE',
+  }, 'q1.json'));
+  model.releasesEntries.push(entry({
+    schemaVersion: 1,
+    id: 'R1',
+    taskId: 'V2-TRIAL-CLAIM-001',
+    candidateSha: '3333333333333333333333333333333333333333',
+    eligible: true,
+  }, 'r1.json'));
+  const result = validateLoadedModel(model);
+  assert.ok(result.errors.some((error) => /candidate SHA mismatch/.test(error)));
+  assert.ok(result.errors.some((error) => /marks task .* eligible while state/.test(error)));
+  assert.ok(result.errors.some((error) => /candidate does not match current handoff/.test(error)));
+});
+
+test('task transition validator rejects shortcuts and requires explicit BLOCKED repair', () => {
+  assert.equal(validateTaskTransition('READY', 'CLAIMED'), null);
+  assert.match(validateTaskTransition('READY', 'VERIFIED'), /invalid task transition/);
+  assert.match(validateTaskTransition('BLOCKED', 'READY'), /requires repairRef/);
+  assert.equal(validateTaskTransition('BLOCKED', 'READY', { repairRef: 'repair:H2' }), null);
+});
+
+test('claim client contains no force-push escape hatch', () => {
+  const source = readFileSync('scripts/coord-v2-claim.mjs', 'utf8');
+  assert.doesNotMatch(source, /--force|force-with-lease/);
+  assert.match(source, /CLAIM_WON/);
+  assert.match(source, /CLAIM_LOST/);
+  assert.match(source, /Remote ref advanced/);
+});

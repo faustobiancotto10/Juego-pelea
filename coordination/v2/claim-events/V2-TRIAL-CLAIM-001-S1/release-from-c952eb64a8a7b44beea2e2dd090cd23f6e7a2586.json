@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "id": "release:V2-TRIAL-CLAIM-001-S1:c952eb64a8a7b44beea2e2dd090cd23f6e7a2586",
+  "slotId": "V2-TRIAL-CLAIM-001-S1",
+  "taskId": "V2-TRIAL-CLAIM-001",
+  "roleId": "gonza",
+  "releasedInstanceId": "gonza-v2-a",
+  "priorClaimHeadSha": "c952eb64a8a7b44beea2e2dd090cd23f6e7a2586",
+  "reason": "Phase 4 setup requires no active synthetic claims; prior single-winner trial remains preserved in ref history."
+}

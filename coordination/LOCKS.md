@@ -1,4 +1,14 @@
-# Active Locks
+# Lock State
+
+## Current live locks
+
+Active lock count: 0
+
+No specialist product, QA, or release file lock is currently active. R005 is waiting on external/user and production-format gates, which are blockers/gates rather than file locks. Any new mutation must establish a fresh explicit lock before editing shared surfaces.
+
+## Historical lock record
+
+Everything below is preserved lock/claim history. Labels such as “Active” inside this historical record do not create a live lock unless they are re-declared in the Current live locks section above.
 
 Sprite pilot extension is active.
 

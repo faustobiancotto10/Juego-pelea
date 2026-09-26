@@ -163,10 +163,8 @@ function defaultResolveClaimRef(root, remote, slot) {
   return { headSha, parentSha, claim };
 }
 
-export function loadRemoteV2Model(root = '.', remote = 'origin', options = {}) {
-  const local = loadV2Model(root);
-  const slotValues = local.slotsEntries.map((entry) => entry.value).sort((a, b) => a.id.localeCompare(b.id));
-  const resolveClaimRef = options.resolveClaimRef ?? ((slot) => defaultResolveClaimRef(root, remote, slot));
+export function withResolvedRemoteClaims(model, resolveClaimRef) {
+  const slotValues = model.slotsEntries.map((entry) => entry.value).sort((a, b) => a.id.localeCompare(b.id));
   const claimsEntries = [];
   const remoteErrors = [];
   const remoteClaimHeads = {};
@@ -189,7 +187,18 @@ export function loadRemoteV2Model(root = '.', remote = 'origin', options = {}) {
     });
   }
 
-  return loadV2Model(root, { claimsEntries, remoteErrors, remoteClaimHeads });
+  return {
+    ...model,
+    claimsEntries,
+    remoteErrors,
+    remoteClaimHeads,
+  };
+}
+
+export function loadRemoteV2Model(root = '.', remote = 'origin', options = {}) {
+  const local = loadV2Model(root);
+  const resolveClaimRef = options.resolveClaimRef ?? ((slot) => defaultResolveClaimRef(root, remote, slot));
+  return withResolvedRemoteClaims(local, resolveClaimRef);
 }
 
 export function cloneModel(model) {

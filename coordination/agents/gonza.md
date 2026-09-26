@@ -111,3 +111,6 @@ Do not store current release SHAs, temporary Pages state or task-specific blocke
 
 - When a preview/release fetches runtime assets separately from the HTML/bundle, parity is not proven by the standalone file alone. Hash and compare every externally served runtime manifest/atlas (or equivalent) from approved source → build output → public served bytes.
 - When a renderer/backend has directional, mirroring or fallback-sensitive behavior, verify the actual served runtime path against its manifest/backend state (for example by instrumenting draw calls and source rectangles). Static screenshots alone can accidentally validate an old renderer, fallback path or mirrored asset.
+
+- When QA or handoff evidence fails its identity binding (task, handoff, or exact candidate SHA), record the mismatch but also exclude that evidence from derived VERIFIED/release state. Invalid evidence must never remain state-effective.
+- For repo-native slot claiming, a dedicated slot ref seeded to a known model commit plus normal fast-forward-only updates provides an auditable contention primitive: sibling claim commits from one parent yield one winner and non-fast-forward losers. Never resolve claim contention with force updates.

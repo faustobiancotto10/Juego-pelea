@@ -1,26 +1,20 @@
 #!/usr/bin/env node
-import { loadV2Model, checkProjection, writeProjection } from './lib/coord-v2-model.mjs';
+import { buildProjection, loadRemoteV2Model, loadV2Model, projectionText, validateLoadedModel } from './lib/coord-v2-model.mjs';
+
+function arg(name) {
+  const index = process.argv.indexOf(name);
+  return index >= 0 ? process.argv[index + 1] : null;
+}
 
 const root = process.cwd();
-const model = loadV2Model(root);
-const write = process.argv.includes('--write');
-const check = process.argv.includes('--check') || !write;
+const remote = arg('--remote');
+const model = remote ? loadRemoteV2Model(root, remote) : loadV2Model(root);
+const result = validateLoadedModel(model, { strictGit: process.argv.includes('--strict-git') });
 
-if (write) {
-  const content = writeProjection(model);
-  process.stdout.write(content);
+for (const warning of result.warnings) console.warn('WARN:', warning);
+if (result.errors.length) {
+  for (const error of result.errors) console.error('ERROR:', error);
+  process.exit(1);
 }
 
-if (check) {
-  const result = checkProjection(model);
-  for (const warning of result.warnings) console.warn('WARN:', warning);
-  if (result.errors.length) {
-    for (const error of result.errors) console.error('ERROR:', error);
-    process.exit(1);
-  }
-  if (!result.projectionMatches) {
-    console.error('ERROR: coordination/v2/CURRENT.json drifted from canonical records');
-    process.exit(1);
-  }
-  console.log('V2 projection is canonical and current');
-}
+process.stdout.write(projectionText(buildProjection(model, result)));

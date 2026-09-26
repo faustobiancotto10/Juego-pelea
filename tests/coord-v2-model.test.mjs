@@ -215,7 +215,7 @@ test('validator rejects overlapping active owned paths', () => {
 
 test('validator rejects dependency cycles and a claim made before dependencies verify', () => {
   const cycle = cloneModel(loadV2Model(process.cwd()));
-  cycle.tasksEntries[0].value.dependencies = [{ taskId: 'V2-TRIAL-CLAIM-001', requires: 'VERIFIED' }];
+  byIdEntry(cycle.tasksEntries, 'V2-TRIAL-CLAIM-001').value.dependencies = [{ taskId: 'V2-TRIAL-CLAIM-001', requires: 'VERIFIED' }];
   const cycleResult = validateLoadedModel(cycle);
   assert.ok(cycleResult.errors.some((error) => /depends on itself|dependency cycle/.test(error)));
 

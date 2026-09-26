@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "id": "claim:V2-TRIAL-CLAIM-001-S1",
+  "slotId": "V2-TRIAL-CLAIM-001-S1",
+  "taskId": "V2-TRIAL-CLAIM-001",
+  "roleId": "gonza",
+  "instanceId": "gonza-v2-b",
+  "expectedParentSha": "097b591ab7f5d75636cd490b6ba3c2fcd7f67e8e"
+}

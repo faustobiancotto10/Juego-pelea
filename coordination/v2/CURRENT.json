@@ -21,7 +21,7 @@
       {
         "id": "V2-TRIAL-CLAIM-001",
         "roleId": "gonza",
-        "state": "READY",
+        "state": "CLAIMED",
         "slotIds": [
           "V2-TRIAL-CLAIM-001-S1"
         ]
@@ -32,8 +32,8 @@
         "id": "V2-TRIAL-CLAIM-001-S1",
         "taskId": "V2-TRIAL-CLAIM-001",
         "roleId": "gonza",
-        "state": "READY",
-        "instanceId": null,
+        "state": "CLAIMED",
+        "instanceId": "gonza-v2-b",
         "claimRef": "refs/heads/coord-v2-claims/v2-trial-claim-001-s1"
       }
     ],
@@ -47,8 +47,8 @@
       {
         "id": "gonza-v2-b",
         "roleId": "gonza",
-        "state": "UNASSIGNED",
-        "slotId": null
+        "state": "ACTIVE",
+        "slotId": "V2-TRIAL-CLAIM-001-S1"
       }
     ]
   }

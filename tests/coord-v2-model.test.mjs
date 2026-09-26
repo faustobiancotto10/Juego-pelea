@@ -94,6 +94,7 @@ test('strict V2 validation rejects missing required input commits', () => {
 
 test('strict V2 validation rejects required input commits outside task lineage', () => {
   const model = cloneModel(loadV2Model(process.cwd()));
+  const head = execFileSync('git', ['rev-parse', 'HEAD'], { encoding: 'utf8' }).trim();
   const tree = execFileSync('git', ['rev-parse', 'HEAD^{tree}'], { encoding: 'utf8' }).trim();
   const orphan = execFileSync('git', ['commit-tree', tree], {
     input: 'orphan fixture\n',
@@ -106,6 +107,9 @@ test('strict V2 validation rejects required input commits outside task lineage',
       GIT_COMMITTER_EMAIL: 'coord-v2-test@example.invalid',
     },
   }).trim();
+  model.tasksEntries[0].value.baseSha = head;
+  model.tasksEntries[0].value.lineageBaseSha = head;
+  model.slotsEntries[0].value.baseSha = head;
   model.tasksEntries[0].value.inputShas = [orphan];
   const result = validateLoadedModel(model, { strictGit: true });
   assert.ok(result.errors.some((error) => /wrong lineage/.test(error)), `expected wrong-lineage error, got ${JSON.stringify(result.errors)}`);

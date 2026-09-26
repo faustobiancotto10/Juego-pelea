@@ -12,6 +12,22 @@ Issued: 2026-09-20
 Per-task Neureon gates: disabled  
 Completion token: not issued
 
+## Current operational snapshot
+
+Current product candidate: `fe2b505639d8ebf2dc4ab204b545233d96f214f2` (tree `ed5ee226bca6c5da6c4c4769f14ccf7e2316c31a`).
+
+Current evidence:
+- Germinator V07-SPR-G1: VERIFIED / APPROVE for the isolated sprite pilot only; QA-only head is not shippable product.
+- Gonza V07-SPR-Z0: VERIFIED isolated preview with source/build/served parity; production root remains unchanged.
+- Mario/Mario-A integration work is VERIFIED; Mario-B package handoff remains HANDOFF_READY and has been consumed by integration as an event, not a state.
+
+Current blockers / gates:
+- physical iPhone/user acceptance is not green;
+- canonical production package format remains unresolved (`body.webp` + `animations.json` vs pilot naming/encoding);
+- production-root/full-roster cutover remains unauthorized.
+
+Next action: preserve the existing R005 product gates while coordination Phase 0 is independently reconciled and QA-reviewed. Product progression remains at user/device acceptance followed by production-format reconciliation and an explicit cutover decision.
+
 ## Exact frozen base
 
 All R005 feature branches start from:
@@ -104,6 +120,10 @@ Local bugs inside the authorized contract are repaired by the owner without cere
 
 Only after Z1 publication/parity evidence does Neureon archive R005 and issue ROUND_COMPLETE.
 
+
+## Historical execution record
+
+The sections below preserve R005 execution history and exact evidence. When historical wording conflicts with the current operational snapshot above, the snapshot is authoritative; old blockers/claims do not become live again unless explicitly re-opened.
 
 ## User-rejected preview repair — multi-instance super-improvement
 

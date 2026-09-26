@@ -1,0 +1,38 @@
+{
+  "schemaVersion": 1,
+  "trialId": "V2-TRIAL-CLAIM-001",
+  "phase0BaseSha": "4a47962e563b8e444ab6cf6a288db66c13dda743",
+  "implementationSeedSha": "097b591ab7f5d75636cd490b6ba3c2fcd7f67e8e",
+  "claimRef": "refs/heads/coord-v2-claims/v2-trial-claim-001-s1",
+  "winner": {
+    "instanceId": "gonza-v2-a",
+    "commitSha": "c952eb64a8a7b44beea2e2dd090cd23f6e7a2586",
+    "parentSha": "097b591ab7f5d75636cd490b6ba3c2fcd7f67e8e"
+  },
+  "loser": {
+    "instanceId": "gonza-v2-b",
+    "commitSha": "42436e536c7ecc81b2da3e760d4477fe0dfb62a0",
+    "parentSha": "097b591ab7f5d75636cd490b6ba3c2fcd7f67e8e",
+    "refUpdate": {
+      "force": false,
+      "result": "REJECTED_NON_FAST_FORWARD",
+      "httpStatus": 422,
+      "message": "Update is not a fast forward"
+    }
+  },
+  "winnerProjection": {
+    "taskState": "CLAIMED",
+    "slotState": "CLAIMED",
+    "activeInstanceId": "gonza-v2-a",
+    "loserInstanceState": "UNASSIGNED"
+  },
+  "verification": {
+    "implementationPr": 65,
+    "implementationRun": 36275461835,
+    "implementationConclusion": "SUCCESS",
+    "winnerValidationPr": 66,
+    "winnerValidationRun": 36275620165,
+    "winnerValidationConclusion": "SUCCESS"
+  },
+  "ruling": "FAST_FORWARD_ONLY_SINGLE_WINNER_PROVEN"
+}

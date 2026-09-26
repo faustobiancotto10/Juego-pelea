@@ -105,19 +105,91 @@ function qaForHandoff(handoff, qaReceipts, errors) {
   return qa;
 }
 
-export function loadV2Model(root = '.') {
+export function loadV2Model(root = '.', options = {}) {
   return {
     root,
     rolesDoc: json(join(root, 'coordination/v2/roles.json')),
     tasksEntries: jsonFiles(join(root, 'coordination/v2/tasks')),
     slotsEntries: jsonFiles(join(root, 'coordination/v2/slots')),
     instancesEntries: jsonFiles(join(root, 'coordination/v2/instances')),
-    claimsEntries: jsonFiles(join(root, 'coordination/v2/claims')),
+    claimsEntries: options.claimsEntries ?? jsonFiles(join(root, 'coordination/v2/claims')),
     handoffsEntries: jsonFiles(join(root, 'coordination/v2/handoffs')),
     qaEntries: jsonFiles(join(root, 'coordination/v2/qa')),
     transitionsEntries: jsonFiles(join(root, 'coordination/v2/transitions')),
     releasesEntries: jsonFiles(join(root, 'coordination/v2/releases')),
+    remoteErrors: options.remoteErrors ?? [],
+    remoteClaimHeads: options.remoteClaimHeads ?? {},
   };
+}
+
+function gitText(root, args) {
+  return execFileSync('git', args, { cwd: root, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] }).trim();
+}
+
+function defaultResolveClaimRef(root, remote, slot) {
+  const ls = gitText(root, ['ls-remote', '--heads', remote, slot.claimRef]);
+  if (!ls) return { error: `claim ref ${slot.claimRef} is not seeded` };
+  const [headSha] = ls.split(/\s+/);
+  if (!sha(headSha)) return { error: `claim ref ${slot.claimRef} returned invalid head ${headSha}` };
+
+  try {
+    execFileSync('git', ['fetch', '--no-tags', remote, headSha], { cwd: root, stdio: 'ignore' });
+  } catch {
+    return { error: `claim ref ${slot.claimRef} head ${headSha} could not be fetched` };
+  }
+
+  const claimPath = `coordination/v2/claims/${slot.id}.json`;
+  let content = null;
+  try {
+    content = gitText(root, ['show', `${headSha}:${claimPath}`]);
+  } catch {
+    return { headSha, claim: null };
+  }
+
+  let claim;
+  try {
+    claim = JSON.parse(content);
+  } catch {
+    return { error: `claim ref ${slot.claimRef} contains invalid JSON at ${claimPath}`, headSha };
+  }
+
+  let parentSha = null;
+  try {
+    parentSha = gitText(root, ['rev-parse', `${headSha}^1`]);
+  } catch {
+    return { error: `claimed ref ${slot.claimRef} head ${headSha} has no parent`, headSha };
+  }
+
+  return { headSha, parentSha, claim };
+}
+
+export function loadRemoteV2Model(root = '.', remote = 'origin', options = {}) {
+  const local = loadV2Model(root);
+  const slotValues = local.slotsEntries.map((entry) => entry.value).sort((a, b) => a.id.localeCompare(b.id));
+  const resolveClaimRef = options.resolveClaimRef ?? ((slot) => defaultResolveClaimRef(root, remote, slot));
+  const claimsEntries = [];
+  const remoteErrors = [];
+  const remoteClaimHeads = {};
+
+  for (const slot of slotValues) {
+    const resolved = resolveClaimRef(slot);
+    if (resolved?.error) {
+      remoteErrors.push(resolved.error);
+      continue;
+    }
+    remoteClaimHeads[slot.id] = resolved.headSha;
+    if (!resolved.claim) continue;
+    claimsEntries.push({
+      path: `${slot.claimRef}:coordination/v2/claims/${slot.id}.json`,
+      value: resolved.claim,
+      sourceSlotId: slot.id,
+      sourceRef: slot.claimRef,
+      sourceHeadSha: resolved.headSha,
+      sourceParentSha: resolved.parentSha,
+    });
+  }
+
+  return loadV2Model(root, { claimsEntries, remoteErrors, remoteClaimHeads });
 }
 
 export function cloneModel(model) {
@@ -179,6 +251,8 @@ export function validateLoadedModel(model, options = {}) {
   const qaReceipts = byId(model.qaEntries, 'qa', errors);
   const releases = byId(model.releasesEntries, 'release', errors);
 
+  for (const remoteError of model.remoteErrors ?? []) errors.push(remoteError);
+
   for (const role of roles.values()) {
     if (!role.identityPath || !existsSync(join(root, role.identityPath))) {
       errors.push(`role ${role.id} identityPath missing: ${role.identityPath}`);
@@ -190,8 +264,17 @@ export function validateLoadedModel(model, options = {}) {
     if (!roles.has(task.roleId)) errors.push(`task ${task.id} references unknown role ${task.roleId}`);
     if (!Array.isArray(task.slotIds) || !task.slotIds.length) errors.push(`task ${task.id} has no slots`);
     if (!Array.isArray(task.dependencies)) errors.push(`task ${task.id} dependencies must be an array`);
+    if (!Array.isArray(task.inputShas)) errors.push(`task ${task.id} inputShas must be an array`);
     verifyGitObject(root, task.baseSha, errors, warnings, strictGit, `task ${task.id} baseSha`);
     if (task.lineageBaseSha) verifyGitObject(root, task.lineageBaseSha, errors, warnings, strictGit, `task ${task.id} lineageBaseSha`);
+    const inputLineageBase = task.lineageBaseSha ?? task.baseSha;
+    for (const inputSha of task.inputShas ?? []) {
+      if (!sha(inputSha)) {
+        errors.push(`task ${task.id} inputSha is not a 40-char SHA: ${inputSha}`);
+        continue;
+      }
+      verifyAncestor(root, inputLineageBase, inputSha, errors, warnings, strictGit, `task ${task.id} inputSha ${inputSha}`);
+    }
     for (const dep of task.dependencies ?? []) {
       const depId = typeof dep === 'string' ? dep : dep.taskId;
       if (!tasks.has(depId)) errors.push(`task ${task.id} references unknown dependency ${depId}`);
@@ -202,6 +285,7 @@ export function validateLoadedModel(model, options = {}) {
     }
   }
 
+  const claimRefOwners = new Map();
   for (const slot of slots.values()) {
     if ('state' in slot || 'instanceId' in slot) errors.push(`slot ${slot.id} stores derived occupancy/state`);
     const task = tasks.get(slot.taskId);
@@ -210,6 +294,8 @@ export function validateLoadedModel(model, options = {}) {
     if (task && task.roleId !== slot.roleId) errors.push(`slot ${slot.id} role does not match task ${slot.taskId}`);
     if (!Array.isArray(slot.ownedPaths) || !slot.ownedPaths.length) errors.push(`slot ${slot.id} has no ownedPaths`);
     if (!String(slot.claimRef ?? '').startsWith('refs/heads/coord-v2-claims/')) errors.push(`slot ${slot.id} has invalid claimRef`);
+    if (claimRefOwners.has(slot.claimRef)) errors.push(`claimRef ${slot.claimRef} is shared by slots ${claimRefOwners.get(slot.claimRef)} and ${slot.id}`);
+    else claimRefOwners.set(slot.claimRef, slot.id);
     if (!String(slot.branchRef ?? '').startsWith('refs/heads/')) errors.push(`slot ${slot.id} has invalid branchRef`);
     if (task && slot.baseSha !== task.baseSha) errors.push(`slot ${slot.id} baseSha differs from task ${task.id}`);
   }
@@ -221,7 +307,8 @@ export function validateLoadedModel(model, options = {}) {
 
   const claimBySlot = new Map();
   const claimByInstance = new Map();
-  for (const claim of claims.values()) {
+  for (const claimEntry of model.claimsEntries) {
+    const claim = claimEntry.value;
     const slot = slots.get(claim.slotId);
     const task = tasks.get(claim.taskId);
     const instance = instances.get(claim.instanceId);
@@ -238,6 +325,10 @@ export function validateLoadedModel(model, options = {}) {
     if (task && task.roleId !== claim.roleId) errors.push(`claim ${claim.id} role does not match task`);
     if (instance && instance.roleId !== claim.roleId) errors.push(`claim ${claim.id} instance role does not match claim role`);
     if (!sha(claim.expectedParentSha)) errors.push(`claim ${claim.id} expectedParentSha is invalid`);
+    if (claimEntry.sourceSlotId && claimEntry.sourceSlotId !== claim.slotId) errors.push(`claim ${claim.id} is stored on the wrong slot ref ${claimEntry.sourceRef}`);
+    if (claimEntry.sourceParentSha && claim.expectedParentSha !== claimEntry.sourceParentSha) {
+      errors.push(`claim ${claim.id} expectedParentSha does not match actual ref parent`);
+    }
   }
 
   const adjacency = new Map();

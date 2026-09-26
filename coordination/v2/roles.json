@@ -1,0 +1,29 @@
+{
+  "schemaVersion": 1,
+  "roles": [
+    {
+      "id": "brancaforte",
+      "identityPath": "coordination/agents/brancaforte.md"
+    },
+    {
+      "id": "germinator",
+      "identityPath": "coordination/agents/germinator.md"
+    },
+    {
+      "id": "gonza",
+      "identityPath": "coordination/agents/gonza.md"
+    },
+    {
+      "id": "mario",
+      "identityPath": "coordination/agents/mario.md"
+    },
+    {
+      "id": "neureon",
+      "identityPath": "coordination/agents/neureon.md"
+    },
+    {
+      "id": "ricardo",
+      "identityPath": "coordination/agents/ricardo.md"
+    }
+  ]
+}

@@ -1,0 +1,43 @@
+name: Agent V2 global remote projection
+
+on:
+  pull_request:
+    paths:
+      - 'coordination/BOOT.md'
+      - 'coordination/v2/**'
+      - 'scripts/coord-v2-*.mjs'
+      - 'scripts/lib/coord-v2-model.mjs'
+      - 'tests/coord-v2-model.test.mjs'
+  push:
+    branches:
+      - coordination/gonza-v2-isolated
+
+jobs:
+  global-remote:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout full V2 implementation history
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Reconstruct global current state from every declared claim ref
+        run: |
+          node scripts/coord-v2-project.mjs --remote origin --strict-git > /tmp/coord-v2-current.json
+          cat /tmp/coord-v2-current.json
+          node - <<'NODE'
+          const fs=require('fs');
+          const current=JSON.parse(fs.readFileSync('/tmp/coord-v2-current.json','utf8'));
+          const task=current.v2.tasks.find(x=>x.id==='V2-TRIAL-CLAIM-001');
+          const slot=current.v2.slots.find(x=>x.id==='V2-TRIAL-CLAIM-001-S1');
+          const winner=current.v2.instances.find(x=>x.id==='gonza-v2-a');
+          const loser=current.v2.instances.find(x=>x.id==='gonza-v2-b');
+          if(task?.state!=='CLAIMED') throw new Error('global task projection did not see live claim');
+          if(slot?.state!=='CLAIMED'||slot?.instanceId!=='gonza-v2-a') throw new Error('global slot projection did not see winner');
+          if(winner?.state!=='ACTIVE'||winner?.slotId!=='V2-TRIAL-CLAIM-001-S1') throw new Error('winner not ACTIVE globally');
+          if(loser?.state!=='UNASSIGNED'||loser?.slotId!==null) throw new Error('loser should remain UNASSIGNED globally');
+          console.log('GLOBAL_REMOTE_CLAIM_PROJECTION_PASS');
+          NODE
+
+      - name: Strict global invariant validator
+        run: node scripts/coord-v2-validate.mjs --remote origin --strict-git

@@ -1,0 +1,20 @@
+{
+  "schemaVersion": 1,
+  "id": "V2-TRIAL-CLAIM-001",
+  "roleId": "gonza",
+  "kind": "synthetic-claim-trial",
+  "baseSha": "4a47962e563b8e444ab6cf6a288db66c13dda743",
+  "lineageBaseSha": "4a47962e563b8e444ab6cf6a288db66c13dda743",
+  "inputShas": [],
+  "dependencies": [],
+  "slotIds": [
+    "V2-TRIAL-CLAIM-001-S1"
+  ],
+  "qaRequired": false,
+  "acceptance": [
+    "exactly one winner when two compatible workers race for the same slot",
+    "loser rereads the winning claim instead of force-updating",
+    "derived CURRENT projection matches the winning claim"
+  ],
+  "downstreamTaskId": null
+}

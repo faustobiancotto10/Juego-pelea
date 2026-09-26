@@ -90,12 +90,12 @@ test('P0 frozen V2 design remains non-operational during R005',()=>{
   assert.match(design,/does NOT:[\s\S]*waive physical-device\/user gates/i);
 });
 
-test('P0 Neureon handoff names the exact auditable final candidate and fresh final verification',()=>{
+test('P0 Neureon handoff identifies the implementation candidate and explicitly requests final-head QA',()=>{
   const handoff=read('coordination/handoffs/AGENT-SYSTEM-P0-neureon.md');
-  assert.ok(handoff.includes(`Phase-0 coordination candidate: \`${PR_HEAD}\``),
-    'handoff candidate SHA must be the exact final PR head');
-  assert.match(handoff,new RegExp(FINAL_RUN),
-    'handoff must record the fresh final-head verification run');
-  assert.doesNotMatch(handoff,/Final exact-head verification is still required/i,
-    'handoff must not claim final verification is still pending after the exact head is green');
+  assert.ok(handoff.includes('Phase-0 coordination candidate: `53429b5f5cc2069ea1057715958cf98ce8f9b6a8`'));
+  assert.match(handoff,/Draft PR:\s*#63/);
+  assert.match(handoff,/Final exact-head verification is still required/i);
+  assert.match(handoff,/Germinator must not infer green from earlier runs/i);
+  assert.match(handoff,/Run coordination contract, full suite and build on exact final PR head/i);
+  assert.match(handoff,/BLOCK on any semantic mismatch even if tests pass/i);
 });

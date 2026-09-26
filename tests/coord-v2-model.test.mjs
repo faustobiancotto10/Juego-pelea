@@ -1,13 +1,14 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
+import { execFileSync } from 'node:child_process';
 import {
   buildProjection,
-  checkProjection,
   cloneModel,
   loadV2Model,
   validateLoadedModel,
   validateTaskTransition,
+  withResolvedRemoteClaims,
 } from '../scripts/lib/coord-v2-model.mjs';
 
 const BASE = '4a47962e563b8e444ab6cf6a288db66c13dda743';
@@ -56,29 +57,97 @@ const validClaim = (id, slotId, taskId, roleId, instanceId) => ({
 
 test('baseline V2 trial model validates and committed CURRENT is derived exactly', () => {
   const model = loadV2Model(process.cwd());
-  const result = checkProjection(model);
+  const result = validateLoadedModel(model);
   assert.deepEqual(result.errors, []);
-  assert.equal(result.projectionMatches, true);
-  const expectedTaskState = model.claimsEntries.length ? 'CLAIMED' : 'READY';
-  assert.equal(result.stateFor('V2-TRIAL-CLAIM-001'), expectedTaskState);
+  assert.equal(result.stateFor('V2-TRIAL-CLAIM-001'), 'READY');
 
   const projection = buildProjection(model, result);
   assert.equal(projection.legacyCompatibility.roundId, 'R005-V07-GAMEPLAY-PRESENTATION-EXPANSION');
   assert.equal(projection.legacyCompatibility.roundState, 'ACTIVE');
   assert.equal(projection.legacyCompatibility.mode, 'read-only-compatibility');
-  if (model.claimsEntries.length === 0) {
-    assert.equal(projection.v2.instances.every((instance) => instance.state === 'UNASSIGNED'), true);
-  } else {
-    assert.equal(projection.v2.instances.filter((instance) => instance.state === 'ACTIVE').length, 1);
-  }
+  assert.equal(projection.v2.instances.every((instance) => instance.state === 'UNASSIGNED'), true);
 });
 
 test('BOOT is compact and explicitly keeps V2 isolated from live R005', () => {
   const boot = readFileSync('coordination/BOOT.md', 'utf8');
   assert.match(boot, /ROLE != TASK != SLOT\/LANE != INSTANCE\/WORKER/);
   assert.match(boot, /not converted to V2/i);
-  assert.match(boot, /fast-forward/i);
+  assert.match(boot, /--remote origin/);
+  assert.match(boot, /all declared slot claim refs/i);
   assert.match(boot, /No force-push claiming/i);
+});
+
+
+test('V2 claim eligibility rejects malformed inputShas instead of ignoring them', () => {
+  const model = cloneModel(loadV2Model(process.cwd()));
+  model.tasksEntries[0].value.inputShas = ['not-a-git-sha'];
+  const result = validateLoadedModel(model);
+  assert.ok(result.errors.some((error) => /inputSha is not a 40-char SHA/.test(error)), `claim-time validation ignored malformed inputShas: ${JSON.stringify(result.errors)}`);
+});
+
+test('strict V2 validation rejects missing required input commits', () => {
+  const model = cloneModel(loadV2Model(process.cwd()));
+  model.tasksEntries[0].value.inputShas = ['1111111111111111111111111111111111111111'];
+  const result = validateLoadedModel(model, { strictGit: true });
+  assert.ok(result.errors.some((error) => /inputSha .* unavailable in current checkout/.test(error)));
+});
+
+test('strict V2 validation rejects required input commits outside task lineage', () => {
+  const model = cloneModel(loadV2Model(process.cwd()));
+  const tree = execFileSync('git', ['rev-parse', 'HEAD^{tree}'], { encoding: 'utf8' }).trim();
+  const orphan = execFileSync('git', ['commit-tree', tree], {
+    input: 'orphan fixture\n',
+    encoding: 'utf8',
+    env: {
+      ...process.env,
+      GIT_AUTHOR_NAME: 'coord-v2-test',
+      GIT_AUTHOR_EMAIL: 'coord-v2-test@example.invalid',
+      GIT_COMMITTER_NAME: 'coord-v2-test',
+      GIT_COMMITTER_EMAIL: 'coord-v2-test@example.invalid',
+    },
+  }).trim();
+  model.tasksEntries[0].value.inputShas = [orphan];
+  const result = validateLoadedModel(model, { strictGit: true });
+  assert.ok(result.errors.some((error) => /wrong lineage/.test(error)), `expected wrong-lineage error, got ${JSON.stringify(result.errors)}`);
+});
+
+test('remote claim aggregation overrides branch-local readiness and evaluates global conflicts together', () => {
+  const model = cloneModel(loadV2Model(process.cwd()));
+  model.tasksEntries.push(entry(validTask('T2', 'gonza', 'T2-S1'), 't2.json'));
+  model.slotsEntries.push(entry(validSlot('T2-S1', 'T2', 'gonza', ['coordination/v2/trials/V2-TRIAL-CLAIM-001/sub/**']), 't2s1.json'));
+  model.instancesEntries.push(entry(validInstance('gonza-v2-c', 'gonza'), 'c.json'));
+
+  const parentA = 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa';
+  const parentC = 'cccccccccccccccccccccccccccccccccccccccc';
+  const headA = 'bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb';
+  const headC = 'dddddddddddddddddddddddddddddddddddddddd';
+
+  const remote = withResolvedRemoteClaims(model, (slot) => {
+    if (slot.id === 'V2-TRIAL-CLAIM-001-S1') {
+      return {
+        headSha: headA,
+        parentSha: parentA,
+        claim: validClaim('claim:a', slot.id, slot.taskId, slot.roleId, 'gonza-v2-a'),
+      };
+    }
+    return {
+      headSha: headC,
+      parentSha: parentC,
+      claim: {
+        ...validClaim('claim:c', slot.id, slot.taskId, slot.roleId, 'gonza-v2-a'),
+        expectedParentSha: parentC,
+      },
+    };
+  });
+  remote.claimsEntries[0].value.expectedParentSha = parentA;
+
+  const localResult = validateLoadedModel(model);
+  assert.equal(localResult.stateFor('V2-TRIAL-CLAIM-001'), 'READY');
+
+  const globalResult = validateLoadedModel(remote);
+  assert.equal(globalResult.stateFor('V2-TRIAL-CLAIM-001'), 'CLAIMED');
+  assert.ok(globalResult.errors.some((error) => /instance gonza-v2-a occupies multiple slots/.test(error)));
+  assert.ok(globalResult.errors.some((error) => /ownedPaths overlap/.test(error)));
 });
 
 test('validator rejects mutable state copied into canonical task/slot/instance records', () => {
@@ -228,7 +297,10 @@ test('task transition validator rejects shortcuts and requires explicit BLOCKED 
 test('claim client contains no force-push escape hatch', () => {
   const source = readFileSync('scripts/coord-v2-claim.mjs', 'utf8');
   assert.doesNotMatch(source, /--force|force-with-lease/);
+  assert.match(source, /loadRemoteV2Model/);
+  assert.match(source, /strictGit:\s*true/);
+  assert.doesNotMatch(source, /CURRENT\.json/);
   assert.match(source, /CLAIM_WON/);
   assert.match(source, /CLAIM_LOST/);
-  assert.match(source, /Remote ref advanced/);
+  assert.match(source, /Reread global current state|reread global current state/i);
 });

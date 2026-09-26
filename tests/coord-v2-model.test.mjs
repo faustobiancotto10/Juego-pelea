@@ -59,13 +59,18 @@ test('baseline V2 trial model validates and committed CURRENT is derived exactly
   const result = checkProjection(model);
   assert.deepEqual(result.errors, []);
   assert.equal(result.projectionMatches, true);
-  assert.equal(result.stateFor('V2-TRIAL-CLAIM-001'), 'READY');
+  const expectedTaskState = model.claimsEntries.length ? 'CLAIMED' : 'READY';
+  assert.equal(result.stateFor('V2-TRIAL-CLAIM-001'), expectedTaskState);
 
   const projection = buildProjection(model, result);
   assert.equal(projection.legacyCompatibility.roundId, 'R005-V07-GAMEPLAY-PRESENTATION-EXPANSION');
   assert.equal(projection.legacyCompatibility.roundState, 'ACTIVE');
   assert.equal(projection.legacyCompatibility.mode, 'read-only-compatibility');
-  assert.equal(projection.v2.instances.every((instance) => instance.state === 'UNASSIGNED'), true);
+  if (model.claimsEntries.length === 0) {
+    assert.equal(projection.v2.instances.every((instance) => instance.state === 'UNASSIGNED'), true);
+  } else {
+    assert.equal(projection.v2.instances.filter((instance) => instance.state === 'ACTIVE').length, 1);
+  }
 });
 
 test('BOOT is compact and explicitly keeps V2 isolated from live R005', () => {

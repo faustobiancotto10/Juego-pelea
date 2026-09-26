@@ -9,9 +9,9 @@ Canonical continuation pulse: `.`
 | --- | --- | --- | --- | --- |
 | Neureon | Lead / Coordinator | V07-SPR-N0 | VERIFIED | Intake, contract and dependency graph established; remain coordinator. |
 | Ricardo | Gameplay / runtime engineer | V07-SPR-R1 | HANDOFF_READY | Replacement exact SHA `5b20c351...`; crouch/block/block-crouch amendment green, 309/309 tests + build PASS; `79f8d81...` superseded. |
-| Mario | Character / Rendering Engineer | V07-SPR-MI repair | HANDOFF_CONSUMED | Repair `fe2b5056...` passed Germinator G1; no further Mario work unless preview QA finds a new defect. |
-| ↳ Mario-A | Sprite source lead / designated integrator | V07-SPR-MI | HANDOFF_CONSUMED | Replacement `fe2b5056...` is G1-approved and frozen as Gonza's exact preview input. |
-| ↳ Mario-B | El Toro sprite package | V07-SPR-MB | HANDOFF_CONSUMED | Rebuilt bilateral package `1a1d14df...` was consumed by Mario-A integration; final anchor certification now lives in integrated candidate `5c76664f...`. No further package work unless QA finds a reproducible defect. |
+| Mario | Character / Rendering Engineer | V07-SPR-MI repair | VERIFIED | Repair `fe2b5056...` passed Germinator G1; no further Mario work unless preview QA finds a new defect. |
+| ↳ Mario-A | Sprite source lead / designated integrator | V07-SPR-MI | VERIFIED | Replacement `fe2b5056...` is G1-approved and frozen as Gonza's exact preview input. |
+| ↳ Mario-B | El Toro sprite package | V07-SPR-MB | HANDOFF_READY | Rebuilt bilateral package `1a1d14df...` was consumed by Mario-A integration; package/anchor evidence is preserved through the approved replacement `fe2b5056...`. No further package work unless QA finds a reproducible defect. |
 | Brancaforte | UI / Input / UX | standby | OFF_ROUND | Activate only if a real loading/menu/HUD/input contract changes. |
 | Germinator | Independent QA | V07-SPR-G1 | VERIFIED | `APPROVE — SPRITE PILOT LIVE INTEGRATION GREEN` on exact `fe2b5056...`; final Repository #1722 + Pipeline #74 green, 433/433 PASS, build PASS, served-atlas RIGHT/LEFT/Topete/Ultimate evidence inspected. |
 | Gonza | Integration / release | V07-SPR-Z0 | HANDOFF_READY | Isolated sprite preview VERIFIED and publicly served; wait for user/device acceptance, then production-format reconciliation + explicit cutover decision. |

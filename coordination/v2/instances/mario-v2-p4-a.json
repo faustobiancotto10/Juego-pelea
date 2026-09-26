@@ -1,0 +1,7 @@
+{
+  "schemaVersion": 1,
+  "id": "mario-v2-p4-a",
+  "roleId": "mario",
+  "label": "Mario Phase 4 disjoint worker",
+  "replacementOf": null
+}

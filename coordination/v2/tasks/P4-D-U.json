@@ -1,0 +1,19 @@
+{
+  "schemaVersion": 1,
+  "id": "P4-D-U",
+  "roleId": "ricardo",
+  "kind": "synthetic-phase4-trial",
+  "baseSha": "a6177203b3235589fcbcdeecc0c7c0b562e17763",
+  "lineageBaseSha": "a6177203b3235589fcbcdeecc0c7c0b562e17763",
+  "inputShas": [],
+  "dependencies": [],
+  "slotIds": [
+    "P4-D-U-S1"
+  ],
+  "qaRequired": false,
+  "acceptance": [
+    "branch alone does not unlock downstream",
+    "canonical handoff changes dependency state"
+  ],
+  "downstreamTaskId": "P4-D-D"
+}

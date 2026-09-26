@@ -1,0 +1,13 @@
+{
+  "schemaVersion": 1,
+  "id": "P4-A-RICARDO-S1",
+  "taskId": "P4-A-RICARDO",
+  "roleId": "ricardo",
+  "branchRef": "refs/heads/coord-v2-p4-work/p4-a-ricardo",
+  "claimRef": "refs/heads/coord-v2-claims/p4-a-ricardo",
+  "baseSha": "a6177203b3235589fcbcdeecc0c7c0b562e17763",
+  "ownedPaths": [
+    "coordination/v2/trials/P4-A/ricardo/**"
+  ],
+  "integrationTarget": null
+}

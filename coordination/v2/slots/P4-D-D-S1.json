@@ -1,0 +1,13 @@
+{
+  "schemaVersion": 1,
+  "id": "P4-D-D-S1",
+  "taskId": "P4-D-D",
+  "roleId": "ricardo",
+  "branchRef": "refs/heads/coord-v2-p4-work/p4-d-downstream",
+  "claimRef": "refs/heads/coord-v2-claims/p4-d-downstream",
+  "baseSha": "a6177203b3235589fcbcdeecc0c7c0b562e17763",
+  "ownedPaths": [
+    "coordination/v2/trials/P4-D/downstream/**"
+  ],
+  "integrationTarget": null
+}

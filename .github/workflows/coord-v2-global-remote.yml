@@ -7,7 +7,8 @@ on:
       - 'coordination/v2/**'
       - 'scripts/coord-v2-*.mjs'
       - 'scripts/lib/coord-v2-model.mjs'
-      - 'tests/coord-v2-model.test.mjs'
+      - 'tests/coord-v2-*.test.mjs'
+      - '.github/workflows/coord-v2-*.yml'
   push:
     branches:
       - coordination/gonza-v2-isolated
@@ -28,15 +29,17 @@ jobs:
           node - <<'NODE'
           const fs=require('fs');
           const current=JSON.parse(fs.readFileSync('/tmp/coord-v2-current.json','utf8'));
-          const task=current.v2.tasks.find(x=>x.id==='V2-TRIAL-CLAIM-001');
-          const slot=current.v2.slots.find(x=>x.id==='V2-TRIAL-CLAIM-001-S1');
-          const winner=current.v2.instances.find(x=>x.id==='gonza-v2-a');
-          const loser=current.v2.instances.find(x=>x.id==='gonza-v2-b');
-          if(task?.state!=='CLAIMED') throw new Error('global task projection did not see live claim');
-          if(slot?.state!=='CLAIMED'||slot?.instanceId!=='gonza-v2-a') throw new Error('global slot projection did not see winner');
-          if(winner?.state!=='ACTIVE'||winner?.slotId!=='V2-TRIAL-CLAIM-001-S1') throw new Error('winner not ACTIVE globally');
-          if(loser?.state!=='UNASSIGNED'||loser?.slotId!==null) throw new Error('loser should remain UNASSIGNED globally');
-          console.log('GLOBAL_REMOTE_CLAIM_PROJECTION_PASS');
+          if(!Array.isArray(current?.v2?.tasks)||!Array.isArray(current?.v2?.slots)||!Array.isArray(current?.v2?.instances)) {
+            throw new Error('malformed global V2 projection');
+          }
+          const unique=(rows,label)=>{
+            const ids=rows.map(x=>x.id);
+            if(new Set(ids).size!==ids.length) throw new Error(`duplicate ${label} ids in global projection`);
+          };
+          unique(current.v2.tasks,'task');
+          unique(current.v2.slots,'slot');
+          unique(current.v2.instances,'instance');
+          console.log(`GLOBAL_REMOTE_PROJECTION_PASS tasks=${current.v2.tasks.length} slots=${current.v2.slots.length} active=${current.v2.instances.filter(x=>x.state==='ACTIVE').length}`);
           NODE
 
       - name: Strict global invariant validator

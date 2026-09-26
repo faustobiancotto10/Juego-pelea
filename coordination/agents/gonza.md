@@ -114,3 +114,4 @@ Do not store current release SHAs, temporary Pages state or task-specific blocke
 
 - When QA or handoff evidence fails its identity binding (task, handoff, or exact candidate SHA), record the mismatch but also exclude that evidence from derived VERIFIED/release state. Invalid evidence must never remain state-effective.
 - For repo-native slot claiming, a dedicated slot ref seeded to a known model commit plus normal fast-forward-only updates provides an auditable contention primitive: sibling claim commits from one parent yield one winner and non-fast-forward losers. Never resolve claim contention with force updates.
+- In ref-distributed coordination, claim eligibility must be evaluated against one global reconstruction of all declared remote claim refs, never against checkout-local claims alone. Before attempting the fast-forward claim, strictly revalidate required base/input SHAs and global cross-slot invariants.

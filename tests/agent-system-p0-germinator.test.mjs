@@ -92,7 +92,7 @@ test('P0 frozen V2 design remains non-operational during R005',()=>{
 
 test('P0 Neureon handoff names the exact auditable final candidate and fresh final verification',()=>{
   const handoff=read('coordination/handoffs/AGENT-SYSTEM-P0-neureon.md');
-  assert.match(handoff,new RegExp(`Phase-0 coordination candidate:\\s*\\`${PR_HEAD}\\``),
+  assert.ok(handoff.includes(`Phase-0 coordination candidate: \`${PR_HEAD}\``),
     'handoff candidate SHA must be the exact final PR head');
   assert.match(handoff,new RegExp(FINAL_RUN),
     'handoff must record the fresh final-head verification run');

@@ -159,7 +159,9 @@ test('reassignment primitive requires live ownership, durable replacement metada
 test('frozen Phase-4 contract still contains the required STOP conditions and execution ordering',()=>{
   const contract=readFileSync('coordination/v2/trials/PHASE4-MULTI-INSTANCE-CONTRACT.md','utf8');
 
-  assert.match(contract,/P4-A: Mario \+ Ricardo disjoint/i);
+  assert.match(contract,/Scenario P4-A — disjoint parallel execution/i);
+  assert.match(contract,/Mario worker: temporary instance `mario-v2-p4-a`/i);
+  assert.match(contract,/Ricardo worker: temporary instance `ricardo-v2-p4-a`/i);
   assert.match(contract,/P4-B.*different-ref race/is);
   assert.match(contract,/checkpoint.*replacement/is);
   assert.match(contract,/branch.*without.*handoff/is);

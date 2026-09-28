@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "id": "claim:P4-A-MARIO-S1",
+  "slotId": "P4-A-MARIO-S1",
+  "taskId": "P4-A-MARIO",
+  "roleId": "mario",
+  "instanceId": "mario-v2-p4-a",
+  "expectedParentSha": "ef5aac1989fef70fc7c04251e426086fc690e1d6"
+}

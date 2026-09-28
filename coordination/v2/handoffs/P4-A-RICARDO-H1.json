@@ -1,0 +1,14 @@
+{
+  "schemaVersion": 1,
+  "id": "P4-A-RICARDO-H1",
+  "taskId": "P4-A-RICARDO",
+  "candidateSha": "d94917972b4244d03525e6a6ddfcbef42f37bbfc",
+  "supersedes": null,
+  "slotId": "P4-A-RICARDO-S1",
+  "instanceId": "ricardo-v2-p4-a",
+  "evidence": {
+    "checkpointPath": "coordination/v2/trials/P4-A/ricardo/checkpoint.json",
+    "claimRef": "refs/heads/coord-v2-claims/p4-a-ricardo",
+    "claimSha": "142668763c1ccd60f1f7cd58889efc5d6c6150f2"
+  }
+}

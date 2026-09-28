@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "scenario": "P4-A",
+  "taskId": "P4-A-RICARDO",
+  "slotId": "P4-A-RICARDO-S1",
+  "instanceId": "ricardo-v2-p4-a",
+  "checkpoint": "RICARDO_DISJOINT_WORK_OK",
+  "sequence": 1
+}

@@ -1,0 +1,14 @@
+{
+  "schemaVersion": 1,
+  "id": "P4-A-MARIO-H1",
+  "taskId": "P4-A-MARIO",
+  "candidateSha": "644ccf6cd9058c8e6efa7843af3a859f4602e880",
+  "supersedes": null,
+  "slotId": "P4-A-MARIO-S1",
+  "instanceId": "mario-v2-p4-a",
+  "claimSha": "f57adeee55eb745f66a58446142e041307a60266",
+  "evidence": {
+    "ownedCheckpoint": "coordination/v2/trials/P4-A/mario/checkpoint.json",
+    "ownedPath": "coordination/v2/trials/P4-A/mario/**"
+  }
+}

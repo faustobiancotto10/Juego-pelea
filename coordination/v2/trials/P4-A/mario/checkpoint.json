@@ -1,0 +1,13 @@
+{
+  "schemaVersion": 1,
+  "scenario": "P4-A",
+  "taskId": "P4-A-MARIO",
+  "slotId": "P4-A-MARIO-S1",
+  "instanceId": "mario-v2-p4-a",
+  "roleId": "mario",
+  "ownedPath": "coordination/v2/trials/P4-A/mario/**",
+  "claimRef": "refs/heads/coord-v2-claims/p4-a-mario",
+  "claimSha": "f57adeee55eb745f66a58446142e041307a60266",
+  "baseSha": "a6177203b3235589fcbcdeecc0c7c0b562e17763",
+  "checkpoint": "deterministic-disjoint-worker-checkpoint"
+}

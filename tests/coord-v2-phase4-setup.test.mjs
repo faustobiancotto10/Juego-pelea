@@ -25,14 +25,25 @@ const P4_SLOTS = [
   'P4-E-QA-S1',
 ];
 
-test('Phase 4 materialization is canonical, isolated, and locally READY', () => {
+test('Phase 4 materialization remains canonical as P4-A advances', () => {
   const model = loadV2Model(process.cwd());
   const result = validateLoadedModel(model);
   assert.deepEqual(result.errors, []);
 
+  const expectedStates = new Map([
+    ['P4-A-MARIO', 'VERIFIED'],
+    ['P4-A-RICARDO', 'VERIFIED'],
+    ['P4-B-ONE', 'READY'],
+    ['P4-B-TWO', 'READY'],
+    ['P4-C-MARIO', 'READY'],
+    ['P4-D-U', 'READY'],
+    ['P4-D-D', 'WAITING_DEPENDENCY'],
+    ['P4-E-QA', 'READY'],
+  ]);
+
   for (const taskId of P4_TASKS) {
     assert.ok(result.maps.tasks.has(taskId), `missing task ${taskId}`);
-    assert.equal(result.stateFor(taskId), taskId === 'P4-D-D' ? 'WAITING_DEPENDENCY' : 'READY');
+    assert.equal(result.stateFor(taskId), expectedStates.get(taskId));
   }
 
   for (const slotId of P4_SLOTS) {

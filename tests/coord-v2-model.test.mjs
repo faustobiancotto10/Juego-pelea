@@ -82,7 +82,8 @@ test('BOOT is compact and explicitly keeps V2 isolated from live R005', () => {
   assert.match(boot, /ROLE != TASK != SLOT\/LANE != INSTANCE\/WORKER/);
   assert.match(boot, /not converted to V2/i);
   assert.match(boot, /--remote origin/);
-  assert.match(boot, /all declared slot claim refs/i);
+  assert.match(boot, /claim authority ref/i);
+  assert.match(boot, /legacy per-slot claim ref/i);
   assert.match(boot, /No force-push claiming/i);
 });
 
@@ -135,27 +136,41 @@ test('remote claim aggregation overrides branch-local readiness and evaluates gl
 
   const parentA = 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa';
   const parentC = 'cccccccccccccccccccccccccccccccccccccccc';
-  const headA = 'bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb';
-  const headC = 'dddddddddddddddddddddddddddddddddddddddd';
+  const authorityHead = 'dddddddddddddddddddddddddddddddddddddddd';
+  let resolverCalls = 0;
 
-  const remote = withResolvedRemoteClaims(model, (slot) => {
-    if (slot.id === 'V2-TRIAL-CLAIM-001-S1') {
-      return {
-        headSha: headA,
-        parentSha: parentA,
-        claim: validClaim('claim:a', slot.id, slot.taskId, slot.roleId, 'gonza-v2-a'),
-      };
-    }
+  const remote = withResolvedRemoteClaims(model, (authorityRef) => {
+    resolverCalls += 1;
+    assert.equal(authorityRef, 'refs/heads/coord-v2-claims/authority');
     return {
-      headSha: headC,
-      parentSha: parentC,
-      claim: {
-        ...validClaim('claim:c', slot.id, slot.taskId, slot.roleId, 'gonza-v2-a'),
-        expectedParentSha: parentC,
-      },
+      headSha: authorityHead,
+      claims: [
+        {
+          path: `${authorityRef}:coordination/v2/claims/V2-TRIAL-CLAIM-001-S1.json`,
+          value: {
+            ...validClaim('claim:a', 'V2-TRIAL-CLAIM-001-S1', 'V2-TRIAL-CLAIM-001', 'gonza', 'gonza-v2-a'),
+            expectedParentSha: parentA,
+          },
+          sourceRef: authorityRef,
+          sourceHeadSha: 'bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb',
+          sourceParentSha: parentA,
+        },
+        {
+          path: `${authorityRef}:coordination/v2/claims/T2-S1.json`,
+          value: {
+            ...validClaim('claim:c', 'T2-S1', 'T2', 'gonza', 'gonza-v2-a'),
+            expectedParentSha: parentC,
+          },
+          sourceRef: authorityRef,
+          sourceHeadSha: authorityHead,
+          sourceParentSha: parentC,
+        },
+      ],
     };
   });
-  remote.claimsEntries[0].value.expectedParentSha = parentA;
+
+  assert.equal(resolverCalls, 1);
+  assert.equal(remote.remoteClaimAuthorityHead, authorityHead);
 
   const localResult = validateLoadedModel(model);
   assert.equal(localResult.stateFor('V2-TRIAL-CLAIM-001'), 'READY');
@@ -319,4 +334,34 @@ test('claim client contains no force-push escape hatch', () => {
   assert.match(source, /CLAIM_WON/);
   assert.match(source, /CLAIM_LOST/);
   assert.match(source, /Reread global current state|reread global current state/i);
+});
+
+
+test('remote claim reconstruction uses one globally serialized authority snapshot', () => {
+  const model = cloneModel(loadV2Model(process.cwd()));
+  assert.equal(model.configDoc?.claimAuthorityRef, 'refs/heads/coord-v2-claims/authority');
+
+  let calls = 0;
+  const authorityHead = 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa';
+  const remote = withResolvedRemoteClaims(model, () => {
+    calls += 1;
+    return {
+      headSha: authorityHead,
+      claims: [],
+    };
+  });
+
+  assert.equal(calls, 1, 'remote claim authority must be resolved exactly once');
+  assert.equal(remote.remoteClaimAuthorityHead, authorityHead);
+  assert.deepEqual(remote.claimsEntries, []);
+});
+
+test('claim and reassignment clients mutate the shared claim authority ref, never a slot ref', () => {
+  const claimSource = readFileSync('scripts/coord-v2-claim.mjs', 'utf8');
+  const reassignSource = readFileSync('scripts/coord-v2-reassign.mjs', 'utf8');
+
+  assert.match(claimSource, /claimAuthorityRef/);
+  assert.match(reassignSource, /claimAuthorityRef/);
+  assert.doesNotMatch(claimSource, /\$\{candidate\}:\$\{slot\.claimRef\}/);
+  assert.doesNotMatch(reassignSource, /\$\{candidate\}:\$\{slot\.claimRef\}/);
 });

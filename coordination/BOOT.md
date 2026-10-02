@@ -13,11 +13,11 @@ This file is the compact deterministic boot index for Agent Orchestration V2 tri
    `node scripts/coord-v2-project.mjs --remote origin --strict-git`
 5. Canonical task record under `coordination/v2/tasks/`.
 6. Canonical slot record under `coordination/v2/slots/`.
-7. If claimed, read the claim record from that slot's declared remote claim ref.
+7. If claimed, read the claim record from the shared remote claim-authority ref declared in `coordination/v2/config.json`.
 8. Exact dependency handoff/QA receipts referenced by the task.
 9. Only the technical contracts needed for the task.
 
-Do not use a branch-local claim directory as current truth when remote claim refs exist. Boot truth is the aggregate of **all declared slot claim refs**.
+Do not use a branch-local claim directory or any legacy per-slot claim ref as current truth. Boot truth is the complete claim ledger on the single shared **claim authority ref**.
 
 ## Authority boundary
 
@@ -41,8 +41,10 @@ Global current state is generated from canonical records and remote claims; it i
 
 ## Claim rule
 
-A slot has a dedicated claim ref recorded in its slot contract. Before claiming, fetch and validate **all** slot claim refs plus required task base/input SHAs. Claims advance only the target ref by normal fast-forward update.
+All current occupancy is serialized through the single `claimAuthorityRef` declared in `coordination/v2/config.json`. Legacy per-slot `claimRef` values remain only as historical evidence from the pre-repair trial.
+
+Before claiming, fetch the authority head and validate the complete claim ledger plus required task base/input SHAs. A claim commit must be a child of that exact authority head and may advance only the authority ref by a normal fast-forward update. Any concurrent sibling mutation loses and must reconstruct current state before retrying.
 
 No force-push claiming is permitted.
 
-If remote claim aggregation or strict SHA validation is unavailable, use explicit/manual slot assignment and do not race.
+If remote authority reconstruction or strict SHA validation is unavailable, use explicit/manual slot assignment and do not race.

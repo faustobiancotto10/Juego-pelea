@@ -29,6 +29,7 @@ test('Phase 4 materialization remains canonical as P4-A advances', () => {
   const model = loadV2Model(process.cwd());
   const result = validateLoadedModel(model);
   assert.deepEqual(result.errors, []);
+  assert.equal(model.configDoc.claimAuthorityRef, 'refs/heads/coord-v2-claims/authority');
 
   const expectedStates = new Map([
     ['P4-A-MARIO', 'VERIFIED'],
@@ -55,11 +56,12 @@ test('Phase 4 materialization remains canonical as P4-A advances', () => {
   }
 });
 
-test('Phase 4 slots have globally unique claim refs and work refs', () => {
+test('Phase 4 preserves unique legacy claim refs as evidence and unique work refs', () => {
   const model = loadV2Model(process.cwd());
   const slots = model.slotsEntries.map((entry) => entry.value).filter((slot) => P4_SLOTS.includes(slot.id));
   assert.equal(new Set(slots.map((slot) => slot.claimRef)).size, P4_SLOTS.length);
   assert.equal(new Set(slots.map((slot) => slot.branchRef)).size, P4_SLOTS.length);
+  assert.ok(slots.every((slot) => slot.claimRef !== model.configDoc.claimAuthorityRef));
 });
 
 test('P4-A owned paths are the frozen Mario and Ricardo disjoint surfaces', () => {
@@ -68,7 +70,7 @@ test('P4-A owned paths are the frozen Mario and Ricardo disjoint surfaces', () =
   assert.deepEqual(result.maps.slots.get('P4-A-RICARDO-S1').ownedPaths, ['coordination/v2/trials/P4-A/ricardo/**']);
 });
 
-test('P4-B has two different Mario-compatible refs but one intended disposable worker', () => {
+test('P4-B preserves two different legacy refs but current claims share one authority', () => {
   const result = validateLoadedModel(loadV2Model(process.cwd()));
   const one = result.maps.slots.get('P4-B-ONE-S1');
   const two = result.maps.slots.get('P4-B-TWO-S1');
@@ -78,6 +80,7 @@ test('P4-B has two different Mario-compatible refs but one intended disposable w
   assert.notEqual(one.branchRef, two.branchRef);
   const instance = result.maps.instances.get('mario-v2-p4-b');
   assert.equal(instance.roleId, 'mario');
+  assert.equal(loadV2Model(process.cwd()).configDoc.claimAuthorityRef, 'refs/heads/coord-v2-claims/authority');
 });
 
 test('P4-C replacement identity is durable while slot identity remains singular', () => {

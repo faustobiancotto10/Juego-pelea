@@ -108,6 +108,7 @@ function qaForHandoff(handoff, qaReceipts, errors) {
 export function loadV2Model(root = '.', options = {}) {
   return {
     root,
+    configDoc: json(join(root, 'coordination/v2/config.json')),
     rolesDoc: json(join(root, 'coordination/v2/roles.json')),
     tasksEntries: jsonFiles(join(root, 'coordination/v2/tasks')),
     slotsEntries: jsonFiles(join(root, 'coordination/v2/slots')),
@@ -119,6 +120,7 @@ export function loadV2Model(root = '.', options = {}) {
     releasesEntries: jsonFiles(join(root, 'coordination/v2/releases')),
     remoteErrors: options.remoteErrors ?? [],
     remoteClaimHeads: options.remoteClaimHeads ?? {},
+    remoteClaimAuthorityHead: options.remoteClaimAuthorityHead ?? null,
   };
 }
 
@@ -126,65 +128,95 @@ function gitText(root, args) {
   return execFileSync('git', args, { cwd: root, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] }).trim();
 }
 
-function defaultResolveClaimRef(root, remote, slot) {
-  const ls = gitText(root, ['ls-remote', '--heads', remote, slot.claimRef]);
-  if (!ls) return { error: `claim ref ${slot.claimRef} is not seeded` };
+function defaultResolveClaimAuthority(root, remote, authorityRef) {
+  const ls = gitText(root, ['ls-remote', '--heads', remote, authorityRef]);
+  if (!ls) return { error: `claim authority ref ${authorityRef} is not seeded` };
   const [headSha] = ls.split(/\s+/);
-  if (!sha(headSha)) return { error: `claim ref ${slot.claimRef} returned invalid head ${headSha}` };
+  if (!sha(headSha)) return { error: `claim authority ref ${authorityRef} returned invalid head ${headSha}` };
 
   try {
     execFileSync('git', ['fetch', '--no-tags', remote, headSha], { cwd: root, stdio: 'ignore' });
   } catch {
-    return { error: `claim ref ${slot.claimRef} head ${headSha} could not be fetched` };
+    return { error: `claim authority ref ${authorityRef} head ${headSha} could not be fetched` };
   }
 
-  const claimPath = `coordination/v2/claims/${slot.id}.json`;
-  let content = null;
+  let listed = '';
   try {
-    content = gitText(root, ['show', `${headSha}:${claimPath}`]);
+    listed = gitText(root, ['ls-tree', '-r', '--name-only', headSha, '--', 'coordination/v2/claims']);
   } catch {
-    return { headSha, claim: null };
+    return { error: `claim authority ref ${authorityRef} could not enumerate claims`, headSha };
   }
 
-  let claim;
-  try {
-    claim = JSON.parse(content);
-  } catch {
-    return { error: `claim ref ${slot.claimRef} contains invalid JSON at ${claimPath}`, headSha };
+  const claimPaths = listed
+    .split('\n')
+    .map((value) => value.trim())
+    .filter((value) => value.endsWith('.json'));
+  const claims = [];
+
+  for (const claimPath of claimPaths) {
+    let content;
+    try {
+      content = gitText(root, ['show', `${headSha}:${claimPath}`]);
+    } catch {
+      return { error: `claim authority ref ${authorityRef} could not read ${claimPath}`, headSha };
+    }
+
+    let claim;
+    try {
+      claim = JSON.parse(content);
+    } catch {
+      return { error: `claim authority ref ${authorityRef} contains invalid JSON at ${claimPath}`, headSha };
+    }
+
+    let sourceHeadSha;
+    try {
+      sourceHeadSha = gitText(root, ['log', '-1', '--format=%H', headSha, '--', claimPath]);
+    } catch {
+      return { error: `claim authority ref ${authorityRef} cannot trace mutation commit for ${claimPath}`, headSha };
+    }
+    if (!sha(sourceHeadSha)) {
+      return { error: `claim authority ref ${authorityRef} returned invalid mutation commit for ${claimPath}`, headSha };
+    }
+
+    let sourceParentSha = null;
+    try {
+      sourceParentSha = gitText(root, ['rev-parse', `${sourceHeadSha}^1`]);
+    } catch {
+      return { error: `claim mutation ${sourceHeadSha} for ${claimPath} has no parent`, headSha };
+    }
+
+    claims.push({
+      path: `${authorityRef}:${claimPath}`,
+      value: claim,
+      sourceRef: authorityRef,
+      sourceHeadSha,
+      sourceParentSha,
+    });
   }
 
-  let parentSha = null;
-  try {
-    parentSha = gitText(root, ['rev-parse', `${headSha}^1`]);
-  } catch {
-    return { error: `claimed ref ${slot.claimRef} head ${headSha} has no parent`, headSha };
-  }
-
-  return { headSha, parentSha, claim };
+  return { headSha, claims };
 }
 
-export function withResolvedRemoteClaims(model, resolveClaimRef) {
-  const slotValues = model.slotsEntries.map((entry) => entry.value).sort((a, b) => a.id.localeCompare(b.id));
-  const claimsEntries = [];
+export function withResolvedRemoteClaims(model, resolveClaimAuthority) {
+  const authorityRef = model.configDoc?.claimAuthorityRef;
   const remoteErrors = [];
-  const remoteClaimHeads = {};
+  if (!String(authorityRef ?? '').startsWith('refs/heads/coord-v2-claims/')) {
+    return {
+      ...model,
+      claimsEntries: [],
+      remoteErrors: [`invalid claim authority ref ${authorityRef}`],
+      remoteClaimHeads: {},
+      remoteClaimAuthorityHead: null,
+    };
+  }
 
-  for (const slot of slotValues) {
-    const resolved = resolveClaimRef(slot);
-    if (resolved?.error) {
-      remoteErrors.push(resolved.error);
-      continue;
-    }
-    remoteClaimHeads[slot.id] = resolved.headSha;
-    if (!resolved.claim) continue;
-    claimsEntries.push({
-      path: `${slot.claimRef}:coordination/v2/claims/${slot.id}.json`,
-      value: resolved.claim,
-      sourceSlotId: slot.id,
-      sourceRef: slot.claimRef,
-      sourceHeadSha: resolved.headSha,
-      sourceParentSha: resolved.parentSha,
-    });
+  const resolved = resolveClaimAuthority(authorityRef);
+  if (resolved?.error) remoteErrors.push(resolved.error);
+  const remoteClaimAuthorityHead = resolved?.headSha ?? null;
+  const claimsEntries = Array.isArray(resolved?.claims) ? resolved.claims : [];
+  const remoteClaimHeads = {};
+  if (remoteClaimAuthorityHead) {
+    for (const entry of model.slotsEntries) remoteClaimHeads[entry.value.id] = remoteClaimAuthorityHead;
   }
 
   return {
@@ -192,13 +224,16 @@ export function withResolvedRemoteClaims(model, resolveClaimRef) {
     claimsEntries,
     remoteErrors,
     remoteClaimHeads,
+    remoteClaimAuthorityHead,
   };
 }
 
 export function loadRemoteV2Model(root = '.', remote = 'origin', options = {}) {
   const local = loadV2Model(root);
-  const resolveClaimRef = options.resolveClaimRef ?? ((slot) => defaultResolveClaimRef(root, remote, slot));
-  return withResolvedRemoteClaims(local, resolveClaimRef);
+  const resolveClaimAuthority = options.resolveClaimAuthority
+    ?? options.resolveClaimRef
+    ?? ((authorityRef) => defaultResolveClaimAuthority(root, remote, authorityRef));
+  return withResolvedRemoteClaims(local, resolveClaimAuthority);
 }
 
 export function cloneModel(model) {
@@ -259,6 +294,10 @@ export function validateLoadedModel(model, options = {}) {
   const handoffs = byId(model.handoffsEntries, 'handoff', errors);
   const qaReceipts = byId(model.qaEntries, 'qa', errors);
   const releases = byId(model.releasesEntries, 'release', errors);
+  const claimAuthorityRef = model.configDoc?.claimAuthorityRef;
+  if (!String(claimAuthorityRef ?? '').startsWith('refs/heads/coord-v2-claims/')) {
+    errors.push(`invalid claim authority ref ${claimAuthorityRef}`);
+  }
 
   for (const remoteError of model.remoteErrors ?? []) errors.push(remoteError);
 
@@ -334,7 +373,9 @@ export function validateLoadedModel(model, options = {}) {
     if (task && task.roleId !== claim.roleId) errors.push(`claim ${claim.id} role does not match task`);
     if (instance && instance.roleId !== claim.roleId) errors.push(`claim ${claim.id} instance role does not match claim role`);
     if (!sha(claim.expectedParentSha)) errors.push(`claim ${claim.id} expectedParentSha is invalid`);
-    if (claimEntry.sourceSlotId && claimEntry.sourceSlotId !== claim.slotId) errors.push(`claim ${claim.id} is stored on the wrong slot ref ${claimEntry.sourceRef}`);
+    if (claimEntry.sourceRef && claimEntry.sourceRef !== claimAuthorityRef) {
+      errors.push(`claim ${claim.id} is stored on non-authority ref ${claimEntry.sourceRef}`);
+    }
     if (claimEntry.sourceParentSha && claim.expectedParentSha !== claimEntry.sourceParentSha) {
       errors.push(`claim ${claim.id} expectedParentSha does not match actual ref parent`);
     }
@@ -496,6 +537,7 @@ export function buildProjection(model, validation = validateLoadedModel(model)) 
     schemaVersion: 1,
     generatedFrom: [
       'coordination/CURRENT_ROUND.md',
+      'coordination/v2/config.json',
       'coordination/v2/roles.json',
       'coordination/v2/tasks/*.json',
       'coordination/v2/slots/*.json',
@@ -506,6 +548,8 @@ export function buildProjection(model, validation = validateLoadedModel(model)) 
     ],
     legacyCompatibility: parseLegacyRound(model.root ?? '.'),
     v2: {
+      claimAuthorityRef: model.configDoc?.claimAuthorityRef ?? null,
+      claimAuthorityHead: model.remoteClaimAuthorityHead ?? null,
       tasks: taskRows,
       slots: slotRows,
       instances: instanceRows,

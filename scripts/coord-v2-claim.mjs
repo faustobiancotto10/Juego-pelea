@@ -63,12 +63,13 @@ for (const dep of task.dependencies ?? []) {
   if (!['VERIFIED', 'ARCHIVED'].includes(state)) fail(`dependency ${depId} is ${state}`);
 }
 
-const expectedParent = model.remoteClaimHeads[slotId];
-if (!expectedParent) fail(`claim ref ${slot.claimRef} has no globally reconstructed head`);
+const claimAuthorityRef = model.configDoc?.claimAuthorityRef;
+const expectedParent = model.remoteClaimAuthorityHead;
+if (!claimAuthorityRef || !expectedParent) fail('claim authority ref has no globally reconstructed head');
 
 const head = git(['rev-parse', 'HEAD']);
 if (head !== expectedParent) {
-  fail(`stale claim checkout: HEAD ${head} != fetched claim ref ${expectedParent}; checkout the slot claim ref head and reread global current state first`);
+  fail(`stale claim checkout: HEAD ${head} != fetched claim authority head ${expectedParent}; checkout the authority ref head and reread global current state first`);
 }
 
 const claimDir = join(process.cwd(), 'coordination/v2/claims');
@@ -102,7 +103,7 @@ git(['commit', '-m', `coord-v2: claim ${slotId} with ${instanceId}`]);
 const candidate = git(['rev-parse', 'HEAD']);
 
 try {
-  git(['push', remote, `${candidate}:${slot.claimRef}`], { stdio: ['ignore', 'pipe', 'pipe'] });
+  git(['push', remote, `${candidate}:${claimAuthorityRef}`], { stdio: ['ignore', 'pipe', 'pipe'] });
   const globalAfter = loadRemoteV2Model(process.cwd(), remote);
   const afterValidation = validateLoadedModel(globalAfter, { strictGit: true });
   if (afterValidation.errors.length) fail(afterValidation.errors.join('\n'));
@@ -112,11 +113,11 @@ try {
     instanceId,
     expectedParent,
     candidate,
-    claimRef: slot.claimRef,
+    claimAuthorityRef,
     globalProjection: buildProjection(globalAfter, afterValidation),
   }));
 } catch {
-  console.error(JSON.stringify({ result: 'CLAIM_LOST', slotId, instanceId, expectedParent, candidate, claimRef: slot.claimRef }));
-  console.error('Remote ref advanced. Reread global current state; never force-push a claim.');
+  console.error(JSON.stringify({ result: 'CLAIM_LOST', slotId, instanceId, expectedParent, candidate, claimAuthorityRef }));
+  console.error('Claim authority ref advanced. Reread global current state; never force-push a claim.');
   process.exit(2);
 }

@@ -2,9 +2,14 @@
 
 ## Current live locks
 
-Active lock count: 0
+Active lock count: 1
 
-No specialist product, QA, or release file lock is currently active. R005 is waiting on external/user and production-format gates, which are blockers/gates rather than file locks. Any new mutation must establish a fresh explicit lock before editing shared surfaces.
+### Gonza / Agent V2 P4-B atomicity repair
+- branch: `coordination/gonza-v2-p4b-atomicity-repair`
+- scope: `coordination/v2/**`, `scripts/coord-v2-*.mjs`, `scripts/lib/coord-v2-model.mjs`, `tests/coord-v2-*.test.mjs`, `.github/workflows/coord-v2-*.yml`, and the repair handoff/plan
+- task: repair the failed P4-B cross-ref claim atomicity while preserving failed claim refs as immutable evidence
+- no product/runtime/assets/R005 mutation authorized
+- release: after exact-head verification and Germinator handoff
 
 ## Historical lock record
 

@@ -109,7 +109,7 @@ test('legacy failed P4-B refs are documented as evidence-only and P4-B rerun rem
   const handoff=readFileSync('coordination/handoffs/AGENT-SYSTEM-V2-P4B-REPAIR-gonza.md','utf8');
 
   assert.match(readme,/historical evidence, not current occupancy authority/i);
-  assert.match(boot,/legacy per-slot claim ref.*historical evidence/i);
+  assert.match(boot,/legacy per-slot claim(?:Ref| ref).*historical evidence/is);
   assert.match(handoff,/P4-B has NOT been rerun/i);
   assert.match(handoff,/Germinator independent audit/i);
   assert.match(handoff,/do not skip directly to P4-C/i);

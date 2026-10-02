@@ -22,7 +22,7 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Reconstruct global current state from every declared claim ref
+      - name: Reconstruct global current state from shared claim authority
         run: |
           node scripts/coord-v2-project.mjs --remote origin --strict-git > /tmp/coord-v2-current.json
           cat /tmp/coord-v2-current.json

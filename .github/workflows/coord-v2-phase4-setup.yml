@@ -1,27 +1,30 @@
-name: Agent V2 Phase 4 setup preflight evidence
+name: Agent V2 Phase 4 repaired authority preflight
 
 on:
   pull_request:
     paths:
+      - 'coordination/v2/config.json'
       - 'coordination/v2/tasks/P4-*.json'
       - 'coordination/v2/slots/P4-*.json'
       - 'coordination/v2/instances/*-v2-p4-*.json'
+      - 'coordination/v2/handoffs/P4-*.json'
+      - 'coordination/v2/trials/P4-B/**'
+      - 'scripts/coord-v2-claim.mjs'
       - 'scripts/coord-v2-reassign.mjs'
+      - 'scripts/lib/coord-v2-model.mjs'
       - 'tests/coord-v2-phase4-setup.test.mjs'
       - '.github/workflows/coord-v2-phase4-setup.yml'
 
 jobs:
-  setup:
+  repaired-authority:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout full setup history
+      - name: Checkout full repair history
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      - name: Prove global Phase 4 setup is unclaimed and resolvable
-        env:
-          P4_SETUP_SEED: ef5aac1989fef70fc7c04251e426086fc690e1d6
+      - name: Prove repaired global Phase 4 state is coherent
         run: |
           node scripts/coord-v2-project.mjs --remote origin --strict-git > /tmp/p4-current.json
           node scripts/coord-v2-validate.mjs --remote origin --strict-git
@@ -29,7 +32,17 @@ jobs:
           const fs=require('fs');
           const {execFileSync}=require('child_process');
           const current=JSON.parse(fs.readFileSync('/tmp/p4-current.json','utf8'));
-          const seed=process.env.P4_SETUP_SEED;
+          const config=JSON.parse(fs.readFileSync('coordination/v2/config.json','utf8'));
+          const expectedStates=new Map([
+            ['P4-A-MARIO','VERIFIED'],
+            ['P4-A-RICARDO','VERIFIED'],
+            ['P4-B-ONE','READY'],
+            ['P4-B-TWO','READY'],
+            ['P4-C-MARIO','READY'],
+            ['P4-D-U','READY'],
+            ['P4-D-D','WAITING_DEPENDENCY'],
+            ['P4-E-QA','READY'],
+          ]);
           const p4Tasks=current.v2.tasks.filter(x=>x.id.startsWith('P4-'));
           const p4Slots=current.v2.slots.filter(x=>x.id.startsWith('P4-'));
           const p4Instances=current.v2.instances.filter(x=>x.id.includes('-v2-p4-'));
@@ -37,36 +50,45 @@ jobs:
           if(p4Slots.length!==8) throw new Error(`expected 8 P4 slots, got ${p4Slots.length}`);
           if(p4Instances.length!==8) throw new Error(`expected 8 P4 instances, got ${p4Instances.length}`);
           for(const task of p4Tasks) {
-            const expected=task.id==='P4-D-D'?'WAITING_DEPENDENCY':'READY';
+            const expected=expectedStates.get(task.id);
             if(task.state!==expected) throw new Error(`${task.id} expected ${expected}, got ${task.state}`);
           }
           for(const slot of p4Slots) {
-            if(slot.state!=='READY'||slot.instanceId!==null) throw new Error(`${slot.id} is unexpectedly claimed`);
-            if(!slot.claimRef.startsWith('refs/heads/coord-v2-claims/p4-')) throw new Error(`noncanonical P4 claim ref ${slot.claimRef}`);
-            const out=execFileSync('git',['ls-remote','--heads','origin',slot.claimRef],{encoding:'utf8'}).trim();
-            const head=out.split(/\s+/)[0];
-            if(head!==seed) throw new Error(`${slot.claimRef} expected seed ${seed}, got ${head||'missing'}`);
+            if(slot.state!=='READY'||slot.instanceId!==null) throw new Error(`${slot.id} is unexpectedly active under repaired authority`);
           }
           for(const instance of p4Instances) {
-            if(instance.state!=='UNASSIGNED'||instance.slotId!==null) throw new Error(`${instance.id} unexpectedly active`);
+            if(instance.state!=='UNASSIGNED'||instance.slotId!==null) throw new Error(`${instance.id} unexpectedly active under repaired authority`);
           }
-          console.log('PHASE4_SETUP_GLOBAL_READY_PASS');
+          if(current.v2.claimAuthorityRef!==config.claimAuthorityRef) throw new Error('projection authority ref differs from config');
+          const out=execFileSync('git',['ls-remote','--heads','origin',config.claimAuthorityRef],{encoding:'utf8'}).trim();
+          const authorityHead=out.split(/\s+/)[0];
+          if(!/^[0-9a-f]{40}$/.test(authorityHead||'')) throw new Error(`missing claim authority ref ${config.claimAuthorityRef}`);
+          if(current.v2.claimAuthorityHead!==authorityHead) throw new Error('projection authority head differs from live authority ref');
+          console.log(`PHASE4_REPAIRED_AUTHORITY_PASS head=${authorityHead}`);
           NODE
 
-      - name: Prove every Phase 4 work ref is seeded
+      - name: Preserve P4-B failure refs and resolve every P4 work ref
         env:
-          P4_SETUP_SEED: ef5aac1989fef70fc7c04251e426086fc690e1d6
+          P4_B_ONE_FAILED_HEAD: 1c9af565548364800928ca013d8b52917ce87928
+          P4_B_TWO_FAILED_HEAD: 47ce3ceb3346a916d5d6a6e7c341bb2b0dabd7e6
         run: |
           node - <<'NODE'
           const fs=require('fs');
           const {execFileSync}=require('child_process');
-          const seed=process.env.P4_SETUP_SEED;
           const files=fs.readdirSync('coordination/v2/slots').filter(x=>x.startsWith('P4-')&&x.endsWith('.json'));
-          for(const file of files){
-            const slot=JSON.parse(fs.readFileSync('coordination/v2/slots/'+file,'utf8'));
-            const out=execFileSync('git',['ls-remote','--heads','origin',slot.branchRef],{encoding:'utf8'}).trim();
-            const head=out.split(/\s+/)[0];
-            if(head!==seed) throw new Error(`${slot.branchRef} expected seed ${seed}, got ${head||'missing'}`);
+          const slots=files.map(file=>JSON.parse(fs.readFileSync('coordination/v2/slots/'+file,'utf8')));
+          const byId=new Map(slots.map(slot=>[slot.id,slot]));
+          const resolve=(ref)=>{
+            const out=execFileSync('git',['ls-remote','--heads','origin',ref],{encoding:'utf8'}).trim();
+            return out.split(/\s+/)[0]||null;
+          };
+          for(const slot of slots) {
+            const workHead=resolve(slot.branchRef);
+            if(!/^[0-9a-f]{40}$/.test(workHead||'')) throw new Error(`missing work ref ${slot.branchRef}`);
           }
-          console.log('PHASE4_WORK_REFS_SEEDED_PASS');
+          const one=byId.get('P4-B-ONE-S1');
+          const two=byId.get('P4-B-TWO-S1');
+          if(resolve(one.claimRef)!==process.env.P4_B_ONE_FAILED_HEAD) throw new Error('P4-B-ONE failure ref was rewritten');
+          if(resolve(two.claimRef)!==process.env.P4_B_TWO_FAILED_HEAD) throw new Error('P4-B-TWO failure ref was rewritten');
+          console.log('PHASE4_FAILURE_EVIDENCE_PRESERVED_PASS');
           NODE

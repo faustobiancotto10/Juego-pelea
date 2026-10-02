@@ -2,16 +2,19 @@
 
 ## Current live locks
 
-Active lock count: 1
+Active lock count: 0
 
-### Gonza / Agent V2 P4-B atomicity repair
-- branch: `coordination/gonza-v2-p4b-atomicity-repair`
-- scope: `coordination/v2/**`, `scripts/coord-v2-*.mjs`, `scripts/lib/coord-v2-model.mjs`, `tests/coord-v2-*.test.mjs`, `.github/workflows/coord-v2-*.yml`, and the repair handoff/plan
-- task: repair the failed P4-B cross-ref claim atomicity while preserving failed claim refs as immutable evidence
-- no product/runtime/assets/R005 mutation authorized
-- release: after exact-head verification and Germinator handoff
+No specialist product, QA, release, or Agent V2 repair file lock is currently active. R005 remains gated by its external/user and production-format decisions; repaired Phase 4 remains gated by independent Germinator audit before any P4-B rerun.
 
 ## Historical lock record
+
+### Gonza Agent V2 P4-B atomicity repair — RELEASED
+- repair branch: `coordination/gonza-v2-p4b-atomicity-repair`;
+- shared claim authority: `refs/heads/coord-v2-claims/authority`;
+- failed P4-B legacy refs remain preserved and are not current ownership authority;
+- repair surfaces released after Repository verification + global remote projection + repaired Phase 4 preflight were green on the implementation candidate;
+- next gate: independent Germinator audit before any P4-B rerun.
+
 
 Everything below is preserved lock/claim history. Labels such as “Active” inside this historical record do not create a live lock unless they are re-declared in the Current live locks section above.
 

@@ -71,10 +71,11 @@ if (!currentClaim) fail(`slot ${slotId} is not currently claimed`);
 if (currentClaim.instanceId !== fromInstanceId) fail(`slot ${slotId} is owned by ${currentClaim.instanceId}, not ${fromInstanceId}`);
 if (initial.claimByInstance.has(toInstanceId)) fail(`replacement instance ${toInstanceId} already occupies another slot`);
 
-const claimHead = model.remoteClaimHeads[slotId];
-if (!claimHead) fail(`missing global claim head for ${slotId}`);
+const claimAuthorityRef = model.configDoc?.claimAuthorityRef;
+const claimHead = model.remoteClaimAuthorityHead;
+if (!claimAuthorityRef || !claimHead) fail('missing global claim authority head');
 const localHead = git(['rev-parse', 'HEAD']);
-if (localHead !== claimHead) fail(`stale reassignment checkout: HEAD ${localHead} != claim head ${claimHead}`);
+if (localHead !== claimHead) fail(`stale reassignment checkout: HEAD ${localHead} != claim authority head ${claimHead}`);
 
 const lineageBase = task.lineageBaseSha ?? task.baseSha;
 requireCommit(remote, lineageBase, 'lineage base');
@@ -122,10 +123,10 @@ git(['commit', '-m', `coord-v2: reassign ${slotId} from ${fromInstanceId} to ${t
 const candidate = git(['rev-parse', 'HEAD']);
 
 try {
-  git(['push', remote, `${candidate}:${slot.claimRef}`], { stdio: ['ignore', 'pipe', 'pipe'] });
+  git(['push', remote, `${candidate}:${claimAuthorityRef}`], { stdio: ['ignore', 'pipe', 'pipe'] });
 } catch {
   console.error(JSON.stringify({ result: 'REASSIGN_LOST', slotId, fromInstanceId, toInstanceId, claimHead, candidate }));
-  console.error('Claim ref advanced. Reconstruct global state; never force a reassignment.');
+  console.error('Claim authority ref advanced. Reconstruct global state; never force a reassignment.');
   process.exit(2);
 }
 
@@ -144,7 +145,7 @@ console.log(JSON.stringify({
   checkpointSha,
   priorClaimHeadSha: claimHead,
   candidate,
-  claimRef: slot.claimRef,
+  claimAuthorityRef,
   workRef: slot.branchRef,
   workHeadSha: workHead,
 }));

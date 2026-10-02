@@ -82,7 +82,8 @@ test('BOOT is compact and explicitly keeps V2 isolated from live R005', () => {
   assert.match(boot, /ROLE != TASK != SLOT\/LANE != INSTANCE\/WORKER/);
   assert.match(boot, /not converted to V2/i);
   assert.match(boot, /--remote origin/);
-  assert.match(boot, /all declared slot claim refs/i);
+  assert.match(boot, /claim authority ref/i);
+  assert.match(boot, /legacy per-slot claim ref/i);
   assert.match(boot, /No force-push claiming/i);
 });
 

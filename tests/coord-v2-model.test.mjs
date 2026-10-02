@@ -320,3 +320,33 @@ test('claim client contains no force-push escape hatch', () => {
   assert.match(source, /CLAIM_LOST/);
   assert.match(source, /Reread global current state|reread global current state/i);
 });
+
+
+test('remote claim reconstruction uses one globally serialized authority snapshot', () => {
+  const model = cloneModel(loadV2Model(process.cwd()));
+  assert.equal(model.configDoc?.claimAuthorityRef, 'refs/heads/coord-v2-claims/authority');
+
+  let calls = 0;
+  const authorityHead = 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa';
+  const remote = withResolvedRemoteClaims(model, () => {
+    calls += 1;
+    return {
+      headSha: authorityHead,
+      claims: [],
+    };
+  });
+
+  assert.equal(calls, 1, 'remote claim authority must be resolved exactly once');
+  assert.equal(remote.remoteClaimAuthorityHead, authorityHead);
+  assert.deepEqual(remote.claimsEntries, []);
+});
+
+test('claim and reassignment clients mutate the shared claim authority ref, never a slot ref', () => {
+  const claimSource = readFileSync('scripts/coord-v2-claim.mjs', 'utf8');
+  const reassignSource = readFileSync('scripts/coord-v2-reassign.mjs', 'utf8');
+
+  assert.match(claimSource, /claimAuthorityRef/);
+  assert.match(reassignSource, /claimAuthorityRef/);
+  assert.doesNotMatch(claimSource, /\$\{candidate\}:\$\{slot\.claimRef\}/);
+  assert.doesNotMatch(reassignSource, /\$\{candidate\}:\$\{slot\.claimRef\}/);
+});

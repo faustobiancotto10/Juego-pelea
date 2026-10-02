@@ -135,27 +135,41 @@ test('remote claim aggregation overrides branch-local readiness and evaluates gl
 
   const parentA = 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa';
   const parentC = 'cccccccccccccccccccccccccccccccccccccccc';
-  const headA = 'bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb';
-  const headC = 'dddddddddddddddddddddddddddddddddddddddd';
+  const authorityHead = 'dddddddddddddddddddddddddddddddddddddddd';
+  let resolverCalls = 0;
 
-  const remote = withResolvedRemoteClaims(model, (slot) => {
-    if (slot.id === 'V2-TRIAL-CLAIM-001-S1') {
-      return {
-        headSha: headA,
-        parentSha: parentA,
-        claim: validClaim('claim:a', slot.id, slot.taskId, slot.roleId, 'gonza-v2-a'),
-      };
-    }
+  const remote = withResolvedRemoteClaims(model, (authorityRef) => {
+    resolverCalls += 1;
+    assert.equal(authorityRef, 'refs/heads/coord-v2-claims/authority');
     return {
-      headSha: headC,
-      parentSha: parentC,
-      claim: {
-        ...validClaim('claim:c', slot.id, slot.taskId, slot.roleId, 'gonza-v2-a'),
-        expectedParentSha: parentC,
-      },
+      headSha: authorityHead,
+      claims: [
+        {
+          path: `${authorityRef}:coordination/v2/claims/V2-TRIAL-CLAIM-001-S1.json`,
+          value: {
+            ...validClaim('claim:a', 'V2-TRIAL-CLAIM-001-S1', 'V2-TRIAL-CLAIM-001', 'gonza', 'gonza-v2-a'),
+            expectedParentSha: parentA,
+          },
+          sourceRef: authorityRef,
+          sourceHeadSha: 'bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb',
+          sourceParentSha: parentA,
+        },
+        {
+          path: `${authorityRef}:coordination/v2/claims/T2-S1.json`,
+          value: {
+            ...validClaim('claim:c', 'T2-S1', 'T2', 'gonza', 'gonza-v2-a'),
+            expectedParentSha: parentC,
+          },
+          sourceRef: authorityRef,
+          sourceHeadSha: authorityHead,
+          sourceParentSha: parentC,
+        },
+      ],
     };
   });
-  remote.claimsEntries[0].value.expectedParentSha = parentA;
+
+  assert.equal(resolverCalls, 1);
+  assert.equal(remote.remoteClaimAuthorityHead, authorityHead);
 
   const localResult = validateLoadedModel(model);
   assert.equal(localResult.stateFor('V2-TRIAL-CLAIM-001'), 'READY');
